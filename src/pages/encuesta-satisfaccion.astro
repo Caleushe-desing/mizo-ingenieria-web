@@ -1,0 +1,100 @@
+---
+// src/pages/encuesta-satisfaccion.astro - Página oculta de Encuesta de Satisfacción y Testimonio
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Encuesta de Satisfacción | Mizo Ingeniería" description="Formulario exclusivo para clientes Mizo Ingeniería para evaluar el servicio y dejar un testimonio.">
+    
+    <section class="bg-gray-900 py-24 sm:py-32 h-auto flex items-center justify-center">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <header class="text-center mb-12">
+                <h1 class="text-5xl sm:text-6xl font-extrabold text-white mb-4">
+                    Su Opinión, Nuestro <span class="text-accent-main">Impulso</span>
+                </h1>
+                <p class="mt-4 text-xl text-gray-400 max-w-3xl mx-auto">
+                    Gracias por confiar en Mizo Ingeniería. Le pedimos unos minutos para evaluar su experiencia con nuestro servicio y, si lo desea, dejar un testimonio.
+                </p>
+            </header>
+
+            <div class="bg-gray-800 p-8 md:p-12 rounded-xl shadow-2xl border border-gray-700">
+                
+                <h2 class="text-3xl font-extrabold text-white mb-8">Encuesta Rápida de Satisfacción</h2>
+
+                <form 
+                    name="satisfaction-survey" 
+                    method="POST" 
+                    action="/gracias" 
+                    data-netlify="true" 
+                    class="space-y-8"
+                >
+                    <input type="hidden" name="form-name" value="satisfaction-survey" />
+                    <input type="hidden" name="type" value="encuesta-y-testimonio" />
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray-700 pb-6">
+                        <div>
+                            <label for="client_name" class="block text-sm font-medium text-gray-300">Su Nombre o Nombre de la Empresa</label>
+                            <input type="text" id="client_name" name="client_name" required class="mt-1 block w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main">
+                        </div>
+                        <div>
+                            <label for="project_ref" class="block text-sm font-medium text-gray-300">Referencia del Proyecto (Opcional)</label>
+                            <input type="text" id="project_ref" name="project_ref" class="mt-1 block w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main">
+                        </div>
+                    </div>
+
+                    <div class="space-y-6 border-b border-gray-700 pb-6">
+                        <h3 class="text-xl font-semibold text-white">Evalúe el Servicio (1 = Muy Insatisfecho, 5 = Muy Satisfecho)</h3>
+
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                            <label class="block text-base text-gray-300 w-full sm:w-1/2">1. Calidad del Trabajo / Instalación:</label>
+                            <div class="flex space-x-4 mt-2 sm:mt-0">
+                                {[1, 2, 3, 4, 5].map(rating => (
+                                    <label class="flex items-center space-x-1 text-gray-400 cursor-pointer hover:text-accent-main transition duration-200">
+                                        <input type="radio" name="rating_quality" value={rating} required class="h-4 w-4 text-accent-main border-gray-600 focus:ring-accent-main" />
+                                        <span>{rating}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                            <label class="block text-base text-gray-300 w-full sm:w-1/2">2. Cumplimiento de Plazos y Puntualidad:</label>
+                            <div class="flex space-x-4 mt-2 sm:mt-0">
+                                {[1, 2, 3, 4, 5].map(rating => (
+                                    <label class="flex items-center space-x-1 text-gray-400 cursor-pointer hover:text-accent-main transition duration-200">
+                                        <input type="radio" name="rating_punctuality" value={rating} required class="h-4 w-4 text-accent-main border-gray-600 focus:ring-accent-main" />
+                                        <span>{rating}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                            <label class="block text-base text-gray-300 w-full sm:w-1/2">3. Atención y Comunicación del Equipo:</label>
+                            <div class="flex space-x-4 mt-2 sm:mt-0">
+                                {[1, 2, 3, 4, 5].map(rating => (
+                                    <label class="flex items-center space-x-1 text-gray-400 cursor-pointer hover:text-accent-main transition duration-200">
+                                        <input type="radio" name="rating_attention" value={rating} required class="h-4 w-4 text-accent-main border-gray-600 focus:ring-accent-main" />
+                                        <span>{rating}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-white mb-3">4. ¿Desea dejar un Testimonio? (Opcional)</h3>
+                        <label for="testimony_message" class="block text-sm font-medium text-gray-400 mb-2">Si su experiencia fue positiva, ¿podríamos usar su comentario en nuestro sitio web?</label>
+                        <textarea id="testimony_message" name="testimony_message" rows="4" placeholder="Escriba aquí su testimonio..." class="mt-1 block w-full bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full inline-flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-gray-900 bg-accent-main hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-main transition duration-300">
+                        Enviar mi Encuesta y Feedback
+                    </button>
+                </form>
+                </div>
+        </div>
+    </section>
+    
+</Layout>

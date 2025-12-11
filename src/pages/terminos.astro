@@ -1,81 +1,69 @@
 ---
-// 125g. testimonios.astro - Contenido de la Página "Testimonios" con color Azul Acero
+// src/pages/terminos.astro - Términos y Condiciones de Uso
 import Layout from '../layouts/Layout.astro';
-
-const testimonials = [
-    {
-        quote: "Mizo transformó nuestra obsoleta integración de datos en un sistema en tiempo real. La diferencia en la toma de decisiones es abismal. Profesionalismo y conocimiento técnico de primer nivel.",
-        name: "Javier R.",
-        title: "Director de Operaciones, Minera Andina",
-        logo: "[Logo Cliente 1]",
-    },
-    {
-        quote: "Necesitábamos una plataforma de monitoreo de activos y Mizo la construyó desde cero, superando nuestras expectativas en rendimiento y usabilidad. Un verdadero socio estratégico.",
-        name: "Ana M.",
-        title: "CTO, Energía Sur",
-        logo: "[Logo Cliente 2]",
-    },
-    {
-        quote: "Su consultoría Cloud no solo optimizó nuestros costos en un 30%, sino que también mejoró significativamente nuestra postura de seguridad. Recomendados al 100%.",
-        name: "Roberto L.",
-        title: "Gerente de TI, Manufacturas Globales",
-        logo: "[Logo Cliente 3]",
-    },
-];
 ---
 
-<Layout 
-    title="Testimonios | Mizo Ingeniería" 
-    description="Vea lo que nuestros clientes en el sector industrial dicen sobre nuestra experiencia en desarrollo de software, integración de sistemas y consultoría."
->
-    <section class="bg-gray-900 py-16 sm:py-24 border-b border-gray-700">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center"> 
-            <h1 class="text-base text-accent-main font-semibold tracking-wide uppercase mb-3">La Voz de Nuestros Clientes</h1>
-            <h2 class="text-5xl font-extrabold text-white mb-4">
-                La Confianza Se Construye con Resultados
-            </h2>
+<Layout title="Términos y Condiciones | Mizo Ingeniería" description="Revise los Términos y Condiciones de uso y contratación de los servicios de Mizo Ingeniería.">
+    
+    <section class="bg-gray-900 py-24 sm:py-32">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-6xl sm:text-7xl font-extrabold text-white mb-6">
+                Términos y <span class="text-accent-main">Condiciones</span>
+            </h1>
             <p class="mt-4 text-xl text-gray-400 max-w-4xl mx-auto">
-                Conozca cómo Mizo ha impulsado el éxito y la eficiencia operativa en proyectos complejos del sector industrial y empresarial.
+                Última actualización: 11 de Diciembre de 2025
             </p>
         </div>
     </section>
 
-    <section class="bg-gray-800 py-20">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8"> 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+    <section class="py-20 bg-gray-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="space-y-10 text-gray-300 leading-relaxed">
                 
-                {testimonials.map((t) => (
-                    <div class="bg-gray-900 p-8 rounded-lg shadow-xl border border-gray-700 flex flex-col justify-between">
-                        
-                        <svg class="h-8 w-8 text-accent-main mb-4" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true"><path d="M9.36 15.68q0-1.87-.94-3.41t-2.58-2.67Q4.17 8.35 1.57 6.34L0 7.85q2.53 1.95 3.51 3.51t.98 3.32q0 1.87-.94 3.41t-2.58 2.67Q4.17 23.65 6.77 25.66l1.57-1.51q-2.53-1.95-3.51-3.51t-.98-3.32zM22.56 15.68q0-1.87-.94-3.41t-2.58-2.67Q17.37 8.35 14.77 6.34L13.2 7.85q2.53 1.95 3.51 3.51t.98 3.32q0 1.87-.94 3.41t-2.58 2.67Q17.37 23.65 19.97 25.66l1.57-1.51q-2.53-1.95-3.51-3.51t-.98-3.32z"/></svg>
-                        
-                        <blockquote class="mb-6 italic text-lg text-white flex-grow">
-                            "{t.quote}"
-                        </blockquote>
-                        
-                        <div>
-                            <p class="font-bold text-gray-200">{t.name}</p>
-                            <p class="text-sm text-accent-main">{t.title}</p>
-                            <p class="text-xs text-gray-500 mt-2">{t.logo}</p>
-                        </div>
-                    </div>
-                ))}
+                <article class="space-y-6">
+                    <h2 class="text-3xl font-bold text-white border-b border-gray-700 pb-2">1. Aceptación de los Términos</h2>
+                    <p>
+                        Al acceder y utilizar los servicios y el sitio web de Mizo Ingeniería ("Servicios"), usted acepta estar sujeto a estos Términos y Condiciones de Uso ("Términos"). Si no está de acuerdo con alguna parte de estos Términos, no debe utilizar nuestros Servicios.
+                    </p>
+                </article>
+
+                <article class="space-y-6">
+                    <h2 class="text-3xl font-bold text-white border-b border-gray-700 pb-2">2. Servicios Ofrecidos</h2>
+                    <p>
+                        Mizo Ingeniería ofrece servicios de desarrollo de software, instalaciones eléctricas, sistemas de audio ambiental y sistemas de CCTV (cámaras de seguridad). La contratación y los detalles específicos de cada proyecto se rigen por contratos de servicio individuales que complementan estos Términos.
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 pl-4 text-gray-400">
+                        <li>**Instalaciones:** Garantía sujeta a los términos del contrato específico.</li>
+                        <li>**Software:** Propiedad intelectual y licencias definidas en el contrato de desarrollo.</li>
+                    </ul>
+                </article>
+
+                <article class="space-y-6">
+                    <h2 class="text-3xl font-bold text-white border-b border-gray-700 pb-2">3. Uso del Sitio Web</h2>
+                    <p>
+                        El contenido del sitio web (textos, gráficos, logotipos, etc.) es propiedad de Mizo Ingeniería o se utiliza bajo licencia. El uso no autorizado o la reproducción del material están estrictamente prohibidos.
+                    </p>
+                    <p>
+                        Usted se compromete a no utilizar el sitio web para fines ilegales o no autorizados.
+                    </p>
+                </article>
+
+                <article class="space-y-6">
+                    <h2 class="text-3xl font-bold text-white border-b border-gray-700 pb-2">4. Limitación de Responsabilidad</h2>
+                    <p>
+                        Mizo Ingeniería no será responsable por daños indirectos, incidentales, especiales o consecuentes que resulten del uso o la imposibilidad de usar nuestros Servicios o este sitio web.
+                    </p>
+                </article>
+
+                <article class="space-y-6">
+                    <h2 class="text-3xl font-bold text-white border-b border-gray-700 pb-2">5. Modificaciones a los Términos</h2>
+                    <p>
+                        Nos reservamos el derecho de actualizar o cambiar estos Términos en cualquier momento. La versión más reciente estará siempre disponible en esta página y la fecha de "Última actualización" será modificada.
+                    </p>
+                </article>
 
             </div>
         </div>
     </section>
     
-    <section class="bg-gray-900 py-16">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl font-bold text-white mb-4">
-                Conviértase en nuestro próximo caso de éxito.
-            </h2>
-            <p class="text-lg text-gray-400 mb-8">
-                Hablemos de cómo podemos transformar su operación.
-            </p>
-            <a href="/contacto" class="inline-block px-8 py-3 text-lg font-bold rounded-md text-gray-900 bg-accent-main hover:bg-accent-hover transition duration-300 shadow-xl">
-                Contáctenos
-            </a>
-        </div>
-    </section>
 </Layout>
