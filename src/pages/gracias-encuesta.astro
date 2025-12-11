@@ -1,0 +1,35 @@
+---
+// src/pages/gracias-encuesta.astro - Página de Agradecimiento Específica para Encuestas de Satisfacción
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="¡Gracias por su Feedback! | Mizo Ingeniería" description="Hemos recibido su encuesta de satisfacción. Su opinión es muy valiosa.">
+    
+    <section class="bg-gray-900 py-24 sm:py-32 h-screen flex items-center justify-center">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center bg-gray-800 p-10 rounded-xl shadow-2xl border border-gray-700">
+            
+            <div class="text-7xl mb-6 text-accent-main">⭐</div>
+            
+            <h1 class="text-5xl font-extrabold text-white mb-4">
+                ¡Gracias por su <span class="text-accent-main">Feedback</span>!
+            </h1>
+            
+            <p class="mt-4 text-xl text-gray-400 mb-8">
+                Hemos recibido su Encuesta de Satisfacción. Valoramos enormemente su opinión, ya que nos ayuda a mantener nuestros estándares de excelencia.
+            </p>
+            
+            <p class="text-lg text-gray-400 mb-10">
+                Si dejó un testimonio, este será revisado por nuestro equipo antes de ser publicado.
+            </p>
+
+            <a 
+                href="/" 
+                class="inline-flex justify-center py-3 px-8 border border-transparent rounded-md shadow-sm text-lg font-bold text-gray-900 bg-accent-main hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-main transition duration-300"
+            >
+                Volver a la página principal
+            </a>
+            
+        </div>
+    </section>
+    
+</Layout>
