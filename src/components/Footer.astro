@@ -1,0 +1,61 @@
+---
+// 125b. Footer.astro con color Mizo (Azul Acero)
+const today = new Date();
+const currentYear = today.getFullYear();
+
+import IconLinkedIn from './icons/IconLinkedIn.astro';
+import IconGitHub from './icons/IconGitHub.astro';
+import IconTwitter from './icons/IconTwitter.astro';
+---
+
+<footer class="bg-gray-900 text-white mt-auto">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8">
+            
+            <div class="space-y-4 col-span-1">
+                <h3 class="text-4xl font-extrabold text-accent-main">Mizo</h3>
+                <p class="text-gray-400 text-sm max-w-xs">
+                    Ingeniería que Inspira Confianza. Soluciones tecnológicas e integración de sistemas.
+                </p>
+            </div>
+            
+            <div class="col-span-1">
+                <h4 class="text-lg font-semibold text-white mb-4">Navegación</h4>
+                <ul class="space-y-2">
+                    <li><a href="/" class="text-gray-400 hover:text-accent-main transition duration-300">Inicio</a></li>
+                    <li><a href="/servicios" class="text-gray-400 hover:text-accent-main transition duration-300">Servicios</a></li>
+                    <li><a href="/nosotros" class="text-gray-400 hover:text-accent-main transition duration-300">Nosotros</a></li>
+                    <li><a href="/contacto" class="text-gray-400 hover:text-accent-main transition duration-300">Contacto</a></li>
+                </ul>
+            </div>
+
+            <div class="col-span-1">
+                <h4 class="text-lg font-semibold text-white mb-4">Legal</h4>
+                <ul class="space-y-2">
+                    <li><a href="/politica-privacidad" class="text-gray-400 hover:text-accent-main transition duration-300">Política de Privacidad</a></li>
+                    <li><a href="/terminos" class="text-gray-400 hover:text-accent-main transition duration-300">Términos y Condiciones</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-center justify-between pt-8">
+            <p class="text-gray-400 text-sm mb-4 sm:mb-0">
+                &copy; {currentYear} Mizo. Todos los derechos reservados.
+            </p>
+
+            <div class="flex space-x-6">
+                <a href="https://linkedin.com/mizo-ing" target="_blank" class="text-gray-400 hover:text-accent-main transition duration-300" aria-label="LinkedIn de Mizo">
+                    <IconLinkedIn class="h-6 w-6" /> 
+                </a>
+                
+                <a href="https://github.com/mizo-ing" target="_blank" class="text-gray-400 hover:text-accent-main transition duration-300" aria-label="GitHub de Mizo">
+                    <IconGitHub class="h-6 w-6" />
+                </a>
+
+                <a href="https://twitter.com/mizo-ing" target="_blank" class="text-gray-400 hover:text-accent-main transition duration-300" aria-label="Twitter de Mizo">
+                    <IconTwitter class="h-6 w-6" />
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>

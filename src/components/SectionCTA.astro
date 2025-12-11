@@ -1,0 +1,48 @@
+---
+// src/components/SectionCTA.astro - Componente reutilizable de Llamada a la Acción
+
+interface Props {
+    title: string;
+    subtitle: string;
+    buttonText: string;
+    buttonLink: string;
+    // La propiedad 'color' permite variar el fondo, aunque usaremos accent-main por defecto
+    color?: 'accent-main' | 'red-500' | 'blue-500'; 
+}
+
+const { 
+    title, 
+    subtitle, 
+    buttonText, 
+    buttonLink, 
+    color = 'accent-main' 
+} = Astro.props;
+
+// Clase dinámica para el color de fondo
+const bgColorClass = `bg-${color}`;
+
+// Clase dinámica para el botón
+const buttonBgClass = color === 'accent-main' 
+    ? 'bg-white text-gray-900 hover:bg-gray-200' // Botón blanco para contraste en fondo azul
+    : 'bg-white text-gray-900 hover:bg-gray-200'; // Mantener el mismo estilo contrastante
+---
+
+<section class:list={[bgColorClass, "py-16 sm:py-24"]}>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl sm:text-5xl font-extrabold text-white mb-4">
+            {title}
+        </h2>
+        <p class="text-xl text-white opacity-90 max-w-3xl mx-auto mb-10">
+            {subtitle}
+        </p>
+        <a 
+            href={buttonLink}
+            class:list={[
+                "inline-block px-10 py-4 text-xl font-bold rounded-md transition duration-300 shadow-2xl",
+                buttonBgClass
+            ]}
+        >
+            {buttonText}
+        </a>
+    </div>
+</section>

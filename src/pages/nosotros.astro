@@ -1,0 +1,100 @@
+---
+// src/pages/nosotros.astro - Código completo con imagen integrada
+import Layout from '../layouts/Layout.astro';
+import SectionCTA from '../components/SectionCTA.astro';
+
+// Datos de los valores principales
+const values = [
+    {
+        title: 'Confianza Técnica',
+        description: 'Solo implementamos soluciones probadas y certificadas, asegurando durabilidad y estricto cumplimiento normativo en cada instalación eléctrica, de CCTV o de audio.',
+        icon: '🛡️',
+    },
+    {
+        title: 'Visión Integral',
+        description: 'Tratamos el hardware (instalaciones) y el software (desarrollo a medida) como un sistema único. Nuestro enfoque logra una automatización sin fisuras, de principio a fin.',
+        icon: '🔗',
+    },
+    {
+        title: 'Compromiso PyME',
+        description: 'Proporcionamos la misma calidad de ingeniería de grandes corporaciones, adaptada a la escala, los plazos y el presupuesto de su pequeño o mediano negocio.',
+        icon: '🤝',
+    },
+];
+---
+
+<Layout title="Nosotros | Mizo Ingeniería" description="Conozca la misión y los valores de Mizo Ingeniería, su socio estratégico en instalaciones, seguridad y desarrollo de software para PyMEs.">
+	
+	<section class="bg-gray-900 py-24 sm:py-32">
+		<div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+			<h1 class="text-6xl sm:text-7xl font-extrabold text-white mb-6">
+				La Ingeniería Detrás de Cada <span class="text-accent-main">Instalación Exitosa</span>
+			</h1>
+			<p class="mt-4 text-xl text-gray-400 max-w-4xl mx-auto">
+				Somos Mizo Ingeniería, un equipo de profesionales dedicados a tender puentes entre la instalación física, la seguridad y el desarrollo de software a medida.
+			</p>
+		</div>
+	</section>
+
+	<section class="py-20 bg-gray-800">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+			
+			<div>
+				<h2 class="text-4xl font-extrabold text-white mb-4">
+					Nuestra Misión: Soluciones Sólidas y Conectadas
+				</h2>
+				<p class="text-xl text-gray-400 mb-6">
+					Ofrecer a las pequeñas y medianas empresas soluciones integrales que abarcan desde la instalación eléctrica y de sistemas de seguridad (CCTV y audio), hasta el desarrollo de software para la gestión. 
+				</p>
+				<p class="text-lg text-gray-300">
+					Nuestro objetivo principal es optimizar sus procesos operativos, garantizar la seguridad de sus activos y hacer que la tecnología de alto rendimiento sea una inversión accesible y rentable para su negocio.
+				</p>
+				<div class="mt-8">
+					<a href="/servicios" class="px-6 py-3 border border-accent-main/50 text-base font-medium rounded-md text-accent-main hover:bg-accent-main hover:text-gray-900 transition duration-300">
+						Ver Nuestros Servicios
+					</a>
+				</div>
+			</div>
+
+			<div class="h-96 rounded-xl flex items-center justify-center p-0 border border-gray-600 overflow-hidden">
+				<img 
+					src="/mizo-mision.jpg" 
+					alt="Imagen representativa de la historia o el equipo de Mizo Ingeniería"
+					class="w-full h-full object-cover" 
+					loading="lazy" 
+					width="800"
+					height="600"
+				/>
+			</div>
+
+		</div>
+	</section>
+
+	<section class="py-20 bg-gray-900">
+		<div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+			<h2 class="text-4xl font-bold text-white mb-12">Nuestros Pilares</h2>
+			<p class="text-xl text-gray-400 max-w-4xl mx-auto mb-10">
+				Construimos relaciones duraderas basadas en los principios que nos permiten integrar hardware y software con excelencia.
+			</p>
+
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+				{values.map((value) => (
+					<div class="p-8 bg-gray-800 rounded-lg border border-gray-700 shadow-lg">
+						<div class="text-5xl mb-4 text-accent-main">{value.icon}</div>
+						<h3 class="text-2xl font-bold text-white mb-3">{value.title}</h3>
+						<p class="text-gray-400">{value.description}</p>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<SectionCTA 
+		title="Listo para la Solución que Funciona?"
+		subtitle="Comience su proyecto hoy con la ingeniería precisa que su negocio necesita."
+		buttonText="Contáctenos Ahora"
+		buttonLink="/contacto"
+		color="accent-main"
+	/>
+	
+</Layout>

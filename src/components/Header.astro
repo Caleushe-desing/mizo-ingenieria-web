@@ -1,0 +1,124 @@
+---
+// 125a. Header.astro - Aplicando el nuevo color de acento accent-main (Azul)
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+    { title: 'Inicio', url: '/' },
+    { title: 'Servicios', url: '/servicios' },
+    { title: 'Nosotros', url: '/nosotros' },
+    { title: 'Testimonios', url: '/testimonios' },
+];
+
+const isActive = (url: string) => currentPath === url || (url !== '/' && currentPath.startsWith(url));
+---
+
+<header class="sticky top-0 z-50 bg-gray-900 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            
+            <div class="flex-shrink-0">
+                <a href="/" class="text-3xl font-extrabold text-accent-main hover:text-accent-hover transition duration-300">
+                    Mizo
+                </a>
+            </div>
+
+            <nav class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                    {navLinks.map((link) => (
+                        <a 
+                            href={link.url}
+                            class:list={[
+                                "px-3 py-2 rounded-md text-sm font-medium transition duration-300",
+                                {
+                                    "bg-accent-dark text-white": isActive(link.url), // Estilo activo
+                                    "text-gray-300 hover:bg-gray-700 hover:text-white": !isActive(link.url), // Estilo inactivo
+                                }
+                            ]}
+                            aria-current={isActive(link.url) ? "page" : undefined}
+                        >
+                            {link.title}
+                        </a>
+                    ))}
+
+                    <a 
+                        href="/contacto" 
+                        class="ml-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-gray-900 
+                        bg-accent-main hover:bg-accent-hover transition duration-300"
+                    >
+                        Contacto
+                    </a>
+                </div>
+            </nav>
+
+            <div class="flex md:hidden">
+                <button 
+                    id="mobile-menu-button" 
+                    type="button" 
+                    class="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" 
+                    aria-controls="mobile-menu" 
+                    aria-expanded="false"
+                >
+                    <span class="sr-only">Abrir menú principal</span>
+                    <svg id="icon-menu" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <svg id="icon-close" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="md:hidden hidden" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {navLinks.map((link) => (
+                <a 
+                    href={link.url}
+                    class:list={[
+                        "block px-3 py-2 rounded-md text-base font-medium transition duration-300",
+                        {
+                            "bg-accent-dark text-white": isActive(link.url), // CAMBIO
+                            "text-gray-300 hover:bg-gray-700 hover:text-white": !isActive(link.url),
+                        }
+                    ]}
+                    aria-current={isActive(link.url) ? "page" : undefined}
+                >
+                    {link.title}
+                </a>
+            ))}
+            <a 
+                href="/contacto" 
+                class="block w-full text-center mt-3 px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-gray-900 
+                bg-accent-main hover:bg-accent-hover transition duration-300"
+            >
+                Contacto
+            </a>
+        </div>
+    </div>
+</header>
+
+<script>
+
+    (function setupMobileMenu() {
+        const button = document.getElementById('mobile-menu-button');
+        const menu = document.getElementById('mobile-menu');
+        const iconMenu = document.getElementById('icon-menu');
+        const iconClose = document.getElementById('icon-close');
+
+        if (button && menu && iconMenu && iconClose) {
+            
+            const toggleMenu = () => {
+                const wasHidden = menu.classList.toggle('hidden');
+                const isNowOpen = !wasHidden;
+
+                iconMenu.classList.toggle('hidden', isNowOpen);
+                iconClose.classList.toggle('hidden', !isNowOpen);
+
+                button.setAttribute('aria-expanded', isNowOpen.toString());
+            };
+
+            button.addEventListener('click', toggleMenu);
+        }
+    })();
+</script>

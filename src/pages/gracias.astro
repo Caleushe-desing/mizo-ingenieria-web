@@ -1,0 +1,36 @@
+---
+// src/pages/gracias.astro - Página de confirmación después del envío del formulario
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="¡Mensaje Enviado! | Mizo Ingeniería" description="Confirmación de envío de la solicitud de contacto a Mizo Ingeniería.">
+    
+    <section class="bg-gray-900 py-32 sm:py-48 h-screen flex items-center justify-center">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            
+            <div class="text-7xl mb-8 text-accent-main animate-bounce">
+                ✅
+            </div>
+
+            <h1 class="text-6xl sm:text-7xl font-extrabold text-white mb-6">
+                ¡Gracias por su <span class="text-accent-main">Solicitud</span>!
+            </h1>
+            
+            <p class="mt-6 text-xl text-gray-400">
+                Hemos recibido su mensaje y un miembro de nuestro equipo se pondrá en contacto con usted a la brevedad posible.
+                Normalmente respondemos en el transcurso de un día hábil.
+            </p>
+
+            <div class="mt-10">
+                <a 
+                    href="/" 
+                    class="inline-flex items-center justify-center py-4 px-8 border border-transparent rounded-lg shadow-xl text-lg font-bold text-gray-900 bg-accent-main hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-main transition duration-300 transform hover:scale-105"
+                >
+                    Volver a la Página Principal
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+</Layout>

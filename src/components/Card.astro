@@ -1,0 +1,27 @@
+---
+// 125c. Card.astro con color Mizo (Azul Acero)
+interface Props {
+	title: string;
+	description: string;
+    icon: string;
+}
+
+const { title, description, icon } = Astro.props;
+---
+
+<a href="/servicios" class="group block h-full">
+    <div class="bg-gray-700 h-full p-6 rounded-lg shadow-xl hover:shadow-accent-dark/50 hover:border-accent-dark transition duration-300 border-2 border-gray-700 hover:bg-gray-800">
+        
+        <div class="text-4xl mb-4 text-accent-main">
+            {icon}
+        </div>
+        
+        <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-accent-main transition duration-300">
+            {title}
+        </h3>
+        
+        <p class="text-gray-300 text-base">
+            {description}
+        </p>
+    </div>
+</a>

@@ -1,0 +1,12 @@
+---
+// 108c. IconTwitter.astro (Usando el logo X)
+interface Props {
+    class?: string;
+}
+
+const { class: className = 'h-6 w-6' } = Astro.props;
+---
+
+<svg class={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M18.901 1.153h3.682l-8.08 9.213 9.47 12.597H20.72L12 11.234 3.513 22.964H.57l8.077-9.215L.81 1.153H4.43L11.5 9.87L18.902 1.153h-.001zm-3.084 19.33L4.99 3.424h2.296l10.827 18.06H15.817z"/>
+</svg>
