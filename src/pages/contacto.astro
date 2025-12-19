@@ -5,114 +5,105 @@ import SectionCTA from '../components/SectionCTA.astro';
 
 // Datos de Contacto REALES (Actualizados)
 const contactInfo = [
-    {
-        title: "Correo Electrónico",
-        description: "Envíenos su consulta o solicitud de cotización.",
-        detail: "ventas@mizo.cl", // ACTUALIZADO
-        icon: "📧",
-    },
-    {
-        title: "Teléfono",
-        description: "Llámenos en horario de oficina para atención inmediata.",
-        detail: "+56 9 9439 0870", // ACTUALIZADO
-        icon: "📞",
-    },
-    {
-        title: "Cobertura Nacional",
-        description: "Nuestros clientes están a lo largo de todo Chile.", // ACTUALIZADO
-        detail: "Oficinas en Frutillar y Santiago.", // ACTUALIZADO
-        icon: "📍",
-    },
+    {
+        title: "Correo Electrónico",
+        description: "Envíenos su consulta o solicitud de cotización.",
+        detail: "ventas@mizo.cl", // ACTUALIZADO
+        icon: "📧",
+    },
+    {
+        title: "Teléfono",
+        description: "Llámenos en horario de oficina para atención inmediata.",
+        detail: "+56 9 9439 0870", // ACTUALIZADO
+        icon: "📞",
+    },
+    {
+        title: "Cobertura Nacional",
+        description: "Nuestros clientes están a lo largo de todo Chile.", // ACTUALIZADO
+        detail: "Oficinas en Frutillar y Santiago.", // ACTUALIZADO
+        icon: "📍",
+    },
 ];
 ---
 
 <Layout title="Contacto | Mizo Ingeniería" description="Contáctenos para solicitar cotizaciones o información sobre instalaciones eléctricas, CCTV, audio y desarrollo de software.">
-	
-	<section class="bg-gray-900 py-24 sm:py-32">
-		<div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<h1 class="text-6xl sm:text-7xl font-extrabold text-white mb-6">
-				Hablemos de su <span class="text-accent-main">Proyecto</span>
-			</h1>
-			<p class="mt-4 text-xl text-gray-400 max-w-4xl mx-auto">
-				Cuéntenos sus desafíos de instalación o desarrollo de software y le enviaremos una propuesta a la medida de su negocio.
-			</p>
-		</div>
-	</section>
+    
+    <section class="bg-gray-900 py-24 sm:py-32">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
+                Hablemos de su <span class="text-accent-main">Proyecto</span>
+            </h1>
+            <p class="mt-4 text-xl text-gray-400 max-w-4xl mx-auto">
+                Cuéntenos sus desafíos de instalación o desarrollo de software y le enviaremos una propuesta a la medida de su negocio.
+            </p>
+        </div>
+    </section>
 
-	<section class="py-20 bg-gray-800">
-		<div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
-			
-			<div class="lg:col-span-1 space-y-8">
-				<h2 class="text-3xl font-extrabold text-white mb-6">Datos de Contacto</h2>
-				
-				{contactInfo.map((item) => (
-					<div class="p-6 bg-gray-900 rounded-lg border border-gray-700 shadow-lg">
-                        <div class="text-4xl mb-3 text-accent-main">{item.icon}</div>
-                        <h3 class="text-xl font-bold text-white mb-1">{item.title}</h3>
-                        <p class="text-gray-400 text-sm mb-2">{item.description}</p>
-                        <p class="text-accent-main font-semibold text-lg">{item.detail}</p>
-                    </div>
-				))}
+    <section class="py-20 bg-gray-800">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
+            
+            <div class="lg:col-span-1 space-y-8">
+                <h2 class="text-3xl font-extrabold text-white mb-6">Datos de Contacto</h2>
+                
+                {contactInfo.map((item) => (
+                    <div class="p-6 bg-gray-900 rounded-lg border border-gray-700 shadow-lg">
+                        <div class="text-4xl mb-3 text-accent-main">{item.icon}</div>
+                        <h3 class="text-xl font-bold text-white mb-1">{item.title}</h3>
+                        <p class="text-gray-400 text-sm mb-2">{item.description}</p>
+                        <p class="text-accent-main font-semibold text-lg">{item.detail}</p>
+                    </div>
+                ))}
 
-                <div class="mt-8">
-                    <h3 class="text-xl font-bold text-white mb-3">Horario de Atención</h3>
-                    <p class="text-gray-400">Lunes a Viernes: 9:00 - 18:00 hrs</p>
-                </div>
-			</div>
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold text-white mb-3">Horario de Atención</h3>
+                    <p class="text-gray-400">Lunes a Viernes: 9:00 - 18:00 hrs</p>
+                </div>
+            </div>
 
-			<div class="lg:col-span-2 bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-700">
-				<h2 class="text-3xl font-extrabold text-white mb-8">Formulario de Solicitud</h2>
-				
-                <form name="contact" method="POST" action="/gracias" data-netlify="true" class="space-y-6">
-					
-                    <input type="hidden" name="form-name" value="contact" />
+            <div class="lg:col-span-2 bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-700">
+                <h2 class="text-3xl font-extrabold text-white mb-8">Formulario de Solicitud</h2>
+                
+                <form name="contact" method="POST" action="/gracias" data-netlify="true" class="space-y-6">
+                    
+                    <input type="hidden" name="form-name" value="contact" />
 
-                    <div>
-						<label for="name" class="block text-sm font-medium text-gray-300">Nombre Completo</label>
-						<input type="text" id="name" name="name" required class="mt-1 block w-full bg-gray-800 border border-gray-700 text-white rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200">
-					</div>
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300">Nombre Completo</label>
+                        <input type="text" id="name" name="name" required class="mt-1 block w-full bg-gray-800 border border-gray-700 text-white rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200">
+                    </div>
 
-                    <div>
-						<label for="email" class="block text-sm font-medium text-gray-300">Correo Electrónico</label>
-						<input type="email" id="email" name="email" required class="mt-1 block w-full bg-gray-800 border border-gray-700 text-white rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200">
-					</div>
-                    
-                    <div>
-						<label for="service" class="block text-sm font-medium text-gray-300">Tipo de Servicio Requerido</label>
-						<select id="service" name="service" required class="mt-1 block w-full bg-gray-800 border border-gray-700 text-gray-300 rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200">
-                            <option value="">Seleccione una opción</option>
-                            <option value="electrico">Instalaciones Eléctricas</option>
-                            <option value="audio">Sistemas de Música Ambiental</option>
-                            <option value="cctv">Cámaras de Seguridad y CCTV</option>
-                            <option value="software">Desarrollo de Software Empresarial</option>
-                            <option value="otro">Otro / Consultoría</option>
-                        </select>
-					</div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300">Correo Electrónico</label>
+                        <input type="email" id="email" name="email" required class="mt-1 block w-full bg-gray-800 border border-gray-700 text-white rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200">
+                    </div>
+                    
+                    <div>
+                        <label for="service" class="block text-sm font-medium text-gray-300">Tipo de Servicio Requerido</label>
+                        <select id="service" name="service" required class="mt-1 block w-full bg-gray-800 border border-gray-700 text-gray-300 rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200">
+                            <option value="">Seleccione una opción</option>
+                            <option value="electrico">Instalaciones Eléctricas</option>
+                            <option value="audio">Sistemas de Música Ambiental</option>
+                            <option value="cctv">Cámaras de Seguridad y CCTV</option>
+                            <option value="software">Desarrollo de Software Empresarial</option>
+                            <option value="otro">Otro / Consultoría</option>
+                        </select>
+                    </div>
 
-                    <div>
-						<label for="message" class="block text-sm font-medium text-gray-300">Describa su Proyecto / Consulta</label>
-						<textarea id="message" name="message" rows="4" required class="mt-1 block w-full bg-gray-800 border border-gray-700 text-white rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200"></textarea>
-					</div>
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-300">Describa su Proyecto / Consulta</label>
+                        <textarea id="message" name="message" rows="4" required class="mt-1 block w-full bg-gray-800 border border-gray-700 text-white rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200"></textarea>
+                    </div>
 
-                    <button type="submit" class="w-full inline-flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-gray-900 bg-accent-main hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-main transition duration-300">
-						Enviar Solicitud de Cotización
-					</button>
-				</form>
+                    <button type="submit" class="w-full inline-flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-gray-900 bg-accent-main hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-main transition duration-300">
+                        Enviar Solicitud de Cotización
+                    </button>
+                </form>
 
-                <p class="mt-4 text-center text-sm text-gray-500">
-                    Sus datos están seguros. No compartiremos su información con terceros.
-                </p>
-			</div>
-		</div>
-	</section>
-
-	<section class="bg-gray-900 py-16">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl font-extrabold text-white mb-6">¿Dónde Encontrarnos?</h2>
-            <div class="bg-gray-800 h-96 rounded-xl flex items-center justify-center p-6 border border-gray-700">
-                <p class="text-gray-500 italic">[Mapa de Ubicación / Placeholder]</p>
-            </div>
-        </div>
-    </section>
-	
+                <p class="mt-4 text-center text-sm text-gray-500">
+                    Sus datos están seguros. No compartiremos su información con terceros.
+                </p>
+            </div>
+        </div>
+    </section>
+    
 </Layout>

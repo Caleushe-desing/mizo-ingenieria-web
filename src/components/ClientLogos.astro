@@ -1,0 +1,41 @@
+---
+// src/components/ClientLogos.astro
+// Bloque que muestra una hilera de logos de clientes antes del footer.
+const clients = [
+    { name: "Cliente A", logo: "/images/clientes/cliente_a.png" }, 
+    { name: "Cliente B", logo: "/images/clientes/cliente_b.png" }, 
+    { name: "Cliente C", logo: "/images/clientes/cliente_c.png" }, 
+    { name: "Cliente D", logo: "/images/clientes/cliente_d.png" }, 
+    { name: "Cliente E", logo: "/images/clientes/cliente_e.png" }, 
+    { name: "Cliente E", logo: "/images/clientes/cliente_f.png" }, 
+    { name: "Cliente E", logo: "/images/clientes/cliente_g.png" }, 
+];
+---
+
+<section class="bg-gray-800 py-16"> 
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="bg-gray-900 p-8 md:p-12 rounded-xl border border-gray-700 shadow-2xl text-center">
+        
+            <h2 class="text-4xl font-bold text-white mb-8"> 
+                Confían en Mizo 
+            </h2>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 items-center justify-center">
+                
+                {clients.map((client) => (
+                    <div class="bg-white p-4 rounded-lg shadow-xl flex justify-center items-center h-28 transition duration-300 hover:shadow-2xl hover:scale-[1.02]">
+                        <img 
+                            src={client.logo} 
+                            alt={`Logo de ${client.name}`} 
+                            class="max-h-16 w-auto object-contain" 
+                            loading="lazy"
+                        />
+                    </div>
+                ))}
+            </div>
+            
+        </div>
+        
+    </div>
+</section>

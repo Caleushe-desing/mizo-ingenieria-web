@@ -6,6 +6,10 @@ const currentYear = today.getFullYear();
 import IconLinkedIn from './icons/IconLinkedIn.astro';
 import IconGitHub from './icons/IconGitHub.astro';
 import IconTwitter from './icons/IconTwitter.astro';
+
+// ** AÑADIMOS LA RUTA DEL LOGO **
+const logoSrc = "/mizo-logo.jpg";
+const logoAlt = "Mizo Ingeniería";
 ---
 
 <footer class="bg-gray-900 text-white mt-auto">
@@ -13,7 +17,9 @@ import IconTwitter from './icons/IconTwitter.astro';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8">
             
             <div class="space-y-4 col-span-1">
-                <h3 class="text-4xl font-extrabold text-accent-main">Mizo</h3>
+                <a href="/" class="block">
+                    <img src={logoSrc} alt={logoAlt} class="h-12 w-auto" />
+                </a>
                 <p class="text-gray-400 text-sm max-w-xs">
                     Ingeniería que Inspira Confianza. Soluciones tecnológicas e integración de sistemas.
                 </p>
@@ -44,16 +50,7 @@ import IconTwitter from './icons/IconTwitter.astro';
             </p>
 
             <div class="flex space-x-6">
-                <a href="https://linkedin.com/mizo-ing" target="_blank" class="text-gray-400 hover:text-accent-main transition duration-300" aria-label="LinkedIn de Mizo">
-                    <IconLinkedIn class="h-6 w-6" /> 
-                </a>
-                
-                <a href="https://github.com/mizo-ing" target="_blank" class="text-gray-400 hover:text-accent-main transition duration-300" aria-label="GitHub de Mizo">
-                    <IconGitHub class="h-6 w-6" />
-                </a>
-
-                <a href="https://twitter.com/mizo-ing" target="_blank" class="text-gray-400 hover:text-accent-main transition duration-300" aria-label="Twitter de Mizo">
-                    <IconTwitter class="h-6 w-6" />
+               
                 </a>
             </div>
         </div>
