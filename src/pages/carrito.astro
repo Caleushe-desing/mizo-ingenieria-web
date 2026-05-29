@@ -132,26 +132,50 @@ const regiones = [
 		const shipResult = document.getElementById('ship-result');
 		const shipRow = document.getElementById('cart-shipping');
 
-		// Estado de envío persistido { region, regionName, cost, etaText }.
+		// Estado de envío persistido (válido solo si cartWeight/cartCount coinciden con el carrito).
 		let shipping = (() => {
 			try { return JSON.parse(localStorage.getItem(SHIP_KEY)) || null; } catch (e) { return null; }
 		})();
-		if (shipping && regionSel) regionSel.value = shipping.region;
 
 		const saveShip = () => {
 			if (shipping) localStorage.setItem(SHIP_KEY, JSON.stringify(shipping));
 			else localStorage.removeItem(SHIP_KEY);
 		};
 
+		// La cotización solo es válida si coincide con el peso y cantidad actuales del carrito.
+		function isShippingValid() {
+			if (!shipping || typeof shipping.cost !== 'number') return false;
+			return shipping.cartWeight === Cart.weight() && shipping.cartCount === Cart.count();
+		}
+
+		function invalidateShipping(message) {
+			shipping = null;
+			saveShip();
+			if (shipResult && message) {
+				shipResult.textContent = message;
+				shipResult.className = 'mt-2 text-xs text-amber-600 font-medium';
+				shipResult.classList.remove('hidden');
+			}
+		}
+
+		// Descarta cotizaciones guardadas que ya no corresponden al carrito actual.
+		if (shipping && !isShippingValid()) {
+			shipping = null;
+			saveShip();
+		}
+		if (shipping && regionSel) regionSel.value = shipping.region;
+
 		async function quote() {
 			const region = regionSel ? regionSel.value : '';
 			if (!region) {
 				shipResult.textContent = 'Selecciona tu región para cotizar.';
 				shipResult.className = 'mt-2 text-xs text-red-500';
+				shipResult.classList.remove('hidden');
 				return;
 			}
 			calcBtn.disabled = true;
 			calcBtn.textContent = 'Cotizando…';
+			shipResult.classList.remove('hidden');
 			try {
 				const res = await fetch('/.netlify/functions/cotizar-envio', {
 					method: 'POST',
@@ -160,16 +184,20 @@ const regiones = [
 				});
 				const data = await res.json();
 				if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo cotizar.');
-				shipping = { region: data.regionId, regionName: data.regionName, cost: data.cost, etaText: data.etaText };
+				shipping = {
+					region: data.regionId,
+					regionName: data.regionName,
+					cost: data.cost,
+					etaText: data.etaText,
+					cartWeight: Cart.weight(),
+					cartCount: Cart.count(),
+				};
 				saveShip();
 				shipResult.textContent = `${data.regionName}: ${fmt(data.cost)} · Entrega aprox. ${data.etaText}.`;
 				shipResult.className = 'mt-2 text-xs text-green-600';
 				render();
 			} catch (err) {
-				shipping = null;
-				saveShip();
-				shipResult.textContent = err.message + ' Intenta de nuevo.';
-				shipResult.className = 'mt-2 text-xs text-red-500';
+				invalidateShipping(err.message + ' Intenta de nuevo.');
 				render();
 			} finally {
 				calcBtn.disabled = false;
@@ -179,11 +207,8 @@ const regiones = [
 
 		if (calcBtn) calcBtn.onclick = quote;
 		if (regionSel) regionSel.onchange = () => {
-			// Al cambiar de región, se invalida la cotización previa.
-			if (shipping && regionSel.value !== shipping.region) {
-				shipping = null;
-				saveShip();
-				shipResult.classList.add('hidden');
+			if (shipping) {
+				invalidateShipping('Cambiaste la región. Vuelve a cotizar el despacho.');
 				render();
 			}
 		};
@@ -224,19 +249,21 @@ const regiones = [
 			const subtotal = Cart.subtotal();
 			document.getElementById('cart-subtotal').textContent = fmt(subtotal);
 
-			if (shipping && typeof shipping.cost === 'number') {
+			const validShip = isShippingValid();
+			if (validShip) {
 				shipRow.textContent = fmt(shipping.cost);
 				shipRow.className = 'text-gray-900 font-medium';
 				if (shipResult) {
 					shipResult.textContent = `${shipping.regionName}: ${fmt(shipping.cost)} · Entrega aprox. ${shipping.etaText}.`;
 					shipResult.className = 'mt-2 text-xs text-green-600';
+					shipResult.classList.remove('hidden');
 				}
 			} else {
 				shipRow.textContent = 'Por calcular';
 				shipRow.className = 'text-gray-400';
 			}
 
-			const total = subtotal + (shipping ? shipping.cost : 0);
+			const total = subtotal + (validShip ? shipping.cost : 0);
 			document.getElementById('cart-total').textContent = fmt(total);
 		}
 
@@ -266,8 +293,8 @@ const regiones = [
 				const items = Cart.items();
 				if (!items.length) return;
 				msg.classList.add('hidden');
-				if (!shipping || typeof shipping.cost !== 'number') {
-					msg.textContent = 'Primero cotiza el envío seleccionando tu región.';
+				if (!isShippingValid()) {
+					msg.textContent = 'Debes cotizar el envío antes de pagar. Si agregaste o quitaste productos, pulsa "Cotizar despacho".';
 					msg.classList.remove('hidden');
 					if (regionSel) regionSel.focus();
 					return;
@@ -304,10 +331,14 @@ const regiones = [
 			};
 		}
 
-		// Si cambia el carrito y ya había envío cotizado, se recotiza (cambió el peso).
+		// Si cambia el carrito, se invalida el envío y el cliente debe volver a cotizar.
 		const onCartUpdated = () => {
+			try { shipping = JSON.parse(localStorage.getItem(SHIP_KEY)) || null; } catch (e) { shipping = null; }
+			if (!isShippingValid()) {
+				shipping = null;
+				invalidateShipping('El carrito cambió. Vuelve a cotizar el despacho.');
+			}
 			render();
-			if (shipping && regionSel && regionSel.value) quote();
 		};
 		if (window.__mizoCartPageHandler) document.removeEventListener('cart:updated', window.__mizoCartPageHandler);
 		window.__mizoCartPageHandler = onCartUpdated;
