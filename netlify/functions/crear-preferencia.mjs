@@ -90,6 +90,10 @@ export const handler = async (event) => {
 	if (comuna) metadata.delivery_comuna = comuna;
 	if (d.address) metadata.delivery_address = String(d.address).slice(0, 200);
 	if (d.reference) metadata.delivery_reference = String(d.reference).slice(0, 120);
+	metadata.items_summary = rawItems
+		.map((i) => `${String(i.title || 'Producto').slice(0, 60)} ×${i.quantity || 1}`)
+		.join(' | ')
+		.slice(0, 500);
 
 	const site =
 		process.env.URL ||
@@ -101,6 +105,8 @@ export const handler = async (event) => {
 		items,
 		...(Object.keys(payer).length ? { payer } : {}),
 		...(Object.keys(metadata).length ? { metadata } : {}),
+		...(site ? { notification_url: `${site}/.netlify/functions/mp-notificacion` } : {}),
+		external_reference: `mizo-${Date.now()}`,
 		back_urls: {
 			success: `${site}/gracias`,
 			failure: `${site}/carrito`,

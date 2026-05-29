@@ -40,9 +40,11 @@ import Layout from '../layouts/Layout.astro';
             const isPayment = params.has('payment_id') || params.has('collection_id') || status;
             if (!isPayment) return;
 
-            // Llega desde Mercado Pago: vaciamos el carrito y mostramos confirmación de compra.
+            // Llega desde Mercado Pago: vaciamos carrito y datos de envío.
             try {
                 localStorage.removeItem('mizo-cart');
+                localStorage.removeItem('mizo-ship-quote');
+                localStorage.removeItem('mizo-delivery');
                 if (window.__mizoUpdateCartBadge) window.__mizoUpdateCartBadge();
             } catch (e) {}
 
@@ -51,6 +53,20 @@ import Layout from '../layouts/Layout.astro';
             if (status === 'approved' || status === 'success') {
                 if (titulo) titulo.innerHTML = '¡Gracias por tu <span class="text-accent-main">compra</span>!';
                 if (texto) texto.textContent = 'Tu pago fue aprobado correctamente. Te contactaremos para coordinar la entrega de tus productos.';
+
+                // Respaldo: avisa a ventas/admin si el webhook aún no llegó.
+                const paymentId = params.get('payment_id') || params.get('collection_id');
+                if (paymentId) {
+                    const key = 'mizo-notified-' + paymentId;
+                    if (!sessionStorage.getItem(key)) {
+                        sessionStorage.setItem(key, '1');
+                        fetch('/.netlify/functions/confirmar-compra', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ payment_id: paymentId }),
+                        }).catch(function () {});
+                    }
+                }
             } else if (status === 'pending' || status === 'in_process') {
                 if (titulo) titulo.innerHTML = 'Tu pago está <span class="text-accent-main">en proceso</span>';
                 if (texto) texto.textContent = 'Estamos esperando la confirmación del pago. Te avisaremos en cuanto se acredite.';

@@ -7,6 +7,9 @@
 #   MP_ACCESS_TOKEN  -> Access Token de Mercado Pago (para los pagos).
 #   ADMIN_PASSWORD   -> Clave del panel privado /admin.
 #   BUILD_HOOK_URL   -> URL del Build Hook (para la actualización diaria 00:00).
+#   RESEND_API_KEY   -> API key de Resend (https://resend.com) para avisos de compra.
+#   MAIL_FROM        -> Remitente verificado (ej. "Mizo <notificaciones@mizo.cl>").
+#   NOTIFY_EMAILS    -> Correos que reciben aviso de compra (default: ventas@mizo.cl,admin@mizo.cl).
 
 [build]
   # Si la sincronización falla (tienda caída, etc.), se continúa con el catálogo
