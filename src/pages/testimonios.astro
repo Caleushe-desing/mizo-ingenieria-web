@@ -1,71 +1,49 @@
 ---
-// src/pages/testimonios.astro - Página pública para mostrar testimonios aprobados
 import Layout from '../layouts/Layout.astro';
 import SectionCTA from '../components/SectionCTA.astro';
 
-// **AQUÍ DEBERÁS PEGAR MANUALMENTE LOS TESTIMONIOS APROBADOS DE NETLIFY**
 const testimonials = [
-    {
-        quote: "Aqui estara tu testimonio",
-        author: "-",
-        icon: "⚡"
-    },
-    {
-        quote: "Aqui estara tu testimonio",
-        author: "-",
-        icon: "🎥"
-    },
-    {
-        quote: "Aqui estara tu testimonio.",
-        author: "-",
-        icon: "💻"
-    },
+	{ quote: "Aquí estará tu testimonio.", author: "—", icon: "🔊" },
+	{ quote: "Aquí estará tu testimonio.", author: "—", icon: "📽️" },
+	{ quote: "Aquí estará tu testimonio.", author: "—", icon: "⚡" },
 ];
-
-// Datos para la tarjeta de llamada a la acción
-const ctaInfo = {
-    title: "¿Tiene un proyecto en mente?",
-    description: "Cuéntenos sus desafíos y le enviaremos una propuesta de solución personalizada y sin compromiso.",
-    buttonText: "Solicitar Cotización",
-    buttonLink: "/contacto",
-};
 ---
 
-<Layout title="Testimonios | Mizo Ingeniería" description="Opiniones de nuestros clientes sobre servicios de instalaciones eléctricas, CCTV, audio y desarrollo de software.">
-    
-    <section class="bg-gray-900 py-24 sm:py-32">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
-                Lo que dicen <span class="text-accent-main">Nuestros Clientes</span>
-            </h1>
-            <p class="mt-4 text-xl text-gray-400 max-w-4xl mx-auto">
-                La confianza de nuestros clientes es el mejor reflejo de nuestro compromiso con la excelencia y la calidad en cada proyecto.
-            </p>Esta sección la acabamos de inagurar y ya hemos contactado con nuestros cleintes para que dejen sus  historias.
+<Layout
+	title="Testimonios | Mizo"
+	description="Opiniones de nuestros clientes sobre instalaciones de sonido, audiovisual, electricidad y venta de equipos."
+>
+	<section class="bg-gradient-to-b from-accent-soft to-white py-20 sm:py-28">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
+				Lo que dicen <span class="text-accent-main">nuestros clientes</span>
+			</h1>
+			<p class="mt-4 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+				La confianza de nuestros clientes es el mejor reflejo de nuestro compromiso con la calidad. Acabamos de inaugurar esta sección y ya estamos recopilando sus historias.
+			</p>
+		</div>
+	</section>
 
-        </div>
-    </section>
+	<section class="py-20 bg-white">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12">Historias de Éxito</h2>
 
-    <section class="py-20 bg-gray-800">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-4xl font-extrabold text-white text-center mb-12">Historias de Éxito</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {testimonials.map((t) => (
-                    <div class="bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-700 flex flex-col justify-between">
-                        <div class="text-6xl mb-4 text-accent-main">{t.icon}</div>
-                        <p class="text-xl italic text-gray-300 mb-6 flex-grow">"{t.quote}"</p>
-                        <p class="text-accent-main font-semibold border-t border-gray-700 pt-4 text-lg">— {t.author}</p>
-                    </div>
-                ))}
-            </div>
-        </div>
-    </section>
-    
-    <SectionCTA 
-        title={ctaInfo.title} 
-        subtitle={ctaInfo.description} 
-        buttonText={ctaInfo.buttonText} 
-        buttonLink={ctaInfo.buttonLink} 
-    />
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+				{testimonials.map((t) => (
+					<div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
+						<div class="text-4xl mb-4 inline-flex h-14 w-14 items-center justify-center rounded-lg bg-accent-soft">{t.icon}</div>
+						<p class="text-lg italic text-gray-700 mb-6 flex-grow">"{t.quote}"</p>
+						<p class="text-accent-main font-semibold border-t border-gray-100 pt-4">— {t.author}</p>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
 
+	<SectionCTA
+		title="¿Tienes un proyecto en mente?"
+		subtitle="Cuéntanos tus desafíos y te enviaremos una propuesta personalizada y sin compromiso."
+		buttonText="Solicitar Cotización"
+		buttonLink="/contacto"
+	/>
 </Layout>

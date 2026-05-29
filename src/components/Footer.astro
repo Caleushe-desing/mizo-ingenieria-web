@@ -1,58 +1,62 @@
 ---
-// 125b. Footer.astro con color Mizo (Azul Acero)
+// Footer.astro - Pie de página azul profundo (matiz azulado)
 const today = new Date();
 const currentYear = today.getFullYear();
 
-import IconLinkedIn from './icons/IconLinkedIn.astro';
-import IconGitHub from './icons/IconGitHub.astro';
-import IconTwitter from './icons/IconTwitter.astro';
-
-// ** AÑADIMOS LA RUTA DEL LOGO **
 const logoSrc = "/mizo-logo.jpg";
-const logoAlt = "Mizo Ingeniería";
+const logoAlt = "Mizo";
 ---
 
-<footer class="bg-gray-900 text-white mt-auto">
+<footer class="bg-accent-dark text-blue-100 mt-auto">
     <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-blue-800/60 pb-8">
             
-            <div class="space-y-4 col-span-1">
-                <a href="/" class="block">
-                    <img src={logoSrc} alt={logoAlt} class="h-12 w-auto" />
+            <div class="space-y-4 col-span-1 md:col-span-1">
+                <a href="/" class="flex items-center gap-3">
+                    <img src={logoSrc} alt={logoAlt} class="h-12 w-auto rounded-md" />
+                    <span class="text-2xl font-extrabold text-white">Mizo</span>
                 </a>
-                <p class="text-gray-400 text-sm max-w-xs">
-                    Ingeniería que Inspira Confianza. Soluciones tecnológicas e integración de sistemas.
+                <p class="text-blue-200/80 text-sm max-w-xs">
+                    Sonido, audiovisual e instalaciones eléctricas. Instalación profesional y venta de equipos en todo Chile.
                 </p>
             </div>
             
             <div class="col-span-1">
-                <h4 class="text-lg font-semibold text-white mb-4">Navegación</h4>
-                <ul class="space-y-2">
-                    <li><a href="/" class="text-gray-400 hover:text-accent-main transition duration-300">Inicio</a></li>
-                    <li><a href="/servicios" class="text-gray-400 hover:text-accent-main transition duration-300">Servicios</a></li>
-                    <li><a href="/nosotros" class="text-gray-400 hover:text-accent-main transition duration-300">Nosotros</a></li>
-                    <li><a href="/contacto" class="text-gray-400 hover:text-accent-main transition duration-300">Contacto</a></li>
+                <h4 class="text-base font-semibold text-white mb-4">Navegación</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/" class="text-blue-200/80 hover:text-white transition duration-200">Inicio</a></li>
+                    <li><a href="/servicios" class="text-blue-200/80 hover:text-white transition duration-200">Servicios</a></li>
+                    <li><a href="/productos" class="text-blue-200/80 hover:text-white transition duration-200">Productos</a></li>
+                    <li><a href="/nosotros" class="text-blue-200/80 hover:text-white transition duration-200">Nosotros</a></li>
+                    <li><a href="/contacto" class="text-blue-200/80 hover:text-white transition duration-200">Contacto</a></li>
                 </ul>
             </div>
 
             <div class="col-span-1">
-                <h4 class="text-lg font-semibold text-white mb-4">Legal</h4>
-                <ul class="space-y-2">
-                    <li><a href="/politica-privacidad" class="text-gray-400 hover:text-accent-main transition duration-300">Política de Privacidad</a></li>
-                    <li><a href="/terminos" class="text-gray-400 hover:text-accent-main transition duration-300">Términos y Condiciones</a></li>
+                <h4 class="text-base font-semibold text-white mb-4">Contacto</h4>
+                <ul class="space-y-2 text-sm">
+                    <li class="text-blue-200/80">📧 ventas@mizo.cl</li>
+                    <li class="text-blue-200/80">📞 +56 9 9439 0870</li>
+                    <li class="text-blue-200/80">📍 Frutillar y Santiago</li>
+                </ul>
+            </div>
+
+            <div class="col-span-1">
+                <h4 class="text-base font-semibold text-white mb-4">Legal</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/politica-privacidad" class="text-blue-200/80 hover:text-white transition duration-200">Política de Privacidad</a></li>
+                    <li><a href="/terminos" class="text-blue-200/80 hover:text-white transition duration-200">Términos y Condiciones</a></li>
                 </ul>
             </div>
         </div>
         
         <div class="flex flex-col sm:flex-row items-center justify-between pt-8">
-            <p class="text-gray-400 text-sm mb-4 sm:mb-0">
+            <p class="text-blue-200/70 text-sm mb-2 sm:mb-0">
                 &copy; {currentYear} Mizo. Todos los derechos reservados.
             </p>
-
-            <div class="flex space-x-6">
-               
-                </a>
-            </div>
+            <p class="text-blue-200/70 text-sm">
+                Sonido · Audiovisual · Electricidad
+            </p>
         </div>
     </div>
 </footer>

@@ -1,0 +1,104 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ProductCard from '../components/ProductCard.astro';
+import SectionCTA from '../components/SectionCTA.astro';
+import { products, categories } from '../data/products';
+---
+
+<Layout
+	title="Productos | Mizo - Equipos de Audio y Video"
+	description="Venta de equipos de audio profesional y video en Chile: parlantes, proyectores, cámaras y barras de sonido. Marcas JBL, Philco, Wanbo, Reolink, TP-Link y más."
+>
+	<section class="bg-gradient-to-b from-accent-soft to-white py-20 sm:py-28">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+			<span class="inline-block px-3 py-1 mb-4 text-sm font-semibold rounded-full bg-accent-main/10 text-accent-main">
+				Tienda Mizo
+			</span>
+			<h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+				Equipos profesionales de <span class="text-accent-main">audio y video</span>
+			</h1>
+			<p class="mt-4 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+				Parlantes, proyectores, cámaras y barras de sonido de las mejores marcas disponibles en Chile, listos para entrega e instalación. Precios en pesos chilenos (CLP).
+			</p>
+		</div>
+	</section>
+
+	<section class="py-6 bg-white sticky top-16 sm:top-20 z-30 border-b border-gray-100">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap gap-2 justify-center">
+			<button
+				type="button"
+				data-filter="all"
+				class="product-filter px-4 py-2 rounded-full text-sm font-semibold border border-accent-main bg-accent-main text-white transition"
+			>
+				Todos
+			</button>
+			{categories.map((cat) => (
+				<button
+					type="button"
+					data-filter={cat.id}
+					class="product-filter px-4 py-2 rounded-full text-sm font-semibold border border-gray-300 text-gray-700 hover:border-accent-main hover:text-accent-main transition"
+				>
+					{cat.icon} {cat.label}
+				</button>
+			))}
+		</div>
+	</section>
+
+	<section class="py-14 bg-white">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+				{products.map((product) => (
+					<div class="product-item" data-category={product.category}>
+						<ProductCard product={product} />
+					</div>
+				))}
+			</div>
+
+			<p class="mt-10 text-center text-sm text-gray-500 max-w-2xl mx-auto">
+				Los valores publicados son referenciales y pueden variar según disponibilidad y tipo de cambio.
+				¿No encuentras lo que buscas? Escríbenos y lo cotizamos por ti.
+			</p>
+		</div>
+	</section>
+
+	<SectionCTA
+		title="¿Necesitas equipamiento e instalación?"
+		subtitle="Combinamos la venta de equipos con instalación profesional para entregarte una solución completa y garantizada."
+		buttonText="Solicitar Cotización"
+		buttonLink="/contacto"
+	/>
+</Layout>
+
+<script is:inline>
+	function initProductFilters() {
+		const buttons = document.querySelectorAll('.product-filter');
+		const items = document.querySelectorAll('.product-item');
+		if (!buttons.length) return;
+
+		const activeClasses = ['bg-accent-main', 'text-white', 'border-accent-main'];
+		const idleClasses = ['border-gray-300', 'text-gray-700'];
+
+		const setActive = (target) => {
+			buttons.forEach((b) => {
+				b.classList.remove(...activeClasses);
+				b.classList.add(...idleClasses);
+			});
+			target.classList.remove(...idleClasses);
+			target.classList.add(...activeClasses);
+		};
+
+		buttons.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const filter = btn.getAttribute('data-filter');
+				setActive(btn);
+				items.forEach((item) => {
+					const match = filter === 'all' || item.getAttribute('data-category') === filter;
+					item.classList.toggle('hidden', !match);
+				});
+			});
+		});
+	}
+
+	document.addEventListener('DOMContentLoaded', initProductFilters);
+	document.addEventListener('astro:page-load', initProductFilters);
+</script>

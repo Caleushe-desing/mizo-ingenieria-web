@@ -8,7 +8,11 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "clean": "node cleanup.js"
+    "clean": "node cleanup.js",
+    "sync-catalogo": "node scripts/sync-catalogo.mjs",
+    "fetch-images": "node scripts/download-images.mjs",
+    "fuentes": "node scripts/make-fuentes.mjs",
+    "build-admin": "node scripts/build-admin.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",

@@ -1,0 +1,12 @@
+---
+// 92. Icono de Ubicación para Contacto
+interface Props {
+    class?: string;
+}
+
+const { class: className = 'h-6 w-6' } = Astro.props;
+---
+
+<svg class={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243m-4.243 4.243V16M3 9a6 6 0 0112 0v5l-6 6-6-6V9z"></path>
+</svg>

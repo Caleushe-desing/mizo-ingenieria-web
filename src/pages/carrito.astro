@@ -1,0 +1,185 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+	title="Carrito | Mizo"
+	description="Revisa los productos de audio y video seleccionados y finaliza tu compra con Mercado Pago."
+>
+	<section class="bg-gradient-to-b from-accent-soft to-white py-12 sm:py-16">
+		<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+			<h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">Tu carrito</h1>
+			<p class="mt-2 text-gray-600">Revisa tus productos y finaliza la compra de forma segura.</p>
+		</div>
+	</section>
+
+	<section class="py-10 bg-white">
+		<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+			<!-- Carrito vacío -->
+			<div id="cart-empty" class="hidden text-center py-20">
+				<div class="text-6xl mb-4">🛒</div>
+				<h2 class="text-xl font-bold text-gray-900">Tu carrito está vacío</h2>
+				<p class="mt-2 text-gray-600">Explora nuestro catálogo de equipos de audio y video.</p>
+				<a href="/productos" class="mt-6 inline-block px-6 py-3 rounded-md font-semibold text-white bg-accent-main hover:bg-accent-hover transition">
+					Ver productos
+				</a>
+			</div>
+
+			<!-- Carrito con contenido -->
+			<div id="cart-content" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
+				<div class="lg:col-span-2">
+					<ul id="cart-items" class="divide-y divide-gray-100"></ul>
+					<button id="cart-clear" type="button" class="mt-4 text-sm text-gray-400 hover:text-red-500 transition">
+						Vaciar carrito
+					</button>
+				</div>
+
+				<aside class="lg:col-span-1">
+					<div class="bg-gray-50 rounded-xl border border-gray-200 p-6 sticky top-24">
+						<h2 class="text-lg font-bold text-gray-900 mb-4">Resumen</h2>
+						<div class="flex justify-between text-sm text-gray-600 mb-2">
+							<span>Subtotal</span>
+							<span id="cart-subtotal">$0</span>
+						</div>
+						<div class="flex justify-between text-sm text-gray-600 mb-4">
+							<span>Despacho</span>
+							<span class="text-gray-400">A coordinar</span>
+						</div>
+						<div class="flex justify-between text-lg font-extrabold text-gray-900 border-t border-gray-200 pt-4">
+							<span>Total</span>
+							<span id="cart-total">$0</span>
+						</div>
+
+						<button
+							id="checkout-btn"
+							type="button"
+							class="mt-6 w-full px-6 py-3.5 rounded-md text-base font-semibold text-white bg-accent-main hover:bg-accent-hover transition duration-200 disabled:opacity-60"
+						>
+							Pagar con Mercado Pago
+						</button>
+						<p id="checkout-msg" class="mt-3 text-center text-sm text-red-500 hidden"></p>
+
+						<div class="mt-4 flex items-center justify-center gap-2 text-xs text-gray-400">
+							<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+							Pago seguro mediante Mercado Pago
+						</div>
+					</div>
+				</aside>
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<script is:inline>
+	function initCartPage() {
+		const Cart = window.MizoCart;
+		const empty = document.getElementById('cart-empty');
+		const content = document.getElementById('cart-content');
+		const list = document.getElementById('cart-items');
+		if (!Cart || !list) return;
+
+		const fmt = (n) => '$' + Number(n).toLocaleString('es-CL');
+
+		function render() {
+			const items = Cart.items();
+			if (!items.length) {
+				empty.classList.remove('hidden');
+				content.classList.add('hidden');
+				content.classList.remove('grid');
+				return;
+			}
+			empty.classList.add('hidden');
+			content.classList.remove('hidden');
+			content.classList.add('grid');
+
+			list.innerHTML = items.map((i) => `
+				<li class="flex gap-4 py-5 items-center">
+					<a href="/productos/${i.id}" class="flex-shrink-0 w-20 h-20 bg-white border border-gray-100 rounded-lg flex items-center justify-center p-1">
+						<img src="${i.image}" alt="${i.name}" class="max-h-full max-w-full object-contain mix-blend-multiply" onerror="this.style.display='none'"/>
+					</a>
+					<div class="flex-grow min-w-0">
+						<a href="/productos/${i.id}" class="block font-semibold text-gray-900 text-sm leading-snug hover:text-accent-main line-clamp-2">${i.name}</a>
+						<p class="text-sm text-gray-500 mt-1">${fmt(i.price)} c/u</p>
+						<div class="flex items-center gap-2 mt-2">
+							<button data-dec="${i.id}" class="w-7 h-7 rounded border border-gray-300 text-gray-600 hover:border-accent-main hover:text-accent-main font-bold leading-none">−</button>
+							<span class="w-8 text-center text-sm font-semibold">${i.qty}</span>
+							<button data-inc="${i.id}" class="w-7 h-7 rounded border border-gray-300 text-gray-600 hover:border-accent-main hover:text-accent-main font-bold leading-none">+</button>
+						</div>
+					</div>
+					<div class="flex flex-col items-end gap-2">
+						<span class="font-bold text-gray-900">${fmt(i.price * i.qty)}</span>
+						<button data-del="${i.id}" class="text-xs text-gray-400 hover:text-red-500">Quitar</button>
+					</div>
+				</li>
+			`).join('');
+
+			const subtotal = Cart.subtotal();
+			document.getElementById('cart-subtotal').textContent = fmt(subtotal);
+			document.getElementById('cart-total').textContent = fmt(subtotal);
+		}
+
+		list.onclick = (ev) => {
+			const inc = ev.target.closest('[data-inc]');
+			const dec = ev.target.closest('[data-dec]');
+			const del = ev.target.closest('[data-del]');
+			const items = Cart.items();
+			if (inc) {
+				const it = items.find((i) => i.id === inc.dataset.inc);
+				Cart.setQty(inc.dataset.inc, (it ? it.qty : 0) + 1);
+			} else if (dec) {
+				const it = items.find((i) => i.id === dec.dataset.dec);
+				Cart.setQty(dec.dataset.dec, (it ? it.qty : 0) - 1);
+			} else if (del) {
+				Cart.remove(del.dataset.del);
+			}
+		};
+
+		const clearBtn = document.getElementById('cart-clear');
+		if (clearBtn) clearBtn.onclick = () => { if (confirm('¿Vaciar el carrito?')) Cart.clear(); };
+
+		const checkoutBtn = document.getElementById('checkout-btn');
+		const msg = document.getElementById('checkout-msg');
+		if (checkoutBtn) {
+			checkoutBtn.onclick = async () => {
+				const items = Cart.items();
+				if (!items.length) return;
+				msg.classList.add('hidden');
+				checkoutBtn.disabled = true;
+				checkoutBtn.textContent = 'Generando pago...';
+				try {
+					const res = await fetch('/.netlify/functions/crear-preferencia', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							items: items.map((i) => ({
+								id: i.id,
+								title: i.name,
+								quantity: i.qty,
+								unit_price: i.price,
+							})),
+						}),
+					});
+					if (!res.ok) throw new Error('No se pudo iniciar el pago (' + res.status + ')');
+					const data = await res.json();
+					if (data.init_point) {
+						window.location.href = data.init_point;
+					} else {
+						throw new Error('Respuesta inválida del servidor de pago.');
+					}
+				} catch (err) {
+					msg.textContent = err.message + ' Intenta nuevamente o contáctanos por WhatsApp.';
+					msg.classList.remove('hidden');
+					checkoutBtn.disabled = false;
+					checkoutBtn.textContent = 'Pagar con Mercado Pago';
+				}
+			};
+		}
+
+		document.removeEventListener('cart:updated', render);
+		document.addEventListener('cart:updated', render);
+		render();
+	}
+
+	document.addEventListener('DOMContentLoaded', initCartPage);
+	document.addEventListener('astro:page-load', initCartPage);
+</script>

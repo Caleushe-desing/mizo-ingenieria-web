@@ -11,9 +11,12 @@ import tailwind from "@astrojs/tailwind"; // <--- NUEVA IMPORTACIÓN
 // https://astro.build/config
 export default defineConfig({
   site: 'https://example.com',
-  integrations: [
+  integrations: [
       mdx(), 
-      sitemap(),
+      sitemap({
+        // No incluir el panel privado en el sitemap
+        filter: (page) => !page.includes('/admin'),
+      }),
       tailwind(), // <--- NUEVA INTEGRACIÓN
   ],
 

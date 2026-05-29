@@ -1,0 +1,19 @@
+# Configuración de Netlify para Mizo
+#
+# En cada build se sincroniza el catálogo (precios + stock al día desde las
+# tiendas), se cifran los datos privados del panel /admin y se compila el sitio.
+#
+# Variables de entorno requeridas (Site settings -> Environment variables):
+#   MP_ACCESS_TOKEN  -> Access Token de Mercado Pago (para los pagos).
+#   ADMIN_PASSWORD   -> Clave del panel privado /admin.
+#   BUILD_HOOK_URL   -> URL del Build Hook (para la actualización diaria 00:00).
+
+[build]
+  # Si la sincronización falla (tienda caída, etc.), se continúa con el catálogo
+  # ya guardado en el repo para que el sitio igual se publique.
+  command = "npm run sync-catalogo || echo 'sync fallo: uso catalogo existente'; npm run build-admin && npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"

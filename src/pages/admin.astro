@@ -1,0 +1,161 @@
+---
+// /admin - Panel PRIVADO protegido con clave.
+// Los datos (valor de compra, tienda y enlace) están cifrados en
+// /datos-privados.json y solo se descifran en el navegador con la clave correcta.
+// Esta página no se enlaza desde el sitio y está marcada como noindex.
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="robots" content="noindex, nofollow" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
+		<title>Panel privado | Mizo</title>
+	</head>
+	<body class="bg-gray-50 text-gray-900 min-h-screen">
+		<div class="max-w-6xl mx-auto px-4 py-10">
+			<header class="mb-8 flex items-center justify-between">
+				<a href="/" class="text-xl font-extrabold text-gray-900">Mizo<span class="text-accent-main">.</span> <span class="text-sm font-medium text-gray-400">/ panel privado</span></a>
+			</header>
+
+			<!-- Login -->
+			<div id="login" class="max-w-md mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm p-8 mt-10">
+				<h1 class="text-2xl font-extrabold text-gray-900 mb-1">Acceso privado</h1>
+				<p class="text-gray-500 text-sm mb-6">Ingresa tu clave para ver el valor de compra y el origen de cada producto.</p>
+				<form id="login-form" class="space-y-4">
+					<input
+						type="password"
+						id="password"
+						autocomplete="current-password"
+						placeholder="Clave"
+						class="block w-full border border-gray-300 rounded-md p-3 focus:ring-accent-main focus:border-accent-main"
+						required
+					/>
+					<button type="submit" class="w-full py-3 rounded-md font-semibold text-white bg-accent-main hover:bg-accent-hover transition">
+						Entrar
+					</button>
+					<p id="error" class="text-sm text-red-600 hidden">Clave incorrecta. Inténtalo de nuevo.</p>
+				</form>
+			</div>
+
+			<!-- Panel -->
+			<div id="panel" class="hidden">
+				<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
+					<div>
+						<h1 class="text-2xl font-extrabold text-gray-900">Costos y proveedores</h1>
+						<p id="meta" class="text-gray-500 text-sm"></p>
+					</div>
+					<button id="logout" class="self-start text-sm font-semibold text-accent-main hover:text-accent-hover">Cerrar sesión</button>
+				</div>
+
+				<div id="cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
+
+				<div class="overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm">
+					<table class="w-full text-sm text-left">
+						<thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+							<tr>
+								<th class="px-4 py-3">Producto</th>
+								<th class="px-4 py-3">Categoría</th>
+								<th class="px-4 py-3 text-right">Valor de compra</th>
+								<th class="px-4 py-3 text-right">Precio publicado (+20%)</th>
+								<th class="px-4 py-3 text-right">Ganancia</th>
+								<th class="px-4 py-3">Dónde comprar</th>
+							</tr>
+						</thead>
+						<tbody id="rows" class="divide-y divide-gray-100"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<script is:inline>
+			const fmt = new Intl.NumberFormat('es-CL');
+			const clp = (v) => '$' + fmt.format(v);
+			const catLabel = { sonido: 'Audio', video: 'Video' };
+
+			function b64ToBytes(b64) {
+				return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+			}
+
+			async function decryptData(password) {
+				const res = await fetch('/datos-privados.json', { cache: 'no-store' });
+				if (!res.ok) throw new Error('no-data');
+				const data = await res.json();
+				const enc = new TextEncoder();
+				const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+				const key = await crypto.subtle.deriveKey(
+					{ name: 'PBKDF2', salt: b64ToBytes(data.salt), iterations: data.iterations, hash: 'SHA-256' },
+					baseKey,
+					{ name: 'AES-GCM', length: 256 },
+					false,
+					['decrypt']
+				);
+				const ptBuf = await crypto.subtle.decrypt(
+					{ name: 'AES-GCM', iv: b64ToBytes(data.iv) },
+					key,
+					b64ToBytes(data.ciphertext)
+				);
+				return JSON.parse(new TextDecoder().decode(ptBuf));
+			}
+
+			function render(payload) {
+				document.getElementById('login').classList.add('hidden');
+				document.getElementById('panel').classList.remove('hidden');
+
+				const items = payload.products;
+				const totalCompra = items.reduce((a, p) => a + p.basePrice, 0);
+				const totalVenta = items.reduce((a, p) => a + p.sellingPrice, 0);
+				const totalGanancia = totalVenta - totalCompra;
+
+				document.getElementById('meta').textContent =
+					`${items.length} productos · recargo ${Math.round(payload.markup * 100)}% · datos al ${payload.generatedAt}`;
+
+				const cards = [
+					['Productos', items.length],
+					['Costo total de compra', clp(totalCompra)],
+					['Total publicado', clp(totalVenta)],
+					['Ganancia total', clp(totalGanancia)],
+				];
+				document.getElementById('cards').innerHTML = cards
+					.map(
+						([label, value]) =>
+							`<div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><p class="text-xs text-gray-500">${label}</p><p class="text-xl font-extrabold text-gray-900 mt-1">${value}</p></div>`
+					)
+					.join('');
+
+				document.getElementById('rows').innerHTML = items
+					.map((p) => {
+						const ganancia = p.sellingPrice - p.basePrice;
+						return `<tr class="hover:bg-gray-50">
+							<td class="px-4 py-3"><span class="font-semibold text-gray-900">${p.name}</span><br><span class="text-xs text-gray-400">${p.brand}</span></td>
+							<td class="px-4 py-3">${catLabel[p.category] || p.category}</td>
+							<td class="px-4 py-3 text-right font-semibold">${clp(p.basePrice)}</td>
+							<td class="px-4 py-3 text-right text-accent-main font-semibold">${clp(p.sellingPrice)}</td>
+							<td class="px-4 py-3 text-right text-green-600">${clp(ganancia)}</td>
+							<td class="px-4 py-3"><span class="block">${p.store}</span><a href="${p.url}" target="_blank" rel="noopener" class="text-accent-main hover:underline text-xs break-all">Ver origen ↗</a></td>
+						</tr>`;
+					})
+					.join('');
+			}
+
+			document.getElementById('login-form').addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const err = document.getElementById('error');
+				err.classList.add('hidden');
+				const pwd = document.getElementById('password').value;
+				try {
+					const payload = await decryptData(pwd);
+					render(payload);
+				} catch (_) {
+					err.classList.remove('hidden');
+				}
+			});
+
+			document.getElementById('logout').addEventListener('click', () => {
+				location.reload();
+			});
+		</script>
+	</body>
+</html>

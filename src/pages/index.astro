@@ -1,98 +1,144 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
-import ClientLogos from '../components/ClientLogos.astro'; // <--- IMPORTACIÓN NUEVA
+import ProductCard from '../components/ProductCard.astro';
+import ClientLogos from '../components/ClientLogos.astro';
+import { featuredProducts } from '../data/products';
+
+const destacados = featuredProducts(4);
 ---
 
-<Layout title="Mizo Ingeniería | Ingeniería que Inspira Confianza" description="Mizo ofrece soluciones de desarrollo de software, integración de sistemas y consultoría Cloud para el sector industrial.">
-    
-    <section class="bg-gray-900 py-24 sm:py-32"> 
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center"> 
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
-    Instalaciones que <span class="text-blue-500">Perduran.</span>
-</h1>
-            <p class="mt-4 text-xl text-gray-400 max-w-4xl mx-auto">
-                Tecnología que Conecta. Ofrecemos soluciones integrales de instalaciones eléctricas, sistemas de seguridad, audio y software a medida para empresas y casas.
-            </p>
+<Layout
+	title="Mizo | Sonido, Audiovisual e Instalaciones Eléctricas"
+	description="Instalación profesional de sistemas de sonido, soluciones audiovisuales e instalaciones eléctricas en Chile. Además, venta de equipos de las mejores marcas."
+>
+	<!-- HERO -->
+	<section class="relative bg-gradient-to-b from-accent-soft to-white py-24 sm:py-32 overflow-hidden">
+		<div class="absolute inset-0 -z-10 opacity-[0.04]" style="background-image: radial-gradient(#2563eb 1.2px, transparent 1.2px); background-size: 22px 22px;"></div>
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+			<span class="inline-block px-4 py-1.5 mb-5 text-sm font-semibold rounded-full bg-accent-main/10 text-accent-main">
+				Sonido · Audiovisual · Electricidad
+			</span>
+			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight max-w-4xl mx-auto">
+				Instalaciones que <span class="text-accent-main">suenan, se ven y funcionan</span> perfecto
+			</h1>
+			<p class="mt-5 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+				Diseñamos e instalamos sistemas de sonido profesional, soluciones audiovisuales e instalaciones eléctricas seguras para empresas y hogares. Y también vendemos los equipos.
+			</p>
 
-            <div class="mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <a href="/servicios" class="px-8 py-3 text-lg font-medium rounded-md text-gray-900 bg-accent-main hover:bg-accent-hover transition duration-300 shadow-xl">
-                    Ver Nuestros Servicios
-                </a>
-                <a href="/contacto" class="px-8 py-3 text-lg font-medium rounded-md text-accent-main bg-gray-800 hover:bg-gray-700 transition duration-300 border border-accent-main/50">
-                    Hablemos de su Proyecto
-                </a>
-            </div>
-        </div>
-    </section>
+			<div class="mt-9 flex flex-col sm:flex-row justify-center gap-4">
+				<a href="/servicios" class="px-8 py-3.5 text-lg font-semibold rounded-md text-white bg-accent-main hover:bg-accent-hover transition duration-300 shadow-lg">
+					Ver Servicios
+				</a>
+				<a href="/productos" class="px-8 py-3.5 text-lg font-semibold rounded-md text-accent-main bg-white hover:bg-blue-50 transition duration-300 border border-accent-main">
+					Comprar Equipos
+				</a>
+			</div>
+		</div>
+	</section>
 
-    <section id="especialidades" class="bg-gray-800 py-20">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-           <h2 class="text-3xl lg:text-4xl font-bold text-white mb-10 border-b-4 border-blue-500 pb-2 inline-block">
-    Nuestras Especialidades
-</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-                <Card 
-                    title="Instalaciones Eléctricas"
-                    description="Diseño y montaje de infraestructuras eléctricas seguras y eficientes, optimizando la distribución de potencia en entornos industriales."
-                    icon="⚡"
-                />
-                <Card 
-                    title="Sistemas de Audio Ambiental"
-                    description="Implementación de soluciones de audio profesional y megafonía con zonificación inteligente para espacios comerciales y productivos."
-                    icon="🎧"
-                />
-                <Card 
-                    title="Cámaras de Seguridad y CCTV"
-                    description="Vigilancia avanzada con sistemas CCTV e IP, ofreciendo monitoreo remoto y analíticas para seguridad y control de procesos."
-                    icon="📹"
-                />
-                <Card 
-                    title="Desarrollo de Software"
-                    description="Creación de soluciones de software a medida (ERP/CRM) para automatizar la gestión y optimizar la toma de decisiones empresariales."
-                    icon="💻"
-                />
-            </div>
-        </div>
-    </section>
+	<!-- ESPECIALIDADES -->
+	<section id="especialidades" class="bg-white py-20">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="text-center mb-12">
+				<h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Nuestras Especialidades</h2>
+				<div class="mt-3 mx-auto h-1 w-20 bg-accent-main rounded-full"></div>
+			</div>
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+				<Card
+					title="Sistemas de Sonido"
+					description="Audio profesional, megafonía y música ambiental con zonificación inteligente para comercios, eventos y hogares."
+					icon="🔊"
+					href="/servicios"
+				/>
+				<Card
+					title="Soluciones Audiovisuales"
+					description="Proyectores, pantallas, salas de reuniones y videovigilancia. Imagen y video de calidad para cada espacio."
+					icon="📽️"
+					href="/servicios"
+				/>
+				<Card
+					title="Instalaciones Eléctricas"
+					description="Diseño, montaje y certificación de instalaciones eléctricas seguras y eficientes según normativa chilena."
+					icon="⚡"
+					href="/servicios"
+				/>
+			</div>
+		</div>
+	</section>
 
-    <section id="nosotros-cta" class="bg-gray-900 py-16">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-            <div>
-                <h2 class="text-4xl font-extrabold text-white mb-4">Ingeniería que Inspira Confianza</h2>
-                <p class="text-lg text-gray-400">
-                    Mizo no solo construye proyectos; somos tu socio estratégico que garantiza **solidez, transparencia** y un enfoque que no encontrarás en otra firma.
-                </p>
-                <div class="mt-8">
-                    <a href="/nosotros" class="px-6 py-3 border border-accent-main/50 text-base font-medium rounded-md text-accent-main hover:bg-accent-main hover:text-gray-900 transition duration-300">
-                        Conozca Nuestra Filosofía
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-gray-800 h-64 rounded-xl flex items-center justify-center p-0 border border-gray-700 overflow-hidden">
-                <img 
-                    src="/mizo-confianza.jpg" 
-                    alt="Diagrama que representa la integración de hardware y software en Mizo Ingeniería"
-                    class="w-full h-full object-cover" 
-                    loading="lazy" 
-                    width="800"
-                    height="600"
-                />
-            </div>
-        </div>
-    </section>
+	<!-- PRODUCTOS DESTACADOS -->
+	<section class="bg-accent-soft py-20">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
+				<div>
+					<h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Productos Destacados</h2>
+					<p class="mt-2 text-gray-600">Equipos profesionales con entrega e instalación opcional.</p>
+				</div>
+				<a href="/productos" class="inline-flex items-center font-semibold text-accent-main hover:text-accent-hover">
+					Ver toda la tienda
+					<svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+				</a>
+			</div>
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+				{destacados.map((product) => <ProductCard product={product} />)}
+			</div>
+		</div>
+	</section>
 
-    <section id="contacto-final" class="bg-gray-800 py-20">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-4xl font-bold text-white mb-4">¿Tiene un proyecto?</h2>
-            <p class="text-xl text-gray-400 mb-8">
-                Solicite una cotización hoy mismo para empezar a diseñar su solución a medida.
-            </p>
-            <a href="/contacto" class="inline-block px-10 py-4 text-xl font-bold rounded-md text-gray-900 bg-accent-main hover:bg-accent-hover transition duration-300 shadow-xl">
-                Solicitar una Cotización Hoy
-            </a>
-        </div>
-    </section>
-    
-    <ClientLogos /> </Layout>
+	<!-- POR QUÉ MIZO -->
+	<section class="bg-white py-20">
+		<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+			<div>
+				<h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Ingeniería que inspira confianza</h2>
+				<p class="text-lg text-gray-600 mb-6">
+					En Mizo combinamos la venta de equipos con instalación profesional. Un solo proveedor para tu proyecto de sonido, audiovisual y electricidad, con trabajo prolijo y garantizado.
+				</p>
+				<ul class="space-y-3">
+					{[
+						'Equipos de marcas reconocidas y certificadas',
+						'Instalación según normativa eléctrica chilena',
+						'Cobertura en Frutillar, Santiago y todo Chile',
+						'Asesoría técnica antes, durante y después',
+					].map((item) => (
+						<li class="flex items-start text-gray-700">
+							<svg class="w-6 h-6 text-accent-main mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+							{item}
+						</li>
+					))}
+				</ul>
+				<div class="mt-8">
+					<a href="/nosotros" class="px-6 py-3 border border-accent-main text-base font-semibold rounded-md text-accent-main hover:bg-accent-main hover:text-white transition duration-300">
+						Conoce a Mizo
+					</a>
+				</div>
+			</div>
+
+			<div class="h-72 lg:h-80 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-accent-soft flex items-center justify-center">
+				<img
+					src="/mizo-confianza.jpg"
+					alt="Equipo de Mizo trabajando en una instalación"
+					class="w-full h-full object-cover"
+					loading="lazy"
+					width="800"
+					height="600"
+				/>
+			</div>
+		</div>
+	</section>
+
+	<!-- CTA FINAL -->
+	<section class="bg-accent-main py-16">
+		<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+			<h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">¿Tienes un proyecto en mente?</h2>
+			<p class="text-lg sm:text-xl text-blue-100 mb-8">
+				Cuéntanos qué necesitas y te enviamos una cotización a la medida.
+			</p>
+			<a href="/contacto" class="inline-block px-10 py-4 text-lg font-bold rounded-md text-accent-main bg-white hover:bg-blue-50 transition duration-300 shadow-lg">
+				Solicitar Cotización
+			</a>
+		</div>
+	</section>
+
+	<ClientLogos />
+</Layout>

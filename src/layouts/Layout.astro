@@ -59,14 +59,86 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
  <ViewTransitions />
  </head>
- <body class="bg-gray-900 text-gray-300 min-h-screen flex flex-col">
+ <body class="bg-white text-gray-900 min-h-screen flex flex-col">
 <Header />
- <main class="flex-grow max-w-9xl mx-auto w-full"> 
+ <main class="flex-grow w-full"> 
  <slot />
  </main>
  
 <Footer />
-        <WhatsAppButton /> </body>
+        <WhatsAppButton />
+
+        <script is:inline>
+            (function () {
+                const KEY = 'mizo-cart';
+                const read = () => {
+                    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
+                };
+                const write = (items) => {
+                    localStorage.setItem(KEY, JSON.stringify(items));
+                    updateBadge();
+                    document.dispatchEvent(new CustomEvent('cart:updated'));
+                };
+                const Cart = {
+                    items: read,
+                    count: () => read().reduce((n, i) => n + i.qty, 0),
+                    subtotal: () => read().reduce((n, i) => n + i.price * i.qty, 0),
+                    add(p, qty) {
+                        qty = qty || 1;
+                        const items = read();
+                        const e = items.find((i) => i.id === p.id);
+                        if (e) e.qty += qty;
+                        else items.push({ id: p.id, name: p.name, price: Number(p.price), image: p.image, qty });
+                        write(items);
+                    },
+                    setQty(id, qty) {
+                        let items = read();
+                        if (qty <= 0) items = items.filter((i) => i.id !== id);
+                        else { const e = items.find((i) => i.id === id); if (e) e.qty = qty; }
+                        write(items);
+                    },
+                    remove: (id) => write(read().filter((i) => i.id !== id)),
+                    clear: () => write([]),
+                };
+                window.MizoCart = Cart;
+
+                function updateBadge() {
+                    const n = Cart.count();
+                    document.querySelectorAll('[data-cart-count]').forEach((el) => {
+                        el.textContent = n;
+                        el.classList.toggle('hidden', n === 0);
+                    });
+                }
+                window.__mizoUpdateCartBadge = updateBadge;
+
+                if (!window.__mizoCartBound) {
+                    window.__mizoCartBound = true;
+                    document.addEventListener('click', function (ev) {
+                        const btn = ev.target.closest('[data-add-to-cart]');
+                        if (!btn) return;
+                        ev.preventDefault();
+                        Cart.add({
+                            id: btn.dataset.id,
+                            name: btn.dataset.name,
+                            price: Number(btn.dataset.price),
+                            image: btn.dataset.image,
+                        }, Number(btn.dataset.qty) || 1);
+                        const original = btn.getAttribute('data-label') || btn.textContent;
+                        btn.setAttribute('data-label', original);
+                        btn.textContent = '✓ Agregado';
+                        btn.classList.add('opacity-80');
+                        setTimeout(() => {
+                            btn.textContent = btn.getAttribute('data-label');
+                            btn.classList.remove('opacity-80');
+                        }, 1200);
+                    });
+                }
+
+                document.addEventListener('astro:page-load', updateBadge);
+                updateBadge();
+            })();
+        </script>
+    </body>
 </html>
 <style is:global>
 /* El bloque de estilo se deja tal como estaba en tu versión estable */

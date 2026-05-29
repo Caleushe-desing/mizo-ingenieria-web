@@ -3,28 +3,28 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="¡Mensaje Enviado! | Mizo Ingeniería" description="Confirmación de envío de la solicitud de contacto a Mizo Ingeniería.">
+<Layout title="¡Mensaje Enviado! | Mizo" description="Confirmación de envío de la solicitud de contacto a Mizo.">
     
-    <section class="bg-gray-900 py-32 sm:py-48 h-screen flex items-center justify-center">
+    <section class="bg-gradient-to-b from-accent-soft to-white py-32 sm:py-48 min-h-[80vh] flex items-center justify-center">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             
-            <div class="text-7xl mb-8 text-accent-main animate-bounce">
+            <div class="text-7xl mb-8 animate-bounce">
                 ✅
             </div>
 
-            <h1 class="text-6xl sm:text-7xl font-extrabold text-white mb-6">
-                ¡Gracias por su <span class="text-accent-main">Solicitud</span>!
+            <h1 id="gracias-titulo" class="text-5xl sm:text-6xl font-extrabold text-gray-900 mb-6">
+                ¡Gracias por tu <span class="text-accent-main">solicitud</span>!
             </h1>
             
-            <p class="mt-6 text-xl text-gray-400">
-                Hemos recibido su mensaje y un miembro de nuestro equipo se pondrá en contacto con usted a la brevedad posible.
+            <p id="gracias-texto" class="mt-6 text-xl text-gray-600">
+                Hemos recibido tu mensaje y un miembro de nuestro equipo se pondrá en contacto contigo a la brevedad.
                 Normalmente respondemos en el transcurso de un día hábil.
             </p>
 
             <div class="mt-10">
                 <a 
                     href="/" 
-                    class="inline-flex items-center justify-center py-4 px-8 border border-transparent rounded-lg shadow-xl text-lg font-bold text-gray-900 bg-accent-main hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-main transition duration-300 transform hover:scale-105"
+                    class="inline-flex items-center justify-center py-4 px-8 rounded-lg shadow-lg text-lg font-bold text-white bg-accent-main hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-main transition duration-300 transform hover:scale-105"
                 >
                     Volver a la Página Principal
                 </a>
@@ -32,5 +32,33 @@ import Layout from '../layouts/Layout.astro';
 
         </div>
     </section>
+
+    <script is:inline>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const status = params.get('status') || params.get('collection_status');
+            const isPayment = params.has('payment_id') || params.has('collection_id') || status;
+            if (!isPayment) return;
+
+            // Llega desde Mercado Pago: vaciamos el carrito y mostramos confirmación de compra.
+            try {
+                localStorage.removeItem('mizo-cart');
+                if (window.__mizoUpdateCartBadge) window.__mizoUpdateCartBadge();
+            } catch (e) {}
+
+            const titulo = document.getElementById('gracias-titulo');
+            const texto = document.getElementById('gracias-texto');
+            if (status === 'approved' || status === 'success') {
+                if (titulo) titulo.innerHTML = '¡Gracias por tu <span class="text-accent-main">compra</span>!';
+                if (texto) texto.textContent = 'Tu pago fue aprobado correctamente. Te contactaremos para coordinar la entrega de tus productos.';
+            } else if (status === 'pending' || status === 'in_process') {
+                if (titulo) titulo.innerHTML = 'Tu pago está <span class="text-accent-main">en proceso</span>';
+                if (texto) texto.textContent = 'Estamos esperando la confirmación del pago. Te avisaremos en cuanto se acredite.';
+            } else {
+                if (titulo) titulo.innerHTML = 'Gracias por tu <span class="text-accent-main">visita</span>';
+                if (texto) texto.textContent = 'Si tuviste algún problema con el pago, puedes intentarlo nuevamente o escribirnos por WhatsApp.';
+            }
+        })();
+    </script>
 
 </Layout>

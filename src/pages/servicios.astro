@@ -2,127 +2,120 @@
 import Layout from '../layouts/Layout.astro';
 import SectionCTA from '../components/SectionCTA.astro';
 
-// 155. Actualización de datos con rutas de imagen
 const services = [
 	{
-		title: 'Instalaciones Eléctricas Industriales',
-		description: 'Diseño, montaje y mantenimiento de infraestructuras eléctricas de baja y media tensión. Garantizamos el cumplimiento de normativas de seguridad y eficiencia energética, optimizando el rendimiento de maquinaria y sistemas productivos.',
-		icon: '⚡', 
-		details: [
-			'Diseño de cuadros eléctricos y distribución de potencia',
-			'Instalación de luminarias de alta eficiencia y sistemas de cableado estructurado',
-			'Mantenimiento preventivo y correctivo',
-			'Certificación de instalaciones según normativas locales',
-		],
-		image: '/servicio-electrico.jpg', // RUTA DE IMAGEN
-	},
-	{
-		title: 'Sistemas de Música Ambiental y Audio Profesional',
-		description: 'Instalación de sistemas de audio y sonido envolvente para entornos comerciales, industriales y corporativos. Utilizamos tecnología de zonificación inteligente para controlar la música y los avisos en diferentes áreas de forma centralizada.',
-		icon: '🎧', 
+		title: 'Sistemas de Sonido y Audio Profesional',
+		description: 'Diseñamos e instalamos sistemas de audio, megafonía y música ambiental para comercios, oficinas, eventos y hogares. Sonido nítido y controlado en cada rincón.',
+		icon: '🔊',
 		details: [
 			'Diseño acústico y selección de equipos de audio',
-			'Instalación de bocinas y amplificación zonificada',
-			'Sistemas de megafonía y avisos de emergencia',
-			'Integración con redes de datos y sistemas de control',
+			'Parlantes de cielo, columnas y line array',
+			'Amplificación y zonificación inteligente (multizona)',
+			'Megafonía y sistemas de avisos de emergencia',
 		],
-		image: '/servicio-audio.jpg', // RUTA DE IMAGEN
+		image: '/servicio-audio.jpg',
 	},
 	{
-		title: 'Instalación de Cámaras de Seguridad y CCTV',
-		description: 'Implementación de sistemas de videovigilancia avanzados (CCTV e IP) para monitoreo de seguridad y control de procesos. Ofrecemos soluciones escalables con analíticas de video, acceso remoto y almacenamiento seguro en la nube o local.',
-		icon: '📹', 
+		title: 'Soluciones Audiovisuales',
+		description: 'Proyección, pantallas, salas de reuniones y videovigilancia. Integramos imagen, video y control para que tus espacios comuniquen y se vean increíbles.',
+		icon: '📽️',
 		details: [
-			'Cámaras IP de alta resolución y visión nocturna',
-			'Sistemas de grabación NVR/DVR y almacenamiento seguro',
-			'Monitoreo remoto y alertas inteligentes (analíticas de video)',
-			'Integración con sistemas de alarma y control de acceso',
+			'Proyectores y pantallas eléctricas para salas y home cinema',
+			'Salas de reuniones y videoconferencia',
+			'Cámaras de seguridad y CCTV/IP con monitoreo remoto',
+			'Cableado estructurado y conectividad',
 		],
-		image: '/servicio-cctv.jpg', // RUTA DE IMAGEN
+		image: '/servicio-cctv.jpg',
 	},
 	{
-		title: 'Desarrollo de Software Empresarial a Medida',
-		description: 'Creamos soluciones de software escalables para optimizar la gestión interna, la recopilación de datos de producción y la toma de decisiones. Especializados en automatizar procesos complejos de los sectores industrial y de servicios.',
-		icon: '💻', 
+		title: 'Instalaciones Eléctricas',
+		description: 'Montaje, ampliación y certificación de instalaciones eléctricas seguras y eficientes para hogares e industria, cumpliendo la normativa eléctrica chilena.',
+		icon: '⚡',
 		details: [
-			'Aplicaciones web y móviles personalizadas (ERP/CRM)',
-			'Desarrollo de APIs para integración de hardware (IoT/OT)',
-			'Modernización y migración de sistemas legados',
-			'Plataformas de Business Intelligence y reportes',
+			'Diseño de tableros eléctricos y distribución de potencia',
+			'Instalación de iluminación de alta eficiencia',
+			'Protecciones, diferenciales y puesta a tierra',
+			'Mantenimiento preventivo y certificación de instalaciones',
 		],
-		image: '/servicio-software.jpg', // RUTA DE IMAGEN
+		image: '/servicio-electrico.jpg',
 	},
 ];
 ---
 
-<Layout title="Servicios | Mizo Ingeniería" description="Descubra las soluciones de ingeniería que Mizo Ingeniería ofrece en instalaciones eléctricas, sistemas de seguridad, audio y desarrollo de software a medida.">
-	
-	<section class="bg-gray-900 py-24 sm:py-32">
-		<div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
-				Soluciones de Ingeniería Avanzada
+<Layout
+	title="Servicios | Mizo - Sonido, Audiovisual y Electricidad"
+	description="Servicios de instalación de sistemas de sonido, soluciones audiovisuales e instalaciones eléctricas profesionales en Chile."
+>
+	<section class="bg-gradient-to-b from-accent-soft to-white py-20 sm:py-28">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
+				Servicios de <span class="text-accent-main">instalación profesional</span>
 			</h1>
-			<p class="mt-4 text-xl text-gray-400 max-w-4xl mx-auto">
-				Transformamos sus desafíos operativos en ventajas competitivas a través de tecnología precisa y bien ejecutada.
+			<p class="mt-4 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+				Tres especialidades, un solo equipo. Llevamos sonido, imagen y energía a tu proyecto con trabajo prolijo y garantizado.
 			</p>
 		</div>
 	</section>
 
-	<section class="py-20 bg-gray-800">
-		<div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
-			
+	<section class="py-20 bg-white">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
 			{services.map((service, index) => (
 				<div class:list={[
 					"grid grid-cols-1 lg:grid-cols-2 gap-12 items-center",
-					{ "lg:grid-flow-col-dense": index % 2 === 1 } // Alternar orden
+					{ "lg:grid-flow-col-dense": index % 2 === 1 }
 				]}>
-					
-					<div class:list={[
-						{ "lg:col-start-2": index % 2 === 1 } // Colocar texto a la derecha si es par
-					]}>
-						<h2 class="text-3xl lg:text-4xl font-bold text-white mb-10 border-b-4 border-blue-500 pb-2 inline-block">
-							<span class="text-accent-main mr-4 text-4xl">{service.icon}</span>
+					<div class:list={[{ "lg:col-start-2": index % 2 === 1 }]}>
+						<div class="text-4xl mb-4 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-accent-soft">
+							{service.icon}
+						</div>
+						<h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
 							{service.title}
 						</h2>
-						<p class="text-xl text-gray-400 mb-8">
+						<p class="text-lg text-gray-600 mb-6">
 							{service.description}
 						</p>
 
-						<ul class="space-y-3 text-lg text-gray-300">
+						<ul class="space-y-3 text-gray-700">
 							{service.details.map((detail) => (
 								<li class="flex items-start">
-									<svg class="w-6 h-6 text-accent-main mr-2 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+									<svg class="w-6 h-6 text-accent-main mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
 									{detail}
 								</li>
 							))}
 						</ul>
+
+						<div class="mt-8 flex flex-wrap gap-4">
+							<a href="/contacto" class="px-6 py-3 text-base font-semibold rounded-md text-white bg-accent-main hover:bg-accent-hover transition duration-300">
+								Cotizar este servicio
+							</a>
+							<a href="/productos" class="px-6 py-3 text-base font-semibold rounded-md text-accent-main border border-accent-main hover:bg-accent-soft transition duration-300">
+								Ver equipos
+							</a>
+						</div>
 					</div>
 
 					<div class:list={[
-						"h-96 rounded-xl flex items-center justify-center p-0 overflow-hidden", 
-						{ "lg:col-start-1": index % 2 === 1 } // Colocar imagen a la izquierda si es par
+						"h-80 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-accent-soft",
+						{ "lg:col-start-1": index % 2 === 1 }
 					]}>
-						<img 
-                            src={service.image} 
-                            alt={`Imagen representativa del servicio: ${service.title}`}
-                            class="w-full h-full object-cover" 
-                            loading="lazy" 
-                            width="800"
-                            height="600"
-                        />
+						<img
+							src={service.image}
+							alt={`Servicio: ${service.title}`}
+							class="w-full h-full object-cover"
+							loading="lazy"
+							width="800"
+							height="600"
+						/>
 					</div>
-
 				</div>
 			))}
 		</div>
 	</section>
 
-	<SectionCTA 
-		title="¿Busca una solución específica?"
-		subtitle="Nuestro equipo está listo para construir la tecnología exacta que necesita."
+	<SectionCTA
+		title="¿Buscas una solución a medida?"
+		subtitle="Nuestro equipo está listo para diseñar e instalar exactamente lo que tu proyecto necesita."
 		buttonText="Solicitar Cotización"
 		buttonLink="/contacto"
-		color="accent-main"
 	/>
-	
 </Layout>
