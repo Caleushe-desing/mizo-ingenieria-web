@@ -48,16 +48,48 @@ export const handler = async (event) => {
 
 	// Despacho (Starken): se agrega como un ítem más de la preferencia.
 	const shipCost = Math.round(Number(body.shipping?.cost) || 0);
+	const d = body.delivery || {};
+	const regionName = String(d.regionName || body.shipping?.region || '').slice(0, 80);
+	const comuna = String(d.comuna || '').slice(0, 80);
 	if (shipCost > 0) {
-		const region = String(body.shipping?.region || '').slice(0, 80);
+		const dest = [comuna, regionName].filter(Boolean).join(', ');
 		items.push({
 			id: 'envio',
-			title: region ? `Despacho Starken — ${region}` : 'Despacho Starken',
+			title: dest ? `Despacho Starken — ${dest}` : 'Despacho Starken',
 			quantity: 1,
 			unit_price: shipCost,
 			currency_id: 'CLP',
 		});
 	}
+
+	const nameParts = String(d.name || '').trim().split(/\s+/);
+	const payer = {};
+	if (nameParts.length) {
+		payer.name = nameParts[0].slice(0, 80);
+		if (nameParts.length > 1) payer.surname = nameParts.slice(1).join(' ').slice(0, 80);
+	}
+	if (d.email) payer.email = String(d.email).slice(0, 254);
+	if (d.phone) {
+		const digits = String(d.phone).replace(/\D/g, '');
+		if (digits.length >= 8) {
+			payer.phone = { area_code: digits.slice(0, 2), number: digits.slice(2) };
+		}
+	}
+	if (d.address || d.comuna) {
+		payer.address = {
+			street_name: String(d.address || '').slice(0, 200),
+			zip_code: String(d.comuna || '').slice(0, 20),
+		};
+	}
+
+	const metadata = {};
+	if (d.name) metadata.delivery_name = String(d.name).slice(0, 120);
+	if (d.phone) metadata.delivery_phone = String(d.phone).slice(0, 40);
+	if (d.email) metadata.delivery_email = String(d.email).slice(0, 120);
+	if (regionName) metadata.delivery_region = regionName;
+	if (comuna) metadata.delivery_comuna = comuna;
+	if (d.address) metadata.delivery_address = String(d.address).slice(0, 200);
+	if (d.reference) metadata.delivery_reference = String(d.reference).slice(0, 120);
 
 	const site =
 		process.env.URL ||
@@ -67,6 +99,8 @@ export const handler = async (event) => {
 
 	const preference = {
 		items,
+		...(Object.keys(payer).length ? { payer } : {}),
+		...(Object.keys(metadata).length ? { metadata } : {}),
 		back_urls: {
 			success: `${site}/gracias`,
 			failure: `${site}/carrito`,
