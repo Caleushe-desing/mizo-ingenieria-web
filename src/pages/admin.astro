@@ -354,8 +354,16 @@
 					orderStatuses = data.statuses || {};
 					renderPedidos();
 				} catch (e) {
+					const msg = e.message || 'Error desconocido';
+					const help = msg.includes('ADMIN_PASSWORD')
+						? `<p class="mt-3 text-gray-600 text-sm leading-relaxed">
+							En <strong>Netlify → Site configuration → Environment variables</strong> agrega
+							<code class="bg-gray-100 px-1 rounded">ADMIN_PASSWORD</code> con la <strong>misma clave</strong>
+							que usas para entrar a este panel. Luego haz un nuevo deploy (o espera 1 min) y pulsa Actualizar.
+						</p>`
+						: '';
 					document.getElementById('pedidos-list').innerHTML =
-						`<p class="text-red-500 text-sm p-4 bg-white border rounded-xl">${e.message}</p>`;
+						`<div class="text-red-600 text-sm p-4 bg-white border border-red-200 rounded-xl"><p class="font-semibold">${msg}</p>${help}</div>`;
 				}
 			}
 
