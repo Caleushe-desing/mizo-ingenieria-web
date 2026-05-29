@@ -101,6 +101,30 @@ const decodeEntities = (s = '') =>
 
 const stripTags = (s = '') => decodeEntities(s.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim();
 const clean = (s = '') => decodeEntities(String(s)).replace(/\s+/g, ' ').trim();
+// Corta a `max` caracteres SOLO si excede, eliminando la última palabra parcial.
+const truncate = (s = '', max = 200) => (s.length <= max ? s : s.slice(0, max).replace(/\s+\S*$/, '') + '…');
+
+// Intenta extraer "Etiqueta: valor" desde el HTML de descripción (Shopify) usando
+// los bloques naturales (<li>, <tr>, <p>, <br>).
+function specsFromHtml(html = '') {
+	const blocks = html.split(/<\s*(?:li|tr|p|br|\/h\d)[^>]*>/i);
+	const specs = [];
+	const seen = new Set();
+	for (const block of blocks) {
+		const text = stripTags(block);
+		const m = text.match(/^([\wáéíóúñü .,/+()-]{2,40}?)\s*[:：]\s*(.+)$/i);
+		if (!m) continue;
+		const label = clean(m[1]);
+		const value = truncate(clean(m[2]), 180);
+		if (!value || value.length < 2 || /^https?:/i.test(value)) continue;
+		const key = label.toLowerCase();
+		if (seen.has(key)) continue;
+		seen.add(key);
+		specs.push({ label, value });
+		if (specs.length >= 14) break;
+	}
+	return specs;
+}
 
 // Slug ASCII, limpio y seguro para URL y nombre de archivo.
 const slugify = (s = '') =>
@@ -203,7 +227,19 @@ function normalize(raw, store, host, category) {
 
 	const productUrl = `${host}/${id}/p`;
 	const brand = clean(raw.brand) || 'Genérico';
-	const desc = stripTags(raw.description || raw.metaTagDescription || '');
+	const fullDesc = stripTags(raw.description || raw.metaTagDescription || '');
+
+	// Ficha técnica desde las especificaciones de VTEX.
+	const SPEC_SKIP = /stock|promote|^manual$|full proteccion|^marca$|garant[ií]a|^sku$|tiendas|disponibil|^ean$|c[oó]digo|^id$/i;
+	const specs = [];
+	for (const key of raw.allSpecifications || []) {
+		if (SPEC_SKIP.test(key)) continue;
+		const val = raw[key];
+		if (!Array.isArray(val) || !val.length) continue;
+		const text = truncate(stripTags(val.join(' · ')).replace(/\s*\|\s*/g, ' · '), 180);
+		if (text && text.length > 1) specs.push({ label: clean(key), value: text });
+		if (specs.length >= 14) break;
+	}
 
 	return {
 		id,
@@ -211,7 +247,9 @@ function normalize(raw, store, host, category) {
 		name,
 		brand: titleCase(brand),
 		category: finalCat,
-		description: desc ? desc.slice(0, 200).replace(/\s+\S*$/, '') : `${titleCase(brand)} — ${name}.`,
+		description: fullDesc ? fullDesc.slice(0, 200).replace(/\s+\S*$/, '') : `${titleCase(brand)} — ${name}.`,
+		descriptionLong: fullDesc ? fullDesc.slice(0, 1200) : '',
+		specs,
 		basePrice: price,
 		stock,
 		available: true,
@@ -256,6 +294,7 @@ async function searchShopify(src) {
 
 			const name = clean(p.title);
 			const desc = stripTags(p.body_html || '');
+			const specs = specsFromHtml(p.body_html || '');
 			out.push({
 				id,
 				sku: skuFor(id, src.category),
@@ -263,6 +302,8 @@ async function searchShopify(src) {
 				brand: titleCase(clean(p.vendor || 'Genérico')),
 				category: src.category,
 				description: desc ? desc.slice(0, 200).replace(/\s+\S*$/, '') : `${name}.`,
+				descriptionLong: desc ? desc.slice(0, 1200) : '',
+				specs,
 				basePrice: price,
 				stock: null,
 				available: true,

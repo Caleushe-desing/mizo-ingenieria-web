@@ -19,6 +19,11 @@ export interface ProductSource {
 	capturedAt: string;
 }
 
+export interface ProductSpec {
+	label: string;
+	value: string;
+}
+
 export interface RawProduct {
 	id: string;
 	sku: string;
@@ -26,6 +31,8 @@ export interface RawProduct {
 	brand: string;
 	category: Category;
 	description: string;
+	descriptionLong?: string;
+	specs?: ProductSpec[];
 	basePrice: number;
 	stock?: number | null;
 	available?: boolean;

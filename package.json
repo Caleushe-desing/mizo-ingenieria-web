@@ -11,6 +11,7 @@
     "clean": "node cleanup.js",
     "sync-catalogo": "node scripts/sync-catalogo.mjs",
     "fetch-images": "node scripts/download-images.mjs",
+    "fetch-logos": "node scripts/fetch-logos.mjs",
     "fuentes": "node scripts/make-fuentes.mjs",
     "build-admin": "node scripts/build-admin.mjs"
   },

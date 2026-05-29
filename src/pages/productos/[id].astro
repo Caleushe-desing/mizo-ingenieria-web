@@ -132,6 +132,32 @@ const waLink = `https://wa.me/${waNumber}?text=${waText}`;
 				</div>
 			</div>
 
+			<div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8 border-t border-gray-100 pt-10">
+				<div class="lg:col-span-2">
+					<h2 class="text-xl font-bold text-gray-900 mb-3">Descripción</h2>
+					<div class="prose prose-sm max-w-none text-gray-600 leading-relaxed whitespace-pre-line">
+						{product.descriptionLong || product.description}
+					</div>
+					<p class="mt-4 text-xs text-gray-400">
+						Datos referenciales del fabricante/distribuidor. Ante cualquier duda, confírmanos por WhatsApp con el código SKU.
+					</p>
+				</div>
+
+				{product.specs && product.specs.length > 0 && (
+					<div class="lg:col-span-1">
+						<h2 class="text-xl font-bold text-gray-900 mb-3">Ficha técnica</h2>
+						<dl class="rounded-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
+							{product.specs.map((s, i) => (
+								<div class={`flex gap-3 px-4 py-2.5 text-sm ${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+									<dt class="w-2/5 shrink-0 font-semibold text-gray-700">{s.label}</dt>
+									<dd class="w-3/5 text-gray-600">{s.value}</dd>
+								</div>
+							))}
+						</dl>
+					</div>
+				)}
+			</div>
+
 			{related.length > 0 && (
 				<div class="mt-20">
 					<h2 class="text-2xl font-bold text-gray-900 mb-6">También te puede interesar</h2>
