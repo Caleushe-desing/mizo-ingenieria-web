@@ -7,6 +7,7 @@
 // expone en el sitio: se elimina aquí antes de exportar a los componentes.
 
 import rawProducts from './products.json';
+import hiddenProducts from './products-hidden.json';
 
 export const MARKUP = 0.2; // 20%
 
@@ -39,6 +40,7 @@ export interface RawProduct {
 	available?: boolean;
 	image: string;
 	tag?: string;
+	hidden?: boolean;
 	source: ProductSource;
 }
 
@@ -51,12 +53,17 @@ export const categories: { id: Category; label: string; icon: string; blurb: str
 	{ id: 'camara', label: 'Cámaras', icon: '📹', blurb: 'Cámaras de seguridad y videovigilancia WiFi.' },
 ];
 
-// Exportación pública: eliminamos `source` para que nunca llegue al HTML.
-export const products: Product[] = (rawProducts as RawProduct[]).map(({ source, ...rest }) => rest);
+// Todos los productos (incluye ocultos de prueba).
+const combined = [...(rawProducts as RawProduct[]), ...(hiddenProducts as RawProduct[])];
+const stripSource = ({ source, ...rest }: RawProduct): Product => rest;
 
-// Acceso rápido por id (para la página de detalle y el carrito).
+export const allProducts: Product[] = combined.map(stripSource);
+
+// Catálogo público: sin ocultos ni campo source.
+export const products: Product[] = allProducts.filter((p) => !p.hidden);
+
 export const productsById: Record<string, Product> = Object.fromEntries(
-	products.map((p) => [p.id, p]),
+	allProducts.map((p) => [p.id, p]),
 );
 
 /** Selección destacada: intercala parlantes, proyectores y cámaras. */

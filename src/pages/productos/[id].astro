@@ -2,10 +2,10 @@
 import Layout from '../../layouts/Layout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import SectionCTA from '../../components/SectionCTA.astro';
-import { products, sellingPrice, formatCLP, categories, type Product } from '../../data/products';
+import { products, allProducts, sellingPrice, formatCLP, categories, type Product } from '../../data/products';
 
 export function getStaticPaths() {
-	return products.map((product) => ({
+	return allProducts.map((product) => ({
 		params: { id: product.id },
 		props: { product },
 	}));
@@ -39,6 +39,7 @@ const waLink = `https://wa.me/${waNumber}?text=${waText}`;
 	title={`${product.name} | Mizo`}
 	description={`${product.name} — ${product.brand}. ${product.description}`}
 	ogImage={product.image}
+	noindex={product.hidden}
 >
 	<section class="bg-white py-8 sm:py-12">
 		<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

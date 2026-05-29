@@ -9,6 +9,7 @@ import '../styles/global.css';
 interface Props {
     title: string;
     description: string;
+    noindex?: boolean;
     // Propiedades para SEO avanzado
     ogTitle?: string;
     ogDescription?: string;
@@ -17,7 +18,8 @@ interface Props {
 
 const { 
     title, 
-    description, 
+    description,
+	noindex = false,
     ogTitle = title, 
     ogDescription = description, 
     ogImage = '/mizo-social-preview.jpg' // Imagen social por defecto
@@ -41,7 +43,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         
         <title>{title}</title>
         <meta name="description" content={description} />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
 
         <meta property="og:title" content={ogTitle} />
         <meta property="og:description" content={ogDescription} />

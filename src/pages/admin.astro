@@ -55,6 +55,11 @@
 
 				<!-- PRODUCTOS -->
 				<div id="view-productos">
+					<div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-900">
+						<strong>Producto de prueba (oculto):</strong>
+						<a href="/productos/producto-prueba-mizo" target="_blank" rel="noopener" class="text-accent-main font-semibold hover:underline ml-1">/productos/producto-prueba-mizo</a>
+						— precio $1.000 · SKU MZ-TEST-0001 · no aparece en la tienda pública.
+					</div>
 					<div id="cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
 					<div class="relative mb-4 max-w-xl">
 						<input id="admin-search" type="search" placeholder="Buscar por SKU, nombre, marca o tienda..." class="w-full pl-11 pr-4 py-3 rounded-md border border-gray-300 focus:ring-accent-main focus:border-accent-main focus:outline-none" />
@@ -83,7 +88,19 @@
 				<div id="view-pedidos" class="hidden">
 					<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
 						<p class="text-sm text-gray-600">Compras verificadas en Mercado Pago. Revisa el pago en MP y gestiona el envío.</p>
-						<button id="refresh-pedidos" type="button" class="text-sm font-semibold text-accent-main border border-accent-main px-4 py-2 rounded-md hover:bg-accent-soft">Actualizar</button>
+						<div class="flex flex-wrap gap-2">
+							<select id="pedidos-filter" class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white">
+								<option value="">Todos los estados</option>
+								<option value="nuevo">Solo nuevos</option>
+								<option value="verificado">Pago verificado</option>
+								<option value="preparando">Preparando envío</option>
+								<option value="enviado">Enviados</option>
+								<option value="entregado">Entregados</option>
+								<option value="cancelado">Cancelados</option>
+							</select>
+							<button id="export-pedidos" type="button" class="text-sm font-semibold text-gray-700 border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50">Exportar CSV</button>
+							<button id="refresh-pedidos" type="button" class="text-sm font-semibold text-accent-main border border-accent-main px-4 py-2 rounded-md hover:bg-accent-soft">Actualizar</button>
+						</div>
 					</div>
 					<p id="pedidos-count" class="text-sm text-gray-500 mb-3"></p>
 					<div id="pedidos-list" class="space-y-4"></div>
@@ -101,6 +118,46 @@
 			let allItems = [];
 			let allOrders = [];
 			let orderStatuses = {};
+			let pedidosFilter = '';
+
+			function filteredOrders() {
+				if (!pedidosFilter) return allOrders;
+				return allOrders.filter((o) => o.status === pedidosFilter);
+			}
+
+			function exportPedidosCsv() {
+				const orders = filteredOrders();
+				if (!orders.length) {
+					alert('No hay pedidos para exportar con el filtro actual.');
+					return;
+				}
+				const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+				const header = ['ID pago', 'Fecha', 'Estado', 'Total', 'Cliente', 'Email', 'Teléfono', 'Región', 'Comuna', 'Dirección', 'Referencia', 'Envío', 'Productos', 'Seguimiento', 'Notas'];
+				const rows = orders.map((o) => [
+					o.id,
+					formatDate(o.createdAt),
+					orderStatuses[o.status] || o.status,
+					o.total,
+					o.customer?.name,
+					o.customer?.email,
+					o.customer?.phone,
+					o.delivery?.region,
+					o.delivery?.comuna,
+					o.delivery?.address,
+					o.delivery?.reference,
+					o.shippingCost || 0,
+					(o.items || []).map((i) => `${i.title} x${i.quantity}`).join(' | '),
+					o.tracking,
+					o.adminNotes,
+				]);
+				const csv = [header, ...rows].map((r) => r.map(esc).join(',')).join('\n');
+				const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+				const a = document.createElement('a');
+				a.href = URL.createObjectURL(blob);
+				a.download = `pedidos-mizo-${new Date().toISOString().slice(0, 10)}.csv`;
+				a.click();
+				URL.revokeObjectURL(a.href);
+			}
 
 			function b64ToBytes(b64) {
 				return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
@@ -195,21 +252,24 @@
 			function renderPedidos() {
 				const list = document.getElementById('pedidos-list');
 				const empty = document.getElementById('pedidos-empty');
+				const visible = filteredOrders();
 				const nuevos = allOrders.filter((o) => o.status === 'nuevo').length;
 				const badge = document.getElementById('badge-nuevos');
 				if (nuevos > 0) { badge.textContent = nuevos; badge.classList.remove('hidden'); }
 				else badge.classList.add('hidden');
 
-				document.getElementById('pedidos-count').textContent = `${allOrders.length} pedido(s)`;
+				document.getElementById('pedidos-count').textContent =
+					pedidosFilter ? `${visible.length} de ${allOrders.length} pedido(s)` : `${allOrders.length} pedido(s)`;
 
-				if (!allOrders.length) {
+				if (!visible.length) {
 					list.innerHTML = '';
 					empty.classList.remove('hidden');
+					empty.textContent = pedidosFilter ? 'No hay pedidos con ese estado.' : 'Aún no hay pedidos registrados.';
 					return;
 				}
 				empty.classList.add('hidden');
 
-				list.innerHTML = allOrders.map((o) => {
+				list.innerHTML = visible.map((o) => {
 					const itemsHtml = (o.items || []).map((i) =>
 						`<li class="text-sm text-gray-600">${i.title} × ${i.quantity} — ${clp(i.unit_price * i.quantity)}</li>`
 					).join('');
@@ -320,6 +380,11 @@
 			document.getElementById('tab-productos').onclick = () => showTab('productos');
 			document.getElementById('tab-pedidos').onclick = () => showTab('pedidos');
 			document.getElementById('refresh-pedidos').onclick = () => loadPedidos();
+			document.getElementById('pedidos-filter').onchange = (e) => {
+				pedidosFilter = e.target.value;
+				renderPedidos();
+			};
+			document.getElementById('export-pedidos').onclick = () => exportPedidosCsv();
 			document.getElementById('admin-search').addEventListener('input', (e) => {
 				const q = e.target.value.trim().toLowerCase();
 				const filtered = !q ? allItems : allItems.filter((p) =>

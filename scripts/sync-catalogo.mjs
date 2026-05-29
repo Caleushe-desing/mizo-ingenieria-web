@@ -421,6 +421,18 @@ async function main() {
 	console.log(`Imágenes -> nuevas: ${ok}, reutilizadas: ${skip}, fallidas: ${fail}`);
 
 	valid.sort((a, b) => (a.category === b.category ? a.name.localeCompare(b.name) : a.category.localeCompare(b.category)));
+
+	// Productos ocultos (prueba interna) se conservan entre sincronizaciones.
+	const hiddenPath = path.join(root, 'src/data/products-hidden.json');
+	if (fs.existsSync(hiddenPath)) {
+		const hidden = JSON.parse(fs.readFileSync(hiddenPath, 'utf8'));
+		for (const p of hidden) {
+			const idx = valid.findIndex((x) => x.id === p.id);
+			if (idx >= 0) valid[idx] = p;
+			else valid.push(p);
+		}
+	}
+
 	fs.writeFileSync(OUT_JSON, JSON.stringify(valid, null, '\t') + '\n', 'utf8');
 	console.log(`\nEscrito ${path.relative(root, OUT_JSON)} con ${valid.length} productos.`);
 	const count = (c) => valid.filter((p) => p.category === c).length;

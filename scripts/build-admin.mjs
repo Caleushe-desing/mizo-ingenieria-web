@@ -17,7 +17,12 @@ const root = path.resolve(__dirname, '..');
 const password = process.argv[2] || process.env.ADMIN_PASSWORD || 'mizo2026';
 const ITERATIONS = 200000;
 
-const products = JSON.parse(fs.readFileSync(path.join(root, 'src/data/products.json'), 'utf8'));
+const products = [
+	...JSON.parse(fs.readFileSync(path.join(root, 'src/data/products.json'), 'utf8')),
+	...(fs.existsSync(path.join(root, 'src/data/products-hidden.json'))
+		? JSON.parse(fs.readFileSync(path.join(root, 'src/data/products-hidden.json'), 'utf8'))
+		: []),
+];
 const MARKUP = 0.2;
 const sell = (b) => Math.round((b * (1 + MARKUP)) / 10) * 10;
 
