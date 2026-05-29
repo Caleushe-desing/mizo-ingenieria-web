@@ -104,6 +104,30 @@ const clean = (s = '') => decodeEntities(String(s)).replace(/\s+/g, ' ').trim();
 // Corta a `max` caracteres SOLO si excede, eliminando la última palabra parcial.
 const truncate = (s = '', max = 200) => (s.length <= max ? s : s.slice(0, max).replace(/\s+\S*$/, '') + '…');
 
+// Peso por defecto (kg) por categoría cuando el producto no lo declara.
+const DEFAULT_WEIGHT = { sonido: 14, proyector: 2.5, camara: 0.7 };
+
+// Intenta extraer el peso en kg desde un texto ("Peso 12,5 kg", "850 g", etc.).
+function parseWeightKg(text = '') {
+	const m = String(text).match(/(\d{1,3}(?:[.,]\d{1,2})?)\s*(kgs?|kilos?|kilogramos|grs?|gramos|g)\b/i);
+	if (!m) return null;
+	let v = parseFloat(m[1].replace(',', '.'));
+	if (!isFinite(v) || v <= 0) return null;
+	if (/^(grs?|gramos|g)$/i.test(m[2])) v = v / 1000;
+	if (v <= 0 || v > 120) return null;
+	return Math.round(v * 100) / 100;
+}
+
+// Determina el peso de un producto: usa la spec "Peso", luego la descripción,
+// y finalmente un valor por defecto según la categoría.
+function weightFor(category, specs, desc, fallbackGrams) {
+	const pesoSpec = (specs || []).find((s) => /peso/i.test(s.label));
+	const fromSpec = pesoSpec ? parseWeightKg(pesoSpec.value) : null;
+	const fromDesc = fromSpec ? null : parseWeightKg(desc);
+	const fromGrams = fallbackGrams && fallbackGrams > 0 ? Math.round((fallbackGrams / 1000) * 100) / 100 : null;
+	return fromSpec || fromDesc || fromGrams || DEFAULT_WEIGHT[category] || 5;
+}
+
 // Intenta extraer "Etiqueta: valor" desde el HTML de descripción (Shopify) usando
 // los bloques naturales (<li>, <tr>, <p>, <br>).
 function specsFromHtml(html = '') {
@@ -250,6 +274,7 @@ function normalize(raw, store, host, category) {
 		description: fullDesc ? fullDesc.slice(0, 200).replace(/\s+\S*$/, '') : `${titleCase(brand)} — ${name}.`,
 		descriptionLong: fullDesc ? fullDesc.slice(0, 1200) : '',
 		specs,
+		weightKg: weightFor(finalCat, specs, fullDesc),
 		basePrice: price,
 		stock,
 		available: true,
@@ -304,6 +329,7 @@ async function searchShopify(src) {
 				description: desc ? desc.slice(0, 200).replace(/\s+\S*$/, '') : `${name}.`,
 				descriptionLong: desc ? desc.slice(0, 1200) : '',
 				specs,
+				weightKg: weightFor(src.category, specs, desc, Number(variant?.grams)),
 				basePrice: price,
 				stock: null,
 				available: true,

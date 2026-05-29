@@ -33,6 +33,7 @@ export interface RawProduct {
 	description: string;
 	descriptionLong?: string;
 	specs?: ProductSpec[];
+	weightKg?: number;
 	basePrice: number;
 	stock?: number | null;
 	available?: boolean;

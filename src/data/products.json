@@ -25,6 +25,7 @@
 				"value": "Cámara inteligente · Luz Dual IR/Blanca · 4 luces infrarrojas + 4 luces blancas"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 44990,
 		"stock": 10,
 		"available": true,
@@ -62,6 +63,7 @@
 				"value": "Cámara inteligente · Giro de 355° e inclinación de 90° · 6 luces infrarrojas con alcance de 10 metros"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 29990,
 		"stock": 1,
 		"available": true,
@@ -95,6 +97,7 @@
 				"value": "Cámaras de seguridad WIFI · Exterior - IP67 · FULL HD 1080P - 2MP · Soporta Slot MICRO SD hasta 256GB"
 			}
 		],
+		"weightKg": 0.8,
 		"basePrice": 47990,
 		"stock": 10,
 		"available": true,
@@ -128,6 +131,7 @@
 				"value": "Cámaras de seguridad WIFI"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 124990,
 		"stock": 10,
 		"available": true,
@@ -161,6 +165,7 @@
 				"value": "Cámaras de seguridad WIFI"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 99990,
 		"stock": 100,
 		"available": true,
@@ -194,6 +199,7 @@
 				"value": "Cámaras de seguridad WIFI"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 72990,
 		"stock": 10,
 		"available": true,
@@ -227,6 +233,7 @@
 				"value": "Cámaras de seguridad WIFI"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 79990,
 		"stock": 100,
 		"available": true,
@@ -260,6 +267,7 @@
 				"value": "Cámara de seguridad · Visión nocturna por infrarrojos · Resistente a la intemperie IP67 · Resolución 1080p · Soporta tarjetas microSD"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 54990,
 		"stock": 1,
 		"available": true,
@@ -297,6 +305,7 @@
 				"value": "Visión nocturna por infrarrojos Hasta 10 m · Resolución 1080p · Lente gran angular de 108° · Tres modos de alerta de sonido"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 29990,
 		"stock": 100,
 		"available": true,
@@ -334,6 +343,7 @@
 				"value": "Cámara de seguridad · Vista panorámica de 360 ° · Resolución 1080p · Visión nocturna IR · Detección de movimiento"
 			}
 		],
+		"weightKg": 0.8,
 		"basePrice": 74990,
 		"stock": 1,
 		"available": true,
@@ -367,6 +377,7 @@
 				"value": "Cámara de seguridad · Resolución 2K⁺ · Visión nocturna en color · Conversación bidireccional · Admite tarjeta MicroSD"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 69990,
 		"stock": 10,
 		"available": true,
@@ -404,6 +415,7 @@
 				"value": "Cámaras de seguridad WIFI · Cobertura visual de 360° · Con movimiento horizontal y vertical motorizado"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 29990,
 		"stock": 100,
 		"available": true,
@@ -441,6 +453,7 @@
 				"value": "Cámara de seguridad · Inalambrica Sí · Megapixel 2k · Smart IR 10 mts"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 64990,
 		"stock": 100,
 		"available": true,
@@ -478,6 +491,7 @@
 				"value": "Cámaras de seguridad WIFI · Resolución 2k · Vista panoramica 360°"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 49990,
 		"stock": 100,
 		"available": true,
@@ -515,6 +529,7 @@
 				"value": "Cámaras de seguridad WIFI · Alcance de hasta 30 metros · isión en total oscuridad con infrarrojos"
 			}
 		],
+		"weightKg": 0.67,
 		"basePrice": 79990,
 		"stock": 10,
 		"available": true,
@@ -552,6 +567,7 @@
 				"value": "Cámaras de seguridad WIFI · Con un sensor de imagen CMOS · Resolución 3K · Visión nocturna a color"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 59990,
 		"stock": 100,
 		"available": true,
@@ -589,6 +605,7 @@
 				"value": "Camara de seguridad · Audio Solo Escuchar · Megapixel 2 MP"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 21990,
 		"stock": 1,
 		"available": true,
@@ -626,6 +643,7 @@
 				"value": "Camara de seguridad · Lente Fijo · Megapixel 2 MP · Instalación Interior"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 18990,
 		"stock": 1,
 		"available": true,
@@ -663,6 +681,7 @@
 				"value": "Cámara de seguridad · Lente fijo · Megapixel 2 M · Smart IR 20 metros · Tecnología TVI/CVI/AHD/Analogo"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 19990,
 		"stock": 1,
 		"available": true,
@@ -696,6 +715,7 @@
 				"value": "Cámara DVR"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 29990,
 		"stock": 10,
 		"available": true,
@@ -729,6 +749,7 @@
 				"value": "Cámara DVR"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 26990,
 		"stock": 10,
 		"available": true,
@@ -766,6 +787,7 @@
 				"value": "Cámara de seguridad · Megapixel 2 MP"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 34990,
 		"stock": 100,
 		"available": true,
@@ -799,6 +821,7 @@
 				"value": "Cámaras de seguridad WIFI"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 49990,
 		"stock": 10,
 		"available": true,
@@ -836,6 +859,7 @@
 				"value": "Cámaras de seguridad · Ángulo de visión: 355 0 horizontal / 90 0 vertical · Visión nocturna: 1 2 pcs LED luz blanca 1000 lm, con infrarrojo"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 49990,
 		"stock": 100,
 		"available": true,
@@ -873,6 +897,7 @@
 				"value": "Camara de seguridad · Conexión WIFI Dual Band 2.4Ghz y 5.0 Ghz · Rotación: 355°horizontal /90º vertical"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 29990,
 		"stock": 10,
 		"available": true,
@@ -902,6 +927,7 @@
 				"value": "Cámara de seguridad · Ángulo de visión: 110° · Visión nocturna: 2 pcs LED luz blanca · Video: 1080p 15 fps · Energía: DC 12V, 2A"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 34990,
 		"stock": 10,
 		"available": true,
@@ -939,6 +965,7 @@
 				"value": "Cámaras WIFI · Resolución 3MP de alta definición · WiFi Dual Band (2.4GHz / 5GHz)"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 21990,
 		"stock": 10,
 		"available": true,
@@ -976,6 +1003,7 @@
 				"value": "Cámara fija IP · Resolución full HD 1080P · Compatibilidad Android e IOs"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 36990,
 		"stock": 10,
 		"available": true,
@@ -1009,6 +1037,7 @@
 				"value": "Cámaras de seguridad WIFI · Visión Noctura · Detección de Personas / Vehiculos · Recargable · FULL HD 1080P - 2K - 4MP - RED 3G/4G"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 149990,
 		"stock": 100,
 		"available": true,
@@ -1042,6 +1071,7 @@
 				"value": "Cámaras de seguridad WIFI · Lente Dual · Sensor Infrarojo · Panorámica 180° · FULL HD 4K - Ethernet"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 119990,
 		"stock": 100,
 		"available": true,
@@ -1079,6 +1109,7 @@
 				"value": "Camara Ip · Sensor de Imagen :Sensor CMOS de 1/2 · Resolución de Video 2560x1920"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 49990,
 		"stock": 1,
 		"available": true,
@@ -1116,6 +1147,7 @@
 				"value": "Camara Ip · Sensor de imagen: Sensor CMOS de 1/2.8 · Resolución: 3840 x 2160"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 299990,
 		"stock": 10,
 		"available": true,
@@ -1153,6 +1185,7 @@
 				"value": "Camara de seguridad · Resolución de 2304 x 1296,3 megapíxeles para imágenes · Ángulo de visión horizontal: 82° · Ángulo de visión vertical: 43° · Visión Nocturna de Alta Calidad"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 34990,
 		"stock": 100,
 		"available": true,
@@ -1186,6 +1219,7 @@
 				"value": "Cámaras de seguridad WIFI · TIPO PAN TIL 355° / 50° · Alta Definición 2560x1920 - 5MP · Admite Micro SD hasta 256 GB · Microfono y altavoz incorporado"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 99990,
 		"stock": 1,
 		"available": true,
@@ -1223,6 +1257,7 @@
 				"value": "Cámaras de seguridad WIFI · TIPO PAN TIL 355° / 40° · Alta Definición 2560x1440 - 4MP · Detección de movimiento, Personas y vehiculos · WI FI Dual Bnad"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 44990,
 		"stock": 1,
 		"available": true,
@@ -1256,6 +1291,7 @@
 				"value": "Cámaras de seguridad WIFI · Visión Nocturna · FULL HD - 5MP · WI FI Dual Bnad · Admite Micro SD hasta 256 GB"
 			}
 		],
+		"weightKg": 0.01,
 		"basePrice": 69990,
 		"stock": 100,
 		"available": true,
@@ -1293,6 +1329,7 @@
 				"value": "Cámaras de seguridad WIFI · Sensor de Movimiento · Visión Nocturna en color · Recargable · FULL HD - WI FI Dual Bnad"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 99990,
 		"stock": 100,
 		"available": true,
@@ -1326,6 +1363,7 @@
 				"value": "Cámaras de seguridad WIFI · Sensor de Movimiento · Audio bidireccional · Recargable · FULL HD 1080P"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 69990,
 		"stock": 100,
 		"available": true,
@@ -1359,6 +1397,7 @@
 				"value": "Cámaras de seguridad WIFI"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 119990,
 		"stock": 100,
 		"available": true,
@@ -1396,6 +1435,7 @@
 				"value": "Sensor de imagen: CMOS 1/2.7” · Formato video: H264 · Visión Nocturna: 10 mts · Audio Bidireccional: Si"
 			}
 		],
+		"weightKg": 0.47,
 		"basePrice": 79990,
 		"stock": 100,
 		"available": true,
@@ -1429,6 +1469,7 @@
 				"value": "Cámaras de seguridad WIFI · Lente Dual · Detección de mascotas y personas · Panorámica 180° · FULL HD 4K - WI FI Dual Bnad"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 129990,
 		"stock": 100,
 		"available": true,
@@ -1462,6 +1503,7 @@
 				"value": "Cámaras de seguridad WIFI · Bateria · Detección de Personas / Vehiculos · Panorámica 355° · FULL HD 1080P - 2K"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 169990,
 		"stock": 10,
 		"available": true,
@@ -1495,6 +1537,7 @@
 				"value": "Cámaras de seguridad WIFI · Visión nocturna a color · FULL HD 1080p - 2MP · Detección de movimiento sensor infrarrojo · Audio Bidireccional, Sirena · Admite Micro SD hasta 128 GB"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 43990,
 		"stock": 100,
 		"available": true,
@@ -1532,6 +1575,7 @@
 				"value": "Sensor de imagen:Sensor CMOS de 1/3' · Audio:Micrófono y altavoz integrados · Audio: Audio bidireccional"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 199990,
 		"stock": 100,
 		"available": true,
@@ -1565,6 +1609,7 @@
 				"value": "Timbre inalámbrico · WI FI Dual band · Detección de Personas · Luz de estado de timbre · Video de alta Definición 2K - 5MP"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 99990,
 		"stock": 100,
 		"available": true,
@@ -1606,6 +1651,7 @@
 				"value": "Camara de seguridad WiFi · Ángulo de giro inclinación 360° horizontal · 115° vertical"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 39990,
 		"stock": 100,
 		"available": true,
@@ -1643,6 +1689,7 @@
 				"value": "Alcance 30 mt · Visión nocturna · Ángulo de visión 180º · Cuenta con disco duro No"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 54990,
 		"stock": 1,
 		"available": true,
@@ -1676,6 +1723,7 @@
 				"value": "Fuente de poder · 12V-1A · Uso cámaras"
 			}
 		],
+		"weightKg": 0.7,
 		"basePrice": 9990,
 		"stock": null,
 		"available": true,
@@ -1709,6 +1757,7 @@
 				"value": "Proyector 3500 lúmenes · Resolución: 1920x1089 · Tamaño de imagen: 35'-150'"
 			}
 		],
+		"weightKg": 2.5,
 		"basePrice": 271990,
 		"stock": 10,
 		"available": true,
@@ -1742,6 +1791,7 @@
 				"value": "Proyector 2000 lumenes · 2000 Lúmenes · Resolución: 1280x720 · Tamaño de imagen: 35'-120'"
 			}
 		],
+		"weightKg": 2.5,
 		"basePrice": 142990,
 		"stock": 10,
 		"available": true,
@@ -1783,6 +1833,7 @@
 				"value": "Proyector · Conectividad Wi-Fi WiFi6 Doble Banda · Bluetooth 5.0 · Ajuste de la pantalla Auto"
 			}
 		],
+		"weightKg": 2.5,
 		"basePrice": 109990,
 		"stock": 100,
 		"available": true,
@@ -1824,6 +1875,7 @@
 				"value": "Proyector · Protección activada por calor: Sí · Altavoces: 8W X 2"
 			}
 		],
+		"weightKg": 2.5,
 		"basePrice": 279990,
 		"stock": 100,
 		"available": true,
@@ -1861,6 +1913,7 @@
 				"value": "Proyector · Conexiones de entrada: 3.5mm* 1 · Conexiones de salida: HDMI."
 			}
 		],
+		"weightKg": 2.5,
 		"basePrice": 389990,
 		"stock": 100,
 		"available": true,
@@ -1894,6 +1947,7 @@
 				"value": "Proyector · Conexiones de entrada: 3.5mm* 1 · Conexiones de salida: HDMI · 1200 Ansi"
 			}
 		],
+		"weightKg": 2.5,
 		"basePrice": 429990,
 		"stock": 10,
 		"available": true,
@@ -1931,6 +1985,7 @@
 				"value": "Interfaz del hardware ‎Bluetooth · Tecnología del sintonizador ‎UHF · Relación de aspecto ‎16:9"
 			}
 		],
+		"weightKg": 2.5,
 		"basePrice": 179990,
 		"stock": 100,
 		"available": true,
@@ -1972,6 +2027,7 @@
 				"value": "Proyector · Resolución: 1920*1080p · Contraste: 2500:1 · Bluetooth: 5,0"
 			}
 		],
+		"weightKg": 2.5,
 		"basePrice": 229990,
 		"stock": 10,
 		"available": true,
@@ -2009,6 +2065,7 @@
 				"value": "Proyector · Conectividad Wi-Fi y Bluetooth"
 			}
 		],
+		"weightKg": 2.5,
 		"basePrice": 289990,
 		"stock": null,
 		"available": true,
@@ -2046,6 +2103,7 @@
 				"value": "1100 lúmenes ANSI · Compatibilidad 4K en streaming · Sistema Google TV · Altavoces estéreo HiFi de 12 W"
 			}
 		],
+		"weightKg": 0.01,
 		"basePrice": 349990,
 		"stock": 10,
 		"available": true,
@@ -2115,6 +2173,7 @@
 				"value": "41 kg."
 			}
 		],
+		"weightKg": 41,
 		"basePrice": 644900,
 		"stock": null,
 		"available": true,
@@ -2188,6 +2247,7 @@
 				"value": "19.5 kg."
 			}
 		],
+		"weightKg": 19.5,
 		"basePrice": 367900,
 		"stock": null,
 		"available": true,
@@ -2265,6 +2325,7 @@
 				"value": "12.3 kg (aproximadamente)."
 			}
 		],
+		"weightKg": 12.3,
 		"basePrice": 376900,
 		"stock": null,
 		"available": true,
@@ -2330,6 +2391,7 @@
 				"value": "15.5 kg."
 			}
 		],
+		"weightKg": 15.5,
 		"basePrice": 219900,
 		"stock": null,
 		"available": true,
@@ -2403,6 +2465,7 @@
 				"value": "8.9 kg."
 			}
 		],
+		"weightKg": 8.9,
 		"basePrice": 168900,
 		"stock": null,
 		"available": true,
@@ -2432,6 +2495,7 @@
 				"value": "1 x 1\" HF compression driver"
 			}
 		],
+		"weightKg": 17.7,
 		"basePrice": 279900,
 		"stock": null,
 		"available": true,
@@ -2509,6 +2573,7 @@
 				"value": "90–240 V con cambio automático"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 199990,
 		"stock": 1,
 		"available": true,
@@ -2562,6 +2627,7 @@
 				"value": "Portátil, carcasa trapezoidal"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 429990,
 		"stock": 100,
 		"available": true,
@@ -2627,6 +2693,7 @@
 				"value": "Musicians, performers, presenters"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 535990,
 		"stock": 10,
 		"available": true,
@@ -2680,6 +2747,7 @@
 				"value": "PocasUnidades"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 359990,
 		"stock": 10,
 		"available": true,
@@ -2733,6 +2801,7 @@
 				"value": "13 kilos"
 			}
 		],
+		"weightKg": 13,
 		"basePrice": 449990,
 		"stock": 10,
 		"available": true,
@@ -2790,6 +2859,7 @@
 				"value": "True"
 			}
 		],
+		"weightKg": 3,
 		"basePrice": 529990,
 		"stock": 1,
 		"available": true,
@@ -2847,6 +2917,7 @@
 				"value": "True"
 			}
 		],
+		"weightKg": 19.3,
 		"basePrice": 719990,
 		"stock": 100,
 		"available": true,
@@ -2924,6 +2995,7 @@
 				"value": "43 Hz – 20 kHz (–10 dB); 54 Hz – 17 kHz (–3 dB)"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 2059990,
 		"stock": 10,
 		"available": true,
@@ -3001,6 +3073,7 @@
 				"value": "25,2 Kg"
 			}
 		],
+		"weightKg": 25.2,
 		"basePrice": 1399990,
 		"stock": 10,
 		"available": true,
@@ -3074,6 +3147,7 @@
 				"value": "7.9 kg"
 			}
 		],
+		"weightKg": 7.9,
 		"basePrice": 724990,
 		"stock": 10,
 		"available": true,
@@ -3151,6 +3225,7 @@
 				"value": "Limitador de Clip: Se activa a ~150 W de salida. Indicador de Limitador / Encendido: LED Rojo / LED Verde."
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 389990,
 		"stock": 10,
 		"available": true,
@@ -3228,6 +3303,7 @@
 				"value": "(@ 1W/1m): 96 dB"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 299990,
 		"stock": 100,
 		"available": true,
@@ -3305,6 +3381,7 @@
 				"value": "(Alto x Ancho x Profundidad): 606.5 mm x 380 mm x 327 mm"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 279990,
 		"stock": 10,
 		"available": true,
@@ -3362,6 +3439,7 @@
 				"value": "18 kilos"
 			}
 		],
+		"weightKg": 18,
 		"basePrice": 329990,
 		"stock": 100,
 		"available": true,
@@ -3419,6 +3497,7 @@
 				"value": "7.9 kg"
 			}
 		],
+		"weightKg": 7.9,
 		"basePrice": 459990,
 		"stock": 100,
 		"available": true,
@@ -3496,6 +3575,7 @@
 				"value": "12,4 kilos aprox"
 			}
 		],
+		"weightKg": 12.4,
 		"basePrice": 499990,
 		"stock": 100,
 		"available": true,
@@ -3516,6 +3596,7 @@
 		"description": "El EZ-12A ha sido desarrollado para responder a una necesidad específica de artistas, presentadores y artistas que demandan sistemas de PA de alta potencia pero en cualquier ubicación. Alimentado por",
 		"descriptionLong": "El EZ-12A ha sido desarrollado para responder a una necesidad específica de artistas, presentadores y artistas que demandan sistemas de PA de alta potencia pero en cualquier ubicación. Alimentado por una batería interna o por una entrada de red versátil de 100v-240v, el EZ-12A puede ir a cualquier parte. Con un reproductor de MP3 interno, entrada de micrófono inalámbrica, conectividad Bluetooth e incluso conectores analógicos estándar, el EZ-12A está listo para aceptar entradas desde cualquier lugar y sonar donde tú quieras. Banda B (863 MHZ - 865 MHZ).",
 		"specs": [],
+		"weightKg": 14,
 		"basePrice": 249990,
 		"stock": 100,
 		"available": true,
@@ -3593,6 +3674,7 @@
 				"value": "Alcance Bluetooth: 10 m."
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 289990,
 		"stock": 100,
 		"available": true,
@@ -3670,6 +3752,7 @@
 				"value": "(Alto x Ancho x Profundidad): 54.6 cm x 35.6 cm x 27.5 cm"
 			}
 		],
+		"weightKg": 12.8,
 		"basePrice": 519990,
 		"stock": 1,
 		"available": true,
@@ -3727,6 +3810,7 @@
 				"value": "19 kg"
 			}
 		],
+		"weightKg": 19,
 		"basePrice": 648990,
 		"stock": 1,
 		"available": true,
@@ -3776,6 +3860,7 @@
 				"value": "XLR, jack 1/4 pulgada, jack 1/8 pulgada (mini jack estéreo) y RCA L-R"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 815990,
 		"stock": 10,
 		"available": true,
@@ -3829,6 +3914,7 @@
 				"value": "19 kilos"
 			}
 		],
+		"weightKg": 19,
 		"basePrice": 359990,
 		"stock": 100,
 		"available": true,
@@ -3890,6 +3976,7 @@
 				"value": "PocasUnidades"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 279990,
 		"stock": 100,
 		"available": true,
@@ -3967,6 +4054,7 @@
 				"value": "Alto: 64,5 cm. Largo: 35,0 cm. Ancho: 33,0 cm."
 			}
 		],
+		"weightKg": 13.9,
 		"basePrice": 379900,
 		"stock": null,
 		"available": true,
@@ -4044,6 +4132,7 @@
 				"value": "Alto: 64,5 cm. Largo: 35,0 cm. Ancho: 33,0 cm."
 			}
 		],
+		"weightKg": 13.9,
 		"basePrice": 369900,
 		"stock": null,
 		"available": true,
@@ -4101,6 +4190,7 @@
 				"value": "35,9 kg. Peso bruto (con embalaje): Aprox. 45 kg."
 			}
 		],
+		"weightKg": 35.9,
 		"basePrice": 3399900,
 		"stock": null,
 		"available": true,
@@ -4178,6 +4268,7 @@
 				"value": "465 × 400 × 430 mm (An × Al × Pr), peso 16,4 kg."
 			}
 		],
+		"weightKg": 1.9,
 		"basePrice": 1079900,
 		"stock": null,
 		"available": true,
@@ -4255,6 +4346,7 @@
 				"value": "canal 1 combo XLR/Jack con selector mic/line, canal 2 XLR y TRS balanceadas, canal 3 Bluetooth"
 			}
 		],
+		"weightKg": 16.5,
 		"basePrice": 559900,
 		"stock": null,
 		"available": true,
@@ -4332,6 +4424,7 @@
 				"value": "18.8 kg"
 			}
 		],
+		"weightKg": 18.8,
 		"basePrice": 1305000,
 		"stock": null,
 		"available": true,
@@ -4397,6 +4490,7 @@
 				"value": "5.3 kg (por unidad)."
 			}
 		],
+		"weightKg": 5.3,
 		"basePrice": 849000,
 		"stock": null,
 		"available": true,
@@ -4470,6 +4564,7 @@
 				"value": "3.1 kg (por unidad)"
 			}
 		],
+		"weightKg": 3.1,
 		"basePrice": 356000,
 		"stock": null,
 		"available": true,
@@ -4523,6 +4618,7 @@
 				"value": "24.3 kg"
 			}
 		],
+		"weightKg": 24.3,
 		"basePrice": 555000,
 		"stock": null,
 		"available": true,
@@ -4588,6 +4684,7 @@
 				"value": "7.6 kg"
 			}
 		],
+		"weightKg": 7.6,
 		"basePrice": 899000,
 		"stock": null,
 		"available": true,
@@ -4657,6 +4754,7 @@
 				"value": "5.0 kg"
 			}
 		],
+		"weightKg": 5,
 		"basePrice": 453000,
 		"stock": null,
 		"available": true,
@@ -4722,6 +4820,7 @@
 				"value": "44.7 cms (sub), 61.9 cms (columna) Ancho: 33 cms (sub), 9.3 cms (columna) Profundidad: 43.1 cms (sub), 15.7 cms (columna) Peso: 19.9 kgs"
 			}
 		],
+		"weightKg": 19.9,
 		"basePrice": 1699000,
 		"stock": null,
 		"available": true,
@@ -4759,6 +4858,7 @@
 				"value": "19,8 kg"
 			}
 		],
+		"weightKg": 19.8,
 		"basePrice": 269900,
 		"stock": null,
 		"available": true,
@@ -4836,6 +4936,7 @@
 				"value": "107 dB"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 269990,
 		"stock": 100,
 		"available": true,
@@ -4913,6 +5014,7 @@
 				"value": "107 dB"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 269990,
 		"stock": 10,
 		"available": true,
@@ -4954,6 +5056,7 @@
 				"value": "PocasUnidades"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 226990,
 		"stock": 1,
 		"available": true,
@@ -5031,6 +5134,7 @@
 				"value": "675 mm x 445 mm x 473.5 mm"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 399990,
 		"stock": 100,
 		"available": true,
@@ -5088,6 +5192,7 @@
 				"value": "Controles acusticos de 4 posiciones para graves, medios y agudos, control de nivel de salida y ganancia de entrada, control de brillo del logo y ground lift."
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 2999900,
 		"stock": null,
 		"available": true,
@@ -5153,6 +5258,7 @@
 				"value": "100 kg."
 			}
 		],
+		"weightKg": 30,
 		"basePrice": 999000,
 		"stock": null,
 		"available": true,
@@ -5206,6 +5312,7 @@
 				"value": "13.5 kilos"
 			}
 		],
+		"weightKg": 13.5,
 		"basePrice": 499990,
 		"stock": 10,
 		"available": true,
@@ -5259,6 +5366,7 @@
 				"value": "18 kilos"
 			}
 		],
+		"weightKg": 18,
 		"basePrice": 599990,
 		"stock": 10,
 		"available": true,
@@ -5312,6 +5420,7 @@
 				"value": "22 kilos"
 			}
 		],
+		"weightKg": 22,
 		"basePrice": 699990,
 		"stock": 100,
 		"available": true,
@@ -5365,6 +5474,7 @@
 				"value": "12,7 kilos"
 			}
 		],
+		"weightKg": 12.7,
 		"basePrice": 1259990,
 		"stock": 10,
 		"available": true,
@@ -5426,6 +5536,7 @@
 				"value": "22 Kg"
 			}
 		],
+		"weightKg": 22,
 		"basePrice": 699990,
 		"stock": 10,
 		"available": true,
@@ -5503,6 +5614,7 @@
 				"value": "14.5 kg"
 			}
 		],
+		"weightKg": 14.5,
 		"basePrice": 823990,
 		"stock": 100,
 		"available": true,
@@ -5572,6 +5684,7 @@
 				"value": "19Kg"
 			}
 		],
+		"weightKg": 19,
 		"basePrice": 499990,
 		"stock": 100,
 		"available": true,
@@ -5629,6 +5742,7 @@
 				"value": "2,02 Kg"
 			}
 		],
+		"weightKg": 2.02,
 		"basePrice": 229990,
 		"stock": 100,
 		"available": true,
@@ -5686,6 +5800,7 @@
 				"value": "2,02 Kg"
 			}
 		],
+		"weightKg": 2.02,
 		"basePrice": 229990,
 		"stock": 100,
 		"available": true,
@@ -5763,6 +5878,7 @@
 				"value": "True"
 			}
 		],
+		"weightKg": 1.95,
 		"basePrice": 179990,
 		"stock": 100,
 		"available": true,
@@ -5820,6 +5936,7 @@
 				"value": "4,47 kg"
 			}
 		],
+		"weightKg": 4.47,
 		"basePrice": 479990,
 		"stock": 100,
 		"available": true,
@@ -5877,6 +5994,7 @@
 				"value": "4,47 kg"
 			}
 		],
+		"weightKg": 4.47,
 		"basePrice": 459990,
 		"stock": 100,
 		"available": true,
@@ -5930,6 +6048,7 @@
 				"value": "6,36 Kg"
 			}
 		],
+		"weightKg": 6.36,
 		"basePrice": 559990,
 		"stock": 10,
 		"available": true,
@@ -6007,6 +6126,7 @@
 				"value": "1,3 Kg"
 			}
 		],
+		"weightKg": 1.3,
 		"basePrice": 349990,
 		"stock": 100,
 		"available": true,
@@ -6076,6 +6196,7 @@
 				"value": "3 kilos"
 			}
 		],
+		"weightKg": 3,
 		"basePrice": 499990,
 		"stock": 10,
 		"available": true,
@@ -6145,6 +6266,7 @@
 				"value": "3 kilos"
 			}
 		],
+		"weightKg": 3,
 		"basePrice": 499990,
 		"stock": 10,
 		"available": true,
@@ -6206,6 +6328,7 @@
 				"value": "0,43 Kg"
 			}
 		],
+		"weightKg": 0.43,
 		"basePrice": 247990,
 		"stock": 10,
 		"available": true,
@@ -6267,6 +6390,7 @@
 				"value": "0,43 Kg"
 			}
 		],
+		"weightKg": 0.43,
 		"basePrice": 247990,
 		"stock": 10,
 		"available": true,
@@ -6336,6 +6460,7 @@
 				"value": "0.43 kg"
 			}
 		],
+		"weightKg": 0.43,
 		"basePrice": 169990,
 		"stock": 10,
 		"available": true,
@@ -6413,6 +6538,7 @@
 				"value": "0,43 kg"
 			}
 		],
+		"weightKg": 0.43,
 		"basePrice": 169990,
 		"stock": 1,
 		"available": true,
@@ -6490,6 +6616,7 @@
 				"value": "WiFi 6, HDMI eARC, Ethernet, Bluetooth 5.3 · WiFi 802.11 a/b/g/n/ac (2.4 y 5 GHz), Bluetooth 5.2, Apple AirPlay 2"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 169990,
 		"stock": 1,
 		"available": true,
@@ -6559,6 +6686,7 @@
 				"value": "0.43 kg"
 			}
 		],
+		"weightKg": 0.43,
 		"basePrice": 169990,
 		"stock": 10,
 		"available": true,
@@ -6620,6 +6748,7 @@
 				"value": "290 g"
 			}
 		],
+		"weightKg": 0.29,
 		"basePrice": 175990,
 		"stock": 1,
 		"available": true,
@@ -6689,6 +6818,7 @@
 				"value": "23.1 kg."
 			}
 		],
+		"weightKg": 23.1,
 		"basePrice": 899900,
 		"stock": null,
 		"available": true,
@@ -6758,6 +6888,7 @@
 				"value": "18.9 kg."
 			}
 		],
+		"weightKg": 18.9,
 		"basePrice": 749900,
 		"stock": null,
 		"available": true,
@@ -6831,6 +6962,7 @@
 				"value": "aproximadamente 10 kg"
 			}
 		],
+		"weightKg": 10,
 		"basePrice": 249900,
 		"stock": null,
 		"available": true,
@@ -6892,6 +7024,7 @@
 				"value": "14 kg — incluye bolsa acolchada para columna de 3 piezas"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 389900,
 		"stock": null,
 		"available": true,
@@ -6953,6 +7086,7 @@
 				"value": "14 kg — incluye bolsa acolchada para columna de 3 piezas"
 			}
 		],
+		"weightKg": 14,
 		"basePrice": 339990,
 		"stock": null,
 		"available": true,
@@ -7026,6 +7160,7 @@
 				"value": "13.7 kg"
 			}
 		],
+		"weightKg": 13.7,
 		"basePrice": 745000,
 		"stock": null,
 		"available": true,
@@ -7103,6 +7238,7 @@
 				"value": "Polipropileno resistente con manilla integrada"
 			}
 		],
+		"weightKg": 4.7,
 		"basePrice": 201450,
 		"stock": null,
 		"available": true,
@@ -7180,6 +7316,7 @@
 				"value": "Por Canal de Entrada: (Agudos) 10kHz Shelving ±15 dB, (Bajos) 100Hz Shelving ±15 dB."
 			}
 		],
+		"weightKg": 24,
 		"basePrice": 999990,
 		"stock": 10,
 		"available": true,
@@ -7233,6 +7370,7 @@
 				"value": "40 Hz a 20 kHz"
 			}
 		],
+		"weightKg": 13,
 		"basePrice": 579990,
 		"stock": 10,
 		"available": true,
@@ -7306,6 +7444,7 @@
 				"value": "4.7 kg aprox"
 			}
 		],
+		"weightKg": 4.7,
 		"basePrice": 257990,
 		"stock": 1,
 		"available": true,
@@ -7375,6 +7514,7 @@
 				"value": "True"
 			}
 		],
+		"weightKg": 26,
 		"basePrice": 2139990,
 		"stock": 10,
 		"available": true,
@@ -7440,6 +7580,7 @@
 				"value": "32 Kg"
 			}
 		],
+		"weightKg": 32,
 		"basePrice": 1405990,
 		"stock": 10,
 		"available": true,
@@ -7517,6 +7658,7 @@
 				"value": "37 kg"
 			}
 		],
+		"weightKg": 37,
 		"basePrice": 1029900,
 		"stock": null,
 		"available": true,
@@ -7586,6 +7728,7 @@
 				"value": "38.5 kg."
 			}
 		],
+		"weightKg": 38.5,
 		"basePrice": 577900,
 		"stock": null,
 		"available": true,

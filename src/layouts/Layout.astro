@@ -83,12 +83,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
                     items: read,
                     count: () => read().reduce((n, i) => n + i.qty, 0),
                     subtotal: () => read().reduce((n, i) => n + i.price * i.qty, 0),
+                    weight: () => read().reduce((n, i) => n + (Number(i.weight) || 0) * i.qty, 0),
                     add(p, qty) {
                         qty = qty || 1;
                         const items = read();
                         const e = items.find((i) => i.id === p.id);
                         if (e) e.qty += qty;
-                        else items.push({ id: p.id, name: p.name, price: Number(p.price), image: p.image, qty });
+                        else items.push({ id: p.id, name: p.name, price: Number(p.price), image: p.image, weight: Number(p.weight) || 0, qty });
                         write(items);
                     },
                     setQty(id, qty) {
@@ -122,6 +123,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
                             name: btn.dataset.name,
                             price: Number(btn.dataset.price),
                             image: btn.dataset.image,
+                            weight: Number(btn.dataset.weight) || 0,
                         }, Number(btn.dataset.qty) || 1);
                         const original = btn.getAttribute('data-label') || btn.textContent;
                         btn.setAttribute('data-label', original);

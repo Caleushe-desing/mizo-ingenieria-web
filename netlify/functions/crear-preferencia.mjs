@@ -46,6 +46,19 @@ export const handler = async (event) => {
 		return json(400, { error: 'Precios inválidos en el carrito.' });
 	}
 
+	// Despacho (Starken): se agrega como un ítem más de la preferencia.
+	const shipCost = Math.round(Number(body.shipping?.cost) || 0);
+	if (shipCost > 0) {
+		const region = String(body.shipping?.region || '').slice(0, 80);
+		items.push({
+			id: 'envio',
+			title: region ? `Despacho Starken — ${region}` : 'Despacho Starken',
+			quantity: 1,
+			unit_price: shipCost,
+			currency_id: 'CLP',
+		});
+	}
+
 	const site =
 		process.env.URL ||
 		process.env.DEPLOY_PRIME_URL ||
