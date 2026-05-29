@@ -1,77 +1,60 @@
 ---
-// Header.astro - Tema claro (fondo blanco, texto negro, acento azul)
+// Header.astro - Tienda online (fondo blanco, acento azul) con buscador
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
     { title: 'Inicio', url: '/' },
-    { title: 'Servicios', url: '/servicios' },
     { title: 'Productos', url: '/productos' },
+    { title: 'Instalación', url: '/servicios' },
     { title: 'Nosotros', url: '/nosotros' },
-    { title: 'Testimonios', url: '/testimonios' },
+    { title: 'Contacto', url: '/contacto' },
 ];
 
-const isActive = (url: string) => currentPath === url || (url !== '/' && currentPath.startsWith(url));
+const categoryLinks = [
+    { title: 'Parlantes', url: '/productos?cat=sonido', icon: '🔊' },
+    { title: 'Proyectores', url: '/productos?q=proyector', icon: '📽️' },
+    { title: 'Cámaras', url: '/productos?q=camara', icon: '📹' },
+    { title: 'Instalación', url: '/servicios', icon: '🛠️' },
+];
+
+const isActive = (url: string) => {
+    const base = url.split('?')[0];
+    return currentPath === base || (base !== '/' && currentPath.startsWith(base));
+};
 
 const logoSrc = "/mizo-logo.jpg";
-const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones Eléctricas";
+const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
 ---
 
 <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
+    <!-- Barra principal: logo + buscador + carrito -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16 sm:h-20"> 
-            
-            <div class="flex-shrink-0 flex items-center gap-3">
-                <a href="/" class="flex items-center gap-3">
-                    <img src={logoSrc} alt={logoAlt} class="h-10 sm:h-14 w-auto rounded-md" />
-                    <span class="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">
-                        Mizo<span class="text-accent-main">.</span>
-                    </span>
-                </a>
-            </div>
+        <div class="flex items-center gap-3 sm:gap-6 h-16 sm:h-20">
+            <a href="/" class="flex-shrink-0 flex items-center gap-2">
+                <img src={logoSrc} alt={logoAlt} class="h-10 sm:h-12 w-auto rounded-md" />
+                <span class="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight hidden xs:inline sm:inline">
+                    Mizo<span class="text-accent-main">.</span>
+                </span>
+            </a>
 
-            <nav class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-1">
-                    {navLinks.map((link) => (
-                        <a 
-                            href={link.url}
-                            class:list={[
-                                "px-3 py-2 rounded-md text-sm font-semibold transition duration-200",
-                                {
-                                    "text-accent-main bg-accent-soft": isActive(link.url),
-                                    "text-gray-700 hover:text-accent-main hover:bg-gray-50": !isActive(link.url),
-                                }
-                            ]}
-                            aria-current={isActive(link.url) ? "page" : undefined}
-                        >
-                            {link.title}
-                        </a>
-                    ))}
-
-                    <a
-                        href="/carrito"
-                        class="relative ml-2 p-2 rounded-md text-gray-700 hover:text-accent-main hover:bg-gray-50 transition"
-                        aria-label="Ver carrito"
-                    >
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                        </svg>
-                        <span data-cart-count class="hidden absolute -top-0.5 -right-0.5 min-w-[1.1rem] h-[1.1rem] px-1 flex items-center justify-center text-[0.65rem] font-bold rounded-full bg-accent-main text-white">0</span>
-                    </a>
-
-                    <a 
-                        href="/contacto" 
-                        class="ml-2 px-5 py-2 text-sm font-semibold rounded-md shadow-sm text-white 
-                        bg-accent-main hover:bg-accent-hover transition duration-200"
-                    >
-                        Cotizar
-                    </a>
+            <!-- Buscador (protagonista) -->
+            <form action="/productos" method="get" role="search" class="flex-grow max-w-2xl hidden sm:flex">
+                <div class="relative w-full">
+                    <input
+                        type="search"
+                        name="q"
+                        placeholder="Buscar parlantes, proyectores, cámaras..."
+                        aria-label="Buscar productos"
+                        class="w-full pl-11 pr-4 py-2.5 rounded-full border border-gray-300 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-accent-main focus:ring-2 focus:ring-accent-main/20 focus:outline-none transition"
+                    />
+                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
                 </div>
-            </nav>
+            </form>
 
-            <div class="flex md:hidden items-center gap-1">
+            <div class="flex items-center gap-1 sm:gap-2 ml-auto sm:ml-0">
                 <a
                     href="/carrito"
-                    class="relative p-2 rounded-md text-gray-700 hover:text-accent-main hover:bg-gray-100 transition"
+                    class="relative p-2 rounded-md text-gray-700 hover:text-accent-main hover:bg-gray-50 transition"
                     aria-label="Ver carrito"
                 >
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -80,11 +63,18 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones Eléctricas";
                     <span data-cart-count class="hidden absolute -top-0.5 -right-0.5 min-w-[1.1rem] h-[1.1rem] px-1 flex items-center justify-center text-[0.65rem] font-bold rounded-full bg-accent-main text-white">0</span>
                 </a>
 
-                <button 
-                    id="mobile-menu-button" 
-                    type="button" 
-                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-accent-main hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-accent-main" 
-                    aria-controls="mobile-menu" 
+                <a
+                    href="/contacto"
+                    class="hidden md:inline-flex px-5 py-2 text-sm font-semibold rounded-md shadow-sm text-white bg-accent-main hover:bg-accent-hover transition duration-200"
+                >
+                    Cotizar
+                </a>
+
+                <button
+                    id="mobile-menu-button"
+                    type="button"
+                    class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-accent-main hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-accent-main"
+                    aria-controls="mobile-menu"
                     aria-expanded="false"
                 >
                     <span class="sr-only">Abrir menú principal</span>
@@ -97,12 +87,62 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones Eléctricas";
                 </button>
             </div>
         </div>
+
+        <!-- Buscador móvil -->
+        <form action="/productos" method="get" role="search" class="sm:hidden pb-3">
+            <div class="relative w-full">
+                <input
+                    type="search"
+                    name="q"
+                    placeholder="Buscar productos..."
+                    aria-label="Buscar productos"
+                    class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-accent-main focus:outline-none transition"
+                />
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+            </div>
+        </form>
     </div>
-    
+
+    <!-- Sub-barra de navegación / categorías (escritorio) -->
+    <div class="hidden md:block border-t border-gray-100 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-11">
+                <nav class="flex items-center gap-1">
+                    {navLinks.map((link) => (
+                        <a
+                            href={link.url}
+                            class:list={[
+                                "px-3 py-1.5 rounded-md text-sm font-semibold transition duration-200",
+                                {
+                                    "text-accent-main": isActive(link.url),
+                                    "text-gray-600 hover:text-accent-main": !isActive(link.url),
+                                }
+                            ]}
+                            aria-current={isActive(link.url) ? "page" : undefined}
+                        >
+                            {link.title}
+                        </a>
+                    ))}
+                </nav>
+                <nav class="flex items-center gap-1">
+                    {categoryLinks.map((cat) => (
+                        <a
+                            href={cat.url}
+                            class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-500 hover:text-accent-main hover:bg-accent-soft transition"
+                        >
+                            <span aria-hidden="true">{cat.icon}</span> {cat.title}
+                        </a>
+                    ))}
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menú móvil -->
     <div class="md:hidden hidden border-t border-gray-200" id="mobile-menu">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
             {navLinks.map((link) => (
-                <a 
+                <a
                     href={link.url}
                     class:list={[
                         "block px-3 py-2 rounded-md text-base font-semibold transition duration-200",
@@ -116,10 +156,16 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones Eléctricas";
                     {link.title}
                 </a>
             ))}
-            <a 
-                href="/contacto" 
-                class="block w-full text-center mt-3 px-4 py-2 text-base font-semibold rounded-md shadow-sm text-white 
-                bg-accent-main hover:bg-accent-hover transition duration-200"
+            <div class="pt-2 mt-2 border-t border-gray-100 grid grid-cols-2 gap-1">
+                {categoryLinks.map((cat) => (
+                    <a href={cat.url} class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-accent-main hover:bg-gray-50">
+                        <span aria-hidden="true">{cat.icon}</span> {cat.title}
+                    </a>
+                ))}
+            </div>
+            <a
+                href="/contacto"
+                class="block w-full text-center mt-3 px-4 py-2 text-base font-semibold rounded-md shadow-sm text-white bg-accent-main hover:bg-accent-hover transition duration-200"
             >
                 Cotizar
             </a>
@@ -150,14 +196,14 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones Eléctricas";
             document.body.classList.toggle('overflow-hidden', isNowOpen);
             button.setAttribute('aria-expanded', isNowOpen.toString());
         };
-        
-        button.removeEventListener('click', toggleMenu); 
+
+        button.removeEventListener('click', toggleMenu);
         button.addEventListener('click', toggleMenu);
-        
+
         const closeMenuOnLinkClick = (event) => {
             if (event.target.tagName === 'A') {
                 if (!menu.classList.contains('hidden')) {
-                    toggleMenu(); 
+                    toggleMenu();
                 }
             }
         };
@@ -165,7 +211,7 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones Eléctricas";
         menu.removeEventListener('click', closeMenuOnLinkClick);
         menu.addEventListener('click', closeMenuOnLinkClick);
     }
-    
+
     document.addEventListener('DOMContentLoaded', initMobileMenu);
     document.addEventListener('astro:page-load', initMobileMenu);
 </script>
