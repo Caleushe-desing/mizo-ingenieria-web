@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # Documento privado con el origen de los precios (no publicar)
 PRECIOS-FUENTES.md
+
+# Mensaje de commit temporal
+.commit-msg.txt

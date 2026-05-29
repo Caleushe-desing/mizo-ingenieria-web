@@ -1,9 +1,0 @@
-feat: tienda con catalogo automatico, carrito y pago Mercado Pago
-
-- Catalogo de 105 productos (parlantes y proyectores/camaras) con precio
-  y stock reales sincronizados desde las tiendas (scripts/sync-catalogo.mjs)
-- Paginas de detalle por producto (/productos/[id])
-- Carrito de compras (localStorage) con badge en el header y pagina /carrito
-- Pago con Mercado Pago via funcion serverless de Netlify (Checkout Pro)
-- Actualizacion automatica diaria 00:00 (Netlify Scheduled Function + build hook)
-- Build resistente: si la sincronizacion falla se usa el catalogo guardado

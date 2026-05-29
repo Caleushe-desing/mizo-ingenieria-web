@@ -91,7 +91,8 @@ const BLOCKLIST = new RegExp(
 		'galax', 'estrellas', 'kids', 'niñ', 'cielo estrellado',
 		// instrumentos musicales (no son "parlantes")
 		'guitarra', '\\bbajo\\b', 'teclado', 'pedalera', 'cabezal', 'gabinete',
-		'ukelele', 'viol', 'bater', 'piano', 'multiefecto',
+		'ukelele', 'viol', 'bater', 'piano', 'multiefecto', 'platillo', 'baqueta',
+		'zildjian', 'parche', 'atril', 'metronomo', 'afinador',
 		// luminarias LED (no son proyectores de video)
 		'proyector de area', 'proyector de área', 'proyector led', 'led solar',
 		'panel solar', 'reflector', '\\bflat\\b', '\\bsmd\\b', 'area led', 'megabright',

@@ -85,6 +85,23 @@
 		}
 	},
 	{
+		"id": "caja-activa-con-bluetooth-wharfedale-tourusa15-15-500w",
+		"name": "Caja Activa Con Bluetooth Wharfedale TOURUS+A15 - 15\"/500w",
+		"brand": "Wharfedale",
+		"category": "sonido",
+		"description": "Para sonidistas profesionales, DJs de eventos masivos, músicos de giras y empresas de arriendo de equipos de sonido en Chile que buscan un altavoz activo con un equilibrio perfecto entre potencia,",
+		"basePrice": 514990,
+		"stock": 10,
+		"available": true,
+		"image": "/images/productos/caja-activa-con-bluetooth-wharfedale-tourusa15-15-500w.jpg",
+		"source": {
+			"store": "Audiomúsica",
+			"url": "https://www.audiomusica.com/caja-activa-con-bluetooth-wharfedale-tourusa15-15-500w/p",
+			"image": "https://audiomusicacl.vteximg.com.br/arquivos/ids/201751/1-caja-activa-con-bluetooth-wharfedale-tourusa15-15-500w-1114450.jpg?v=638881879619970000",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
 		"id": "caja-activa-fbt-900w-15-ventis-115a-dsp-b-c",
 		"name": "Caja activa FBT 15\" 900W Ventis 115A DSP B&C",
 		"brand": "Fbt",
@@ -608,23 +625,6 @@
 			"store": "Audiomúsica",
 			"url": "https://www.audiomusica.com/monitor-de-piso-activo-wharfedale-evpx15pm/p",
 			"image": "https://audiomusicacl.vteximg.com.br/arquivos/ids/200708/1088357-2.jpg?v=638840360277000000",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "pads-de-cuero-zildjian-p0751-para-platillos-de-banda",
-		"name": "Pads de cuero Zildjian P0751 para platillos de banda",
-		"brand": "Zildjian",
-		"category": "sonido",
-		"description": "P0751 ZILDJIAN. Pads de cuero para platillos de banda. Recomendado para usar en interior y",
-		"basePrice": 21990,
-		"stock": 10,
-		"available": true,
-		"image": "/images/productos/pads-de-cuero-zildjian-p0751-para-platillos-de-banda.jpg",
-		"source": {
-			"store": "Audiomúsica",
-			"url": "https://www.audiomusica.com/pads-de-cuero-zildjian-p0751-para-platillos-de-banda/p",
-			"image": "https://audiomusicacl.vteximg.com.br/arquivos/ids/173265/pads-de-cuero-zildjian-p0751-para-platillos-de-banda-1090717-1.jpg?v=637828636421500000",
 			"capturedAt": "2026-05-29"
 		}
 	},
