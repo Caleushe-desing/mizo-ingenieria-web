@@ -1,9 +1,6 @@
-// Webhook de Mercado Pago: recibe avisos de pago y envía correo a ventas/admin.
-// Se registra automáticamente vía notification_url al crear cada preferencia.
-//
-// También acepta GET ?topic=payment&id=123 (formato IPN clásico de MP).
+// Webhook Mercado Pago: verifica el pago y registra el pedido en el admin.
 
-import { fetchMpPayment, paymentItems, sendPurchaseEmail } from './lib/email-compra.mjs';
+import { fetchMpPayment, registerOrderFromPayment } from './lib/pedidos.mjs';
 
 const ok = (body = 'OK') => ({ statusCode: 200, body });
 const err = (code, body) => ({ statusCode: code, body });
@@ -32,25 +29,15 @@ export const handler = async (event) => {
 
 	try {
 		const payment = await fetchMpPayment(paymentId);
+		const result = await registerOrderFromPayment(payment);
 
-		// Solo notificamos compras acreditadas.
-		if (payment.status !== 'approved') {
-			console.log(`Pago ${paymentId}: status=${payment.status}, sin correo.`);
+		if (!result.ok) {
+			console.log(`Pago ${paymentId}: ${result.message || result.status}`);
 			return ok('Ignorado');
 		}
 
-		const result = await sendPurchaseEmail({
-			payment,
-			items: paymentItems(payment),
-		});
-
-		if (!result.ok) {
-			console.error(`Pago ${paymentId}: fallo correo —`, result.error);
-			return err(500, result.error);
-		}
-
-		console.log(`Pago ${paymentId}: correo enviado (${result.id}).`);
-		return ok('Notificado');
+		console.log(`Pago ${paymentId}: pedido registrado${result.duplicate ? ' (duplicado)' : ''}.`);
+		return ok('Registrado');
 	} catch (e) {
 		console.error('mp-notificacion error:', e);
 		return err(500, String(e.message || e));

@@ -1,7 +1,6 @@
-// Respaldo: confirma una compra aprobada y envía el correo (llamado desde /gracias).
-// Valida el pago directamente con la API de Mercado Pago.
+// Registra un pedido verificado en Mercado Pago (llamado desde /gracias tras el pago).
 
-import { fetchMpPayment, paymentItems, sendPurchaseEmail } from './lib/email-compra.mjs';
+import { fetchMpPayment, registerOrderFromPayment } from './lib/pedidos.mjs';
 
 const json = (statusCode, obj) => ({
 	statusCode,
@@ -26,18 +25,9 @@ export const handler = async (event) => {
 
 	try {
 		const payment = await fetchMpPayment(paymentId);
-
-		if (payment.status !== 'approved') {
-			return json(200, { ok: false, status: payment.status, message: 'Pago no aprobado aún' });
-		}
-
-		const result = await sendPurchaseEmail({
-			payment,
-			items: paymentItems(payment),
-		});
-
-		if (!result.ok) return json(500, { ok: false, error: result.error });
-		return json(200, { ok: true, emailId: result.id });
+		const result = await registerOrderFromPayment(payment);
+		if (!result.ok) return json(200, result);
+		return json(200, { ok: true, duplicate: result.duplicate, orderId: result.order.id });
 	} catch (e) {
 		console.error('confirmar-compra error:', e);
 		return json(500, { error: String(e.message || e) });
