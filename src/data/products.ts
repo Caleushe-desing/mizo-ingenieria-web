@@ -21,6 +21,7 @@ export interface ProductSource {
 
 export interface RawProduct {
 	id: string;
+	sku: string;
 	name: string;
 	brand: string;
 	category: Category;

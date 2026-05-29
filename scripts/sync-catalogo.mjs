@@ -63,6 +63,16 @@ const SOURCES = [
 	},
 ];
 
+// SKU estable y legible derivado del id del producto. No cambia entre
+// sincronizaciones (sirve para buscar el producto rápido en el panel /admin).
+const CAT_CODE = { sonido: 'SON', proyector: 'PRO', camara: 'CAM' };
+function skuFor(id, category) {
+	let h = 0;
+	for (let i = 0; i < id.length; i++) h = (Math.imul(h, 31) + id.charCodeAt(i)) >>> 0;
+	const code = h.toString(36).toUpperCase().padStart(6, '0').slice(-6);
+	return `MZ-${CAT_CODE[category] || 'GEN'}-${code}`;
+}
+
 // Convierte la categoría de la fuente en la categoría pública final.
 // Los productos de "video" se separan en proyectores y cámaras.
 function finalCategory(srcCategory, name) {
@@ -197,6 +207,7 @@ function normalize(raw, store, host, category) {
 
 	return {
 		id,
+		sku: skuFor(id, finalCat),
 		name,
 		brand: titleCase(brand),
 		category: finalCat,
@@ -247,6 +258,7 @@ async function searchShopify(src) {
 			const desc = stripTags(p.body_html || '');
 			out.push({
 				id,
+				sku: skuFor(id, src.category),
 				name,
 				brand: titleCase(clean(p.vendor || 'Genérico')),
 				category: src.category,

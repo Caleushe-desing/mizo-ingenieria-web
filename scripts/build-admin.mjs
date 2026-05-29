@@ -25,6 +25,7 @@ const payload = {
 	generatedAt: new Date().toISOString().slice(0, 10),
 	markup: MARKUP,
 	products: products.map((p) => ({
+		sku: p.sku,
 		name: p.name,
 		brand: p.brand,
 		category: p.category,

@@ -1,6 +1,7 @@
 [
 	{
 		"id": "daewoo-camara-seguridad-wi-fi-exterior-deteccion-movilidad-di-sc007",
+		"sku": "MZ-CAM-AYVSBN",
 		"name": "DAEWOO CAMARA SEGURIDAD WI FI EXTERIOR DETECCION MOVILIDAD DI-SC007",
 		"brand": "Daewoo",
 		"category": "camara",
@@ -18,6 +19,7 @@
 	},
 	{
 		"id": "daewoo-camara-seguridad-wi-fi-smart-ptz-interior-full-hd-1080p-di-sc002",
+		"sku": "MZ-CAM-9ZRJGP",
 		"name": "DAEWOO CAMARA SEGURIDAD WI FI SMART PTZ INTERIOR FULL HD 1080P DI-SC002",
 		"brand": "Daewoo",
 		"category": "camara",
@@ -35,6 +37,7 @@
 	},
 	{
 		"id": "ezviz-camara-wi-fi-2mp-c3tn-1080p-cc0979",
+		"sku": "MZ-CAM-DJVNCA",
 		"name": "EZVIZ CAMARA WI FI 2MP C3TN 1080P CC0979",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -52,6 +55,7 @@
 	},
 	{
 		"id": "ezviz-camara-wi-fi-2mp-doble-lente-28mm-exterior-full-hd-1080p-cc0981",
+		"sku": "MZ-CAM-0BSJBH",
 		"name": "EZVIZ CAMARA WI FI 2MP DOBLE LENTE 28MM EXTERIOR FULL HD 1080P CC0981",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -69,6 +73,7 @@
 	},
 	{
 		"id": "ezviz-camara-wi-fi-2mp-doble-lente-full-hd-1080p-cc0951",
+		"sku": "MZ-CAM-PPL4A0",
 		"name": "EZVIZ CAMARA WI FI 2MP DOBLE LENTE FULL HD 1080P CC0951",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -86,6 +91,7 @@
 	},
 	{
 		"id": "ezviz-camara-wi-fi-3k-full-hd-1080p-con-sirena-y-luz-vision-nocturna-cc1009",
+		"sku": "MZ-CAM-E7TMJS",
 		"name": "EZVIZ CAMARA WI FI 3K FULL HD 1080P CON SIRENA Y LUZ VISION NOCTURNA CC1009",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -103,6 +109,7 @@
 	},
 	{
 		"id": "ezviz-camara-wi-fi-tipo-baby-system-2mp-cc1016",
+		"sku": "MZ-CAM-G90WL8",
 		"name": "EZVIZ CAMARA WI FI TIPO BABY SYSTEM 2MP CC1016",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -120,6 +127,7 @@
 	},
 	{
 		"id": "ezviz-camara-wifi-2mp-h3c-ia-cs-h3c-r100-1k2wf-4mm-cc1028",
+		"sku": "MZ-CAM-3F5ULD",
 		"name": "EZVIZ CAMARA WIFI 2MP H3C IA CS-H3C-R100-1K2WF 4MM CC1028",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -137,6 +145,7 @@
 	},
 	{
 		"id": "ezviz-camara-wifi-h1c-2mp-cs-h1c-r101-1g2wr-cc1065",
+		"sku": "MZ-CAM-S5MSMB",
 		"name": "EZVIZ CAMARA WIFI H1C 2MP CS-H1C-R101-1G2WR CC1065",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -154,6 +163,7 @@
 	},
 	{
 		"id": "ezviz-camara-wifi-h3-2mp-ir10m-auto-tracking-cs-h3-r100-1h3wkfl",
+		"sku": "MZ-CAM-XIQ6YO",
 		"name": "EZVIZ CAMARA WIFI H3 2MP IR10M AUTO-TRACKING CS-H3-R100-1H3WKFL",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -171,6 +181,7 @@
 	},
 	{
 		"id": "ezviz-camara-wifi-h3c-4mp-2k-ia-cs-h3c-r100-1j4wkfl-2-8mm-cc1030",
+		"sku": "MZ-CAM-B2RLUB",
 		"name": "EZVIZ CAMARA WIFI H3C 4MP 2K+ IA CS-H3C-R100-1J4WKFL 2.8MM CC1030",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -188,6 +199,7 @@
 	},
 	{
 		"id": "ezviz-camara-wifi-h6c-pro-2k-smart-pt-smart-tracking-cc1147",
+		"sku": "MZ-CAM-9AM75X",
 		"name": "EZVIZ CAMARA WIFI H6C PRO 2K SMART / PT / SMART TRACKING CC1147",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -205,6 +217,7 @@
 	},
 	{
 		"id": "ezviz-camara-wifi-h7c-doble-lente-2k-2k-cc1066",
+		"sku": "MZ-CAM-VAV343",
 		"name": "EZVIZ CAMARA WIFI H7C DOBLE LENTE 2K+2K CC1066",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -222,6 +235,7 @@
 	},
 	{
 		"id": "ezviz-camara-wifi-h8c-2k-smart-pt-sirena-luz-auto-tracking-cc1148",
+		"sku": "MZ-CAM-3EVG1J",
 		"name": "EZVIZ CAMARA WIFI H8C 2K / SMART / PT / SIRENA / LUZ / AUTO TRACKING CC1148",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -239,6 +253,7 @@
 	},
 	{
 		"id": "ezviz-camara-wifi-h9c-2k-2k-doble-lente-ptz-cc1067-cs-h9c-r100-8h33wkfl",
+		"sku": "MZ-CAM-7GOCGG",
 		"name": "EZVIZ CAMARA WIFI H9C 2K + 2K DOBLE LENTE PTZ CC1067 CS-H9C-R100-8H33WKFL",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -256,6 +271,7 @@
 	},
 	{
 		"id": "ezviz-camara-wifi-inteligente-h6-3k-con-deteccion-de-personas-y-mascotas-seguimiento-automatico-y-audio-bidireccional",
+		"sku": "MZ-CAM-4ILM22",
 		"name": "EZVIZ CÁMARA WIFI INTELIGENTE H6 3K CON DETECCIÓN DE PERSONAS Y MASCOTAS, SEGUIMIENTO AUTOMÁTICO Y AUDIO BIDIRECCIONAL",
 		"brand": "Ezviz",
 		"category": "camara",
@@ -273,6 +289,7 @@
 	},
 	{
 		"id": "hikvision-camara-domo-dvr-2mp-con-audio-full-hd-1080p-28mm-cc6085",
+		"sku": "MZ-CAM-TS0E2P",
 		"name": "HIKVISION CAMARA DOMO DVR 2MP CON AUDIO FULL HD 1080P 28MM CC6085",
 		"brand": "Hikvision",
 		"category": "camara",
@@ -290,6 +307,7 @@
 	},
 	{
 		"id": "hikvision-camara-dvr-tvi-2mp-full-hd-1080p-dual-light-ds-2ce76d0t-exlpfhikvision-cc6284",
+		"sku": "MZ-CAM-CZ77DV",
 		"name": "HIKVISION CAMARA DVR TVI 2MP FULL HD 1080P DUAL LIGHT DS-2CE76D0T-EXLPFHIKVISION CC6284",
 		"brand": "Hikvision",
 		"category": "camara",
@@ -307,6 +325,7 @@
 	},
 	{
 		"id": "hikvision-camara-dvr-tvi-2mp-ir20mm-ip67-bullet-luz-inteligente-cc6283",
+		"sku": "MZ-CAM-R623SY",
 		"name": "HIKVISION CAMARA DVR TVI 2MP IR20MM IP67 BULLET LUZ INTELIGENTE CC6283",
 		"brand": "Hikvision",
 		"category": "camara",
@@ -324,6 +343,7 @@
 	},
 	{
 		"id": "hikvision-camara-dvr-tvi-colorvu-2mp-full-hd-1080p-28mm-ip67-bullet-cc5737",
+		"sku": "MZ-CAM-J563AD",
 		"name": "HIKVISION CAMARA DVR TVI COLORVU 2MP FULL HD 1080P 28MM IP67 BULLET CC5737",
 		"brand": "Hikvision",
 		"category": "camara",
@@ -341,6 +361,7 @@
 	},
 	{
 		"id": "hikvision-camara-dvr-tvi-colorvu-2mp-full-hd-1080p-28mm-ip67-domo-cc5762",
+		"sku": "MZ-CAM-LI2LKI",
 		"name": "HIKVISION CAMARA DVR TVI COLORVU 2MP FULL HD 1080P 28MM IP67 DOMO CC5762",
 		"brand": "Hikvision",
 		"category": "camara",
@@ -358,6 +379,7 @@
 	},
 	{
 		"id": "hikvision-camara-tvi-2mp-ir60m-ip67-2-7-135mm-cc6025",
+		"sku": "MZ-CAM-OLSAVV",
 		"name": "HIKVISION CAMARA TVI 2MP IR60M IP67 2.7-135MM CC6025",
 		"brand": "Hikvision",
 		"category": "camara",
@@ -375,6 +397,7 @@
 	},
 	{
 		"id": "hikvision-camara-wi-fi-cloud-2mp-colorvu-28mm-vision-nocturna-cc0994",
+		"sku": "MZ-CAM-FMEBJQ",
 		"name": "HIKVISION CAMARA WI FI CLOUD 2MP COLORVU 28MM VISION NOCTURNA CC0994",
 		"brand": "Hikvision",
 		"category": "camara",
@@ -392,6 +415,7 @@
 	},
 	{
 		"id": "mlab-camara-exterior-doble-lente-3mp-wifi",
+		"sku": "MZ-CAM-15PQ2O",
 		"name": "MLAB CAMARA EXTERIOR DOBLE LENTE 3MP WIFI",
 		"brand": "Mlab",
 		"category": "camara",
@@ -409,6 +433,7 @@
 	},
 	{
 		"id": "mlab-camara-wifi-3mp-ptz-dual-band-robotic-light",
+		"sku": "MZ-CAM-WQE54V",
 		"name": "MLAB CAMARA WIFI 3MP PTZ DUAL BAND ROBOTIC LIGHT",
 		"brand": "Mlab",
 		"category": "camara",
@@ -426,6 +451,7 @@
 	},
 	{
 		"id": "mlab-camara-wifi-exterior-bullet-ip65-dual-band-full-hd-1080p-eye-view-9260",
+		"sku": "MZ-CAM-47COAN",
 		"name": "MLAB CAMARA WIFI EXTERIOR BULLET IP65 DUAL BAND FULL HD 1080P EYE VIEW 9260",
 		"brand": "Mlab",
 		"category": "camara",
@@ -443,6 +469,7 @@
 	},
 	{
 		"id": "mlab-camara-wifi-fixed-light-3mp-dual-band",
+		"sku": "MZ-CAM-W3Z0NA",
 		"name": "MLAB CAMARA WIFI FIXED LIGHT 3MP DUAL BAND",
 		"brand": "Mlab",
 		"category": "camara",
@@ -460,6 +487,7 @@
 	},
 	{
 		"id": "motorola-camara-wifi-interior-fija",
+		"sku": "MZ-CAM-8W82Y5",
 		"name": "MOTOROLA CAMARA WIFI INTERIOR FIJA",
 		"brand": "Motorola",
 		"category": "camara",
@@ -477,6 +505,7 @@
 	},
 	{
 		"id": "reolink-camara-go-plus-4g-2k-smart-inalambrica-vision-nocturna-zoom-digital-16x",
+		"sku": "MZ-CAM-JYUXOD",
 		"name": "REOLINK CAMARA GO PLUS 4G 2K / SMART / INALAMBRICA / VISION NOCTURNA / ZOOM DIGITAL 16X",
 		"brand": "Reolink",
 		"category": "camara",
@@ -494,6 +523,7 @@
 	},
 	{
 		"id": "reolink-camara-ip-duo-2-poe-4k-doble-lente-angulo-180-poe-smart-foco-waterproof",
+		"sku": "MZ-CAM-1P7AAN",
 		"name": "REOLINK CAMARA IP DUO 2 POE 4K / DOBLE LENTE ANGULO 180 / POE / SMART / FOCO / WATERPROOF",
 		"brand": "Reolink",
 		"category": "camara",
@@ -511,6 +541,7 @@
 	},
 	{
 		"id": "reolink-camara-ip-p320-5mp-poe-smart-vision-nocturna-waterproof",
+		"sku": "MZ-CAM-KIEH2M",
 		"name": "REOLINK CAMARA IP P320 5MP POE / SMART / VISION NOCTURNA / WATERPROOF",
 		"brand": "Reolink",
 		"category": "camara",
@@ -528,6 +559,7 @@
 	},
 	{
 		"id": "reolink-camara-ip-p850-4k-poe-smart-ptz-360-grados-zoom-16x-vision-nocturna-waterproof",
+		"sku": "MZ-CAM-7BSAX7",
 		"name": "REOLINK CAMARA IP P850 4K POE / SMART / PTZ 360 GRADOS / ZOOM 16X / VISION NOCTURNA / WATERPROOF",
 		"brand": "Reolink",
 		"category": "camara",
@@ -545,6 +577,7 @@
 	},
 	{
 		"id": "reolink-camara-ip-wifi-e1-3mp-smart-pt",
+		"sku": "MZ-CAM-TJOIBD",
 		"name": "REOLINK CAMARA IP WIFI E1 3MP SMART PT",
 		"brand": "Reolink",
 		"category": "camara",
@@ -562,6 +595,7 @@
 	},
 	{
 		"id": "reolink-camara-ip-wifi-e1-outdoor-5mp-smart-ptz-waterproof-foco-sirena-zoom-optico-3x",
+		"sku": "MZ-CAM-SLFFG4",
 		"name": "REOLINK CAMARA IP WIFI E1 OUTDOOR 5MP / SMART / PTZ / WATERPROOF / FOCO / SIRENA / ZOOM OPTICO 3X",
 		"brand": "Reolink",
 		"category": "camara",
@@ -579,6 +613,7 @@
 	},
 	{
 		"id": "reolink-camara-ip-wifi-e1-pro-4mp-smart-pt",
+		"sku": "MZ-CAM-IB7K8O",
 		"name": "REOLINK CAMARA IP WIFI E1 PRO 4MP / SMART / PT",
 		"brand": "Reolink",
 		"category": "camara",
@@ -596,6 +631,7 @@
 	},
 	{
 		"id": "reolink-camara-ip-wifi-rlc-510wa-5mp-smart-waterproof",
+		"sku": "MZ-CAM-O9421S",
 		"name": "REOLINK CAMARA IP WIFI RLC-510WA 5MP / SMART / WATERPROOF",
 		"brand": "Reolink",
 		"category": "camara",
@@ -613,6 +649,7 @@
 	},
 	{
 		"id": "reolink-camara-wifi-argus-3-pro-2k-inalambrica-smart-vision-nocturna-waterproof-zoom-digital",
+		"sku": "MZ-CAM-XQXCSK",
 		"name": "REOLINK CAMARA WIFI ARGUS 3 PRO 2K INALAMBRICA / SMART / VISION NOCTURNA / WATERPROOF / ZOOM DIGITAL",
 		"brand": "Reolink",
 		"category": "camara",
@@ -630,6 +667,7 @@
 	},
 	{
 		"id": "reolink-camara-wifi-argus-eco-3mp-inalambrica-smart-waterproof-zoom-digital-6x-sirena-usb-c",
+		"sku": "MZ-CAM-VMWZ4W",
 		"name": "REOLINK CAMARA WIFI ARGUS ECO 3MP / INALAMBRICA / SMART / WATERPROOF / ZOOM DIGITAL 6X/SIRENA/USB-C",
 		"brand": "Reolink",
 		"category": "camara",
@@ -647,6 +685,7 @@
 	},
 	{
 		"id": "reolink-camara-wifi-argus-pt-5mp-inalambrica-smart-pt-waterproof-foco-usb-c",
+		"sku": "MZ-CAM-JIEBOX",
 		"name": "REOLINK CAMARA WIFI ARGUS PT 5MP / INALAMBRICA / SMART / PT / WATERPROOF / FOCO / USB-C",
 		"brand": "Reolink",
 		"category": "camara",
@@ -664,6 +703,7 @@
 	},
 	{
 		"id": "reolink-camara-wifi-argus-pt-lite-3mp-inalambrica-smart-pt-waterproof-usb-c",
+		"sku": "MZ-CAM-JSPAQS",
 		"name": "REOLINK CAMARA WIFI ARGUS PT LITE 3MP / INALAMBRICA / SMART / PT / WATERPROOF / USB-C",
 		"brand": "Reolink",
 		"category": "camara",
@@ -681,6 +721,7 @@
 	},
 	{
 		"id": "reolink-camara-wifi-duo-2-4k-smart-doble-lente-angulo-180-waterproof-foco-sirena",
+		"sku": "MZ-CAM-2P2ZDI",
 		"name": "REOLINK CAMARA WIFI DUO 2 4K / SMART /DOBLE LENTE ANGULO 180 / WATERPROOF / FOCO / SIRENA",
 		"brand": "Reolink",
 		"category": "camara",
@@ -698,6 +739,7 @@
 	},
 	{
 		"id": "reolink-camara-wifi-go-pt-plus-2k-4g-lte-inalambrica-smart-pt-sirena-foco",
+		"sku": "MZ-CAM-KPG9TH",
 		"name": "REOLINK CAMARA WIFI GO PT PLUS 2K 4G LTE INALAMBRICA SMART PT SIRENA FOCO",
 		"brand": "Reolink",
 		"category": "camara",
@@ -715,6 +757,7 @@
 	},
 	{
 		"id": "reolink-camara-wifi-lumus-4mp-smart-waterproof",
+		"sku": "MZ-CAM-5FXRQT",
 		"name": "REOLINK CAMARA WIFI LUMUS 4MP / SMART / WATERPROOF",
 		"brand": "Reolink",
 		"category": "camara",
@@ -732,6 +775,7 @@
 	},
 	{
 		"id": "reolink-camara-wifi-trackmix-2k-inalambrica-smart-doble-lente-ptz",
+		"sku": "MZ-CAM-VJEIPT",
 		"name": "REOLINK CAMARA WIFI TRACKMIX 2K INALAMBRICA / SMART / DOBLE LENTE / PTZ",
 		"brand": "Reolink",
 		"category": "camara",
@@ -749,6 +793,7 @@
 	},
 	{
 		"id": "reolink-timbre-inalambrico-wi-fi-con-video-camara-hd-5mp-deteccion-de-personas-funciona-c-nvr",
+		"sku": "MZ-CAM-5FD5AC",
 		"name": "REOLINK TIMBRE INALAMBRICO WI FI CON VIDEO CAMARA HD 5MP DETECCION DE PERSONAS FUNCIONA C/ NVR",
 		"brand": "Reolink",
 		"category": "camara",
@@ -766,6 +811,7 @@
 	},
 	{
 		"id": "switchbot-camara-3k-giro-360-inclinacion-wifi",
+		"sku": "MZ-CAM-1UXCPM",
 		"name": "SWITCHBOT CÁMARA 3K GIRO 360° INCLINACIÓN WIFI",
 		"brand": "Switchbot",
 		"category": "camara",
@@ -783,6 +829,7 @@
 	},
 	{
 		"id": "tapo-camara-wifi-de-seguridad-exterior-ip66-vision-nocturna-color-2k-hd-tapo-c320ws",
+		"sku": "MZ-CAM-3QZ1VV",
 		"name": "TAPO CAMARA WIFI DE SEGURIDAD EXTERIOR IP66 VISION NOCTURNA COLOR 2K HD TAPO C320WS",
 		"brand": "Tapo",
 		"category": "camara",
@@ -800,6 +847,7 @@
 	},
 	{
 		"id": "witson-fte-12v-1amp-p-camara-w3-ad0912s",
+		"sku": "MZ-CAM-PYGH1X",
 		"name": "WITSON FTE 12V-1AMP P/CAMARA W3-AD0912S",
 		"brand": "Witson",
 		"category": "camara",
@@ -817,6 +865,7 @@
 	},
 	{
 		"id": "philco-70ppr3115n-proyector-3500-lumenes",
+		"sku": "MZ-PRO-3G7QQS",
 		"name": "PHILCO 70PPR3115N PROYECTOR 3500 LUMENES",
 		"brand": "Philco",
 		"category": "proyector",
@@ -834,6 +883,7 @@
 	},
 	{
 		"id": "philco-proyector-2000-lumenes",
+		"sku": "MZ-PRO-40FF6A",
 		"name": "PHILCO PROYECTOR 2000 LUMENES",
 		"brand": "Philco",
 		"category": "proyector",
@@ -851,6 +901,7 @@
 	},
 	{
 		"id": "wanbo-proyector-dali-1-led-lcd-350-ansi-bt-wifi-auto-screen-fit",
+		"sku": "MZ-PRO-X4FAPN",
 		"name": "WANBO PROYECTOR DALI 1 LED/LCD / 350 ANSI / BT / WIFI / AUTO SCREEN FIT",
 		"brand": "Wanbo",
 		"category": "proyector",
@@ -868,6 +919,7 @@
 	},
 	{
 		"id": "wanbo-proyector-davinci-1-pro-led-lcd-600-ansi-bt-wifi-auto-screen-fit",
+		"sku": "MZ-PRO-UC7JUP",
 		"name": "WANBO PROYECTOR DAVINCI 1 PRO LED/LCD / 600 ANSI / BT / WIFI / AUTO SCREEN FIT",
 		"brand": "Wanbo",
 		"category": "proyector",
@@ -885,6 +937,7 @@
 	},
 	{
 		"id": "wanbo-proyector-mozart-1-pro-led-lcd-900-ansi-bt-wifi-auto-screen-fit",
+		"sku": "MZ-PRO-NUIMLB",
 		"name": "WANBO PROYECTOR MOZART 1 PRO LED/LCD / 900 ANSI / BT / WIFI / AUTO SCREEN FIT",
 		"brand": "Wanbo",
 		"category": "proyector",
@@ -902,6 +955,7 @@
 	},
 	{
 		"id": "wanbo-proyector-mozart-1-pro-new-1200-ansi",
+		"sku": "MZ-PRO-LBUY5C",
 		"name": "WANBO PROYECTOR MOZART 1 PRO NEW 1200 ANSI",
 		"brand": "Wanbo",
 		"category": "proyector",
@@ -919,6 +973,7 @@
 	},
 	{
 		"id": "wanbo-proyector-new-t2-max-dark-blue-led-lcd-450-ansi-bt-wifi",
+		"sku": "MZ-PRO-VKYB69",
 		"name": "WANBO PROYECTOR NEW T2 MAX DARK BLUE LED/LCD / 450 ANSI / BT / WIFI",
 		"brand": "Wanbo",
 		"category": "proyector",
@@ -936,6 +991,7 @@
 	},
 	{
 		"id": "wanbo-proyector-t2-ultra-500-ansi-white-bt-wifi-android-11",
+		"sku": "MZ-PRO-RKNJI5",
 		"name": "WANBO PROYECTOR T2 ULTRA 500 ANSI / WHITE / BT / WIFI / ANDROID 11",
 		"brand": "Wanbo",
 		"category": "proyector",
@@ -953,6 +1009,7 @@
 	},
 	{
 		"id": "wanbo-proyector-vali-1-900-ansi-white-bt-wifi-android-11",
+		"sku": "MZ-PRO-UJZII8",
 		"name": "WANBO PROYECTOR VALI 1 900 ANSI / WHITE / BT / WIFI /ANDROID 11",
 		"brand": "Wanbo",
 		"category": "proyector",
@@ -970,6 +1027,7 @@
 	},
 	{
 		"id": "wanbo-proyector-x5-pro-new-1100-ansi",
+		"sku": "MZ-PRO-YVJOUN",
 		"name": "WANBO PROYECTOR X5 PRO NEW 1100 ANSI",
 		"brand": "Wanbo",
 		"category": "proyector",
@@ -987,6 +1045,7 @@
 	},
 	{
 		"id": "behringer-dr18sub-subwoofer-activo-de-18-con-dsp",
+		"sku": "MZ-SON-6LLHJX",
 		"name": "Behringer DR18SUB Subwoofer Activo de 18 con DSP",
 		"brand": "Behringer",
 		"category": "sonido",
@@ -1004,6 +1063,7 @@
 	},
 	{
 		"id": "behringer-eurolive-b1200d-pro-subwoofer-activo-12",
+		"sku": "MZ-SON-0J5ORU",
 		"name": "Behringer Eurolive B1200D-Pro Subwoofer Activo 12\"",
 		"brand": "Behringer",
 		"category": "sonido",
@@ -1021,6 +1081,7 @@
 	},
 	{
 		"id": "behringer-b112w-eurolive-caja-activa-12",
+		"sku": "MZ-SON-JZOEAF",
 		"name": "Behringer Eurolive Caja Activa 12\"",
 		"brand": "Behringer",
 		"category": "sonido",
@@ -1038,6 +1099,7 @@
 	},
 	{
 		"id": "behringer-vs1220f-monitor-de-piso-pasivo-12-600w",
+		"sku": "MZ-SON-MK885P",
 		"name": "Behringer Monitor de Piso Pasivo 12\" 600W",
 		"brand": "Behringer",
 		"category": "sonido",
@@ -1055,6 +1117,7 @@
 	},
 	{
 		"id": "behringer-pk110a-caja-activa-10-320w",
+		"sku": "MZ-SON-UYZ77V",
 		"name": "Behringer PK110A Caja Activa 10? 320W",
 		"brand": "Behringer",
 		"category": "sonido",
@@ -1072,6 +1135,7 @@
 	},
 	{
 		"id": "behringer-pk115a-caja-activa-15-800w",
+		"sku": "MZ-SON-6VHH3U",
 		"name": "Behringer PK115A Caja Activa 15\"",
 		"brand": "Behringer",
 		"category": "sonido",
@@ -1089,6 +1153,7 @@
 	},
 	{
 		"id": "caja-activa-arx-compact-8-120w-rms",
+		"sku": "MZ-SON-TH806J",
 		"name": "Caja activa ARX Compact 8\" 120W RMS",
 		"brand": "Arx",
 		"category": "sonido",
@@ -1106,6 +1171,7 @@
 	},
 	{
 		"id": "caja-activa-behringer-b115mp3",
+		"sku": "MZ-SON-D9HYQN",
 		"name": "Caja activa Behringer B115MP3",
 		"brand": "Behringer",
 		"category": "sonido",
@@ -1123,6 +1189,7 @@
 	},
 	{
 		"id": "caja-activa-behringer-b1x",
+		"sku": "MZ-SON-GD7POR",
 		"name": "Caja activa Behringer B1X",
 		"brand": "Behringer",
 		"category": "sonido",
@@ -1140,6 +1207,7 @@
 	},
 	{
 		"id": "caja-activa-behringer-c210",
+		"sku": "MZ-SON-OP6IX8",
 		"name": "Caja activa Behringer C210",
 		"brand": "Behringer",
 		"category": "sonido",
@@ -1157,6 +1225,7 @@
 	},
 	{
 		"id": "caja-activa-fbt-xlite-110a",
+		"sku": "MZ-SON-KMYJ0G",
 		"name": "Caja activa FBT XLITE 110A",
 		"brand": "Fbt",
 		"category": "sonido",
@@ -1174,6 +1243,7 @@
 	},
 	{
 		"id": "caja-activa-fbt-xlite-112a",
+		"sku": "MZ-SON-KMYJ26",
 		"name": "Caja activa FBT XLITE 112A",
 		"brand": "Fbt",
 		"category": "sonido",
@@ -1191,6 +1261,7 @@
 	},
 	{
 		"id": "caja-activa-fbt-xlite-115a",
+		"sku": "MZ-SON-KMYJ4R",
 		"name": "Caja activa FBT XLITE 115A",
 		"brand": "Fbt",
 		"category": "sonido",
@@ -1208,6 +1279,7 @@
 	},
 	{
 		"id": "caja-activa-jbl-prx925-15-1000w-rms",
+		"sku": "MZ-SON-LO03MD",
 		"name": "Caja activa JBL PRX925 15\" 1000w RMS",
 		"brand": "Jbl",
 		"category": "sonido",
@@ -1225,6 +1297,7 @@
 	},
 	{
 		"id": "caja-activa-pioneer-dj-xprs152",
+		"sku": "MZ-SON-CVRSUS",
 		"name": "Caja activa Pioneer DJ XPRS152",
 		"brand": "Pioneer dj",
 		"category": "sonido",
@@ -1242,6 +1315,7 @@
 	},
 	{
 		"id": "caja-activa-portatil-jbl-eon-one-compact",
+		"sku": "MZ-SON-G2BLCN",
 		"name": "Caja Activa Portátil JBL EON ONE Compact",
 		"brand": "Jbl",
 		"category": "sonido",
@@ -1259,6 +1333,7 @@
 	},
 	{
 		"id": "caja-activa-wharfedale-titan-8-a-mkii-180w-gris",
+		"sku": "MZ-SON-AZ151M",
 		"name": "Caja Activa Wharfedale TITAN 8A MKII, 180W-Gris",
 		"brand": "Wharfedale",
 		"category": "sonido",
@@ -1276,6 +1351,7 @@
 	},
 	{
 		"id": "caja-activa-wharfedale-tourus-ax-12-mbt-350-w",
+		"sku": "MZ-SON-HXJOQO",
 		"name": "Caja Activa Wharfedale Tourus AX-12 MBT - 350W",
 		"brand": "Wharfedale",
 		"category": "sonido",
@@ -1293,6 +1369,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-con-bluetooth-samson-rs112a-200-w",
+		"sku": "MZ-SON-6OO352",
 		"name": "Caja Acústica Activa Con Bluetooth Samson RS112A - 200w",
 		"brand": "Samson",
 		"category": "sonido",
@@ -1310,6 +1387,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-con-bluetooth-samson-rs115a-200-w",
+		"sku": "MZ-SON-M4FGCJ",
 		"name": "Caja Acústica Activa Con Bluetooth Samson RS115A - 200w",
 		"brand": "Samson",
 		"category": "sonido",
@@ -1327,6 +1405,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-portatil-jbl-irx108bt-1000w",
+		"sku": "MZ-SON-K82NYL",
 		"name": "Caja acústica activa portátil JBL IRX108BT - 1000W",
 		"brand": "Jbl",
 		"category": "sonido",
@@ -1344,6 +1423,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-portatil-jbl-irx112bt-con-bluetooth",
+		"sku": "MZ-SON-3RX0CX",
 		"name": "Caja acústica activa portátil JBL IRX112BT - Con bluetooth",
 		"brand": "Jbl",
 		"category": "sonido",
@@ -1361,6 +1441,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-portatil-wharfedale-ez-12a-b-12-pulgadas-banda-b",
+		"sku": "MZ-SON-L24GKU",
 		"name": "Caja acústica activa portátil Wharfedale EZ-12A-B - 12 pulgadas (Banda B)",
 		"brand": "Wharfedale",
 		"category": "sonido",
@@ -1378,6 +1459,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-portatil-wharfedale-ez-15a-b-15-banda-b",
+		"sku": "MZ-SON-A37342",
 		"name": "Caja Acústica Activa Portátil Wharfedale EZ-15A-B, 15\" (Banda B)",
 		"brand": "Wharfedale",
 		"category": "sonido",
@@ -1395,6 +1477,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-samson-auro-x12d-500-w",
+		"sku": "MZ-SON-G8IIO8",
 		"name": "Caja Acústica Activa Samson AURO X12D - 500w",
 		"brand": "Samson",
 		"category": "sonido",
@@ -1412,6 +1495,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-samson-auro-x15d-500-w",
+		"sku": "MZ-SON-VO9VVP",
 		"name": "Caja Acústica Activa Samson AURO X15D - 500w",
 		"brand": "Samson",
 		"category": "sonido",
@@ -1429,6 +1513,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-samson-xp800-con-bluetooth",
+		"sku": "MZ-SON-N6UMRP",
 		"name": "Caja acústica activa Samson XP800 - con Bluetooth",
 		"brand": "Samson",
 		"category": "sonido",
@@ -1446,6 +1531,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-wharfedale-tourus-ax15-mbt-de-450-watts",
+		"sku": "MZ-SON-WZFUDX",
 		"name": "Caja acústica activa Wharfedale Tourus AX15-MBT de 450 Watts",
 		"brand": "Wharfedale",
 		"category": "sonido",
@@ -1463,6 +1549,7 @@
 	},
 	{
 		"id": "caja-acustica-activa-wharfedale-tourus-ax8-mbt",
+		"sku": "MZ-SON-EPKLC9",
 		"name": "Caja acústica activa Wharfedale Tourus AX8-MBT",
 		"brand": "Wharfedale",
 		"category": "sonido",
@@ -1480,6 +1567,7 @@
 	},
 	{
 		"id": "db-technologies-bhype12-caja-activa-12",
+		"sku": "MZ-SON-IC0Q18",
 		"name": "dB technologies BHYPE12 Caja Acustica Activa 12\"",
 		"brand": "db Technologies",
 		"category": "sonido",
@@ -1497,6 +1585,7 @@
 	},
 	{
 		"id": "db-technologies-bhype12-caja-activa-de-12",
+		"sku": "MZ-SON-T4CYG2",
 		"name": "dB Technologies BHYPE12 Caja Acustica Activa 12\"",
 		"brand": "db Technologies",
 		"category": "sonido",
@@ -1514,6 +1603,7 @@
 	},
 	{
 		"id": "db-technologies-es1203-sistema-de-columna-estereo-2x12-8x4",
+		"sku": "MZ-SON-X2XJ2Y",
 		"name": "dB Technologies ES1203 Sistema de Columna Estéreo 2x12\", 8x4\"",
 		"brand": "db Technologies",
 		"category": "sonido",
@@ -1531,6 +1621,7 @@
 	},
 	{
 		"id": "db-technologies-reaes503-sistema-de-columna-12-8x3",
+		"sku": "MZ-SON-5TFW3X",
 		"name": "dB Technologies ES503 Sistema de Columna 12\", 8X3\"",
 		"brand": "db Technologies",
 		"category": "sonido",
@@ -1548,6 +1639,7 @@
 	},
 	{
 		"id": "db-technologies-kl12-caja-activa-12",
+		"sku": "MZ-SON-R1L39N",
 		"name": "dB Technologies KL12 Caja Acustica Activa 12\"",
 		"brand": "db Technologies",
 		"category": "sonido",
@@ -1565,6 +1657,7 @@
 	},
 	{
 		"id": "electro-voice-ekx-12p-caja-activa-de-12-1500w",
+		"sku": "MZ-SON-RXT67F",
 		"name": "Electro-Voice EKX-12P Caja Activa de 12\" 1500W",
 		"brand": "Electrovoice",
 		"category": "sonido",
@@ -1582,6 +1675,7 @@
 	},
 	{
 		"id": "electro-voice-parlantes-evid-6-2t-negros",
+		"sku": "MZ-SON-N498GO",
 		"name": "Electro-Voice EVID 6.2T Parlantes de instalación (Par)",
 		"brand": "Electrovoice",
 		"category": "sonido",
@@ -1599,6 +1693,7 @@
 	},
 	{
 		"id": "electro-voice-evids42tb-ev-parlante-de-instalacion-4-gabinete-70-100v-negro",
+		"sku": "MZ-SON-22JZH0",
 		"name": "Electro-Voice EVIDS42TB Parlante Instalación 4” 70/100V Negro (Par)",
 		"brand": "Electrovoice",
 		"category": "sonido",
@@ -1616,6 +1711,7 @@
 	},
 	{
 		"id": "electrovoice-eviva15pnc-caja-activa-15",
+		"sku": "MZ-SON-YOAXRZ",
 		"name": "Electro-Voice EVIVA15P-NC Caja Activa 15\"",
 		"brand": "Electrovoice",
 		"category": "sonido",
@@ -1633,6 +1729,7 @@
 	},
 	{
 		"id": "electrovoice-everse-8-altavoz-activo-c-bluetooth",
+		"sku": "MZ-SON-SZC786",
 		"name": "ElectroVoice EVERSE 8 Altavoz Activo c/Bluetooth",
 		"brand": "Electrovoice",
 		"category": "sonido",
@@ -1650,6 +1747,7 @@
 	},
 	{
 		"id": "electrovoice-evid-p6-2b-parlante-colgante-de-instalacion",
+		"sku": "MZ-SON-YCKKXP",
 		"name": "Electrovoice Evid-P6.2B Parlante colgante de Instalación",
 		"brand": "Electrovoice",
 		"category": "sonido",
@@ -1667,6 +1765,7 @@
 	},
 	{
 		"id": "electrovoice-evolve30m-sistema-de-columna",
+		"sku": "MZ-SON-72KVRF",
 		"name": "ElectroVoice EVOLVE30M Sistema de Columna",
 		"brand": "Electrovoice",
 		"category": "sonido",
@@ -1684,6 +1783,7 @@
 	},
 	{
 		"id": "gemini-15-active-speaker-eu230v",
+		"sku": "MZ-SON-BOCZBV",
 		"name": "GEMINI GD-215PRO Caja Activa 15\"",
 		"brand": "Gemini",
 		"category": "sonido",
@@ -1701,6 +1801,7 @@
 	},
 	{
 		"id": "monitor-activo-pioneer-dj-vm-50-color-negro",
+		"sku": "MZ-SON-U7FDCT",
 		"name": "Monitor activo Pioneer DJ VM-50 - color negro",
 		"brand": "Pioneer dj",
 		"category": "sonido",
@@ -1718,6 +1819,7 @@
 	},
 	{
 		"id": "monitor-activo-pioneer-dj-vm-50-white",
+		"sku": "MZ-SON-22QJHF",
 		"name": "Monitor Activo Pioneer DJ VM-50 - white",
 		"brand": "Pioneer dj",
 		"category": "sonido",
@@ -1735,6 +1837,7 @@
 	},
 	{
 		"id": "monitor-de-estudio-samson-mediaone-m50bt-bluetooth",
+		"sku": "MZ-SON-SYAIU7",
 		"name": "Monitor de estudio Samson MediaOne M50BT Bluetooth",
 		"brand": "Samson",
 		"category": "sonido",
@@ -1752,6 +1855,7 @@
 	},
 	{
 		"id": "monitor-de-piso-activo-wharfedale-evpx15pm",
+		"sku": "MZ-SON-RPWJUA",
 		"name": "Monitor de piso activo Wharfedale EVPX15PM",
 		"brand": "Wharfedale",
 		"category": "sonido",
@@ -1769,6 +1873,7 @@
 	},
 	{
 		"id": "neumann-kh310-arg-monitor-de-estudio-activo-3-vias",
+		"sku": "MZ-SON-9H7C2J",
 		"name": "Neumann KH310 ARG Monitor de Estudio Activo",
 		"brand": "Neumann",
 		"category": "sonido",
@@ -1786,6 +1891,7 @@
 	},
 	{
 		"id": "norwood-sistema-line-array",
+		"sku": "MZ-SON-9AG4JE",
 		"name": "Norwood LIONPACK Sistema Line Array Pasivo",
 		"brand": "Norwood",
 		"category": "sonido",
@@ -1803,6 +1909,7 @@
 	},
 	{
 		"id": "parlante-activo-fbt-x-pro-110a-de-10-pulgadas",
+		"sku": "MZ-SON-Z0R9YO",
 		"name": "Parlante activo FBT X-PRO 110A de 10 pulgadas",
 		"brand": "Fbt",
 		"category": "sonido",
@@ -1820,6 +1927,7 @@
 	},
 	{
 		"id": "parlante-activo-fbt-x-pro-112a-de-12pulgadas",
+		"sku": "MZ-SON-8MN7HJ",
 		"name": "Parlante activo FBT X-PRO 112A de 12pulgadas",
 		"brand": "Fbt",
 		"category": "sonido",
@@ -1837,6 +1945,7 @@
 	},
 	{
 		"id": "parlante-activo-fbt-x-pro-115a-de-15-pulgadas",
+		"sku": "MZ-SON-OM5YA8",
 		"name": "Parlante activo FBT X-PRO 115A de 15 pulgadas",
 		"brand": "Fbt",
 		"category": "sonido",
@@ -1854,6 +1963,7 @@
 	},
 	{
 		"id": "parlante-activo-inalambrico-pioneer-dj-wave-eight",
+		"sku": "MZ-SON-HHTZGY",
 		"name": "Parlante activo inalámbrico Pioneer DJ Wave-Eight",
 		"brand": "Pioneer dj",
 		"category": "sonido",
@@ -1871,6 +1981,7 @@
 	},
 	{
 		"id": "parlante-activo-jbl-eon-715-bluetooth-15-650w-rms",
+		"sku": "MZ-SON-JHT94E",
 		"name": "Parlante Activo JBL EON 715 Bluetooth - 15\" 650W RMS",
 		"brand": "Jbl",
 		"category": "sonido",
@@ -1888,6 +1999,7 @@
 	},
 	{
 		"id": "parlante-activo-jbl-eon712-bluetooth-12-1300w",
+		"sku": "MZ-SON-Y7ZI27",
 		"name": "Parlante Activo JBL EON712 Bluetooth - 12\" 1300W",
 		"brand": "Jbl",
 		"category": "sonido",
@@ -1905,6 +2017,7 @@
 	},
 	{
 		"id": "parlante-activo-jbl-max-15-350-watts-rms",
+		"sku": "MZ-SON-A842SN",
 		"name": "Parlante Activo JBL MAX 15\" 350 watts RMS",
 		"brand": "Jbl",
 		"category": "sonido",
@@ -1922,6 +2035,7 @@
 	},
 	{
 		"id": "parlante-bluetooth-wifi-sonos-era-100-black",
+		"sku": "MZ-SON-5324PQ",
 		"name": "Parlante Bluetooth / Wifi Sonos Era 100 - Black",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -1939,6 +2053,7 @@
 	},
 	{
 		"id": "parlante-bluetooth-wifi-sonos-era-100-white",
+		"sku": "MZ-SON-5EJFK8",
 		"name": "Parlante Bluetooth / Wifi Sonos Era 100 - White",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -1956,6 +2071,7 @@
 	},
 	{
 		"id": "parlante-bluetooth-wifi-sonos-era-100-sl-black",
+		"sku": "MZ-SON-GTAMZ0",
 		"name": "Parlante Bluetooth / Wifi Sonos Era 100 SL - Black",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -1973,6 +2089,7 @@
 	},
 	{
 		"id": "parlante-bluetooth-wifi-sonos-era-300-black",
+		"sku": "MZ-SON-GBY540",
 		"name": "Parlante Bluetooth / Wifi Sonos Era 300 - Black",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -1990,6 +2107,7 @@
 	},
 	{
 		"id": "parlante-bluetooth-wifi-sonos-era-300-white",
+		"sku": "MZ-SON-GNFFYI",
 		"name": "Parlante Bluetooth / Wifi Sonos Era 300 - White",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2007,6 +2125,7 @@
 	},
 	{
 		"id": "parlante-bluetooth-wifi-sonos-five-ultimate-white",
+		"sku": "MZ-SON-XBFI58",
 		"name": "Parlante Bluetooth / Wifi Sonos FIVE Ultimate - White",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2024,6 +2143,7 @@
 	},
 	{
 		"id": "parlante-bluetooth-wifi-sonos-play-black",
+		"sku": "MZ-SON-JYR4FM",
 		"name": "Parlante Bluetooth / Wifi Sonos Play - Black",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2041,6 +2161,7 @@
 	},
 	{
 		"id": "parlante-inalambrico-sonos-move-2-black",
+		"sku": "MZ-SON-I2LMXZ",
 		"name": "Parlante inalámbrico Sonos Move 2 - Black",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2058,6 +2179,7 @@
 	},
 	{
 		"id": "parlante-inalambrico-sonos-move-2-white",
+		"sku": "MZ-SON-IE2XSH",
 		"name": "Parlante inalámbrico Sonos Move 2 - White",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2075,6 +2197,7 @@
 	},
 	{
 		"id": "parlante-inalambrico-sonos-roam-sunset",
+		"sku": "MZ-SON-RAO1SR",
 		"name": "Parlante inalámbrico Sonos Roam - Sunset",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2092,6 +2215,7 @@
 	},
 	{
 		"id": "parlante-inalambrico-sonos-roam-white",
+		"sku": "MZ-SON-7T4L50",
 		"name": "Parlante inalámbrico Sonos Roam - White",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2109,6 +2233,7 @@
 	},
 	{
 		"id": "parlante-inalambrico-sonos-roam-2-black",
+		"sku": "MZ-SON-YYADHB",
 		"name": "Parlante inalámbrico Sonos Roam 2 - Black",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2126,6 +2251,7 @@
 	},
 	{
 		"id": "parlante-inalambrico-sonos-roam-2-blue",
+		"sku": "MZ-SON-UG1ORE",
 		"name": "Parlante inalámbrico Sonos Roam 2 - Blue",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2143,6 +2269,7 @@
 	},
 	{
 		"id": "parlante-inalambrico-sonos-roam-2-red",
+		"sku": "MZ-SON-6Q5AA9",
 		"name": "Parlante inalámbrico Sonos Roam 2 - Red",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2160,6 +2287,7 @@
 	},
 	{
 		"id": "parlante-inalambrico-sonos-roam-2-white",
+		"sku": "MZ-SON-08NMCP",
 		"name": "Parlante inalámbrico Sonos Roam 2 - White",
 		"brand": "Sonos",
 		"category": "sonido",
@@ -2177,6 +2305,7 @@
 	},
 	{
 		"id": "parlante-portatil-bose-soundlink-micro-bluetooth-azul",
+		"sku": "MZ-SON-LUSLVC",
 		"name": "Parlante portátil Bose soundlink micro - bluetooth - azul",
 		"brand": "Bose",
 		"category": "sonido",
@@ -2194,6 +2323,7 @@
 	},
 	{
 		"id": "pioneer-xprs12-caja-acustica-activa-12",
+		"sku": "MZ-SON-AI6S0A",
 		"name": "Pioneer Caja Acústica Activa 12\"",
 		"brand": "Pioneer",
 		"category": "sonido",
@@ -2211,6 +2341,7 @@
 	},
 	{
 		"id": "pioneer-xprs10-caja-acustica-activa-10",
+		"sku": "MZ-SON-86IC06",
 		"name": "Pioneer XPRS10 Caja Acústica Activa 10\"",
 		"brand": "Pioneer",
 		"category": "sonido",
@@ -2228,6 +2359,7 @@
 	},
 	{
 		"id": "presonus-eris-studio-monitor-activo-8",
+		"sku": "MZ-SON-I42Q33",
 		"name": "Presonus ERIS ST8 Monitor de Estudio Activo 8\"",
 		"brand": "Presonus",
 		"category": "sonido",
@@ -2245,6 +2377,7 @@
 	},
 	{
 		"id": "proel-session-1-free-sistema-de-columna-portable-activo",
+		"sku": "MZ-SON-CXG3UC",
 		"name": "Proel SESSION 1 FREE Sistema de Columna Portable Activo 400W",
 		"brand": "Proel",
 		"category": "sonido",
@@ -2262,6 +2395,7 @@
 	},
 	{
 		"id": "proel-session-1-sistema-de-columna-portaltil",
+		"sku": "MZ-SON-B6A65W",
 		"name": "Proel SESSION 1 Sistema de Columna Portáltil 400W",
 		"brand": "Proel",
 		"category": "sonido",
@@ -2279,6 +2413,7 @@
 	},
 	{
 		"id": "qsc-caja-activa-12-1000w-clase-d",
+		"sku": "MZ-SON-W6LTXB",
 		"name": "Qsc CP12 Caja Activa 12\" 500W",
 		"brand": "Qsc",
 		"category": "sonido",
@@ -2296,6 +2431,7 @@
 	},
 	{
 		"id": "samson-expedition-escape-caja-activa-6-portable-pa-system",
+		"sku": "MZ-SON-15SRCT",
 		"name": "Samson Expedition Escape+ Caja Activa 6\" Portable PA System",
 		"brand": "Samson",
 		"category": "sonido",
@@ -2313,6 +2449,7 @@
 	},
 	{
 		"id": "sistema-amplificacion-portatil-samson-xp1000-con-bluetooth",
+		"sku": "MZ-SON-2TRY02",
 		"name": "Sistema Amplificación Portátil Samson XP1000, Con Bluetooth",
 		"brand": "Samson",
 		"category": "sonido",
@@ -2330,6 +2467,7 @@
 	},
 	{
 		"id": "sistema-de-audio-samson-portatil-expedition-xp300b",
+		"sku": "MZ-SON-2BXZ1B",
 		"name": "Sistema de audio Samson portátil EXPEDITION XP300B",
 		"brand": "Samson",
 		"category": "sonido",
@@ -2347,6 +2485,7 @@
 	},
 	{
 		"id": "sistema-de-parlante-portatil-samson-expedition-escape",
+		"sku": "MZ-SON-DMIPBA",
 		"name": "Sistema de parlante portátil Samson Expedition Escape+",
 		"brand": "Samson",
 		"category": "sonido",
@@ -2364,6 +2503,7 @@
 	},
 	{
 		"id": "sistema-line-array-portatil-jbl-prx-one",
+		"sku": "MZ-SON-QGO6V6",
 		"name": "Sistema line array portatil JBL PRX ONE",
 		"brand": "Jbl",
 		"category": "sonido",
@@ -2381,6 +2521,7 @@
 	},
 	{
 		"id": "subwoofer-activo-fbt-subline-115sa-700w-rms",
+		"sku": "MZ-SON-I0TM0F",
 		"name": "Subwoofer Activo FBT Subline 115SA - 700W RMS",
 		"brand": "Fbt",
 		"category": "sonido",
@@ -2398,6 +2539,7 @@
 	},
 	{
 		"id": "turbosound-caja-activa-15-m15b",
+		"sku": "MZ-SON-HGR3EZ",
 		"name": "Turbosound M15B Subwoofer Activo 15\"",
 		"brand": "Turbosound",
 		"category": "sonido",
@@ -2415,6 +2557,7 @@
 	},
 	{
 		"id": "turbosound-tcx118b-subwoofer-pasivo-18-4000w",
+		"sku": "MZ-SON-ODRT97",
 		"name": "Turbosound Subwoofer Pasivo 18\" 4000W",
 		"brand": "Turbosound",
 		"category": "sonido",
