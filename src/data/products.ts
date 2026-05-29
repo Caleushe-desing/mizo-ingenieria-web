@@ -10,7 +10,7 @@ import rawProducts from './products.json';
 
 export const MARKUP = 0.2; // 20%
 
-export type Category = 'sonido' | 'video';
+export type Category = 'sonido' | 'proyector' | 'camara';
 
 export interface ProductSource {
 	store: string;
@@ -37,8 +37,9 @@ export interface RawProduct {
 export type Product = Omit<RawProduct, 'source'>;
 
 export const categories: { id: Category; label: string; icon: string; blurb: string }[] = [
-	{ id: 'sonido', label: 'Audio', icon: '🔊', blurb: 'Parlantes, amplificadores y sistemas de audio profesional.' },
-	{ id: 'video', label: 'Video', icon: '📽️', blurb: 'Proyectores, cámaras y barras de sonido.' },
+	{ id: 'sonido', label: 'Parlantes', icon: '🔊', blurb: 'Cajas activas, line array y parlantes portátiles.' },
+	{ id: 'proyector', label: 'Proyectores', icon: '📽️', blurb: 'Proyectores para salas, eventos y home cinema.' },
+	{ id: 'camara', label: 'Cámaras', icon: '📹', blurb: 'Cámaras de seguridad y videovigilancia WiFi.' },
 ];
 
 // Exportación pública: eliminamos `source` para que nunca llegue al HTML.
@@ -49,14 +50,19 @@ export const productsById: Record<string, Product> = Object.fromEntries(
 	products.map((p) => [p.id, p]),
 );
 
-/** Selección destacada: equilibra audio y video, robusto ante cambios del catálogo. */
+/** Selección destacada: intercala parlantes, proyectores y cámaras. */
 export function featuredProducts(limit = 4): Product[] {
-	const audio = products.filter((p) => p.category === 'sonido');
-	const video = products.filter((p) => p.category === 'video');
+	const buckets = [
+		products.filter((p) => p.category === 'sonido'),
+		products.filter((p) => p.category === 'proyector'),
+		products.filter((p) => p.category === 'camara'),
+	];
 	const mix: Product[] = [];
-	for (let i = 0; mix.length < limit && (i < audio.length || i < video.length); i++) {
-		if (audio[i]) mix.push(audio[i]);
-		if (video[i] && mix.length < limit) mix.push(video[i]);
+	const maxLen = Math.max(...buckets.map((b) => b.length));
+	for (let i = 0; i < maxLen && mix.length < limit; i++) {
+		for (const b of buckets) {
+			if (b[i] && mix.length < limit) mix.push(b[i]);
+		}
 	}
 	return mix.slice(0, limit);
 }

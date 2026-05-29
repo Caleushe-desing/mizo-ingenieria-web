@@ -14,8 +14,8 @@ const MARKUP = 0.2;
 const sell = (b) => Math.round((b * (1 + MARKUP)) / 10) * 10;
 const clp = (v) => '$' + v.toLocaleString('es-CL');
 
-const catLabel = { sonido: 'Audio', video: 'Video' };
-const catOrder = ['sonido', 'video'];
+const catLabel = { sonido: 'Parlantes', proyector: 'Proyectores', camara: 'Cámaras' };
+const catOrder = ['sonido', 'proyector', 'camara'];
 
 let md = `# Fuentes de precios (PRIVADO)\n\n`;
 md += `> Documento interno. **No se publica en el sitio web.** Indica de dónde se obtuvo el precio de referencia de cada producto. El precio publicado = precio base + 20%.\n\n`;

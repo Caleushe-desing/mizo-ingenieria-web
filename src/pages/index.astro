@@ -2,18 +2,19 @@
 import Layout from '../layouts/Layout.astro';
 import ProductCard from '../components/ProductCard.astro';
 import ClientLogos from '../components/ClientLogos.astro';
+import Brands from '../components/Brands.astro';
 import { products, featuredProducts } from '../data/products';
 
 const destacados = featuredProducts(8);
 
 const audioCount = products.filter((p) => p.category === 'sonido').length;
-const proyectorCount = products.filter((p) => /proyector/i.test(p.name)).length;
-const camaraCount = products.filter((p) => /c[áa]mara/i.test(p.name)).length;
+const proyectorCount = products.filter((p) => p.category === 'proyector').length;
+const camaraCount = products.filter((p) => p.category === 'camara').length;
 
 const categoryTiles = [
 	{ title: 'Parlantes y Audio', count: audioCount, icon: '🔊', url: '/productos?cat=sonido', desc: 'Cajas activas, line array y portátiles' },
-	{ title: 'Proyectores', count: proyectorCount, icon: '📽️', url: '/productos?q=proyector', desc: 'Para salas, eventos y home cinema' },
-	{ title: 'Cámaras', count: camaraCount, icon: '📹', url: '/productos?q=camara', desc: 'Seguridad y videovigilancia WiFi' },
+	{ title: 'Proyectores', count: proyectorCount, icon: '📽️', url: '/productos?cat=proyector', desc: 'Para salas, eventos y home cinema' },
+	{ title: 'Cámaras', count: camaraCount, icon: '📹', url: '/productos?cat=camara', desc: 'Seguridad y videovigilancia WiFi' },
 ];
 
 const trust = [
@@ -30,7 +31,7 @@ const trust = [
 >
 	<!-- HERO TIENDA -->
 	<section class="relative bg-gradient-to-b from-accent-soft to-white py-16 sm:py-24 overflow-hidden">
-		<div class="absolute inset-0 -z-10 opacity-[0.04]" style="background-image: radial-gradient(#2563eb 1.2px, transparent 1.2px); background-size: 22px 22px;"></div>
+		<div class="absolute inset-0 -z-10 opacity-[0.05]" style="background-image: radial-gradient(#15616d 1.2px, transparent 1.2px); background-size: 22px 22px;"></div>
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 			<span class="inline-block px-4 py-1.5 mb-5 text-sm font-semibold rounded-full bg-accent-main/10 text-accent-main">
 				Tienda + Instalación profesional
@@ -210,11 +211,11 @@ const trust = [
 	<section class="bg-accent-main py-16">
 		<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 			<h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">¿Compras el equipo o lo quieres instalado?</h2>
-			<p class="text-lg sm:text-xl text-blue-100 mb-8">
+			<p class="text-lg sm:text-xl text-white/80 mb-8">
 				Escríbenos y te asesoramos para elegir el equipo correcto y, si lo necesitas, lo instalamos por ti.
 			</p>
 			<div class="flex flex-col sm:flex-row justify-center gap-4">
-				<a href="/productos" class="inline-block px-10 py-4 text-lg font-bold rounded-md text-accent-main bg-white hover:bg-blue-50 transition duration-300 shadow-lg">
+				<a href="/productos" class="inline-block px-10 py-4 text-lg font-bold rounded-md text-accent-main bg-white hover:bg-accent-soft transition duration-300 shadow-lg">
 					Ir a la tienda
 				</a>
 				<a href="/contacto" class="inline-block px-10 py-4 text-lg font-bold rounded-md text-white border-2 border-white hover:bg-white hover:text-accent-main transition duration-300">
@@ -223,6 +224,8 @@ const trust = [
 			</div>
 		</div>
 	</section>
+
+	<Brands />
 
 	<ClientLogos />
 </Layout>

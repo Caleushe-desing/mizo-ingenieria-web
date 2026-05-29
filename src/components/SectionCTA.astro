@@ -15,12 +15,12 @@ const { title, subtitle, buttonText, buttonLink } = Astro.props;
         <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">
             {title}
         </h2>
-        <p class="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto mb-10">
+        <p class="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto mb-10">
             {subtitle}
         </p>
         <a 
             href={buttonLink}
-            class="inline-block px-10 py-4 text-lg font-bold rounded-md transition duration-300 shadow-lg bg-white text-accent-main hover:bg-blue-50"
+            class="inline-block px-10 py-4 text-lg font-bold rounded-md transition duration-300 shadow-lg bg-white text-accent-main hover:bg-accent-soft"
         >
             {buttonText}
         </a>

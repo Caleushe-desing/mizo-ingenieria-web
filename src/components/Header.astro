@@ -1,10 +1,10 @@
 ---
-// Header.astro - Tienda online (fondo blanco, acento azul) con buscador
+// Header.astro - Tienda online. Banner azul petróleo + buscador + WhatsApp
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
     { title: 'Inicio', url: '/' },
-    { title: 'Productos', url: '/productos' },
+    { title: 'Tienda', url: '/productos' },
     { title: 'Instalación', url: '/servicios' },
     { title: 'Nosotros', url: '/nosotros' },
     { title: 'Contacto', url: '/contacto' },
@@ -12,8 +12,8 @@ const navLinks = [
 
 const categoryLinks = [
     { title: 'Parlantes', url: '/productos?cat=sonido', icon: '🔊' },
-    { title: 'Proyectores', url: '/productos?q=proyector', icon: '📽️' },
-    { title: 'Cámaras', url: '/productos?q=camara', icon: '📹' },
+    { title: 'Proyectores', url: '/productos?cat=proyector', icon: '📽️' },
+    { title: 'Cámaras', url: '/productos?cat=camara', icon: '📹' },
     { title: 'Instalación', url: '/servicios', icon: '🛠️' },
 ];
 
@@ -22,89 +22,95 @@ const isActive = (url: string) => {
     return currentPath === base || (base !== '/' && currentPath.startsWith(base));
 };
 
+const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20quiero%20hacer%20una%20consulta%20sobre%20sus%20productos%20o%20instalaciones';
 const logoSrc = "/mizo-logo.jpg";
 const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
 ---
 
-<header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
-    <!-- Barra principal: logo + buscador + carrito -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center gap-3 sm:gap-6 h-16 sm:h-20">
-            <a href="/" class="flex-shrink-0 flex items-center gap-2">
-                <img src={logoSrc} alt={logoAlt} class="h-10 sm:h-12 w-auto rounded-md" />
-                <span class="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight hidden xs:inline sm:inline">
-                    Mizo<span class="text-accent-main">.</span>
-                </span>
-            </a>
+<header class="sticky top-0 z-50 shadow-sm">
+    <!-- BANNER PRINCIPAL (azul petróleo) -->
+    <div class="bg-accent-dark text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-3 sm:gap-6 h-16 sm:h-20">
+                <a href="/" class="flex-shrink-0 flex items-center gap-2">
+                    <img src={logoSrc} alt={logoAlt} class="h-10 sm:h-12 w-auto rounded-md" />
+                    <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+                        Mizo<span class="text-accent-light">.</span>
+                    </span>
+                </a>
 
-            <!-- Buscador (protagonista) -->
-            <form action="/productos" method="get" role="search" class="flex-grow max-w-2xl hidden sm:flex">
+                <!-- Buscador -->
+                <form action="/productos" method="get" role="search" class="flex-grow max-w-2xl hidden sm:flex">
+                    <div class="relative w-full">
+                        <input
+                            type="search"
+                            name="q"
+                            placeholder="Buscar parlantes, proyectores, cámaras..."
+                            aria-label="Buscar productos"
+                            class="w-full pl-11 pr-4 py-2.5 rounded-full border border-transparent bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-accent-light focus:outline-none transition"
+                        />
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                    </div>
+                </form>
+
+                <div class="flex items-center gap-1 sm:gap-2 ml-auto sm:ml-0">
+                    <a
+                        href={waLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white bg-green-600 hover:bg-green-700 transition"
+                    >
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.929-1.03zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                        Consultar
+                    </a>
+
+                    <a
+                        href="/carrito"
+                        class="relative p-2 rounded-md text-white hover:bg-white/10 transition"
+                        aria-label="Ver carrito"
+                    >
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                        </svg>
+                        <span data-cart-count class="hidden absolute -top-0.5 -right-0.5 min-w-[1.1rem] h-[1.1rem] px-1 flex items-center justify-center text-[0.65rem] font-bold rounded-full bg-green-500 text-white">0</span>
+                    </a>
+
+                    <button
+                        id="mobile-menu-button"
+                        type="button"
+                        class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 focus:outline-none"
+                        aria-controls="mobile-menu"
+                        aria-expanded="false"
+                    >
+                        <span class="sr-only">Abrir menú principal</span>
+                        <svg id="icon-menu" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg id="icon-close" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Buscador móvil -->
+            <form action="/productos" method="get" role="search" class="sm:hidden pb-3">
                 <div class="relative w-full">
                     <input
                         type="search"
                         name="q"
-                        placeholder="Buscar parlantes, proyectores, cámaras..."
+                        placeholder="Buscar productos..."
                         aria-label="Buscar productos"
-                        class="w-full pl-11 pr-4 py-2.5 rounded-full border border-gray-300 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-accent-main focus:ring-2 focus:ring-accent-main/20 focus:outline-none transition"
+                        class="w-full pl-10 pr-4 py-2.5 rounded-full border border-transparent bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition"
                     />
-                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
                 </div>
             </form>
-
-            <div class="flex items-center gap-1 sm:gap-2 ml-auto sm:ml-0">
-                <a
-                    href="/carrito"
-                    class="relative p-2 rounded-md text-gray-700 hover:text-accent-main hover:bg-gray-50 transition"
-                    aria-label="Ver carrito"
-                >
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                    </svg>
-                    <span data-cart-count class="hidden absolute -top-0.5 -right-0.5 min-w-[1.1rem] h-[1.1rem] px-1 flex items-center justify-center text-[0.65rem] font-bold rounded-full bg-accent-main text-white">0</span>
-                </a>
-
-                <a
-                    href="/contacto"
-                    class="hidden md:inline-flex px-5 py-2 text-sm font-semibold rounded-md shadow-sm text-white bg-accent-main hover:bg-accent-hover transition duration-200"
-                >
-                    Cotizar
-                </a>
-
-                <button
-                    id="mobile-menu-button"
-                    type="button"
-                    class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-accent-main hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-accent-main"
-                    aria-controls="mobile-menu"
-                    aria-expanded="false"
-                >
-                    <span class="sr-only">Abrir menú principal</span>
-                    <svg id="icon-menu" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                    <svg id="icon-close" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
         </div>
-
-        <!-- Buscador móvil -->
-        <form action="/productos" method="get" role="search" class="sm:hidden pb-3">
-            <div class="relative w-full">
-                <input
-                    type="search"
-                    name="q"
-                    placeholder="Buscar productos..."
-                    aria-label="Buscar productos"
-                    class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-accent-main focus:outline-none transition"
-                />
-                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-            </div>
-        </form>
     </div>
 
-    <!-- Sub-barra de navegación / categorías (escritorio) -->
-    <div class="hidden md:block border-t border-gray-100 bg-white">
+    <!-- SUB-BARRA: navegación + categorías (escritorio) -->
+    <div class="hidden md:block bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-11">
                 <nav class="flex items-center gap-1">
@@ -138,9 +144,9 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
         </div>
     </div>
 
-    <!-- Menú móvil -->
-    <div class="md:hidden hidden border-t border-gray-200" id="mobile-menu">
-        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
+    <!-- MENÚ MÓVIL -->
+    <div class="md:hidden hidden bg-white border-t border-white/10" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks.map((link) => (
                 <a
                     href={link.url}
@@ -164,10 +170,13 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                 ))}
             </div>
             <a
-                href="/contacto"
-                class="block w-full text-center mt-3 px-4 py-2 text-base font-semibold rounded-md shadow-sm text-white bg-accent-main hover:bg-accent-hover transition duration-200"
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center justify-center gap-2 w-full text-center mt-3 px-4 py-2.5 text-base font-semibold rounded-md text-white bg-green-600 hover:bg-green-700 transition"
             >
-                Cotizar
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24z"/></svg>
+                Consultar por WhatsApp
             </a>
         </div>
     </div>
@@ -190,7 +199,6 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
         const toggleMenu = () => {
             const wasHidden = menu.classList.toggle('hidden');
             const isNowOpen = !wasHidden;
-
             iconMenu.classList.toggle('hidden', isNowOpen);
             iconClose.classList.toggle('hidden', !isNowOpen);
             document.body.classList.toggle('overflow-hidden', isNowOpen);
@@ -207,7 +215,6 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                 }
             }
         };
-
         menu.removeEventListener('click', closeMenuOnLinkClick);
         menu.addEventListener('click', closeMenuOnLinkClick);
     }

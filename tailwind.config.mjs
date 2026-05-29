@@ -13,12 +13,12 @@ export default {
         '10xl': '112rem',
       },
       colors: {
-        // Acento corporativo: Azul
-        'accent-main': '#2563eb',   // blue-600 (botones / enlaces)
-        'accent-hover': '#1d4ed8',  // blue-700 (hover)
-        'accent-dark': '#1e3a8a',   // blue-900 (contrastes / footer)
-        'accent-light': '#3b82f6',  // blue-500
-        'accent-soft': '#eff6ff',   // blue-50 (fondos suaves)
+        // Acento corporativo: Azul petróleo
+        'accent-main': '#15616d',   // petróleo (botones / enlaces)
+        'accent-hover': '#114e58',  // petróleo oscuro (hover)
+        'accent-dark': '#0b3a42',   // petróleo muy oscuro (banner / footer)
+        'accent-light': '#3e8e99',  // petróleo claro
+        'accent-soft': '#e6f1f2',   // petróleo muy suave (fondos)
       },
       fontFamily: {
         sans: ['Atkinson', 'ui-sans-serif', 'system-ui', 'sans-serif'],

@@ -30,9 +30,10 @@ const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 const SOURCES = [
 	{
 		store: 'Audiomúsica',
+		type: 'vtex',
 		host: 'https://www.audiomusica.com',
 		category: 'sonido',
-		target: 65,
+		target: 55,
 		terms: [
 			'parlante activo', 'parlante portatil', 'parlante bluetooth', 'caja activa',
 			'caja acustica', 'subwoofer activo', 'line array', 'monitor activo',
@@ -40,17 +41,36 @@ const SOURCES = [
 		],
 	},
 	{
+		store: 'Promusic',
+		type: 'shopify',
+		host: 'https://www.promusic.cl',
+		category: 'sonido',
+		target: 30,
+		// Solo parlantes/altavoces/monitores; descarta accesorios e instrumentos.
+		keep: /parlante|altavoz|altoparlante|monitor|subwoofer|bafle|caja activa|caja acustica|line array|columna|portátil|portatil|sistema de sonido|amplificad/i,
+	},
+	{
 		store: 'Casa Royal',
+		type: 'vtex',
 		host: 'https://www.casaroyal.cl',
-		category: 'video',
-		target: 40,
+		category: 'video', // se divide en 'proyector' o 'camara' según el producto
+		target: 60,
 		terms: [
-			'proyector wanbo', 'proyector philco', 'proyector epson', 'proyector portatil',
-			'mini proyector', 'camara seguridad', 'camara wifi', 'camara vigilancia',
-			'barra de sonido',
+			'proyector', 'proyector wanbo', 'proyector philco', 'proyector epson',
+			'proyector full hd', 'proyector 4k', 'mini proyector', 'home theater proyector',
+			'camara seguridad', 'camara wifi', 'camara vigilancia', 'camara ip',
 		],
 	},
 ];
+
+// Convierte la categoría de la fuente en la categoría pública final.
+// Los productos de "video" se separan en proyectores y cámaras.
+function finalCategory(srcCategory, name) {
+	if (srcCategory !== 'video') return srcCategory;
+	if (/c[aá]mara/i.test(name)) return 'camara';
+	if (/proyector/i.test(name)) return 'proyector';
+	return null;
+}
 
 const decodeEntities = (s = '') =>
 	s
@@ -155,20 +175,23 @@ function normalize(raw, store, host, category) {
 	const nameForFilter = `${raw.brand || ''} ${raw.productName || ''}`;
 	if (BLOCKLIST.test(nameForFilter)) return null;
 
+	const name = clean(raw.productName);
+	const finalCat = finalCategory(category, name);
+	if (!finalCat) return null;
+
 	const rawQty = Number(offer.AvailableQuantity) || 0;
 	// VTEX usa valores enormes (10000+) para "stock infinito": lo tratamos como disponible sin número.
 	const stock = rawQty >= 1 && rawQty < 1000 ? rawQty : null;
 
 	const productUrl = `${host}/${id}/p`;
 	const brand = clean(raw.brand) || 'Genérico';
-	const name = clean(raw.productName);
 	const desc = stripTags(raw.description || raw.metaTagDescription || '');
 
 	return {
 		id,
 		name,
 		brand: titleCase(brand),
-		category,
+		category: finalCat,
 		description: desc ? desc.slice(0, 200).replace(/\s+\S*$/, '') : `${titleCase(brand)} — ${name}.`,
 		basePrice: price,
 		stock,
@@ -181,6 +204,60 @@ function normalize(raw, store, host, category) {
 			capturedAt: new Date().toISOString().slice(0, 10),
 		},
 	};
+}
+
+// Trae productos desde una tienda Shopify (endpoint público products.json).
+async function searchShopify(src) {
+	const out = [];
+	for (let page = 1; page <= 12; page++) {
+		let data;
+		try {
+			data = await fetchJson(`${src.host}/products.json?limit=250&page=${page}`);
+		} catch (err) {
+			console.warn(`  (aviso) Shopify pág ${page}: ${err.message}`);
+			break;
+		}
+		const prods = data.products || [];
+		if (!prods.length) break;
+		for (const p of prods) {
+			const hay = `${p.product_type || ''} ${p.title || ''}`;
+			if (src.keep && !src.keep.test(hay)) continue;
+			if (BLOCKLIST.test(`${p.vendor || ''} ${p.title || ''}`)) continue;
+
+			const variant = p.variants?.find((v) => v.available) ?? p.variants?.[0];
+			if (variant && variant.available === false) continue;
+			const price = Math.round(Number(variant?.price) || 0);
+			if (price <= 0) continue;
+
+			const image = p.images?.[0]?.src;
+			if (!image) continue;
+
+			const id = slugify(p.handle || p.title || '');
+			if (!id) continue;
+
+			const name = clean(p.title);
+			const desc = stripTags(p.body_html || '');
+			out.push({
+				id,
+				name,
+				brand: titleCase(clean(p.vendor || 'Genérico')),
+				category: src.category,
+				description: desc ? desc.slice(0, 200).replace(/\s+\S*$/, '') : `${name}.`,
+				basePrice: price,
+				stock: null,
+				available: true,
+				image: `/images/productos/${id}.jpg`,
+				source: {
+					store: src.store,
+					url: `${src.host}/products/${p.handle}`,
+					image,
+					capturedAt: new Date().toISOString().slice(0, 10),
+				},
+			});
+		}
+		if (prods.length < 250) break;
+	}
+	return out;
 }
 
 async function downloadImage(product) {
@@ -205,20 +282,31 @@ async function main() {
 
 	for (const src of SOURCES) {
 		const collected = new Map();
-		console.log(`\n== ${src.store} (${src.category}) ==`);
-		for (const term of src.terms) {
-			if (collected.size >= src.target) break;
-			const results = await searchTerm(src.host, term);
-			let added = 0;
-			for (const raw of results) {
-				const p = normalize(raw, src.store, src.host, src.category);
-				if (!p) continue;
+		console.log(`\n== ${src.store} (${src.category}) [${src.type}] ==`);
+
+		if (src.type === 'shopify') {
+			const results = await searchShopify(src);
+			for (const p of results) {
+				if (collected.size >= src.target) break;
 				if (collected.has(p.id) || byId.has(p.id)) continue;
 				collected.set(p.id, p);
-				added++;
-				if (collected.size >= src.target) break;
 			}
-			console.log(`  "${term}": +${added}  (acumulado ${collected.size})`);
+			console.log(`  Shopify: ${collected.size} productos`);
+		} else {
+			for (const term of src.terms) {
+				if (collected.size >= src.target) break;
+				const results = await searchTerm(src.host, term);
+				let added = 0;
+				for (const raw of results) {
+					const p = normalize(raw, src.store, src.host, src.category);
+					if (!p) continue;
+					if (collected.has(p.id) || byId.has(p.id)) continue;
+					collected.set(p.id, p);
+					added++;
+					if (collected.size >= src.target) break;
+				}
+				console.log(`  "${term}": +${added}  (acumulado ${collected.size})`);
+			}
 		}
 		for (const [id, p] of collected) byId.set(id, p);
 	}
@@ -248,9 +336,8 @@ async function main() {
 	valid.sort((a, b) => (a.category === b.category ? a.name.localeCompare(b.name) : a.category.localeCompare(b.category)));
 	fs.writeFileSync(OUT_JSON, JSON.stringify(valid, null, '\t') + '\n', 'utf8');
 	console.log(`\nEscrito ${path.relative(root, OUT_JSON)} con ${valid.length} productos.`);
-	const audio = valid.filter((p) => p.category === 'sonido').length;
-	const video = valid.filter((p) => p.category === 'video').length;
-	console.log(`  Audio: ${audio}  |  Video: ${video}`);
+	const count = (c) => valid.filter((p) => p.category === c).length;
+	console.log(`  Parlantes: ${count('sonido')}  |  Proyectores: ${count('proyector')}  |  Cámaras: ${count('camara')}`);
 }
 
 main().catch((err) => {
