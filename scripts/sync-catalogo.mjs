@@ -46,8 +46,8 @@ const SOURCES = [
 		host: 'https://www.promusic.cl',
 		category: 'sonido',
 		target: 30,
-		// Solo parlantes/altavoces/monitores; descarta accesorios e instrumentos.
-		keep: /parlante|altavoz|altoparlante|monitor|subwoofer|bafle|caja activa|caja acustica|line array|columna|portátil|portatil|sistema de sonido|amplificad/i,
+		// Solo parlantes/altavoces (no audífonos, micrófonos, interfaces, etc.).
+		keep: /parlante|altavoz|altoparlante|caja activa|caja ac[uú]stica|line array|subwoofer|bafle|columna|sistema de sonido|pa system|monitor de piso|monitor activo|monitor de estudio/i,
 	},
 	{
 		store: 'Casa Royal',
@@ -120,6 +120,14 @@ const BLOCKLIST = new RegExp(
 		// accesorios
 		'soporte', '\\bbolso\\b', 'tripode', 'trípode', '\\bbase para\\b', '\\bcable\\b',
 		'maleta', 'funda', 'pantalla de proyec', 'mochila',
+		// equipos de audio que NO son parlantes
+		'audifono', 'audífono', '\\bin[- ]ear\\b', 'monitoreo', 'micr[oó]fono',
+		'grabadora', 'preamplificad', '\\bpreamp\\b', 'tornamesa', 'controlador',
+		'interfaz', 'mezclador', 'consola', '\\bmixer\\b',
+		// accesorios de audio
+		'tapa superior', 'rejilla', 'montaje array',
+		// cámaras de auto (no aplican a instalación)
+		'dashcam', 'dash cam', 'auto dvr', 'camara auto', 'camara espejo', 'camara de auto',
 	].join('|'),
 	'i',
 );

@@ -391,40 +391,6 @@
 		}
 	},
 	{
-		"id": "mlab-camara-auto-dvr-full-hd-2-camaras-frente-1080p-interior-720p",
-		"name": "MLAB CAMARA AUTO DVR FULL HD 2 CAMARAS FRENTE 1080P INTERIOR 720P",
-		"brand": "Mlab",
-		"category": "camara",
-		"description": "Protege tus trayectos capturando cada detalle del camino y lo que sucede dentro de tu vehículo para una seguridad total ante cualquier incidente. Esta cámara dual de MLAB cuenta con una lente frontal",
-		"basePrice": 44990,
-		"stock": 100,
-		"available": true,
-		"image": "/images/productos/mlab-camara-auto-dvr-full-hd-2-camaras-frente-1080p-interior-720p.jpg",
-		"source": {
-			"store": "Casa Royal",
-			"url": "https://www.casaroyal.cl/mlab-camara-auto-dvr-full-hd-2-camaras-frente-1080p-interior-720p/p",
-			"image": "https://casaroyal.vteximg.com.br/arquivos/ids/166111/113335_1.jpg?v=638810959759700000",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "mlab-camara-espejo-auto-dvr-full-hd-frente-1080p",
-		"name": "MLAB CAMARA ESPEJO AUTO DVR FULL HD FRENTE 1080P",
-		"brand": "Mlab",
-		"category": "camara",
-		"description": "Maneja con la tranquilidad de tener un respaldo visual ante cualquier imprevisto en la ruta gracias a esta cámara integrada directamente en tu espejo retrovisor. Equipada con una pantalla LCD de 4,5",
-		"basePrice": 42990,
-		"stock": 100,
-		"available": true,
-		"image": "/images/productos/mlab-camara-espejo-auto-dvr-full-hd-frente-1080p.jpg",
-		"source": {
-			"store": "Casa Royal",
-			"url": "https://www.casaroyal.cl/mlab-camara-espejo-auto-dvr-full-hd-frente-1080p/p",
-			"image": "https://casaroyal.vteximg.com.br/arquivos/ids/166106/113336_1.jpg?v=638971750805830000",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
 		"id": "mlab-camara-exterior-doble-lente-3mp-wifi",
 		"name": "MLAB CAMARA EXTERIOR DOBLE LENTE 3MP WIFI",
 		"brand": "Mlab",
@@ -523,6 +489,23 @@
 			"store": "Casa Royal",
 			"url": "https://www.casaroyal.cl/reolink-camara-go-plus-4g-2k-smart-inalambrica-vision-nocturna-zoom-digital-16x/p",
 			"image": "https://casaroyal.vteximg.com.br/arquivos/ids/160111/111471_06.jpg?v=638833497521330000",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "reolink-camara-ip-duo-2-poe-4k-doble-lente-angulo-180-poe-smart-foco-waterproof",
+		"name": "REOLINK CAMARA IP DUO 2 POE 4K / DOBLE LENTE ANGULO 180 / POE / SMART / FOCO / WATERPROOF",
+		"brand": "Reolink",
+		"category": "camara",
+		"description": "Monitorear grandes perímetros suele requerir múltiples dispositivos, pero la Reolink Duo 2 PoE ofrece una solución integral con su doble lente que elimina los puntos ciegos mediante una vista",
+		"basePrice": 119990,
+		"stock": 100,
+		"available": true,
+		"image": "/images/productos/reolink-camara-ip-duo-2-poe-4k-doble-lente-angulo-180-poe-smart-foco-waterproof.jpg",
+		"source": {
+			"store": "Casa Royal",
+			"url": "https://www.casaroyal.cl/reolink-camara-ip-duo-2-poe-4k-doble-lente-angulo-180-poe-smart-foco-waterproof/p",
+			"image": "https://casaroyal.vteximg.com.br/arquivos/ids/160101/111468_06.jpg?v=638810948927900000",
 			"capturedAt": "2026-05-29"
 		}
 	},
@@ -782,23 +765,6 @@
 		}
 	},
 	{
-		"id": "signe-dashcam-doble-camara-s-10308-dvr-full-hd-1080p",
-		"name": "SIGNE Dashcam Doble Cámara S-10308 DVR FULL HD 1080P",
-		"brand": "Signe",
-		"category": "camara",
-		"description": "Maneja con total tranquilidad registrando cada detalle del camino y del habitáculo con la Dashcam Doble Cámara S-10308. Esta solución integral te permite capturar con claridad lo que ocurre tanto al",
-		"basePrice": 39990,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/signe-dashcam-doble-camara-s-10308-dvr-full-hd-1080p.jpg",
-		"source": {
-			"store": "Casa Royal",
-			"url": "https://www.casaroyal.cl/signe-dashcam-doble-camara-s-10308-dvr-full-hd-1080p/p",
-			"image": "https://casaroyal.vteximg.com.br/arquivos/ids/157683/110561_1.jpg?v=638606288321700000",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
 		"id": "switchbot-camara-3k-giro-360-inclinacion-wifi",
 		"name": "SWITCHBOT CÁMARA 3K GIRO 360° INCLINACIÓN WIFI",
 		"brand": "Switchbot",
@@ -1020,57 +986,6 @@
 		}
 	},
 	{
-		"id": "akg-k240-audifonos-monitoreo-semi-abiertos",
-		"name": "AKG K240 Audifonos Monitoreo Semi Abiertos",
-		"brand": "Akg",
-		"category": "sonido",
-		"description": "Audífonos semi-abiertos circumaurales clásicos, diseñados para aplicaciones profesionales de mezcla, masterización y reproducción. Transductores XXL de 30 mm con tecnología Varimotion y cable",
-		"basePrice": 79900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/akg-k240-audifonos-monitoreo-semi-abiertos.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/akg-k240-audifonos-monitoreo-semi-abiertos",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/K240STUDIO_1_8371ae6a-74fc-4047-a0c2-94c548e72c2d.jpg?v=1776264430",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "audio-technica-ath-e40-audifonos-monitoreo-in-ear",
-		"name": "Audio-Technica ATH-E40 Audifonos Monitoreo In-Ear",
-		"brand": "Audio-technica",
-		"category": "sonido",
-		"description": "Audífonos in-ear profesionales de monitoreo diseñados para escenario y estudio. Sistema exclusivo de doble transductor en configuración push-pull que mejora la claridad y reduce la distorsión, con",
-		"basePrice": 119990,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/audio-technica-ath-e40-audifonos-monitoreo-in-ear.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/audio-technica-ath-e40-audifonos-monitoreo-in-ear",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/ath-e40_01.webp?v=1776265836",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "audio-technica-ath-m20x-white-audifonos-monitoreo-cerrados",
-		"name": "Audio-Technica ATH-M20x White Audifonos Monitoreo Cerrados",
-		"brand": "Audio-technica",
-		"category": "sonido",
-		"description": "Versión en color blanco del ATH-M20x. Audífonos cerrados circumaurales de monitoreo, modelo de entrada de la serie M de Audio-Technica. Controladores de neodímio de 40 mm con sonido balanceado,",
-		"basePrice": 59990,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/audio-technica-ath-m20x-white-audifonos-monitoreo-cerrados.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/audio-technica-ath-m20x-white-audifonos-monitoreo-cerrados",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/Gemini_Generated_Image_as36uras36uras36.png?v=1776264957",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
 		"id": "behringer-dr18sub-subwoofer-activo-de-18-con-dsp",
 		"name": "Behringer DR18SUB Subwoofer Activo de 18 con DSP",
 		"brand": "Behringer",
@@ -1122,23 +1037,6 @@
 		}
 	},
 	{
-		"id": "behringer-microphono-pp400-preamplificador-tornamesa",
-		"name": "Behringer MicroPHONO PP400 Preamplificador Tornamesa",
-		"brand": "Behringer",
-		"category": "sonido",
-		"description": "Preamplificador de phono compacto con ecualización RIAA y salidas duales (RCA y TRS). Peso 0.28 kg. Proporciona una solución práctica y de alta calidad para conectar tornamesas a mezcladores,",
-		"basePrice": 32900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/behringer-microphono-pp400-preamplificador-tornamesa.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/behringer-microphono-pp400-preamplificador-tornamesa",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/PP400_1.jpg?v=1777926293",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
 		"id": "behringer-vs1220f-monitor-de-piso-pasivo-12-600w",
 		"name": "Behringer Monitor de Piso Pasivo 12\" 600W",
 		"brand": "Behringer",
@@ -1186,23 +1084,6 @@
 			"store": "Promusic",
 			"url": "https://www.promusic.cl/products/behringer-pk115a-caja-activa-15-800w",
 			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/PK115A_2.jpg?v=1778011187",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "behringer-studio-xl-controlador-de-monitoreo",
-		"name": "Behringer STUDIO XL Controlador de Monitoreo",
-		"brand": "Behringer",
-		"category": "sonido",
-		"description": "Controlador de monitores con fader motorizado, interfaz USB de 192 kHz y preamplificadores Midas. Peso 1.5 kg. Ofrece una solución completa para estudios de grabación profesionales, proporcionando un",
-		"basePrice": 229900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/behringer-studio-xl-controlador-de-monitoreo.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/behringer-studio-xl-controlador-de-monitoreo",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/STUDIOXL_1.jpg?v=1777928239",
 			"capturedAt": "2026-05-29"
 		}
 	},
@@ -1305,6 +1186,23 @@
 			"store": "Audiomúsica",
 			"url": "https://www.audiomusica.com/caja-activa-fbt-xlite-112a/p",
 			"image": "https://audiomusicacl.vteximg.com.br/arquivos/ids/208564/5-1110823-x-lite-112a-caja-activa-12-bt-dsp-1200w-fbt.jpg?v=639071179042100000",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "caja-activa-fbt-xlite-115a",
+		"name": "Caja activa FBT XLITE 115A",
+		"brand": "Fbt",
+		"category": "sonido",
+		"description": "Los parlantes de la serie FBT XLITE 115A con mezclador integrado de 3 canales cuentan con una construcción de gabinete de polipropileno moldeado por inyección de gas liviano pero resistente.",
+		"basePrice": 719990,
+		"stock": 100,
+		"available": true,
+		"image": "/images/productos/caja-activa-fbt-xlite-115a.jpg",
+		"source": {
+			"store": "Audiomúsica",
+			"url": "https://www.audiomusica.com/caja-activa-fbt-xlite-115a/p",
+			"image": "https://audiomusicacl.vteximg.com.br/arquivos/ids/180391/1110822.jpg?v=638058452851000000",
 			"capturedAt": "2026-05-29"
 		}
 	},
@@ -1530,23 +1428,6 @@
 		}
 	},
 	{
-		"id": "caja-acustica-activa-samson-xp106-con-microfono-y-bluetooth",
-		"name": "Caja acústica activa Samson XP106 con micrófono y bluetooth",
-		"brand": "Samson",
-		"category": "sonido",
-		"description": "Explore todas las posibilidades. El parlante activo portátil recargable Expedition XP106 de Samson está repleto de características increíbles, que incluyen conectividad Bluetooth y un mezclador",
-		"basePrice": 369990,
-		"stock": 10,
-		"available": true,
-		"image": "/images/productos/caja-acustica-activa-samson-xp106-con-microfono-y-bluetooth.jpg",
-		"source": {
-			"store": "Audiomúsica",
-			"url": "https://www.audiomusica.com/caja-acustica-activa-samson-xp106-con-microfono-y-bluetooth/p",
-			"image": "https://audiomusicacl.vteximg.com.br/arquivos/ids/171204/caja-activa-samson-xp106-con-microfono-y-bluetooth-1098760-1.jpg?v=637801441293270000",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
 		"id": "caja-acustica-activa-samson-xp800-con-bluetooth",
 		"name": "Caja acústica activa Samson XP800 - con Bluetooth",
 		"brand": "Samson",
@@ -1598,57 +1479,6 @@
 		}
 	},
 	{
-		"id": "crown-it9000hd-amplificador-ded-potencia-3500w-2-canales",
-		"name": "Crown Amplificador de Potencia 3500W / 2 Canales",
-		"brand": "Crown",
-		"category": "sonido",
-		"description": "Amplificador de potencia de 2 canales con 9000W totales y procesamiento DSP avanzado. Peso 12.7 kg. Combina una potencia masiva con una gestión de red profesional y una fidelidad sónica excepcional,",
-		"basePrice": 3859900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/crown-it9000hd-amplificador-ded-potencia-3500w-2-canales.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/crown-it9000hd-amplificador-ded-potencia-3500w-2-canales",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/IT9000HD_1.jpg?v=1777996412",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "crown-dci2x600-amplificador-de-potencia-600w-2-canales",
-		"name": "Crown Amplificador de Potencia 600W / 2 Canales",
-		"brand": "Crown",
-		"category": "sonido",
-		"description": "Amplificador de instalación analógico de 2 canales con 600W por canal y tecnología DriveCore. Peso 8.5 kg. Compatible con sistemas de baja impedancia y línea de 70V/100V, ofrece una operación",
-		"basePrice": 837900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/crown-dci2x600-amplificador-de-potencia-600w-2-canales.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/crown-dci2x600-amplificador-de-potencia-600w-2-canales",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/DCI2X600_1.jpg?v=1777997577",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "crown-it5000hd-amplificador-ded-potencia-2500w-2-canales",
-		"name": "Crown IT5000HD Amplificador ded Potencia 2500W / 2 Canales",
-		"brand": "Crown",
-		"category": "sonido",
-		"description": "Amplificador de potencia de 2 canales con 5000W totales y motor de procesamiento digital OmniDriveHD. Peso 12.7 kg. Ofrece una densidad de potencia excepcional y herramientas de red profesionales",
-		"basePrice": 2929900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/crown-it5000hd-amplificador-ded-potencia-2500w-2-canales.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/crown-it5000hd-amplificador-ded-potencia-2500w-2-canales",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/IT5000HD_1.jpg?v=1777996897",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
 		"id": "db-technologies-bhype12-caja-activa-12",
 		"name": "dB technologies BHYPE12 Caja Acustica Activa 12\"",
 		"brand": "db Technologies",
@@ -1683,6 +1513,23 @@
 		}
 	},
 	{
+		"id": "db-technologies-es1203-sistema-de-columna-estereo-2x12-8x4",
+		"name": "dB Technologies ES1203 Sistema de Columna Estéreo 2x12\", 8x4\"",
+		"brand": "db Technologies",
+		"category": "sonido",
+		"description": "Sistema de sonido estéreo triamplificado con subwoofer activo de 2 × 12\" y satélites con 4 mid-woofers de 4\" cada uno. Amplificador Digipro G4® de 2.400 W, DSP 56 bits, Bluetooth y 3 modos de",
+		"basePrice": 3399900,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/db-technologies-es1203-sistema-de-columna-estereo-2x12-8x4.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/db-technologies-es1203-sistema-de-columna-estereo-2x12-8x4",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/ES1203_2.png?v=1748317889",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
 		"id": "db-technologies-reaes503-sistema-de-columna-12-8x3",
 		"name": "dB Technologies ES503 Sistema de Columna 12\", 8X3\"",
 		"brand": "db Technologies",
@@ -1713,6 +1560,125 @@
 			"store": "Promusic",
 			"url": "https://www.promusic.cl/products/db-technologies-kl12-caja-activa-12",
 			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/KL12-1.png?v=1755782772",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "electro-voice-ekx-12p-caja-activa-de-12-1500w",
+		"name": "Electro-Voice EKX-12P Caja Activa de 12\" 1500W",
+		"brand": "Electrovoice",
+		"category": "sonido",
+		"description": "Gabinete de madera contrachapada de 15mm con amplificación de 1500W Peak y tecnología SST™ para una cobertura precisa, gestionado por un DSP profesional con pantalla LCD y presets de optimización",
+		"basePrice": 1305000,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/electro-voice-ekx-12p-caja-activa-de-12-1500w.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/electro-voice-ekx-12p-caja-activa-de-12-1500w",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/EKX12P_1.jpg?v=1772657112",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "electro-voice-parlantes-evid-6-2t-negros",
+		"name": "Electro-Voice EVID 6.2T Parlantes de instalación (Par)",
+		"brand": "Electrovoice",
+		"category": "sonido",
+		"description": "Sistema de instalación de doble woofer de 6\" con transformador multi-tap integrado, diseñado para ofrecer una cobertura amplia de 100° y alta fidelidad en espacios comerciales, protegido contra",
+		"basePrice": 849000,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/electro-voice-parlantes-evid-6-2t-negros.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/electro-voice-parlantes-evid-6-2t-negros",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/EVID62TB_1_3e05fec9-6586-41f7-8d7d-410a699da3f1.jpg?v=1772717255",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "electro-voice-evids42tb-ev-parlante-de-instalacion-4-gabinete-70-100v-negro",
+		"name": "Electro-Voice EVIDS42TB Parlante Instalación 4” 70/100V Negro (Par)",
+		"brand": "Electrovoice",
+		"category": "sonido",
+		"description": "Sistema de instalación ultra compacto de 4\" con certificación IP54 y sistema de montaje QuickMount™, optimizado para ofrecer una cobertura uniforme de 110° y alta fidelidad en ambientes comerciales",
+		"basePrice": 356000,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/electro-voice-evids42tb-ev-parlante-de-instalacion-4-gabinete-70-100v-negro.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/electro-voice-evids42tb-ev-parlante-de-instalacion-4-gabinete-70-100v-negro",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/EVIDS42TB_1.jpg?v=1773066117",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "electrovoice-eviva15pnc-caja-activa-15",
+		"name": "Electro-Voice EVIVA15P-NC Caja Activa 15\"",
+		"brand": "Electrovoice",
+		"category": "sonido",
+		"description": "Gabinete de contrachapado de 15mm con amplificación Clase D de 1000W, equipado con woofer de 15\" y driver de titanio con un SPL máximo de 134 dB. Tipo: Parlante activo de 2 vías (15 pulgadas)",
+		"basePrice": 555000,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/electrovoice-eviva15pnc-caja-activa-15.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/electrovoice-eviva15pnc-caja-activa-15",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/EVIVA15PNC_1.jpg?v=1772632265",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "electrovoice-everse-8-altavoz-activo-c-bluetooth",
+		"name": "ElectroVoice EVERSE 8 Altavoz Activo c/Bluetooth",
+		"brand": "Electrovoice",
+		"category": "sonido",
+		"description": "Sistema portátil con certificación IP43 y amplificación de 400W Peak, equipado con mezclador digital Dynacord y una batería de alta capacidad que rinde hasta 12 horas. Tipo: Altavoz autoamplificado",
+		"basePrice": 899000,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/electrovoice-everse-8-altavoz-activo-c-bluetooth.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/electrovoice-everse-8-altavoz-activo-c-bluetooth",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/EVERSE8_1.jpg?v=1772634375",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "electrovoice-evid-p6-2b-parlante-colgante-de-instalacion",
+		"name": "Electrovoice Evid-P6.2B Parlante colgante de Instalación",
+		"brand": "Electrovoice",
+		"category": "sonido",
+		"description": "Parlante colgante coaxial de 6.5\" con dispersión ultra ancha de 115°, certificado para sistemas de seguridad contra incendios y equipado con transformador para líneas de 70/100V, ideal para espacios",
+		"basePrice": 453000,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/electrovoice-evid-p6-2b-parlante-colgante-de-instalacion.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/electrovoice-evid-p6-2b-parlante-colgante-de-instalacion",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/EVIDP62B_3_c25b0122-faff-4b75-89d1-de41902c2286.jpg?v=1772719147",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "electrovoice-evolve30m-sistema-de-columna",
+		"name": "ElectroVoice EVOLVE30M Sistema de Columna",
+		"brand": "Electrovoice",
+		"category": "sonido",
+		"description": "Sistema de columna portátil Activo de 1000 watts, mezclador digital 8 canales, controlador LF de 10\", controladores HF de 6 x 2,8\", DSP, efectos integrados y Bluetooth Especificaciones Técnicas Tipo",
+		"basePrice": 1699000,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/electrovoice-evolve30m-sistema-de-columna.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/electrovoice-evolve30m-sistema-de-columna",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/EVOLVE30M_1.jpg?v=1748318871",
 			"capturedAt": "2026-05-29"
 		}
 	},
@@ -1802,6 +1768,23 @@
 		}
 	},
 	{
+		"id": "neumann-kh310-arg-monitor-de-estudio-activo-3-vias",
+		"name": "Neumann KH310 ARG Monitor de Estudio Activo",
+		"brand": "Neumann",
+		"category": "sonido",
+		"description": "La respuesta transitoria más rápida de su clase, capacidad de graves hasta 34 Hz, mayor precisión en el rango medio a través de un controlador especialmente diseñado Tipo: Activo Triamplificado Clase",
+		"basePrice": 2999900,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/neumann-kh310-arg-monitor-de-estudio-activo-3-vias.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/neumann-kh310-arg-monitor-de-estudio-activo-3-vias",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/KH310ARG_1.jpg?v=1748319396",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
 		"id": "norwood-sistema-line-array",
 		"name": "Norwood LIONPACK Sistema Line Array Pasivo",
 		"brand": "Norwood",
@@ -1815,23 +1798,6 @@
 			"store": "Promusic",
 			"url": "https://www.promusic.cl/products/norwood-sistema-line-array",
 			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/LYON_PACK_a.jpg?v=1748317227",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "norwood-lynx150a-sistema-inalambrico-monitoreo-in-ear-banda-a",
-		"name": "Norwood LYNX150A Sistema Inalámbrico Monitoreo In-ear ( Banda A )",
-		"brand": "Norwood",
-		"category": "sonido",
-		"description": "Sistema de monitoreo in-ear inalámbrico profesional de un solo canal, diseñado para ofrecer una referencia de audio clara y estable con tecnología UHF y un receptor de cuerpo de alta resistencia.",
-		"basePrice": 179900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/norwood-lynx150a-sistema-inalambrico-monitoreo-in-ear-banda-a.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/norwood-lynx150a-sistema-inalambrico-monitoreo-in-ear-banda-a",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/LYNX150.jpg?v=1776281660",
 			"capturedAt": "2026-05-29"
 		}
 	},
@@ -2227,6 +2193,57 @@
 		}
 	},
 	{
+		"id": "pioneer-xprs12-caja-acustica-activa-12",
+		"name": "Pioneer Caja Acústica Activa 12\"",
+		"brand": "Pioneer",
+		"category": "sonido",
+		"description": "Caja acústica activa de 12\" y 2400W de potencia con chasis de madera de abedul. Peso 23.1 kg. Destaca por su versatilidad de montaje, alto nivel de presión sonora y protección avanzada de la fuente",
+		"basePrice": 899900,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/pioneer-xprs12-caja-acustica-activa-12.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/pioneer-xprs12-caja-acustica-activa-12",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/XPRS12_1.jpg?v=1777564267",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "pioneer-xprs10-caja-acustica-activa-10",
+		"name": "Pioneer XPRS10 Caja Acústica Activa 10\"",
+		"brand": "Pioneer",
+		"category": "sonido",
+		"description": "Caja acústica activa de 10\" con 2400 W de potencia y procesamiento DSP avanzado. Peso 18.9 kg. Ofrece un diseño versátil que permite su uso como monitor de piso o sistema principal, garantizando una",
+		"basePrice": 749900,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/pioneer-xprs10-caja-acustica-activa-10.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/pioneer-xprs10-caja-acustica-activa-10",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/XPRS10_1.jpg?v=1777562579",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
+		"id": "presonus-eris-studio-monitor-activo-8",
+		"name": "Presonus ERIS ST8 Monitor de Estudio Activo 8\"",
+		"brand": "Presonus",
+		"category": "sonido",
+		"description": "Monitor de estudio activo de 8\" con diseño de dos vías y puerto de graves frontal, ideal para mezcla crítica en espacios profesionales. Ofrece 140 W de potencia biamplificada y una respuesta en",
+		"basePrice": 249900,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/presonus-eris-studio-monitor-activo-8.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/presonus-eris-studio-monitor-activo-8",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/ERISST8-1.png?v=1748318014",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
 		"id": "proel-session-1-free-sistema-de-columna-portable-activo",
 		"name": "Proel SESSION 1 FREE Sistema de Columna Portable Activo 400W",
 		"brand": "Proel",
@@ -2261,6 +2278,23 @@
 		}
 	},
 	{
+		"id": "qsc-caja-activa-12-1000w-clase-d",
+		"name": "Qsc CP12 Caja Activa 12\" 500W",
+		"brand": "Qsc",
+		"category": "sonido",
+		"description": "Sistema activo ultra compacto de 1000W Peak con gabinete de polipropileno, procesador DSP con presets de contorno y un peso ligero de 13.7 kg para máxima portabilidad. Tipo: Caja activa de 2 vías (12",
+		"basePrice": 745000,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/qsc-caja-activa-12-1000w-clase-d.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/qsc-caja-activa-12-1000w-clase-d",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/CP12_1_337f18e4-444a-4315-810f-109bd4e02978.jpg?v=1772636468",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
 		"id": "samson-expedition-escape-caja-activa-6-portable-pa-system",
 		"name": "Samson Expedition Escape+ Caja Activa 6\" Portable PA System",
 		"brand": "Samson",
@@ -2274,57 +2308,6 @@
 			"store": "Promusic",
 			"url": "https://www.promusic.cl/products/samson-expedition-escape-caja-activa-6-portable-pa-system",
 			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/samson-expedition-escape-plus-front-2000x2000-web.jpg?v=1777561739",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "sennheiser-ewiem-g4twin-a-sistemas-de-monitoreo-inalambrico-in-ear",
-		"name": "Sennheiser EW IEM G4-A TWIN Sistemas Inalámbrico de Monitoreo In-ear",
-		"brand": "Sennheiser",
-		"category": "sonido",
-		"description": "Sistema de monitoreo in-ear estéreo profesional EW IEM G4 TWIN. Incluye transmisor de medio rack y dos receptores bodypack con modo Focus. Opera en la banda A (516–558 MHz), autonomía de 8 horas,",
-		"basePrice": 1999900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/sennheiser-ewiem-g4twin-a-sistemas-de-monitoreo-inalambrico-in-ear.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/sennheiser-ewiem-g4twin-a-sistemas-de-monitoreo-inalambrico-in-ear",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/EWIEMG4TWA.jpg?v=1748318804",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "show-sa25-amplificador-de-potencia-portatil-25w",
-		"name": "Show Amplificador de Potencia Portátil 25W",
-		"brand": "Show",
-		"category": "sonido",
-		"description": "Mezclador amplificador de 25W con soporte para 70V/100V y 4 Ohms. Peso 2.6 kg. Ofrece una gestión de audio básica pero profesional, con entradas dedicadas para micrófonos y fuentes auxiliares, siendo",
-		"basePrice": 49900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/show-sa25-amplificador-de-potencia-portatil-25w.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/show-sa25-amplificador-de-potencia-portatil-25w",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/SA25_1_9e33160e-2f48-4db0-a499-8ea73dd7e41b.jpg?v=1778016563",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "shure-microfono-vocal-dinamico-con-preamplificador-incorporado",
-		"name": "Shure SM7dBMicrófono Vocal Dinámico con Preamplificador Incorporado",
-		"brand": "Shure",
-		"category": "sonido",
-		"description": "Micrófono dinámico cardioide activo que incorpora un preamplificador interno diseñado para entregar +18 dB o +24 dB de ganancia adicional transparente, optimizando la señal para interfaces de audio",
-		"basePrice": 750000,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/shure-microfono-vocal-dinamico-con-preamplificador-incorporado.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/shure-microfono-vocal-dinamico-con-preamplificador-incorporado",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/SM7DB_1.jpg?v=1779825902",
 			"capturedAt": "2026-05-29"
 		}
 	},
@@ -2414,6 +2397,23 @@
 		}
 	},
 	{
+		"id": "turbosound-caja-activa-15-m15b",
+		"name": "Turbosound M15B Subwoofer Activo 15\"",
+		"brand": "Turbosound",
+		"category": "sonido",
+		"description": "Subwoofer activo de alta eficiencia con 2200W de potencia Clase D y procesamiento digital Klark Teknik. Su diseño de radiación directa y gabinete de madera garantizan un impacto de graves profundo",
+		"basePrice": 1029900,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/turbosound-caja-activa-15-m15b.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/turbosound-caja-activa-15-m15b",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/M15B_1.jpg?v=1767364725",
+			"capturedAt": "2026-05-29"
+		}
+	},
+	{
 		"id": "turbosound-tcx118b-subwoofer-pasivo-18-4000w",
 		"name": "Turbosound Subwoofer Pasivo 18\" 4000W",
 		"brand": "Turbosound",
@@ -2427,40 +2427,6 @@
 			"store": "Promusic",
 			"url": "https://www.promusic.cl/products/turbosound-tcx118b-subwoofer-pasivo-18-4000w",
 			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/TCX118B_1.jpg?v=1777565406",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "zoom-h1n-grabadora-digital-portatil",
-		"name": "Zoom Grabadora Digital Portatil",
-		"brand": "Zoom",
-		"category": "sonido",
-		"description": "Grabadora estéreo ultraportátil de 24 bits/96 kHz con micrófonos X/Y integrados. Peso 0.06 kg. Destaca por su facilidad de uso, autonomía extendida y funciones de procesamiento de audio en tiempo",
-		"basePrice": 85900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/zoom-h1n-grabadora-digital-portatil.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/zoom-h1n-grabadora-digital-portatil",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/H1N_1.jpg?v=1778083448",
-			"capturedAt": "2026-05-29"
-		}
-	},
-	{
-		"id": "zoom-zha-4-amplificador-de-audifonos-portatil",
-		"name": "Zoom ZHA-4 Amplificador de Audífonos Portátil",
-		"brand": "Zoom",
-		"category": "sonido",
-		"description": "Amplificador de audífonos portátil con 4 salidas independientes de 3,5 mm, control de volumen maestro y conversión de señal balanceada a no balanceada. Alimentado por USB, ideal para estudio,",
-		"basePrice": 67900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/zoom-zha-4-amplificador-de-audifonos-portatil.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/zoom-zha-4-amplificador-de-audifonos-portatil",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/ZHA4.jpg?v=1779137390",
 			"capturedAt": "2026-05-29"
 		}
 	}
