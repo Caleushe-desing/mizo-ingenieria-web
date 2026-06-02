@@ -25,13 +25,12 @@ jobs:
       - name: 4. Compilar el sitio web (Astro Build)
         run: npm run build
 
-      - name: 5. Subir archivos compilados al Hosting por FTP Nativo
-        run: |
-          sudo apt-get update && sudo apt-get install -y lftp
-          lftp -c "
-          set ftp:ssl-allow no;
-          set ftp:passive-mode true;
-          open -u '${{ secrets.FTP_USERNAME }}','${{ secrets.FTP_PASSWORD }}' ${{ secrets.FTP_SERVER }};
-          mirror -R ./dist/ /public_html/ --delete --verbose;
-          quit
-          "
+      - name: 5. Subir archivos al Hosting
+        uses: QuadraSystems/FTP-Deploy-Action@v3.0.0
+        with:
+          ftp-server: ${{ secrets.FTP_SERVER }}
+          ftp-username: ${{ secrets.FTP_USERNAME }}
+          ftp-password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist
+          remote-dir: /public_html
+          passive-mode: true
