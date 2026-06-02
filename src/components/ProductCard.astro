@@ -9,72 +9,89 @@ interface Props {
 const { product } = Astro.props;
 const price = sellingPrice(product.basePrice);
 const catIcon = categories.find((c) => c.id === product.category)?.icon ?? '📦';
-const detailUrl = `/productos/${product.id}`;
-
-const lowStock = typeof product.stock === 'number' && product.stock > 0 && product.stock <= 5;
+const catLabel = categories.find((c) => c.id === product.category)?.label ?? 'Producto';
+const detailUrl = `/productos/detalle?sku=${encodeURIComponent(product.sku || product.id)}`;
+const stock = Math.max(0, Number(product.stock) || 0);
+const available = product.available !== false && stock > 0;
+const publicBrand = product.brand && product.brand.toLowerCase() !== 'mizo' ? product.brand : '';
+const lowStock = available && stock <= 5;
+const stockLabel = available ? `Stock · ${stock} disp.` : 'Sin Stock';
 ---
 
-<div class="group flex flex-col bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-accent-light transition duration-300 overflow-hidden">
-	<a href={detailUrl} class="relative flex items-center justify-center h-48 bg-white p-4 border-b border-gray-100">
-		<img
-			src={product.image}
-			alt={product.name}
-			class="max-h-40 w-auto object-contain mix-blend-multiply"
-			loading="lazy"
-			width="300"
-			height="300"
-			onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-		/>
-		<span class="hidden absolute inset-0 items-center justify-center text-6xl bg-accent-soft" aria-hidden="true">{catIcon}</span>
-		{product.tag && (
-			<span class="absolute top-3 left-3 px-2.5 py-1 text-xs font-bold rounded-full bg-accent-main text-white shadow z-10">
-				{product.tag}
+<article class="product-item group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-lg" data-sku={product.sku || ''}>
+	<a href={detailUrl} data-astro-reload class="flex flex-1 flex-col text-inherit" aria-label={`Ver detalle de ${product.name}`}>
+		<div class="relative border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
+			<div class="flex h-40 items-center justify-center p-3 md:h-44 md:p-4">
+				<img
+					src={product.image}
+					alt={product.name}
+					class="max-h-[145px] w-auto object-contain mix-blend-multiply transition duration-500 group-hover:scale-105 md:max-h-[155px]"
+					loading="lazy"
+					width="240"
+					height="240"
+					onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+				/>
+				<span class="hidden absolute inset-0 items-center justify-center text-4xl bg-accent-soft" aria-hidden="true">{catIcon}</span>
+			</div>
+			<span class="absolute left-2 top-2 rounded-full bg-emerald-50 px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wide text-emerald-700 shadow-sm">
+				Mejor Precio Garantizado
 			</span>
-		)}
-		{lowStock && (
-			<span class="absolute top-3 right-3 px-2.5 py-1 text-xs font-bold rounded-full bg-amber-500 text-white shadow z-10">
-				¡Últimas {product.stock}!
-			</span>
-		)}
-	</a>
-
-	<div class="flex flex-col flex-grow p-5">
-		<div class="flex items-center justify-between gap-2 mb-1">
-			<span class="text-xs font-semibold uppercase tracking-wide text-accent-main">{product.brand}</span>
-			{product.sku && <span class="text-[0.65rem] font-mono text-gray-400 whitespace-nowrap">{product.sku}</span>}
+			{lowStock && (
+				<span class="absolute bottom-2 left-2 rounded-full bg-amber-500 px-2 py-0.5 text-[0.68rem] font-bold text-white shadow">
+					Últimas {product.stock}
+				</span>
+			)}
 		</div>
-		<a href={detailUrl} class="block">
-			<h3 class="text-base font-bold text-gray-900 leading-snug mb-2 hover:text-accent-main transition line-clamp-2">{product.name}</h3>
-		</a>
-		<p class="text-sm text-gray-600 leading-relaxed flex-grow line-clamp-3">{product.description}</p>
 
-		<div class="mt-4 pt-4 border-t border-gray-100">
-			<p class="text-2xl font-extrabold text-gray-900">{formatCLP(price)}</p>
-			<p class="text-xs text-green-600 font-medium mb-3 flex items-center gap-1">
-				<span class="inline-block w-2 h-2 rounded-full bg-green-500"></span>
-				Disponible
-			</p>
-			<div class="flex gap-2">
-				<button
-					type="button"
-					data-add-to-cart
-					data-id={product.id}
-					data-name={product.name}
-					data-price={price}
-					data-image={product.image}
-					data-weight={product.weightKg ?? 0}
-					class="flex-grow text-center px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-accent-main hover:bg-accent-hover transition duration-200"
+		<div class="flex flex-1 flex-col p-3 md:p-4 md:pb-3">
+			<div class="mb-2 flex items-center justify-between gap-2">
+				<span class="truncate rounded-full bg-accent-soft px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wide text-accent-main">Categoría: {catLabel}</span>
+				{product.sku && <span class="max-w-[6rem] truncate font-mono text-[0.65rem] text-gray-400 whitespace-nowrap">{product.sku}</span>}
+			</div>
+			<h3 class="min-h-[2.35rem] text-sm font-bold leading-snug text-gray-950 transition group-hover:text-accent-main line-clamp-2 md:text-base">{product.name}</h3>
+			{publicBrand && <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-gray-500 line-clamp-1 md:text-sm">{publicBrand}</p>}
+			<p class="mt-1.5 flex-1 text-xs leading-snug text-gray-500 line-clamp-2 md:text-sm">{product.description}</p>
+
+			<div class="mt-2.5">
+				<p class="text-[0.62rem] font-bold uppercase tracking-wide text-gray-400">Precio venta</p>
+				<p class="text-lg font-black tracking-tight text-gray-950 md:text-xl">
+					<span class="product-price" data-fallback-price={price}>{formatCLP(price)}</span>
+				</p>
+				<p
+					class:list={[
+						'product-stock-status mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.68rem] font-black',
+						available ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700',
+					]}
+					data-stock-status
 				>
-					Agregar al carrito
-				</button>
-				<a
-					href={detailUrl}
-					class="flex-shrink-0 inline-flex items-center justify-center px-3 py-2.5 rounded-md text-sm font-semibold text-accent-main border border-accent-main hover:bg-accent-soft transition"
-					aria-label={`Ver detalle de ${product.name}`}
-				>
-					Ver
-				</a>
+					<span
+						class:list={[
+							'inline-block h-1.5 w-1.5 rounded-full',
+							available ? 'bg-green-500' : 'bg-red-500',
+						]}
+						data-stock-dot
+					></span>
+					<span data-stock-label>{stockLabel}</span>
+				</p>
 			</div>
 		</div>
+	</a>
+
+	<div class="px-3 pb-3 md:px-4 md:pb-4">
+		<button
+			type="button"
+			data-add-to-cart
+			data-id={product.sku || product.id}
+			data-name={product.name}
+			data-price={price}
+			data-image={product.image}
+			data-qty="1"
+			class="add-to-cart-card inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent-main px-3 py-2 text-xs font-black text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+			disabled={!available}
+		>
+			<span aria-hidden="true">🛒</span>
+			Agregar al Carrito
+		</button>
 	</div>
-</div>
+</article>
+

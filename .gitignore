@@ -28,3 +28,6 @@ PRECIOS-FUENTES.md
 
 # Mensaje de commit temporal
 .commit-msg.txt
+
+# Datos runtime del panel Admin en modo SSR/cPanel
+data/

@@ -261,7 +261,7 @@ const regiones = [
 			calcBtn.textContent = 'Cotizando…';
 			shipResult.classList.remove('hidden');
 			try {
-				const res = await fetch('/.netlify/functions/cotizar-envio', {
+				const res = await fetch('/cotizar-envio.php', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ region: delivery.region, weightKg: Cart.weight() }),
@@ -397,7 +397,7 @@ const regiones = [
 				checkoutBtn.disabled = true;
 				checkoutBtn.textContent = 'Generando pago...';
 				try {
-					const res = await fetch('/.netlify/functions/crear-preferencia', {
+					const res = await fetch('/crear-preferencia.php', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({
@@ -411,8 +411,8 @@ const regiones = [
 							delivery,
 						}),
 					});
-					if (!res.ok) throw new Error('No se pudo iniciar el pago (' + res.status + ')');
-					const data = await res.json();
+					const data = await res.json().catch(() => null);
+					if (!res.ok) throw new Error((data && data.error) || 'No se pudo iniciar el pago (' + res.status + ')');
 					if (data.init_point) {
 						window.location.href = data.init_point;
 					} else {

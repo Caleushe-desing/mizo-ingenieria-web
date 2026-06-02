@@ -13,12 +13,12 @@ export default {
         '10xl': '112rem',
       },
       colors: {
-        // Acento corporativo: Azul petróleo
-        'accent-main': '#15616d',   // petróleo (botones / enlaces)
-        'accent-hover': '#114e58',  // petróleo oscuro (hover)
-        'accent-dark': '#0b3a42',   // petróleo muy oscuro (banner / footer)
-        'accent-light': '#3e8e99',  // petróleo claro
-        'accent-soft': '#e6f1f2',   // petróleo muy suave (fondos)
+        // Acento corporativo: azul estilo Facebook
+        'accent-main': '#1877f2',   // azul principal (botones / enlaces)
+        'accent-hover': '#166fe5',  // azul hover
+        'accent-dark': '#0d5bd7',   // azul intenso (banner / footer)
+        'accent-light': '#4d9cf7',  // azul claro
+        'accent-soft': '#e7f0ff',   // azul muy suave (fondos)
       },
       fontFamily: {
         sans: ['Atkinson', 'ui-sans-serif', 'system-ui', 'sans-serif'],

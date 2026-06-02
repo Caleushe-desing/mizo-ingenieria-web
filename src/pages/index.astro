@@ -1,20 +1,74 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ProductCard from '../components/ProductCard.astro';
 import ClientLogos from '../components/ClientLogos.astro';
 import Brands from '../components/Brands.astro';
-import { products, featuredProducts } from '../data/products';
+import ProductCard from '../components/ProductCard.astro';
 
-const destacados = featuredProducts(8);
+const destacados: any[] = [];
 
-const audioCount = products.filter((p) => p.category === 'sonido').length;
-const proyectorCount = products.filter((p) => p.category === 'proyector').length;
-const camaraCount = products.filter((p) => p.category === 'camara').length;
+const audioCount = 'Catálogo MySQL';
+const proyectorCount = 'Catálogo MySQL';
+const camaraCount = 'Catálogo MySQL';
+
+const heroSlides = [
+	{
+		kicker: 'Oferta de proyecto audiovisual',
+		title: 'Transforma tu Auditorio',
+		description: 'Proyectores láser de alto brillo con instalación, calibración certificada y capacitación de uso incluida.',
+		price: 'Proyecto desde $2.490.000',
+		cta: 'Cotizar Proyecto Aquí',
+		url: '/contacto?tipo=auditorio-proyector-laser',
+		badge: 'Proyector láser + ingeniería',
+		accent: 'from-accent-dark via-accent-main to-cyan-500',
+	},
+	{
+		kicker: 'Audio profesional instalado',
+		title: 'Sonido claro para salas, iglesias y eventos',
+		description: 'Parlantes, amplificación, zonificación y ajuste acústico para que el sistema quede listo para operar.',
+		price: 'Diseño + instalación desde $1.290.000',
+		cta: 'Diseñar mi Sistema',
+		url: '/contacto?tipo=audio-profesional',
+		badge: 'Audio calibrado',
+		accent: 'from-slate-950 via-gray-800 to-accent-main',
+	},
+	{
+		kicker: 'Domótica y control',
+		title: 'Controla imagen, sonido e iluminación',
+		description: 'Soluciones integradas para salas premium, home cinema y espacios corporativos con soporte técnico en Chile.',
+		price: 'Integración desde $890.000',
+		cta: 'Cotizar Integración',
+		url: '/contacto?tipo=domotica-audiovisual',
+		badge: 'Llave en mano',
+		accent: 'from-indigo-950 via-accent-dark to-emerald-500',
+	},
+];
 
 const categoryTiles = [
-	{ title: 'Parlantes y Audio', count: audioCount, icon: '🔊', url: '/productos?cat=sonido', desc: 'Cajas activas, line array y portátiles' },
-	{ title: 'Proyectores', count: proyectorCount, icon: '📽️', url: '/productos?cat=proyector', desc: 'Para salas, eventos y home cinema' },
-	{ title: 'Cámaras', count: camaraCount, icon: '📹', url: '/productos?cat=camara', desc: 'Seguridad y videovigilancia WiFi' },
+	{ title: 'Audio Profesional', countLabel: audioCount, icon: '🔊', url: '/productos', desc: 'Cajas activas, line array, parlantes de muro y sonido distribuido' },
+	{ title: 'Proyectores', countLabel: proyectorCount, icon: '📽️', url: '/productos', desc: 'Proyección para auditorios, salas de reunión y home cinema' },
+	{ title: 'Domótica', countLabel: 'Proyectos a medida', icon: '🏠', url: '/productos', desc: 'Control integrado de audio, video, iluminación y escenas' },
+	{ title: 'Seguridad', countLabel: camaraCount, icon: '📹', url: '/productos', desc: 'Cámaras, monitoreo y videovigilancia conectada' },
+];
+
+const fallbackSolutionPacks = [
+	{
+		etiqueta: 'LLAVE EN MANO',
+		titulo: 'Pack Sala de Reuniones Premium',
+		descripcion: 'Audio, proyección, cableado, montaje y configuración para entregar una sala lista para operar.',
+		ideal_para: 'Oficinas, directorios y salas híbridas',
+	},
+	{
+		etiqueta: 'ALTA DEMANDA',
+		titulo: 'Pack Auditorio Láser Pro',
+		descripcion: 'Proyección de alto brillo, audio distribuido e instalación profesional para espacios de alta concurrencia.',
+		ideal_para: 'Colegios, auditorios, iglesias y centros de eventos',
+	},
+	{
+		etiqueta: 'EXPERIENCIA PREMIUM',
+		titulo: 'Pack Home Cinema Inmersivo',
+		descripcion: 'Imagen, sonido envolvente, soportes, cableado y calibración para una experiencia audiovisual completa.',
+		ideal_para: 'Casas, quinchos y salas privadas',
+	},
 ];
 
 const trust = [
@@ -29,43 +83,71 @@ const trust = [
 	title="Mizo | Tienda de Audio y Video + Instalación Profesional"
 	description="Compra parlantes, proyectores y cámaras en Chile, con instalación profesional de sistemas de sonido y proyección. Equipos originales, despacho y pago seguro."
 >
-	<!-- HERO TIENDA -->
-	<section class="relative bg-gradient-to-b from-accent-soft to-white py-16 sm:py-24 overflow-hidden">
-		<div class="absolute inset-0 -z-10 opacity-[0.05]" style="background-image: radial-gradient(#15616d 1.2px, transparent 1.2px); background-size: 22px 22px;"></div>
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<span class="inline-block px-4 py-1.5 mb-5 text-sm font-semibold rounded-full bg-accent-main/10 text-accent-main">
-				Tienda + Instalación profesional
-			</span>
-			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight max-w-4xl mx-auto">
-				Equipos de <span class="text-accent-main">audio y video</span>, instalados como corresponde
-			</h1>
-			<p class="mt-5 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-				Compra parlantes, proyectores y cámaras de las mejores marcas. Y si quieres, nosotros los instalamos: sistemas de sonido y proyección listos para funcionar.
-			</p>
+	<!-- HERO MARKETPLACE: BANNERS QUE VENDEN PROYECTOS -->
+	<section class="relative overflow-hidden bg-slate-100 py-8 sm:py-10">
+		<div class="absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(#15616d 1.2px, transparent 1.2px); background-size: 22px 22px;"></div>
+		<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
+				<div class="hero-carousel" aria-label="Ofertas de proyectos audiovisuales">
+					{heroSlides.map((slide, index) => (
+						<article id={`hero-slide-${index + 1}`} class={`hero-slide bg-gradient-to-br ${slide.accent}`}>
+							<div class="relative z-10 max-w-2xl">
+								<span class="inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-white backdrop-blur">
+									{slide.kicker}
+								</span>
+								<h1 class="mt-5 text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-white">
+									{slide.title}
+								</h1>
+								<p class="mt-4 text-lg text-white/85 md:text-xl">{slide.description}</p>
+								<div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+									<a href={slide.url} class="inline-flex items-center justify-center rounded-full bg-amber-300 px-6 py-3 text-sm font-black text-gray-950 shadow-lg transition hover:bg-amber-200">
+										{slide.cta}
+									</a>
+									<span class="text-sm font-bold text-white/90">{slide.price}</span>
+								</div>
+							</div>
 
-			<!-- Buscador hero -->
-			<form action="/productos" method="get" role="search" class="mt-8 max-w-2xl mx-auto">
-				<div class="relative">
-					<input
-						type="search"
-						name="q"
-						placeholder="¿Qué estás buscando? Ej: parlante JBL, proyector Wanbo..."
-						aria-label="Buscar productos"
-						class="w-full pl-12 pr-28 py-4 rounded-full border border-gray-300 bg-white text-base text-gray-900 placeholder-gray-400 shadow-md focus:border-accent-main focus:ring-2 focus:ring-accent-main/20 focus:outline-none transition"
-					/>
-					<svg class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-					<button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-accent-main hover:bg-accent-hover transition">
-						Buscar
-					</button>
+							<div class="hero-product-card" aria-hidden="true">
+								<div class="rounded-2xl bg-white p-4 shadow-2xl">
+									<div class="flex h-36 items-center justify-center rounded-xl bg-slate-100 text-6xl">
+										{index === 0 ? '📽️' : index === 1 ? '🔊' : '🏠'}
+									</div>
+									<p class="mt-4 text-xs font-black uppercase tracking-wide text-accent-main">{slide.badge}</p>
+									<p class="mt-1 text-lg font-black leading-tight text-gray-950">Oferta retail + instalación incluida</p>
+									<div class="mt-4 rounded-xl border-2 border-amber-300 bg-amber-50 p-3 text-sm font-bold text-gray-900">
+										✓ Instalación y calibración profesional
+									</div>
+								</div>
+							</div>
+						</article>
+					))}
 				</div>
-			</form>
 
-			<div class="mt-5 flex flex-wrap justify-center gap-2 text-sm">
-				<span class="text-gray-500">Populares:</span>
-				<a href="/productos?q=jbl" class="text-accent-main hover:underline">JBL</a>
-				<a href="/productos?q=proyector" class="text-accent-main hover:underline">Proyectores</a>
-				<a href="/productos?q=reolink" class="text-accent-main hover:underline">Cámaras Reolink</a>
-				<a href="/productos?cat=sonido" class="text-accent-main hover:underline">Parlantes</a>
+				<aside class="grid gap-5">
+					<div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+						<p class="text-xs font-black uppercase tracking-[0.18em] text-accent-main">Compra inteligente</p>
+						<h2 class="mt-3 text-2xl font-black text-gray-950">Equipo + diseño + montaje</h2>
+						<p class="mt-2 text-sm text-gray-600">
+							El precio del producto te orienta. La cotización real optimiza el sistema completo para tu espacio.
+						</p>
+						<a href="/servicios" class="mt-5 inline-flex rounded-full bg-accent-main px-5 py-2.5 text-sm font-black text-white transition hover:bg-accent-hover">
+							Ver ingeniería Mizo
+						</a>
+					</div>
+					<div class="rounded-3xl bg-gray-950 p-6 text-white shadow-sm">
+						<p class="text-sm font-bold text-amber-300">Asesoría en todo Chile</p>
+						<p class="mt-2 text-3xl font-black">Cotiza antes de comprar mal.</p>
+						<p class="mt-2 text-sm text-white/70">Te ayudamos a elegir brillo, potencia, cobertura, cableado y ubicación correcta.</p>
+					</div>
+				</aside>
+			</div>
+
+			<div class="mt-4 flex justify-center gap-2" aria-label="Navegación de banners">
+				{heroSlides.map((_, index) => (
+					<a href={`#hero-slide-${index + 1}`} class="h-2.5 w-8 rounded-full bg-accent-main/30 transition hover:bg-accent-main">
+						<span class="sr-only">Ver banner {index + 1}</span>
+					</a>
+				))}
 			</div>
 		</div>
 	</section>
@@ -92,14 +174,14 @@ const trust = [
 				<h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Explora por categoría</h2>
 				<p class="mt-2 text-gray-600">Encuentra el equipo ideal para tu proyecto.</p>
 			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 				{categoryTiles.map((c) => (
 					<a href={c.url} class="group relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent-soft to-white p-8 hover:shadow-lg hover:border-accent-light transition duration-300">
 						<div class="text-5xl mb-4">{c.icon}</div>
 						<h3 class="text-xl font-bold text-gray-900 group-hover:text-accent-main transition">{c.title}</h3>
 						<p class="mt-1 text-sm text-gray-600">{c.desc}</p>
 						<p class="mt-4 inline-flex items-center text-sm font-semibold text-accent-main">
-							Ver {c.count} productos
+							{c.countLabel}
 							<svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
 						</p>
 					</a>
@@ -108,21 +190,79 @@ const trust = [
 		</div>
 	</section>
 
-	<!-- PRODUCTOS DESTACADOS -->
-	<section class="bg-accent-soft py-16">
+	<!-- PRODUCTOS DESTACADOS: GANCHO MARKETPLACE -->
+	<section class="bg-slate-100 py-16">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
+			<div class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-10 gap-5">
 				<div>
-					<h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Más vendidos</h2>
-					<p class="mt-2 text-gray-600">Equipos profesionales con opción de instalación.</p>
+					<span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-accent-main shadow-sm">
+						Marketplace audiovisual
+					</span>
+					<h2 class="mt-4 text-3xl lg:text-4xl font-extrabold text-gray-900">Productos destacados + instalación sugerida</h2>
+					<p class="mt-2 max-w-2xl text-gray-600">
+						El producto es el punto de partida. Cada equipo se presenta con su opción natural de instalación, calibración y puesta en marcha profesional.
+					</p>
 				</div>
-				<a href="/productos" class="inline-flex items-center font-semibold text-accent-main hover:text-accent-hover">
+				<a href="/productos" class="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-accent-main shadow-sm hover:bg-accent-main hover:text-white transition">
 					Ver toda la tienda
 					<svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
 				</a>
 			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+			<div data-featured-products-grid class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
+				{destacados.length === 0 && (
+					<div class="col-span-full rounded-3xl border border-gray-200 bg-white p-8 text-center text-gray-600">
+						Cargando productos publicados desde el catálogo dinámico...
+					</div>
+				)}
 				{destacados.map((product) => <ProductCard product={product} />)}
+			</div>
+		</div>
+	</section>
+
+	<!-- SOLUTIONS PACKS: COMBOS LLAVE EN MANO -->
+	<section class="bg-white py-20">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="mx-auto max-w-3xl text-center">
+				<span class="inline-flex items-center rounded-full bg-accent-main/10 px-4 py-1.5 text-sm font-bold text-accent-main">
+					Soluciones completas
+				</span>
+				<h2 class="mt-4 text-3xl lg:text-4xl font-extrabold text-gray-900">Packs diseñados, instalados y entregados funcionando</h2>
+				<p class="mt-3 text-lg text-gray-600">
+					Para clientes que no quieren armar una compra pieza por pieza: diseñamos el sistema, seleccionamos los equipos y ejecutamos la instalación llave en mano.
+				</p>
+			</div>
+
+			<div id="home-packs-grid" class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6" data-home-packs-grid>
+				{fallbackSolutionPacks.map((pack, index) => {
+					const accent = [
+						'from-accent-dark via-accent-main to-teal-500',
+						'from-slate-950 via-blue-900 to-accent-main',
+						'from-indigo-950 via-accent-dark to-emerald-500',
+					][index % 3];
+					return (
+						<article class="relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-2xl">
+							<div class={`bg-gradient-to-br ${accent} p-6 text-white`}>
+								<div class="flex items-start justify-between gap-4">
+									<span class="rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-white backdrop-blur">{pack.etiqueta}</span>
+									<span class="rounded-full bg-amber-300 px-3 py-1 text-xs font-black text-gray-950">Diseño + instalación</span>
+								</div>
+								<h3 class="mt-6 text-2xl font-black leading-tight text-white">{pack.titulo}</h3>
+								<p class="mt-4 text-sm leading-relaxed text-white/85">{pack.descripcion}</p>
+							</div>
+							<div class="flex flex-1 flex-col p-6">
+								<p class="text-xs font-bold uppercase tracking-wide text-gray-500">Ideal para</p>
+								<p class="mt-1 text-base font-bold text-gray-900">{pack.ideal_para}</p>
+								<div class="mt-6 grid gap-3 text-sm text-gray-700">
+									<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Levantamiento técnico y propuesta a medida.</span></div>
+									<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Equipos, instalación y puesta en marcha coordinada.</span></div>
+									<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Soporte local posterior a la entrega.</span></div>
+								</div>
+								<a href={`/contacto?pack=${encodeURIComponent(pack.titulo)}`} class="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-accent-main px-5 py-3 text-sm font-black text-white shadow-md transition hover:bg-accent-hover">Cotizar esta solución</a>
+							</div>
+						</article>
+					);
+				})}
 			</div>
 		</div>
 	</section>
@@ -229,3 +369,361 @@ const trust = [
 
 	<ClientLogos />
 </Layout>
+
+<script is:inline>
+	if (!window.__mizoRuntimePricesLoader) {
+		window.__mizoRuntimePricesLoader = true;
+		const script = document.createElement('script');
+		script.src = '/runtime-prices.js';
+		script.defer = true;
+		document.head.appendChild(script);
+	}
+</script>
+
+<script is:inline>
+	(function () {
+		const grid = document.querySelector('[data-home-packs-grid]');
+		if (!grid) return;
+		const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+			'&': '&amp;',
+			'<': '&lt;',
+			'>': '&gt;',
+			'"': '&quot;',
+			"'": '&#39;',
+		}[ch]));
+
+		function packTemplate(pack, index) {
+			const accent = [
+				'from-accent-dark via-accent-main to-teal-500',
+				'from-slate-950 via-blue-900 to-accent-main',
+				'from-indigo-950 via-accent-dark to-emerald-500',
+			][index % 3];
+			const title = pack.titulo || 'Solución completa Mizo';
+			const href = `/contacto?pack=${encodeURIComponent(title)}`;
+			return `<article class="relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-2xl">
+				<div class="bg-gradient-to-br ${accent} p-6 text-white">
+					<div class="flex items-start justify-between gap-4">
+						<span class="rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-white backdrop-blur">${esc(pack.etiqueta || 'SOLUCIÓN')}</span>
+						<span class="rounded-full bg-amber-300 px-3 py-1 text-xs font-black text-gray-950">Diseño + instalación</span>
+					</div>
+					<h3 class="mt-6 text-2xl font-black leading-tight text-white">${esc(title)}</h3>
+					<p class="mt-4 text-sm leading-relaxed text-white/85">${esc(pack.descripcion || '')}</p>
+				</div>
+				<div class="flex flex-1 flex-col p-6">
+					<p class="text-xs font-bold uppercase tracking-wide text-gray-500">Ideal para</p>
+					<p class="mt-1 text-base font-bold text-gray-900">${esc(pack.ideal_para || 'Proyectos audiovisuales, corporativos y educacionales')}</p>
+					<div class="mt-6 grid gap-3 text-sm text-gray-700">
+						<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Levantamiento técnico y propuesta a medida.</span></div>
+						<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Equipos, instalación y puesta en marcha coordinada.</span></div>
+						<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Soporte local posterior a la entrega.</span></div>
+					</div>
+					<a href="${href}" class="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-accent-main px-5 py-3 text-sm font-black text-white shadow-md transition hover:bg-accent-hover">Cotizar esta solución</a>
+				</div>
+			</article>`;
+		}
+
+		async function fetchJsonWithRetry(url, attempts = 2) {
+			let lastError;
+			for (let attempt = 0; attempt < attempts; attempt += 1) {
+				const controller = new AbortController();
+				const timeout = window.setTimeout(() => controller.abort(), 8000);
+				try {
+					const response = await fetch(url, {
+						headers: { Accept: 'application/json' },
+						cache: 'no-store',
+						signal: controller.signal,
+					});
+					const payload = await response.json();
+					if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'Respuesta inválida.');
+					return payload;
+				} catch (error) {
+					lastError = error;
+					await new Promise((resolve) => window.setTimeout(resolve, 450 * (attempt + 1)));
+				} finally {
+					window.clearTimeout(timeout);
+				}
+			}
+			throw lastError || new Error('No se pudo cargar.');
+		}
+
+		async function loadPacks() {
+			try {
+				const payload = await fetchJsonWithRetry('/api/home-packs.php?ts=' + Date.now(), 2);
+				const packs = Array.isArray(payload.packs) ? payload.packs : [];
+				if (packs.length) grid.innerHTML = packs.map(packTemplate).join('');
+			} catch (error) {
+				console.warn('Usando respaldo local de soluciones completas.', error);
+			}
+		}
+
+		loadPacks();
+	})();
+</script>
+
+<script is:inline>
+	(function () {
+		const grid = document.querySelector('[data-featured-products-grid]');
+		if (!grid) return;
+
+		const fmt = (value) => '$' + Number(value || 0).toLocaleString('es-CL');
+		const categoryIcon = { sonido: '🔊', proyector: '📽️', camara: '📹' };
+		const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+			'&': '&amp;',
+			'<': '&lt;',
+			'>': '&gt;',
+			'"': '&quot;',
+			"'": '&#39;',
+		}[ch]));
+
+		function cardTemplate(slot) {
+			const product = slot.product || {};
+			const price = Number(product.price) || 0;
+			const detailUrl = product.sku ? `/productos/detalle?sku=${encodeURIComponent(product.sku)}` : '/productos';
+			const cartId = product.sku || product.id || product.name;
+			const image = product.image || '/mizo-logo.png';
+			const brand = String(product.brand || '').trim();
+			const publicBrand = brand && brand.toLowerCase() !== 'mizo' ? brand : '';
+			const displayCategory = product.categoryLabel || product.category || 'Producto';
+			const available = product.available !== false && Number(product.stock) > 0;
+			const lowStock = available && Number(product.stock) <= 5;
+			const installation = product.installation || {};
+			const installationPrice = Number(installation.salePrice || 0);
+			const showInstallation = product.showInstallation === true || Number(product.mostrar_instalacion || slot.mostrar_instalacion || 0) === 1;
+			const hasInstallation = showInstallation && installationPrice > 0;
+			const solutionTotal = Number(product.solutionTotal || (price + installationPrice));
+			const projectTypeLabel = product.projectTypeLabel || 'Proyecto de instalación';
+			const roomSizeLabel = product.roomSizeLabel || installation.roomSizeLabel || 'Pequeña';
+			const brandMarkup = publicBrand
+				? `<p class="mt-1 text-xs font-semibold uppercase tracking-wide text-gray-500 line-clamp-1">${esc(publicBrand)}</p>`
+				: '';
+
+			return `<article class="product-item group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-lg" data-product-card data-sku="${esc(product.sku || '')}" data-published="${product.published === false ? '0' : '1'}" data-brand="${esc(publicBrand)}">
+				<a href="${esc(detailUrl)}" data-astro-reload class="flex flex-1 flex-col text-inherit" aria-label="Ver detalle de ${esc(product.name)}">
+					<div class="relative border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
+						<div class="flex h-48 items-center justify-center p-4">
+							<img src="${esc(image)}" alt="${esc(product.name)}" class="max-h-[170px] w-auto object-contain mix-blend-multiply transition duration-500 group-hover:scale-105" loading="lazy" width="260" height="260" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+							<span class="hidden absolute inset-0 items-center justify-center text-4xl bg-accent-soft" aria-hidden="true">${esc(categoryIcon[product.category] || '📦')}</span>
+						</div>
+						<span class="absolute left-2 top-2 rounded-full bg-emerald-50 px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wide text-emerald-700 shadow-sm">
+							Mejor Precio Garantizado
+						</span>
+						${lowStock ? `<span class="absolute bottom-2 left-2 rounded-full bg-amber-500 px-2 py-0.5 text-[0.68rem] font-bold text-white shadow">Últimas ${Number(product.stock)}</span>` : ''}
+					</div>
+
+					<div class="flex flex-1 flex-col p-4 pb-3">
+						<div class="mb-2 flex items-center justify-between gap-2">
+							<span class="truncate rounded-full bg-accent-soft px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wide text-accent-main">Categoría: ${esc(displayCategory)}</span>
+							<span class="max-w-[6rem] truncate font-mono text-[0.65rem] font-bold text-gray-400">${esc(product.sku || '')}</span>
+						</div>
+						<h3 class="min-h-[2.35rem] text-sm font-black leading-snug text-gray-950 transition group-hover:text-accent-main line-clamp-2">${esc(product.name)}</h3>
+						${brandMarkup}
+						<p class="mt-1.5 flex-1 text-xs leading-snug text-gray-600 line-clamp-2">${esc(product.description || 'Producto publicado en el catálogo Mizo.')}</p>
+
+						${hasInstallation ? `<div class="mt-2.5 rounded-xl border border-slate-100 bg-slate-50 p-3">
+							<p class="text-[0.62rem] font-black uppercase tracking-wide text-gray-400">Solución llave en mano</p>
+							<div class="mt-2 space-y-1.5 text-xs font-bold text-slate-600">
+								<div class="flex items-center justify-between gap-2">
+									<span>Equipo solo</span>
+									<span class="product-price text-slate-950" data-fallback-price="${price}">${fmt(price)}</span>
+								</div>
+								<div class="flex items-center justify-between gap-2">
+									<span>+ Instalación profesional base</span>
+									<span class="text-slate-950">${fmt(installationPrice)}</span>
+								</div>
+								<div class="flex items-center justify-between gap-2 border-t border-slate-200 pt-1.5 text-sm font-black text-gray-950">
+									<span>Total solución</span>
+									<span>${fmt(solutionTotal)}</span>
+								</div>
+							</div>
+							<p class="mt-2 text-[0.65rem] font-bold leading-snug text-slate-500">${esc(projectTypeLabel)} · Sala ${esc(roomSizeLabel)}</p>
+							<p class="product-stock-status mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.68rem] font-black ${available ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}" data-stock-status>
+								<span class="inline-block h-1.5 w-1.5 rounded-full ${available ? 'bg-green-500' : 'bg-red-500'}" data-stock-dot></span>
+								<span data-stock-label>${available ? `Stock · ${Number(product.stock)} disp.` : 'Sin Stock'}</span>
+							</p>
+							<p class="mt-2 rounded-lg bg-amber-50 px-2 py-1.5 text-[0.62rem] font-semibold leading-snug text-amber-900">
+								⚠️ Valor de instalación referencial estimado para las dimensiones seleccionadas. El precio final puede variar y está sujeto a una visita técnica en terreno obligatoria para la validación de factibilidad y cierre del proyecto.
+							</p>
+						</div>` : `<div class="mt-2.5">
+							<p class="text-[0.62rem] font-bold uppercase tracking-wide text-gray-400">Precio venta</p>
+							<p class="text-xl font-black tracking-tight text-gray-950">
+								<span class="product-price" data-fallback-price="${price}">${fmt(price)}</span>
+							</p>
+							<p class="product-stock-status mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.68rem] font-black ${available ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}" data-stock-status>
+								<span class="inline-block h-1.5 w-1.5 rounded-full ${available ? 'bg-green-500' : 'bg-red-500'}" data-stock-dot></span>
+								<span data-stock-label>${available ? `Stock · ${Number(product.stock)} disp.` : 'Sin Stock'}</span>
+							</p>
+						</div>`}
+					</div>
+				</a>
+
+				<div class="px-4 pb-4">
+					<button type="button" data-add-to-cart data-id="${esc(cartId)}" data-name="${esc(product.name)}" data-price="${price}" data-image="${esc(image)}" data-qty="1" class="add-to-cart-card inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent-main px-3 py-2 text-xs font-black text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50" ${available ? '' : 'disabled'}>
+						<span aria-hidden="true">🛒</span>
+						Agregar al Carrito
+					</button>
+				</div>
+			</article>`;
+		}
+
+		function setStockStatus(item, stock, available) {
+			const status = item.querySelector('[data-stock-status]');
+			const dot = item.querySelector('[data-stock-dot]');
+			const label = item.querySelector('[data-stock-label]');
+			const button = item.querySelector('[data-add-to-cart]');
+			if (!status || !dot || !label) return;
+			status.classList.toggle('bg-green-50', available);
+			status.classList.toggle('text-green-700', available);
+			status.classList.toggle('bg-red-50', !available);
+			status.classList.toggle('text-red-700', !available);
+			dot.classList.toggle('bg-green-500', available);
+			dot.classList.toggle('bg-red-500', !available);
+			label.textContent = available ? `Stock · ${stock} disp.` : 'Sin Stock';
+			if (button) button.disabled = !available;
+		}
+
+		async function fetchJsonWithRetry(url, attempts = 2) {
+			let lastError;
+			for (let attempt = 0; attempt < attempts; attempt += 1) {
+				const controller = new AbortController();
+				const timeout = window.setTimeout(() => controller.abort(), 9000);
+				try {
+					const response = await fetch(url, {
+						headers: { Accept: 'application/json' },
+						cache: 'no-store',
+						signal: controller.signal,
+					});
+					const payload = await response.json();
+					if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'Respuesta inválida.');
+					return payload;
+				} catch (error) {
+					lastError = error;
+					await new Promise((resolve) => window.setTimeout(resolve, 500 * (attempt + 1)));
+				} finally {
+					window.clearTimeout(timeout);
+				}
+			}
+			throw lastError || new Error('No se pudo cargar.');
+		}
+
+		async function loadFallbackProductSlots() {
+			const payload = await fetchJsonWithRetry(`/api-productos-publicados.php?ts=${Date.now()}`, 2);
+			const products = Array.isArray(payload.products)
+				? payload.products.filter((product) => product?.published !== false)
+				: [];
+			return products.slice(0, 8).map((product, index) => ({
+				slot: index + 1,
+				product,
+			}));
+		}
+
+		async function refreshLiveStockSequentially() {
+			const items = Array.from(grid.querySelectorAll('.product-item[data-sku]'));
+			for (const item of items) {
+				const sku = item.getAttribute('data-sku');
+				if (!sku) continue;
+				try {
+					const response = await fetch(`/api-get-live-stock.php?sku=${encodeURIComponent(sku)}&ts=${Date.now()}`, {
+						headers: { Accept: 'application/json' },
+						cache: 'no-store',
+					});
+					const payload = await response.json();
+					if (response.ok && payload?.ok) {
+						setStockStatus(item, Number(payload.stock) || 0, Boolean(payload.disponible));
+					}
+				} catch (error) {
+					console.warn('No se pudo refrescar stock vivo en Home', { sku, error });
+				}
+				await new Promise((resolve) => window.setTimeout(resolve, 250));
+			}
+		}
+
+		async function renderDynamicFeatured() {
+			let slots = [];
+			try {
+				const featuredPayload = await fetchJsonWithRetry(`/api/obtener-destacados.php?ts=${Date.now()}`, 2);
+				slots = Array.isArray(featuredPayload.slots)
+					? featuredPayload.slots
+						.filter((slot) => slot?.product && slot.product.published !== false)
+						.slice(0, 8)
+					: [];
+			} catch (e) {
+				console.warn('No se pudieron cargar destacados configurados, usando catálogo público.', e);
+			}
+
+			if (!slots.length) {
+				try {
+					slots = await loadFallbackProductSlots();
+				} catch (error) {
+					console.warn('No se pudo cargar respaldo de productos publicados.', error);
+				}
+			}
+
+			if (slots.length) {
+				grid.innerHTML = slots.map(cardTemplate).join('');
+				refreshLiveStockSequentially();
+			} else {
+				grid.innerHTML = '<div class="col-span-full rounded-3xl border border-gray-200 bg-white p-8 text-center text-gray-600">Estamos actualizando los productos destacados. Puedes revisar el catálogo completo en la tienda.</div>';
+			}
+		}
+
+		renderDynamicFeatured();
+	})();
+</script>
+
+<style>
+	.hero-carousel {
+		display: flex;
+		gap: 1rem;
+		overflow-x: auto;
+		scroll-behavior: smooth;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+	}
+
+	.hero-carousel::-webkit-scrollbar {
+		display: none;
+	}
+
+	.hero-slide {
+		position: relative;
+		display: grid;
+		min-height: 420px;
+		min-width: 100%;
+		grid-template-columns: minmax(0, 1fr) 280px;
+		align-items: center;
+		gap: 2rem;
+		overflow: hidden;
+		border-radius: 2rem;
+		padding: clamp(1.5rem, 4vw, 3.5rem);
+		scroll-snap-align: start;
+		box-shadow: 0 28px 70px rgba(15, 23, 42, 0.2);
+	}
+
+	.hero-slide::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.25), transparent 26rem),
+			linear-gradient(90deg, rgba(2, 6, 23, 0.22), transparent);
+	}
+
+	.hero-product-card {
+		position: relative;
+		z-index: 1;
+		transform: rotate(2deg);
+	}
+
+	@media (max-width: 900px) {
+		.hero-slide {
+			grid-template-columns: 1fr;
+			min-height: 560px;
+		}
+
+		.hero-product-card {
+			max-width: 280px;
+			transform: none;
+		}
+	}
+</style>
+

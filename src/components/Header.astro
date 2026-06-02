@@ -1,5 +1,5 @@
 ---
-// Header.astro - Tienda online. Banner azul petróleo + buscador + WhatsApp
+// Header.astro - Tienda online centralizada + buscador + WhatsApp
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
@@ -10,30 +10,33 @@ const navLinks = [
     { title: 'Contacto', url: '/contacto' },
 ];
 
-const categoryLinks = [
-    { title: 'Parlantes', url: '/productos?cat=sonido', icon: '🔊' },
-    { title: 'Proyectores', url: '/productos?cat=proyector', icon: '📽️' },
-    { title: 'Cámaras', url: '/productos?cat=camara', icon: '📹' },
-    { title: 'Instalación', url: '/servicios', icon: '🛠️' },
-];
-
 const isActive = (url: string) => {
     const base = url.split('?')[0];
     return currentPath === base || (base !== '/' && currentPath.startsWith(base));
 };
 
 const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20quiero%20hacer%20una%20consulta%20sobre%20sus%20productos%20o%20instalaciones';
-const logoSrc = "/mizo-logo.jpg";
+const logoSrc = "/mizo-logo.png";
 const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
 ---
 
 <header class="sticky top-0 z-50 shadow-sm">
-    <!-- BANNER PRINCIPAL (azul petróleo) -->
-    <div class="bg-accent-dark text-white">
+    <!-- CINTILLO DE POSICIONAMIENTO -->
+    <div class="bg-amber-300 text-gray-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex min-h-9 items-center justify-center gap-3 text-center text-xs sm:text-sm font-black uppercase tracking-wide">
+                <span class="hidden sm:inline-flex rounded-full bg-gray-950 px-2.5 py-0.5 text-[0.65rem] text-amber-300">Mizo Pro</span>
+                <span>Equipos de Alta Gama + Ingeniería en Instalación Profesional en todo Chile</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANNER PRINCIPAL (fondo blanco) -->
+    <div class="bg-white text-gray-900 border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-3 sm:gap-6 h-16 sm:h-20">
                 <a href="/" class="flex-shrink-0 flex items-center">
-                    <img src={logoSrc} alt={logoAlt} class="h-11 sm:h-14 w-auto rounded-md" />
+                    <img src={logoSrc} alt={logoAlt} class="h-11 sm:h-14 w-auto rounded-md bg-white p-1.5 object-contain" />
                 </a>
 
                 <!-- Buscador -->
@@ -42,11 +45,14 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                         <input
                             type="search"
                             name="q"
-                            placeholder="Buscar parlantes, proyectores, cámaras..."
+                            placeholder="Buscar en la tienda: proyectores, parlantes, cámaras..."
                             aria-label="Buscar productos"
-                            class="w-full pl-11 pr-4 py-2.5 rounded-full border border-transparent bg-white text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-accent-light focus:outline-none transition"
+                            class="w-full pl-11 pr-24 py-3 rounded-full border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-accent-light focus:outline-none transition"
                         />
                         <svg class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                        <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full bg-amber-300 px-4 py-1.5 text-xs font-black text-gray-950 transition hover:bg-amber-200">
+                            Buscar
+                        </button>
                     </div>
                 </form>
 
@@ -63,7 +69,7 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
 
                     <a
                         href="/carrito"
-                        class="relative p-2 rounded-md text-white hover:bg-white/10 transition"
+                        class="relative p-2 rounded-md text-accent-main hover:bg-accent-soft transition"
                         aria-label="Ver carrito"
                     >
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -75,7 +81,7 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                     <button
                         id="mobile-menu-button"
                         type="button"
-                        class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 focus:outline-none"
+                        class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-accent-main hover:bg-accent-soft focus:outline-none"
                         aria-controls="mobile-menu"
                         aria-expanded="false"
                     >
@@ -96,9 +102,9 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                     <input
                         type="search"
                         name="q"
-                        placeholder="Buscar productos..."
+                            placeholder="Buscar en tienda..."
                         aria-label="Buscar productos"
-                        class="w-full pl-10 pr-4 py-2.5 rounded-full border border-transparent bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition"
+                        class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition"
                     />
                     <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
                 </div>
@@ -106,10 +112,10 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
         </div>
     </div>
 
-    <!-- SUB-BARRA: navegación + categorías (escritorio) -->
-    <div class="hidden md:block bg-white border-b border-gray-200">
+    <!-- SUB-BARRA: navegación principal -->
+    <div class="hidden md:block bg-accent-dark border-b border-accent-hover">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-11">
+            <div class="flex items-center h-11">
                 <nav class="flex items-center gap-1">
                     {navLinks.map((link) => (
                         <a
@@ -117,8 +123,8 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                             class:list={[
                                 "px-3 py-1.5 rounded-md text-sm font-semibold transition duration-200",
                                 {
-                                    "text-accent-main": isActive(link.url),
-                                    "text-gray-600 hover:text-accent-main": !isActive(link.url),
+                                    "bg-white/15 text-white": isActive(link.url),
+                                    "text-white/90 hover:bg-white/10 hover:text-white": !isActive(link.url),
                                 }
                             ]}
                             aria-current={isActive(link.url) ? "page" : undefined}
@@ -127,22 +133,12 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                         </a>
                     ))}
                 </nav>
-                <nav class="flex items-center gap-1">
-                    {categoryLinks.map((cat) => (
-                        <a
-                            href={cat.url}
-                            class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-500 hover:text-accent-main hover:bg-accent-soft transition"
-                        >
-                            <span aria-hidden="true">{cat.icon}</span> {cat.title}
-                        </a>
-                    ))}
-                </nav>
             </div>
         </div>
     </div>
 
     <!-- MENÚ MÓVIL -->
-    <div class="md:hidden hidden bg-white border-t border-white/10" id="mobile-menu">
+    <div class="md:hidden hidden bg-accent-dark border-t border-accent-hover" id="mobile-menu">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks.map((link) => (
                 <a
@@ -150,8 +146,8 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                     class:list={[
                         "block px-3 py-2 rounded-md text-base font-semibold transition duration-200",
                         {
-                            "text-accent-main bg-accent-soft": isActive(link.url),
-                            "text-gray-700 hover:text-accent-main hover:bg-gray-50": !isActive(link.url),
+                            "bg-white/15 text-white": isActive(link.url),
+                            "text-white/90 hover:text-white hover:bg-white/10": !isActive(link.url),
                         }
                     ]}
                     aria-current={isActive(link.url) ? "page" : undefined}
@@ -159,13 +155,6 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                     {link.title}
                 </a>
             ))}
-            <div class="pt-2 mt-2 border-t border-gray-100 grid grid-cols-2 gap-1">
-                {categoryLinks.map((cat) => (
-                    <a href={cat.url} class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-accent-main hover:bg-gray-50">
-                        <span aria-hidden="true">{cat.icon}</span> {cat.title}
-                    </a>
-                ))}
-            </div>
             <a
                 href={waLink}
                 target="_blank"

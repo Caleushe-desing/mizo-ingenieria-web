@@ -1,20 +1,10 @@
 ---
-// Brands.astro - Marcas destacadas del catálogo.
-// Muestra un logo (si existe en /images/marcas/<slug>.png) o el nombre de la
-// marca como respaldo. Cada marca enlaza a la tienda filtrada por esa marca.
-import { products } from '../data/products';
-
-const slugify = (s) =>
-	s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-
-const counts = {};
-for (const p of products) counts[p.brand] = (counts[p.brand] || 0) + 1;
-
-const brands = Object.entries(counts)
-	.filter(([name]) => name && name.toLowerCase() !== 'genérico' && name.toLowerCase() !== 'generico')
-	.sort((a, b) => b[1] - a[1])
-	.slice(0, 14)
-	.map(([name]) => ({ name, slug: slugify(name) }));
+// Brands.astro - Marcas destacadas.
+// Sin catálogo estático: la tienda pública se alimenta desde MySQL.
+const brands = ['Promusic', 'Casa Royal', 'Audiomusica'].map((name) => ({
+	name,
+	slug: name.toLowerCase().replace(/\s+/g, '-'),
+}));
 ---
 
 <section class="bg-white py-14 border-t border-gray-100">
