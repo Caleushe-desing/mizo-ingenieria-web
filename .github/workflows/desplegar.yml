@@ -25,15 +25,13 @@ jobs:
       - name: 4. Compilar el sitio web (Astro Build)
         run: npm run build
 
-      - name: 5. Subir archivos compilados al Hosting por FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: /public_html/
-          state-name: .ftp-deploy-sync-state.json
-          port: 21
-          security: loose
-          passive: true
+      - name: 5. Subir archivos compilados al Hosting por FTP Nativo
+        run: |
+          sudo apt-get update && sudo apt-get install -y lftp
+          lftp -c "
+          set ftp:ssl-allow no;
+          set ftp:passive-mode true;
+          open -u '${{ secrets.FTP_USERNAME }}','${{ secrets.FTP_PASSWORD }}' ${{ secrets.FTP_SERVER }};
+          mirror -R ./dist/ /public_html/ --delete --verbose;
+          quit
+          "
