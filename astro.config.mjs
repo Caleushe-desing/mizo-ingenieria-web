@@ -6,7 +6,7 @@ import tailwind from '@astrojs/tailwind';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-	site: 'https://example.com',
+	site: 'https://mizo.cl',
 	output: 'static',
 	integrations: [
 		mdx(),
