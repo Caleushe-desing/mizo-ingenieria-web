@@ -29,6 +29,9 @@ PRECIOS-FUENTES.md
 # Mensaje de commit temporal
 .commit-msg.txt
 
+# Estado local de FTP Deploy Action
+.ftp-deploy-sync-state.json
+
 # Datos runtime del panel Admin en modo SSR/cPanel
 data/
 
