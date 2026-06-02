@@ -26,7 +26,7 @@ jobs:
         run: npm run build
 
       - name: 5. Subir archivos al Hosting
-        uses: QuadraSystems/FTP-Deploy-Action@v3.0.0
+        uses: quadrasystems/ftp-deploy-action@v3.0.0
         with:
           ftp-server: ${{ secrets.FTP_SERVER }}
           ftp-username: ${{ secrets.FTP_USERNAME }}
