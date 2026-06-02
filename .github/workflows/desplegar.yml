@@ -34,3 +34,6 @@ jobs:
           local-dir: ./dist/
           server-dir: /public_html/
           state-name: .ftp-deploy-sync-state.json
+          port: 21
+          security: loose
+          passive: true
