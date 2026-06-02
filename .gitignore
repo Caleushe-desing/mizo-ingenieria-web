@@ -31,3 +31,13 @@ PRECIOS-FUENTES.md
 
 # Datos runtime del panel Admin en modo SSR/cPanel
 data/
+
+# Seguridad: credenciales, FTP y pruebas locales
+.vscode/
+sftp.json
+public/scraper-audiomusica.php
+public/scraper-audiosystems.php
+public/scraper-casaroyal.php
+test-scraper-audiosystems.js
+node_modules/
+.env
