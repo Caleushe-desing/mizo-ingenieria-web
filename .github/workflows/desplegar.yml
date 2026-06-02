@@ -25,12 +25,46 @@ jobs:
       - name: 4. Compilar el sitio web (Astro Build)
         run: npm run build
 
-      - name: 5. Subir archivos al Hosting
-        uses: quadrasystems/ftp-deploy-action@v3.0.0
-        with:
-          ftp-server: ${{ secrets.FTP_SERVER }}
-          ftp-username: ${{ secrets.FTP_USERNAME }}
-          ftp-password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist
-          remote-dir: /public_html
-          passive-mode: true
+      - name: 5. Subir archivos al Hosting por FTP Nativo
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import ftplib
+          import os
+          from pathlib import Path
+
+          local_root = Path("dist").resolve()
+          remote_root = "/public_html"
+
+          ftp = ftplib.FTP(timeout=90)
+          ftp.connect(os.environ["FTP_SERVER"], 21)
+          ftp.login(os.environ["FTP_USERNAME"], os.environ["FTP_PASSWORD"])
+          ftp.set_pasv(True)
+
+          def ensure_dir(remote_path):
+              current = ""
+              for part in remote_path.strip("/").split("/"):
+                  current += f"/{part}"
+                  try:
+                      ftp.mkd(current)
+                  except ftplib.error_perm as error:
+                      if not str(error).startswith("550"):
+                          raise
+
+          def upload_dir(local_dir, remote_dir):
+              ensure_dir(remote_dir)
+              for item in local_dir.iterdir():
+                  remote_path = f"{remote_dir.rstrip('/')}/{item.name}"
+                  if item.is_dir():
+                      upload_dir(item, remote_path)
+                      continue
+                  with item.open("rb") as file:
+                      print(f"Subiendo {item} -> {remote_path}")
+                      ftp.storbinary(f"STOR {remote_path}", file)
+
+          upload_dir(local_root, remote_root)
+          ftp.quit()
+          PY
