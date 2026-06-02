@@ -4,41 +4,48 @@ import SectionCTA from '../components/SectionCTA.astro';
 
 const services = [
 	{
-		title: 'Sistemas de Sonido y Audio Profesional',
-		description: 'Diseñamos e instalamos sistemas de audio, megafonía y música ambiental para comercios, oficinas, eventos y hogares. Sonido nítido y controlado en cada rincón.',
-		icon: '🔊',
+		title: 'Diseño acústico y sistemas de audio profesional',
+		description: 'Calculamos cobertura, potencia, inteligibilidad, zonas y operación diaria para salas corporativas, auditorios, iglesias, colegios, retail y espacios premium.',
+		kicker: 'Audio calibrado',
 		details: [
-			'Diseño acústico y selección de equipos de audio',
-			'Parlantes de cielo, columnas y line array',
-			'Amplificación y zonificación inteligente (multizona)',
-			'Megafonía y sistemas de avisos de emergencia',
+			'Diseño acústico, selección de parlantes y distribución por zonas',
+			'Microfonía, DSP, matrices, amplificación y sistemas multizona',
+			'Medición, ecualización, control de feedback y pruebas de inteligibilidad',
+			'Capacitación de usuarios y documentación de operación',
 		],
-		image: '/servicio-audio.jpg',
+		image: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1100&q=80',
 	},
 	{
-		title: 'Soluciones Audiovisuales',
-		description: 'Proyección, pantallas, salas de reuniones y videovigilancia. Integramos imagen, video y control para que tus espacios comuniquen y se vean increíbles.',
-		icon: '📽️',
+		title: 'Proyección láser, salas AV y control integrado',
+		description: 'Integramos imagen, audio, control, videoconferencia y escenas para que la tecnología sea simple de usar y robusta en operación.',
+		kicker: 'Imagen + control',
 		details: [
-			'Proyectores y pantallas eléctricas para salas y home cinema',
-			'Salas de reuniones y videoconferencia',
-			'Cámaras de seguridad y CCTV/IP con monitoreo remoto',
-			'Cableado estructurado y conectividad',
+			'Proyectores láser, pantallas, soportes y ajuste geométrico',
+			'Videoconferencia, matrices HDMI/AV, control y automatización',
+			'Calibración de brillo, color, escenas y entradas de usuario',
+			'Integración para directorios, auditorios, colegios y home cinema',
 		],
-		image: '/servicio-cctv.jpg',
+		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1100&q=80',
 	},
 	{
-		title: 'Instalaciones Eléctricas',
-		description: 'Montaje, ampliación y certificación de instalaciones eléctricas seguras y eficientes para hogares e industria, cumpliendo la normativa eléctrica chilena.',
-		icon: '⚡',
+		title: 'Canalización, cableado oculto y soportería pesada',
+		description: 'Resolvemos la infraestructura que sostiene una instalación premium: rutas limpias, fijaciones confiables, etiquetado y terminaciones mantenibles.',
+		kicker: 'Infraestructura AV',
 		details: [
-			'Diseño de tableros eléctricos y distribución de potencia',
-			'Instalación de iluminación de alta eficiencia',
-			'Protecciones, diferenciales y puesta a tierra',
-			'Mantenimiento preventivo y certificación de instalaciones',
+			'Canalización técnica, cableado estructural oculto y patching ordenado',
+			'Montaje de soportería pesada para pantallas, proyectores y parlantes',
+			'Anclajes, pasadas, terminaciones, pruebas y rotulación',
+			'Criterio eléctrico y de seguridad para equipos audiovisuales sensibles',
 		],
-		image: '/servicio-electrico.jpg',
+		image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1100&q=80',
 	},
+];
+
+const process = [
+	'Levantamiento técnico y diagnóstico del recinto',
+	'Ingeniería de solución, marcas y presupuesto por etapas',
+	'Ejecución limpia con coordinación de obra y pruebas',
+	'Calibración, entrega documentada y soporte posterior',
 ];
 ---
 
@@ -46,66 +53,93 @@ const services = [
 	title="Servicios | Mizo - Sonido, Audiovisual y Electricidad"
 	description="Servicios de instalación de sistemas de sonido, soluciones audiovisuales e instalaciones eléctricas profesionales en Chile."
 >
-	<section class="bg-gradient-to-b from-accent-soft to-white py-20 sm:py-28">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
-				Servicios de <span class="text-accent-main">instalación profesional</span>
-			</h1>
-			<p class="mt-4 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-				Tres especialidades, un solo equipo. Llevamos sonido, imagen y energía a tu proyecto con trabajo prolijo y garantizado.
-			</p>
+	<section class="relative overflow-hidden bg-slate-950 py-20 text-white sm:py-28">
+		<div class="absolute inset-0 opacity-35">
+			<img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80" alt="" class="h-full w-full object-cover" loading="eager" width="1600" height="900" />
+		</div>
+		<div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-950/40"></div>
+		<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="max-w-4xl">
+				<span class="inline-flex rounded-full bg-white/10 px-4 py-1.5 text-sm font-black uppercase tracking-[0.18em] text-amber-300">
+					Integración audiovisual premium
+				</span>
+				<h1 class="mt-6 text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
+					Servicios profesionales para espacios que deben sonar, verse y operar perfecto.
+				</h1>
+				<p class="mt-5 max-w-3xl text-lg leading-relaxed text-white/75 sm:text-xl">
+					Diseñamos e instalamos sistemas audiovisuales completos: acústica, cableado oculto, montaje estructural, proyección láser, control y calibración final.
+				</p>
+			</div>
 		</div>
 	</section>
 
-	<section class="py-20 bg-white">
+	<section class="bg-white py-20">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="grid grid-cols-1 gap-4 rounded-[2rem] border border-slate-200 bg-slate-50 p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+				{process.map((item, index) => (
+					<div class="rounded-3xl bg-white p-5">
+						<p class="text-xs font-black uppercase tracking-[0.18em] text-accent-main">Etapa {index + 1}</p>
+						<p class="mt-2 text-sm font-bold leading-relaxed text-slate-700">{item}</p>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="bg-white pb-20">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
 			{services.map((service, index) => (
 				<div class:list={[
-					"grid grid-cols-1 lg:grid-cols-2 gap-12 items-center",
+					"grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center",
 					{ "lg:grid-flow-col-dense": index % 2 === 1 }
 				]}>
 					<div class:list={[{ "lg:col-start-2": index % 2 === 1 }]}>
-						<div class="text-4xl mb-4 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-accent-soft">
-							{service.icon}
-						</div>
-						<h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+						<span class="inline-flex rounded-full bg-accent-main/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-accent-main">
+							{service.kicker}
+						</span>
+						<h2 class="mt-5 text-3xl font-black leading-tight text-gray-950 lg:text-4xl">
 							{service.title}
 						</h2>
-						<p class="text-lg text-gray-600 mb-6">
+						<p class="mt-5 text-lg leading-relaxed text-gray-600">
 							{service.description}
 						</p>
 
-						<ul class="space-y-3 text-gray-700">
+						<ul class="mt-7 grid gap-3 text-gray-700">
 							{service.details.map((detail) => (
-								<li class="flex items-start">
-									<svg class="w-6 h-6 text-accent-main mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-									{detail}
+								<li class="flex items-start rounded-2xl border border-slate-200 bg-slate-50 p-4">
+									<svg class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-accent-main" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+									<span class="text-sm font-bold leading-relaxed">{detail}</span>
 								</li>
 							))}
 						</ul>
 
 						<div class="mt-8 flex flex-wrap gap-4">
-							<a href="/contacto" class="px-6 py-3 text-base font-semibold rounded-md text-white bg-accent-main hover:bg-accent-hover transition duration-300">
+							<a href="/contacto" class="rounded-full bg-accent-main px-6 py-3 text-sm font-black text-white shadow-lg transition hover:bg-accent-hover">
 								Cotizar este servicio
 							</a>
-							<a href="/productos" class="px-6 py-3 text-base font-semibold rounded-md text-accent-main border border-accent-main hover:bg-accent-soft transition duration-300">
+							<a href="/productos" class="rounded-full border border-accent-main px-6 py-3 text-sm font-black text-accent-main transition hover:bg-accent-soft">
 								Ver equipos
 							</a>
 						</div>
 					</div>
 
 					<div class:list={[
-						"h-80 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-accent-soft",
+						"relative min-h-[360px] overflow-hidden rounded-[2rem] border border-gray-200 bg-slate-950 shadow-2xl",
 						{ "lg:col-start-1": index % 2 === 1 }
 					]}>
 						<img
 							src={service.image}
 							alt={`Servicio: ${service.title}`}
-							class="w-full h-full object-cover"
+							class="h-full min-h-[360px] w-full object-cover opacity-85"
 							loading="lazy"
-							width="800"
-							height="600"
+							width="1100"
+							height="760"
 						/>
+						<div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent"></div>
+						<div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+							<p class="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Placeholder fotográfico HD</p>
+							<p class="mt-2 text-xl font-black">Listo para reemplazar por obra Mizo</p>
+						</div>
 					</div>
 				</div>
 			))}

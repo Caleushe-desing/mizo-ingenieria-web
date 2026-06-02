@@ -436,32 +436,52 @@
 				localStorage.setItem(INSTALL_CONFIG_KEY, JSON.stringify(configs));
 			}
 
-			async function apiHomeFeatured(method, payload) {
-				if (method === 'POST') {
-					const configs = {};
-					(payload.slots || []).forEach((item) => {
-						configs[String(item.slot)] = {
-							slot: String(item.slot),
-							slotLabel: `Cuadro ${Number(item.slot) + 1}`,
-							productId: item.product?.id || '',
-							productName: item.product?.name || '',
-							productBrand: item.product?.brand || '',
-							productCategory: item.product?.category || '',
-							productPrice: Number(item.product?.price) || 0,
-							product: item.product,
-							baseInstallationPrice: Number(item.installation?.baseInstallationPrice) || 0,
-							additionalUnitSurcharge: Number(item.installation?.additionalUnitSurcharge) || 0,
-							baseRegion: item.installation?.baseRegion || '',
-							geographicSurcharge: item.installation?.geographicSurcharge || '0',
-						};
-					});
-					writeInstallationConfigs(configs);
-				}
-				return { ok: true, slots: payload?.slots || [] };
+			function slotsToConfigs(slots = []) {
+				const configs = {};
+				slots.forEach((item) => {
+					configs[String(item.slot)] = {
+						slot: String(item.slot),
+						slotLabel: `Cuadro ${Number(item.slot) + 1}`,
+						productId: item.product?.id || '',
+						productName: item.product?.name || '',
+						productBrand: item.product?.brand || '',
+						productCategory: item.product?.category || '',
+						productPrice: Number(item.product?.price) || 0,
+						product: item.product,
+						baseInstallationPrice: Number(item.installation?.baseInstallationPrice || item.installation?.salePrice || 0),
+						additionalUnitSurcharge: Number(item.installation?.additionalUnitSurcharge) || 0,
+						baseRegion: item.installation?.baseRegion || '',
+						geographicSurcharge: item.installation?.geographicSurcharge || '0',
+					};
+				});
+				return configs;
+			}
+
+			async function apiHomeFeatured(method, payload = {}) {
+				const url = method === 'POST' ? '/api/guardar-destacados.php' : `/api/obtener-destacados.php?ts=${Date.now()}`;
+				const response = await fetch(url, {
+					method,
+					headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+					cache: 'no-store',
+					body: method === 'POST'
+						? JSON.stringify({ password: adminPassword, slots: payload.slots || [] })
+						: undefined,
+				});
+				const data = await response.json();
+				if (!response.ok || !data?.ok) throw new Error(data?.error || 'No se pudo sincronizar destacados de Home.');
+				return data;
 			}
 
 			async function loadRemoteHomeFeatured() {
-				homeFeaturedConfigs = JSON.parse(localStorage.getItem(INSTALL_CONFIG_KEY) || '{}');
+				try {
+					const payload = await apiHomeFeatured('GET');
+					const slots = Array.isArray(payload.slots) ? payload.slots : [];
+					homeFeaturedConfigs = slotsToConfigs(slots);
+					localStorage.setItem(INSTALL_CONFIG_KEY, JSON.stringify(homeFeaturedConfigs));
+				} catch (error) {
+					console.warn('Usando configuración local de destacados Home.', error);
+					homeFeaturedConfigs = JSON.parse(localStorage.getItem(INSTALL_CONFIG_KEY) || '{}');
+				}
 			}
 
 			function currentInstallationFormConfig() {
@@ -797,8 +817,19 @@
 					writeInstallationConfigs(configs);
 					const slots = Array.from({ length: HOME_SLOT_COUNT }, (_, slot) => configs[String(slot)]).filter(Boolean).map((item) => ({
 						slot: Number(item.slot),
-						product: item.product,
+						product: {
+							...item.product,
+							showInstallation: Number(item.baseInstallationPrice) > 0,
+							installation: {
+								salePrice: item.baseInstallationPrice,
+								baseInstallationPrice: item.baseInstallationPrice,
+								additionalUnitSurcharge: item.additionalUnitSurcharge,
+								baseRegion: item.baseRegion,
+								geographicSurcharge: item.geographicSurcharge,
+							},
+						},
 						installation: {
+							salePrice: item.baseInstallationPrice,
 							baseInstallationPrice: item.baseInstallationPrice,
 							additionalUnitSurcharge: item.additionalUnitSurcharge,
 							baseRegion: item.baseRegion,
@@ -808,7 +839,7 @@
 					await apiHomeFeatured('POST', { slots });
 					renderInstallationConfigs();
 					updateInstallationPreview();
-					msg.textContent = 'Configuración guardada localmente para la vista estática.';
+					msg.textContent = 'Configuración publicada en Home y destacados.';
 					msg.className = 'text-sm font-semibold text-green-700';
 					msg.classList.remove('hidden');
 				} catch (err) {

@@ -128,6 +128,25 @@ function weightFor(category, specs, desc, fallbackGrams) {
 	return fromSpec || fromDesc || fromGrams || DEFAULT_WEIGHT[category] || 5;
 }
 
+// Casa Royal expone el stock por tienda en StockTiendas. El último código R2097
+// no forma parte del total visible de disponibilidad en la ficha pública.
+const CASA_ROYAL_EXCLUDED_STOCK_CODES = new Set(['R2097']);
+
+function stockFromCasaRoyalStores(raw) {
+	const stockText = Array.isArray(raw?.StockTiendas) ? raw.StockTiendas[0] : '';
+	if (!stockText) return null;
+
+	let total = 0;
+	for (const match of String(stockText).matchAll(/\b(R\d+)=(\d+)\b/g)) {
+		const code = match[1];
+		const quantity = Number(match[2]) || 0;
+		if (CASA_ROYAL_EXCLUDED_STOCK_CODES.has(code)) continue;
+		total += quantity;
+	}
+
+	return total > 0 ? total : null;
+}
+
 // Intenta extraer "Etiqueta: valor" desde el HTML de descripción (Shopify) usando
 // los bloques naturales (<li>, <tr>, <p>, <br>).
 function specsFromHtml(html = '') {
@@ -246,8 +265,9 @@ function normalize(raw, store, host, category) {
 	if (!finalCat) return null;
 
 	const rawQty = Number(offer.AvailableQuantity) || 0;
+	const visibleStoreStock = store === 'Casa Royal' ? stockFromCasaRoyalStores(raw) : null;
 	// VTEX usa valores enormes (10000+) para "stock infinito": lo tratamos como disponible sin número.
-	const stock = rawQty >= 1 && rawQty < 1000 ? rawQty : null;
+	const stock = visibleStoreStock ?? (rawQty >= 1 && rawQty < 1000 ? rawQty : null);
 
 	const productUrl = `${host}/${id}/p`;
 	const brand = clean(raw.brand) || 'Genérico';

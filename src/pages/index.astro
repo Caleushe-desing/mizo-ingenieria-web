@@ -2,9 +2,6 @@
 import Layout from '../layouts/Layout.astro';
 import ClientLogos from '../components/ClientLogos.astro';
 import Brands from '../components/Brands.astro';
-import ProductCard from '../components/ProductCard.astro';
-
-const destacados: any[] = [];
 
 const audioCount = 'Catálogo MySQL';
 const proyectorCount = 'Catálogo MySQL';
@@ -20,6 +17,10 @@ const heroSlides = [
 		url: '/contacto?tipo=auditorio-proyector-laser',
 		badge: 'Proyector láser + ingeniería',
 		accent: 'from-accent-dark via-accent-main to-cyan-500',
+		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80',
+		imageAlt: 'Auditorio corporativo equipado con proyección profesional',
+		visualTitle: 'Proyección láser calibrada',
+		visualDetail: 'Brillo, tiro, pantalla y control ajustados para tu sala.',
 	},
 	{
 		kicker: 'Audio profesional instalado',
@@ -30,6 +31,10 @@ const heroSlides = [
 		url: '/contacto?tipo=audio-profesional',
 		badge: 'Audio calibrado',
 		accent: 'from-slate-950 via-gray-800 to-accent-main',
+		image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80',
+		imageAlt: 'Sistema de audio profesional preparado para calibración',
+		visualTitle: 'Cobertura sonora homogénea',
+		visualDetail: 'Diseño acústico, potencia y zonas sin puntos ciegos.',
 	},
 	{
 		kicker: 'Domótica y control',
@@ -40,6 +45,10 @@ const heroSlides = [
 		url: '/contacto?tipo=domotica-audiovisual',
 		badge: 'Llave en mano',
 		accent: 'from-indigo-950 via-accent-dark to-emerald-500',
+		image: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=900&q=80',
+		imageAlt: 'Control domótico integrado para sala audiovisual',
+		visualTitle: 'Escenas y operación simple',
+		visualDetail: 'Un solo flujo para audio, video, iluminación y soporte.',
 	},
 ];
 
@@ -68,6 +77,29 @@ const fallbackSolutionPacks = [
 		titulo: 'Pack Home Cinema Inmersivo',
 		descripcion: 'Imagen, sonido envolvente, soportes, cableado y calibración para una experiencia audiovisual completa.',
 		ideal_para: 'Casas, quinchos y salas privadas',
+	},
+];
+
+const engineeringServices = [
+	{
+		title: 'Diseño acústico y cobertura',
+		desc: 'Modelamos potencia, dispersión, zonas y puntos de escucha para que el sistema sea inteligible y estable.',
+		meta: 'Audio profesional',
+	},
+	{
+		title: 'Canalización y cableado oculto',
+		desc: 'Trazados limpios, etiquetado, pasadas técnicas y terminaciones pensadas para mantenimiento real.',
+		meta: 'Infraestructura AV',
+	},
+	{
+		title: 'Soportería pesada y montaje',
+		desc: 'Anclajes, soportes, pantallas, proyectores y parlantes instalados con criterio estructural.',
+		meta: 'Montaje certificado',
+	},
+	{
+		title: 'Calibración de audio y proyección láser',
+		desc: 'Ajuste fino de niveles, imagen, geometría, escenas de operación y capacitación al usuario final.',
+		meta: 'Puesta en marcha',
 	},
 ];
 
@@ -108,14 +140,27 @@ const trust = [
 							</div>
 
 							<div class="hero-product-card" aria-hidden="true">
-								<div class="rounded-2xl bg-white p-4 shadow-2xl">
-									<div class="flex h-36 items-center justify-center rounded-xl bg-slate-100 text-6xl">
-										{index === 0 ? '📽️' : index === 1 ? '🔊' : '🏠'}
+								<div class="overflow-hidden rounded-3xl bg-white/95 p-3 shadow-2xl backdrop-blur">
+									<div class="relative h-56 overflow-hidden rounded-2xl bg-slate-900">
+										<img
+											src={slide.image}
+											alt={slide.imageAlt}
+											class="h-full w-full object-cover"
+											loading={index === 0 ? 'eager' : 'lazy'}
+											width="900"
+											height="620"
+										/>
+										<div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent"></div>
+										<div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+											<p class="text-[0.65rem] font-black uppercase tracking-[0.18em] text-amber-300">{slide.badge}</p>
+											<p class="mt-1 text-xl font-black leading-tight">{slide.visualTitle}</p>
+										</div>
 									</div>
-									<p class="mt-4 text-xs font-black uppercase tracking-wide text-accent-main">{slide.badge}</p>
-									<p class="mt-1 text-lg font-black leading-tight text-gray-950">Oferta retail + instalación incluida</p>
-									<div class="mt-4 rounded-xl border-2 border-amber-300 bg-amber-50 p-3 text-sm font-bold text-gray-900">
-										✓ Instalación y calibración profesional
+									<div class="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+										<p class="text-sm font-bold leading-snug text-slate-700">{slide.visualDetail}</p>
+										<p class="mt-3 inline-flex rounded-full bg-amber-300 px-3 py-1 text-xs font-black text-gray-950">
+											Instalación y calibración profesional
+										</p>
 									</div>
 								</div>
 							</div>
@@ -198,9 +243,9 @@ const trust = [
 					<span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-accent-main shadow-sm">
 						Marketplace audiovisual
 					</span>
-					<h2 class="mt-4 text-3xl lg:text-4xl font-extrabold text-gray-900">Productos destacados + instalación sugerida</h2>
+					<h2 class="mt-4 text-3xl lg:text-4xl font-extrabold text-gray-900">Productos destacados</h2>
 					<p class="mt-2 max-w-2xl text-gray-600">
-						El producto es el punto de partida. Cada equipo se presenta con su opción natural de instalación, calibración y puesta en marcha profesional.
+						Productos con mayor rotación de ventas dentro de Mizo, seleccionados por demanda, desempeño y frecuencia de uso en proyectos reales.
 					</p>
 				</div>
 				<a href="/productos" class="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-accent-main shadow-sm hover:bg-accent-main hover:text-white transition">
@@ -209,13 +254,10 @@ const trust = [
 				</a>
 			</div>
 
-			<div data-featured-products-grid class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
-				{destacados.length === 0 && (
-					<div class="col-span-full rounded-3xl border border-gray-200 bg-white p-8 text-center text-gray-600">
-						Cargando productos publicados desde el catálogo dinámico...
-					</div>
-				)}
-				{destacados.map((product) => <ProductCard product={product} />)}
+			<div data-featured-products-grid class="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+				<div class="col-span-full rounded-3xl border border-gray-200 bg-white p-8 text-center text-gray-600">
+					Cargando productos destacados configurados desde el admin...
+				</div>
 			</div>
 		</div>
 	</section>
@@ -233,7 +275,7 @@ const trust = [
 				</p>
 			</div>
 
-			<div id="home-packs-grid" class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6" data-home-packs-grid>
+			<div id="home-packs-grid" class="mt-12 grid w-full grid-cols-1 gap-6 lg:grid-cols-3" data-home-packs-grid>
 				{fallbackSolutionPacks.map((pack, index) => {
 					const accent = [
 						'from-accent-dark via-accent-main to-teal-500',
@@ -241,7 +283,7 @@ const trust = [
 						'from-indigo-950 via-accent-dark to-emerald-500',
 					][index % 3];
 					return (
-						<article class="relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-2xl">
+						<article class="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-2xl">
 							<div class={`bg-gradient-to-br ${accent} p-6 text-white`}>
 								<div class="flex items-start justify-between gap-4">
 									<span class="rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-white backdrop-blur">{pack.etiqueta}</span>
@@ -250,10 +292,10 @@ const trust = [
 								<h3 class="mt-6 text-2xl font-black leading-tight text-white">{pack.titulo}</h3>
 								<p class="mt-4 text-sm leading-relaxed text-white/85">{pack.descripcion}</p>
 							</div>
-							<div class="flex flex-1 flex-col p-6">
+							<div class="flex flex-1 flex-col p-5 sm:p-6">
 								<p class="text-xs font-bold uppercase tracking-wide text-gray-500">Ideal para</p>
 								<p class="mt-1 text-base font-bold text-gray-900">{pack.ideal_para}</p>
-								<div class="mt-6 grid gap-3 text-sm text-gray-700">
+								<div class="mt-6 grid gap-3 rounded-2xl border border-accent-main/15 bg-accent-soft/50 p-4 text-sm text-gray-800">
 									<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Levantamiento técnico y propuesta a medida.</span></div>
 									<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Equipos, instalación y puesta en marcha coordinada.</span></div>
 									<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Soporte local posterior a la entrega.</span></div>
@@ -267,82 +309,115 @@ const trust = [
 		</div>
 	</section>
 
-	<!-- INSTALACIÓN (DIFERENCIADOR) -->
-	<section class="bg-white py-20">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="text-center max-w-3xl mx-auto mb-12">
-				<span class="inline-block px-4 py-1.5 mb-4 text-sm font-semibold rounded-full bg-accent-main/10 text-accent-main">
-					Nuestro corazón: la instalación
-				</span>
-				<h2 class="text-3xl lg:text-4xl font-bold text-gray-900">No solo te vendemos el equipo. Lo dejamos funcionando.</h2>
-				<p class="mt-4 text-lg text-gray-600">
-					La verdadera diferencia está en una instalación bien hecha. Diseñamos, montamos y configuramos sistemas de sonido y proyección profesionales para que todo suene y se vea perfecto.
-				</p>
-			</div>
+	<!-- SERVICIOS PREMIUM -->
+	<section class="relative overflow-hidden bg-white py-20">
+		<div class="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-accent-soft to-transparent"></div>
+		<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="grid grid-cols-1 gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+				<div>
+					<span class="inline-flex rounded-full bg-accent-main/10 px-4 py-1.5 text-sm font-black uppercase tracking-[0.16em] text-accent-main">
+						Servicios de ingeniería audiovisual
+					</span>
+					<h2 class="mt-5 text-3xl font-black leading-tight text-gray-950 sm:text-4xl lg:text-5xl">
+						Diseñamos, montamos y calibramos sistemas que quedan listos para operar.
+					</h2>
+					<p class="mt-5 text-lg leading-relaxed text-gray-600">
+						Mizo no instala “cajas”. Integramos acústica, infraestructura, soportería, energía, control y puesta en marcha para que cada sala se escuche, se vea y se opere con estándar profesional.
+					</p>
+					<div class="mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+						<span class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 shadow-sm">Diseño acústico</span>
+						<span class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 shadow-sm">Cableado oculto</span>
+						<span class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 shadow-sm">Soportería pesada</span>
+						<span class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 shadow-sm">Calibración láser</span>
+					</div>
+					<a href="/servicios" class="mt-8 inline-flex items-center justify-center rounded-full bg-accent-main px-6 py-3 text-sm font-black text-white shadow-lg transition hover:bg-accent-hover">
+						Conoce nuestros servicios
+						<svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+					</a>
+				</div>
 
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-				<div class="rounded-2xl border border-gray-200 p-8 hover:shadow-lg transition duration-300">
-					<div class="text-4xl mb-4">🔊</div>
-					<h3 class="text-xl font-bold text-gray-900 mb-2">Sistemas de sonido</h3>
-					<p class="text-gray-600">Audio profesional, megafonía y música ambiental con zonificación para comercios, eventos, iglesias y hogares.</p>
+				<div class="grid gap-5">
+					<div class="relative min-h-[320px] overflow-hidden rounded-[2rem] bg-slate-950 shadow-2xl">
+						<img
+							src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1000&q=80"
+							alt="Canalización y montaje profesional de infraestructura audiovisual"
+							class="h-full min-h-[320px] w-full object-cover opacity-80"
+							loading="lazy"
+							width="1000"
+							height="700"
+						/>
+						<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/35 to-transparent"></div>
+						<div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+							<p class="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Preparado para fotografía de obra real</p>
+							<h3 class="mt-2 text-2xl font-black">Infraestructura invisible, resultado impecable</h3>
+						</div>
+					</div>
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						{engineeringServices.map((service) => (
+							<article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+								<p class="text-[0.65rem] font-black uppercase tracking-[0.16em] text-accent-main">{service.meta}</p>
+								<h3 class="mt-2 text-lg font-black text-gray-950">{service.title}</h3>
+								<p class="mt-2 text-sm leading-relaxed text-gray-600">{service.desc}</p>
+							</article>
+						))}
+					</div>
 				</div>
-				<div class="rounded-2xl border border-gray-200 p-8 hover:shadow-lg transition duration-300">
-					<div class="text-4xl mb-4">📽️</div>
-					<h3 class="text-xl font-bold text-gray-900 mb-2">Proyección y audiovisual</h3>
-					<p class="text-gray-600">Proyectores, pantallas y salas de reuniones. Imagen nítida y configuración óptima para cada espacio.</p>
-				</div>
-				<div class="rounded-2xl border border-gray-200 p-8 hover:shadow-lg transition duration-300">
-					<div class="text-4xl mb-4">📹</div>
-					<h3 class="text-xl font-bold text-gray-900 mb-2">Videovigilancia</h3>
-					<p class="text-gray-600">Instalación de cámaras de seguridad WiFi y cableadas, con acceso remoto desde tu celular.</p>
-				</div>
-			</div>
-
-			<div class="mt-10 text-center">
-				<a href="/servicios" class="inline-block px-8 py-3.5 text-lg font-semibold rounded-md text-white bg-accent-main hover:bg-accent-hover transition duration-300 shadow-lg">
-					Conoce nuestros servicios de instalación
-				</a>
 			</div>
 		</div>
 	</section>
 
-	<!-- POR QUÉ MIZO -->
-	<section class="bg-accent-soft py-20">
-		<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-			<div>
-				<h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Un solo proveedor, de principio a fin</h2>
-				<p class="text-lg text-gray-600 mb-6">
-					Compra el equipo y déjanos la instalación. Mizo combina venta e ingeniería para entregarte una solución completa, prolija y garantizada.
-				</p>
-				<ul class="space-y-3">
-					{[
-						'Equipos de marcas reconocidas y originales',
-						'Instalación según normativa chilena',
-						'Cobertura en Frutillar, Santiago y todo Chile',
-						'Asesoría técnica antes, durante y después',
-					].map((item) => (
-						<li class="flex items-start text-gray-700">
-							<svg class="w-6 h-6 text-accent-main mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-							{item}
-						</li>
-					))}
-				</ul>
-				<div class="mt-8">
-					<a href="/nosotros" class="px-6 py-3 border border-accent-main text-base font-semibold rounded-md text-accent-main hover:bg-accent-main hover:text-white transition duration-300">
+	<!-- NOSOTROS PREMIUM -->
+	<section class="bg-slate-950 py-20 text-white">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+				<div class="order-2 lg:order-1">
+					<div class="grid grid-cols-2 gap-4">
+						<div class="overflow-hidden rounded-[1.75rem] bg-white/10 p-3">
+							<img
+								src="https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop&w=700&q=80"
+								alt="Planificación técnica de integración audiovisual"
+								class="h-56 w-full rounded-2xl object-cover"
+								loading="lazy"
+								width="700"
+								height="520"
+							/>
+						</div>
+						<div class="mt-10 overflow-hidden rounded-[1.75rem] bg-white/10 p-3">
+							<img
+								src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80"
+								alt="Equipo técnico revisando montaje e ingeniería en terreno"
+								class="h-56 w-full rounded-2xl object-cover"
+								loading="lazy"
+								width="700"
+								height="520"
+							/>
+						</div>
+					</div>
+				</div>
+				<div class="order-1 lg:order-2">
+					<span class="inline-flex rounded-full bg-white/10 px-4 py-1.5 text-sm font-black uppercase tracking-[0.16em] text-amber-300">
+						Nosotros
+					</span>
+					<h2 class="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl lg:text-5xl">
+						Un solo equipo responsable desde la ingeniería hasta la entrega.
+					</h2>
+					<p class="mt-5 text-lg leading-relaxed text-white/70">
+						Trabajamos como integradora audiovisual premium: levantamiento técnico, selección de marcas líderes, instalación prolija, calibración documentada y soporte local posterior.
+					</p>
+					<div class="mt-8 grid gap-4 sm:grid-cols-2">
+						<div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+							<p class="text-3xl font-black text-amber-300">360°</p>
+							<p class="mt-2 text-sm font-bold text-white/75">Diseño, suministro, montaje, calibración y capacitación.</p>
+						</div>
+						<div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+							<p class="text-3xl font-black text-amber-300">AV + TI</p>
+							<p class="mt-2 text-sm font-bold text-white/75">Audio, video, red, control e infraestructura trabajando juntos.</p>
+						</div>
+					</div>
+					<a href="/nosotros" class="mt-8 inline-flex items-center justify-center rounded-full border border-white/25 px-6 py-3 text-sm font-black text-white transition hover:bg-white hover:text-slate-950">
 						Conoce a Mizo
 					</a>
 				</div>
-			</div>
-
-			<div class="h-72 lg:h-80 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-white flex items-center justify-center">
-				<img
-					src="/mizo-confianza.jpg"
-					alt="Equipo de Mizo trabajando en una instalación"
-					class="w-full h-full object-cover"
-					loading="lazy"
-					width="800"
-					height="600"
-				/>
 			</div>
 		</div>
 	</section>
@@ -400,7 +475,7 @@ const trust = [
 			][index % 3];
 			const title = pack.titulo || 'Solución completa Mizo';
 			const href = `/contacto?pack=${encodeURIComponent(title)}`;
-			return `<article class="relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-2xl">
+			return `<article class="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-2xl">
 				<div class="bg-gradient-to-br ${accent} p-6 text-white">
 					<div class="flex items-start justify-between gap-4">
 						<span class="rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-white backdrop-blur">${esc(pack.etiqueta || 'SOLUCIÓN')}</span>
@@ -409,10 +484,10 @@ const trust = [
 					<h3 class="mt-6 text-2xl font-black leading-tight text-white">${esc(title)}</h3>
 					<p class="mt-4 text-sm leading-relaxed text-white/85">${esc(pack.descripcion || '')}</p>
 				</div>
-				<div class="flex flex-1 flex-col p-6">
+				<div class="flex flex-1 flex-col p-5 sm:p-6">
 					<p class="text-xs font-bold uppercase tracking-wide text-gray-500">Ideal para</p>
 					<p class="mt-1 text-base font-bold text-gray-900">${esc(pack.ideal_para || 'Proyectos audiovisuales, corporativos y educacionales')}</p>
-					<div class="mt-6 grid gap-3 text-sm text-gray-700">
+					<div class="mt-6 grid gap-3 rounded-2xl border border-accent-main/15 bg-accent-soft/50 p-4 text-sm text-gray-800">
 						<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Levantamiento técnico y propuesta a medida.</span></div>
 						<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Equipos, instalación y puesta en marcha coordinada.</span></div>
 						<div class="flex items-start gap-3"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-main text-xs font-black text-white">✓</span><span>Soporte local posterior a la entrega.</span></div>
@@ -486,10 +561,10 @@ const trust = [
 			const displayCategory = product.categoryLabel || product.category || 'Producto';
 			const available = product.available !== false && Number(product.stock) > 0;
 			const lowStock = available && Number(product.stock) <= 5;
-			const installation = product.installation || {};
-			const installationPrice = Number(installation.salePrice || 0);
+			const installation = product.installation || slot.installation || {};
+			const installationPrice = Number(installation.salePrice || installation.baseInstallationPrice || 0);
 			const showInstallation = product.showInstallation === true || Number(product.mostrar_instalacion || slot.mostrar_instalacion || 0) === 1;
-			const hasInstallation = showInstallation && installationPrice > 0;
+			const hasInstallation = (showInstallation || Boolean(slot.installation)) && installationPrice > 0;
 			const solutionTotal = Number(product.solutionTotal || (price + installationPrice));
 			const projectTypeLabel = product.projectTypeLabel || 'Proyecto de instalación';
 			const roomSizeLabel = product.roomSizeLabel || installation.roomSizeLabel || 'Pequeña';
@@ -497,11 +572,11 @@ const trust = [
 				? `<p class="mt-1 text-xs font-semibold uppercase tracking-wide text-gray-500 line-clamp-1">${esc(publicBrand)}</p>`
 				: '';
 
-			return `<article class="product-item group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-lg" data-product-card data-sku="${esc(product.sku || '')}" data-published="${product.published === false ? '0' : '1'}" data-brand="${esc(publicBrand)}">
+			return `<article class="product-item group flex h-full w-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-xl" data-product-card data-sku="${esc(product.sku || '')}" data-published="${product.published === false ? '0' : '1'}" data-brand="${esc(publicBrand)}">
 				<a href="${esc(detailUrl)}" data-astro-reload class="flex flex-1 flex-col text-inherit" aria-label="Ver detalle de ${esc(product.name)}">
 					<div class="relative border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
-						<div class="flex h-48 items-center justify-center p-4">
-							<img src="${esc(image)}" alt="${esc(product.name)}" class="max-h-[170px] w-auto object-contain mix-blend-multiply transition duration-500 group-hover:scale-105" loading="lazy" width="260" height="260" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+						<div class="flex h-56 items-center justify-center p-4">
+							<img src="${esc(image)}" alt="${esc(product.name)}" class="max-h-[190px] w-auto object-contain mix-blend-multiply transition duration-500 group-hover:scale-105" loading="lazy" width="260" height="260" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
 							<span class="hidden absolute inset-0 items-center justify-center text-4xl bg-accent-soft" aria-hidden="true">${esc(categoryIcon[product.category] || '📦')}</span>
 						</div>
 						<span class="absolute left-2 top-2 rounded-full bg-emerald-50 px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wide text-emerald-700 shadow-sm">
@@ -515,12 +590,11 @@ const trust = [
 							<span class="truncate rounded-full bg-accent-soft px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wide text-accent-main">Categoría: ${esc(displayCategory)}</span>
 							<span class="max-w-[6rem] truncate font-mono text-[0.65rem] font-bold text-gray-400">${esc(product.sku || '')}</span>
 						</div>
-						<h3 class="min-h-[2.35rem] text-sm font-black leading-snug text-gray-950 transition group-hover:text-accent-main line-clamp-2">${esc(product.name)}</h3>
+						<h3 class="min-h-[2.35rem] text-base font-black leading-snug text-gray-950 transition group-hover:text-accent-main line-clamp-2">${esc(product.name)}</h3>
 						${brandMarkup}
-						<p class="mt-1.5 flex-1 text-xs leading-snug text-gray-600 line-clamp-2">${esc(product.description || 'Producto publicado en el catálogo Mizo.')}</p>
 
-						${hasInstallation ? `<div class="mt-2.5 rounded-xl border border-slate-100 bg-slate-50 p-3">
-							<p class="text-[0.62rem] font-black uppercase tracking-wide text-gray-400">Solución llave en mano</p>
+						${hasInstallation ? `<div class="mt-3 rounded-2xl border-2 border-accent-main/20 bg-accent-soft/70 p-4 shadow-sm">
+							<p class="text-[0.68rem] font-black uppercase tracking-[0.16em] text-accent-main">Instalación profesional prioritaria</p>
 							<div class="mt-2 space-y-1.5 text-xs font-bold text-slate-600">
 								<div class="flex items-center justify-between gap-2">
 									<span>Equipo solo</span>
@@ -553,6 +627,7 @@ const trust = [
 								<span data-stock-label>${available ? `Stock · ${Number(product.stock)} disp.` : 'Sin Stock'}</span>
 							</p>
 						</div>`}
+						<p class="mt-3 flex-1 text-xs leading-snug text-gray-600 line-clamp-2">${esc(product.description || 'Producto publicado en el catálogo Mizo.')}</p>
 					</div>
 				</a>
 
@@ -605,17 +680,6 @@ const trust = [
 			throw lastError || new Error('No se pudo cargar.');
 		}
 
-		async function loadFallbackProductSlots() {
-			const payload = await fetchJsonWithRetry(`/api-productos-publicados.php?ts=${Date.now()}`, 2);
-			const products = Array.isArray(payload.products)
-				? payload.products.filter((product) => product?.published !== false)
-				: [];
-			return products.slice(0, 8).map((product, index) => ({
-				slot: index + 1,
-				product,
-			}));
-		}
-
 		async function refreshLiveStockSequentially() {
 			const items = Array.from(grid.querySelectorAll('.product-item[data-sku]'));
 			for (const item of items) {
@@ -647,22 +711,14 @@ const trust = [
 						.slice(0, 8)
 					: [];
 			} catch (e) {
-				console.warn('No se pudieron cargar destacados configurados, usando catálogo público.', e);
-			}
-
-			if (!slots.length) {
-				try {
-					slots = await loadFallbackProductSlots();
-				} catch (error) {
-					console.warn('No se pudo cargar respaldo de productos publicados.', error);
-				}
+				console.warn('No se pudieron cargar destacados configurados desde el admin.', e);
 			}
 
 			if (slots.length) {
 				grid.innerHTML = slots.map(cardTemplate).join('');
 				refreshLiveStockSequentially();
 			} else {
-				grid.innerHTML = '<div class="col-span-full rounded-3xl border border-gray-200 bg-white p-8 text-center text-gray-600">Estamos actualizando los productos destacados. Puedes revisar el catálogo completo en la tienda.</div>';
+				grid.innerHTML = '<div class="col-span-full rounded-3xl border border-gray-200 bg-white p-8 text-center text-gray-600">No hay productos destacados configurados desde el admin.</div>';
 			}
 		}
 
