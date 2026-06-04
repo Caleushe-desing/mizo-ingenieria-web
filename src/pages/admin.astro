@@ -56,6 +56,21 @@
 
 				<!-- PRODUCTOS -->
 				<div id="view-productos">
+					<section class="mb-6 overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-sm">
+						<div class="flex flex-col gap-2 border-b border-amber-100 bg-amber-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+							<div>
+								<p class="text-xs font-extrabold uppercase tracking-[0.18em] text-amber-700">Control de calidad de inventario</p>
+								<h2 class="mt-1 text-xl font-extrabold text-gray-950">⚠️ Control de Calidad: Productos bajo Revisión Manual</h2>
+							</div>
+							<button id="refresh-quality-review" type="button" class="self-start rounded-full border border-amber-300 bg-white px-4 py-2 text-xs font-extrabold text-amber-800 transition hover:bg-amber-100">
+								Actualizar reporte
+							</button>
+						</div>
+						<div id="quality-review-panel" class="p-5">
+							<p class="text-sm text-gray-500">Cargando reporte de discrepancias...</p>
+						</div>
+					</section>
+
 					<div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-900">
 						<strong>Producto de prueba (oculto):</strong>
 						<a href="/productos/producto-prueba-mizo" target="_blank" rel="noopener" class="text-accent-main font-semibold hover:underline ml-1">/productos/producto-prueba-mizo</a>
@@ -417,6 +432,81 @@
 				document.getElementById('search-count').textContent = `${items.length} de ${allItems.length} productos`;
 			}
 
+			function escapeHtml(value) {
+				return String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+					'&': '&amp;',
+					'<': '&lt;',
+					'>': '&gt;',
+					'"': '&quot;',
+					"'": '&#39;',
+				}[ch]));
+			}
+
+			function reviewValue(value) {
+				return value === null || value === undefined || value === '' ? '—' : escapeHtml(value);
+			}
+
+			function renderQualityReview(products) {
+				const panel = document.getElementById('quality-review-panel');
+				if (!panel) return;
+				if (!products.length) {
+					panel.innerHTML = `
+						<div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-900">
+							<p class="text-base font-extrabold">✅ Inventario 100% cuadrado con los mayoristas</p>
+							<p class="mt-1 text-sm text-emerald-800">No hay discrepancias de stock o precio pendientes de revisión manual.</p>
+						</div>
+					`;
+					return;
+				}
+
+				panel.innerHTML = `
+					<p class="mb-4 text-sm font-semibold text-amber-900">
+						${products.length} producto(s) requieren revisión manual porque el valor escrito en Mizo no coincide con el proveedor.
+					</p>
+					<div class="overflow-x-auto rounded-xl border border-gray-200">
+						<table class="w-full text-left text-sm">
+							<thead class="bg-gray-100 text-xs uppercase text-gray-600">
+								<tr>
+									<th class="px-4 py-3">SKU</th>
+									<th class="px-4 py-3 text-right">Stock Proveedor</th>
+									<th class="px-4 py-3 text-right">Stock Mizo</th>
+									<th class="px-4 py-3 text-right">Precio Proveedor</th>
+									<th class="px-4 py-3 text-right">Precio Mizo</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-gray-100 bg-white">
+								${products.map((product) => `
+									<tr class="hover:bg-amber-50/60">
+										<td class="px-4 py-3 font-mono text-xs font-bold text-gray-900">${escapeHtml(product.sku)}</td>
+										<td class="px-4 py-3 text-right font-semibold text-gray-700">${reviewValue(product.stock_proveedor)}</td>
+										<td class="px-4 py-3 text-right font-semibold text-gray-700">${reviewValue(product.stock_mizo)}</td>
+										<td class="px-4 py-3 text-right font-semibold text-gray-700">${product.precio_proveedor === null || product.precio_proveedor === undefined ? '—' : clp(Number(product.precio_proveedor) || 0)}</td>
+										<td class="px-4 py-3 text-right font-semibold text-gray-700">${product.precio_mizo === null || product.precio_mizo === undefined ? '—' : clp(Number(product.precio_mizo) || 0)}</td>
+									</tr>
+								`).join('')}
+							</tbody>
+						</table>
+					</div>
+				`;
+			}
+
+			async function loadQualityReview() {
+				const panel = document.getElementById('quality-review-panel');
+				if (panel) panel.innerHTML = '<p class="text-sm text-gray-500">Cargando reporte de discrepancias...</p>';
+				try {
+					const response = await fetch('/api-productos-en-revision.php?ts=' + Date.now(), {
+						headers: { Accept: 'application/json' },
+						cache: 'no-store',
+					});
+					const payload = await response.json();
+					if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'No se pudo leer el reporte.');
+					renderQualityReview(Array.isArray(payload.products) ? payload.products : []);
+				} catch (error) {
+					console.warn('No se pudo cargar productos bajo revisión.', error);
+					renderQualityReview([]);
+				}
+			}
+
 			function formatDate(iso) {
 				try {
 					return new Date(iso).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' });
@@ -767,6 +857,7 @@
 					document.getElementById('login').classList.add('hidden');
 					document.getElementById('panel').classList.remove('hidden');
 					renderProducts(payload);
+					loadQualityReview();
 					loadPedidos();
 				} catch (_) {
 					err.classList.remove('hidden');
@@ -777,6 +868,7 @@
 			document.getElementById('tab-productos').onclick = () => showTab('productos');
 			document.getElementById('tab-instalaciones').onclick = () => showTab('instalaciones');
 			document.getElementById('tab-pedidos').onclick = () => showTab('pedidos');
+			document.getElementById('refresh-quality-review').onclick = () => loadQualityReview();
 			document.getElementById('refresh-pedidos').onclick = () => loadPedidos();
 			document.getElementById('pedidos-filter').onchange = (e) => {
 				pedidosFilter = e.target.value;

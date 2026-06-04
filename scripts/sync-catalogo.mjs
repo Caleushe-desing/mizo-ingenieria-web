@@ -22,6 +22,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const OUT_JSON = path.join(root, 'src/data/products.json');
 const IMG_DIR = path.join(root, 'public/images/productos');
+const REVIEW_JSON = path.join(root, 'data/productos-en-revision.json');
 const FORCE_IMAGES = process.argv.includes('--force-images');
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
@@ -128,19 +129,13 @@ function weightFor(category, specs, desc, fallbackGrams) {
 	return fromSpec || fromDesc || fromGrams || DEFAULT_WEIGHT[category] || 5;
 }
 
-// Casa Royal expone el stock por tienda en StockTiendas. El último código R2097
-// no forma parte del total visible de disponibilidad en la ficha pública.
-const CASA_ROYAL_EXCLUDED_STOCK_CODES = new Set(['R2097']);
-
 function stockFromCasaRoyalStores(raw) {
 	const stockText = Array.isArray(raw?.StockTiendas) ? raw.StockTiendas[0] : '';
 	if (!stockText) return null;
 
 	let total = 0;
 	for (const match of String(stockText).matchAll(/\b(R\d+)=(\d+)\b/g)) {
-		const code = match[1];
 		const quantity = Number(match[2]) || 0;
-		if (CASA_ROYAL_EXCLUDED_STOCK_CODES.has(code)) continue;
 		total += quantity;
 	}
 
@@ -383,6 +378,55 @@ async function downloadImage(product) {
 	}
 }
 
+function sameInventoryValue(a, b) {
+	return (a ?? null) === (b ?? null);
+}
+
+function samePriceValue(a, b) {
+	return Number(a ?? 0) === Number(b ?? 0);
+}
+
+function auditWrittenCatalog(providerProducts) {
+	const written = JSON.parse(fs.readFileSync(OUT_JSON, 'utf8'));
+	const writtenBySku = new Map(written.map((product) => [product.sku, product]));
+	const productsInReview = [];
+
+	for (const providerProduct of providerProducts) {
+		const mizoProduct = writtenBySku.get(providerProduct.sku);
+		const stockProveedor = providerProduct.stock ?? null;
+		const stockMizo = mizoProduct?.stock ?? null;
+		const precioProveedor = Number(providerProduct.basePrice ?? 0);
+		const precioMizo = mizoProduct ? Number(mizoProduct.basePrice ?? 0) : null;
+
+		if (!mizoProduct || !sameInventoryValue(stockProveedor, stockMizo) || !samePriceValue(precioProveedor, precioMizo)) {
+			productsInReview.push({
+				sku: providerProduct.sku,
+				stock_proveedor: stockProveedor,
+				stock_mizo: stockMizo,
+				precio_proveedor: precioProveedor,
+				precio_mizo: precioMizo,
+			});
+		}
+	}
+
+	fs.mkdirSync(path.dirname(REVIEW_JSON), { recursive: true });
+	fs.writeFileSync(REVIEW_JSON, JSON.stringify(productsInReview, null, '\t') + '\n', 'utf8');
+
+	if (productsInReview.length) {
+		console.log('\n⚠️ PRODUCTOS BAJO REVISIÓN MANUAL (DETECTADAS DISCREPANCIAS)');
+		for (const product of productsInReview) {
+			console.log(
+				`  ${product.sku} | stock proveedor=${product.stock_proveedor} stock Mizo=${product.stock_mizo} | precio proveedor=${product.precio_proveedor} precio Mizo=${product.precio_mizo}`,
+			);
+		}
+		console.log(`Reporte escrito en ${path.relative(root, REVIEW_JSON)}`);
+	} else {
+		console.log('\n✅ Sincronización 100% idéntica');
+	}
+
+	return productsInReview;
+}
+
 async function main() {
 	fs.mkdirSync(IMG_DIR, { recursive: true });
 	const byId = new Map();
@@ -441,6 +485,7 @@ async function main() {
 	console.log(`Imágenes -> nuevas: ${ok}, reutilizadas: ${skip}, fallidas: ${fail}`);
 
 	valid.sort((a, b) => (a.category === b.category ? a.name.localeCompare(b.name) : a.category.localeCompare(b.category)));
+	const providerSnapshot = valid.map((product) => ({ ...product }));
 
 	// Productos ocultos (prueba interna) se conservan entre sincronizaciones.
 	const hiddenPath = path.join(root, 'src/data/products-hidden.json');
@@ -455,6 +500,7 @@ async function main() {
 
 	fs.writeFileSync(OUT_JSON, JSON.stringify(valid, null, '\t') + '\n', 'utf8');
 	console.log(`\nEscrito ${path.relative(root, OUT_JSON)} con ${valid.length} productos.`);
+	auditWrittenCatalog(providerSnapshot);
 	const count = (c) => valid.filter((p) => p.category === c).length;
 	console.log(`  Parlantes: ${count('sonido')}  |  Proyectores: ${count('proyector')}  |  Cámaras: ${count('camara')}`);
 }
