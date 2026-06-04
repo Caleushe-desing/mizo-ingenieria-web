@@ -1,7 +1,3 @@
----
-// /admin - Panel PRIVADO: productos (costos) + pedidos (compras verificadas en MP).
----
-
 <!doctype html>
 <html lang="es">
 	<head>
@@ -10,6 +6,24 @@
 		<meta name="robots" content="noindex, nofollow" />
 		<link rel="icon" type="image/png" href="/favicon.png" />
 		<title>Panel privado | Mizo</title>
+		<script>
+			window.tailwind = window.tailwind || {};
+			window.tailwind.config = {
+				theme: {
+					extend: {
+						colors: {
+							'accent-main': '#1877f2',
+							'accent-hover': '#166fe5',
+							'accent-dark': '#0d5bd7',
+							'accent-light': '#4d9cf7',
+							'accent-soft': '#e7f0ff',
+						},
+					},
+				},
+			};
+		</script>
+		<script src="https://cdn.tailwindcss.com"></script>
+
 		<style>
 			.tab-active { border-bottom: 2px solid #15616d; color: #15616d; font-weight: 600; }
 			.badge-nuevo { background: #f59e0b; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 999px; margin-left: 6px; }
@@ -223,7 +237,7 @@
 			</div>
 		</div>
 
-		<script is:inline>
+		<script>
 			const fmt = new Intl.NumberFormat('es-CL');
 			const clp = (v) => '$' + fmt.format(v);
 			const catLabel = { sonido: 'Parlantes', proyector: 'Proyectores', camara: 'Cámaras' };

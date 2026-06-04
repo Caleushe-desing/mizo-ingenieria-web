@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build && node scripts/postbuild-admin-catalogo.mjs",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "clean": "node cleanup.js",
