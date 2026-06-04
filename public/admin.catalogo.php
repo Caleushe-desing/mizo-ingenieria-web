@@ -70,11 +70,18 @@
 
 				<!-- PRODUCTOS -->
 				<div id="view-productos">
+					<div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-900">
+						<strong>Producto de prueba (oculto):</strong>
+						<a href="/productos/producto-prueba-mizo" target="_blank" rel="noopener" class="text-accent-main font-semibold hover:underline ml-1">/productos/producto-prueba-mizo</a>
+						— precio $1.000 · SKU MZ-TEST-0001 · no aparece en la tienda pública.
+					</div>
+					<div id="cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
 					<section class="mb-6 overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-sm">
 						<div class="flex flex-col gap-2 border-b border-amber-100 bg-amber-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
 							<div>
-								<p class="text-xs font-extrabold uppercase tracking-[0.18em] text-amber-700">Control de calidad de inventario</p>
-								<h2 class="mt-1 text-xl font-extrabold text-gray-950">⚠️ Control de Calidad: Productos bajo Revisión Manual</h2>
+								<p class="text-xs font-extrabold uppercase tracking-[0.18em] text-amber-700">Catálogo Maestro · Control de calidad</p>
+								<h2 class="mt-1 text-xl font-extrabold text-gray-950">⚠️ Auditoría del Catálogo Maestro</h2>
+								<p class="mt-1 text-sm font-semibold text-amber-900">Productos bajo revisión manual por diferencias de stock o precio frente al mayorista.</p>
 							</div>
 							<button id="refresh-quality-review" type="button" class="self-start rounded-full border border-amber-300 bg-white px-4 py-2 text-xs font-extrabold text-amber-800 transition hover:bg-amber-100">
 								Actualizar reporte
@@ -84,13 +91,6 @@
 							<p class="text-sm text-gray-500">Cargando reporte de discrepancias...</p>
 						</div>
 					</section>
-
-					<div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-900">
-						<strong>Producto de prueba (oculto):</strong>
-						<a href="/productos/producto-prueba-mizo" target="_blank" rel="noopener" class="text-accent-main font-semibold hover:underline ml-1">/productos/producto-prueba-mizo</a>
-						— precio $1.000 · SKU MZ-TEST-0001 · no aparece en la tienda pública.
-					</div>
-					<div id="cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
 					<div class="relative mb-4 max-w-xl">
 						<input id="admin-search" type="search" placeholder="Buscar por SKU, nombre, marca o tienda..." class="w-full pl-11 pr-4 py-3 rounded-md border border-gray-300 focus:ring-accent-main focus:border-accent-main focus:outline-none" />
 						<svg class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
