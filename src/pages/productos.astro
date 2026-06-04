@@ -8,8 +8,8 @@ import SectionCTA from '../components/SectionCTA.astro';
 	description="Compra equipos de audio y video en Chile: parlantes, proyectores y cámaras de las mejores marcas. Con opción de instalación profesional. Precios en CLP."
 >
 	<!-- Encabezado tienda -->
-	<section class="bg-gradient-to-b from-accent-soft to-white py-10 sm:py-14">
-		<div class="mx-auto w-full max-w-[1920px] px-4 text-center sm:px-6 lg:px-8">
+	<section class="bg-gradient-to-b from-accent-soft to-white py-7 sm:py-14">
+		<div class="mx-auto w-full max-w-[1920px] px-3 text-center sm:px-6 lg:px-8">
 			<h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
 				Tienda Mizo de <span class="text-accent-main">audio y video</span>
 			</h1>
@@ -20,9 +20,9 @@ import SectionCTA from '../components/SectionCTA.astro';
 		</div>
 	</section>
 
-	<section class="py-8 bg-white">
-		<div class="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8">
-			<div class="sticky top-[6.75rem] z-40 mb-5 rounded-2xl border border-gray-100 bg-white/95 p-3 shadow-sm backdrop-blur md:top-[10rem]">
+	<section class="bg-slate-100 py-3 sm:bg-white sm:py-8">
+		<div class="mx-auto w-full max-w-[1920px] px-0 sm:px-6 lg:px-8">
+			<div class="sticky top-[6.75rem] z-40 mb-2 border-y border-gray-100 bg-white/95 p-3 shadow-sm backdrop-blur sm:mb-5 sm:rounded-2xl sm:border md:top-[10rem]">
 				<label for="catalog-search" class="sr-only">Buscar productos</label>
 				<div class="relative">
 					<input
@@ -37,7 +37,7 @@ import SectionCTA from '../components/SectionCTA.astro';
 				</div>
 			</div>
 
-			<details class="mb-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 lg:hidden">
+			<details class="mx-3 mb-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm lg:hidden">
 				<summary class="cursor-pointer text-sm font-black text-gray-900">Filtros del catálogo</summary>
 				<div class="mt-4 grid gap-3 sm:grid-cols-2">
 					<label class="grid gap-1 text-xs font-bold text-gray-500">
@@ -115,13 +115,13 @@ import SectionCTA from '../components/SectionCTA.astro';
 				</aside>
 
 				<div class="min-w-0">
-					<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+					<div class="mb-2 flex flex-wrap items-center justify-between gap-2 px-3 sm:mb-3 sm:px-0">
 						<p id="result-count" class="text-xs font-bold uppercase tracking-wide text-gray-500"></p>
 						<p id="active-filter-summary" class="text-xs text-gray-400"></p>
 					</div>
 
-					<div id="product-grid" class="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4" aria-live="polite">
-						<div class="col-span-full rounded-2xl border border-gray-200 bg-gray-50 p-10 text-center text-gray-600">
+					<div id="product-grid" class="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4" aria-live="polite">
+						<div class="col-span-full border-y border-gray-200 bg-white p-10 text-center text-gray-600 sm:rounded-2xl sm:border sm:bg-gray-50">
 							Cargando productos publicados desde el catálogo Mizo...
 						</div>
 					</div>
@@ -388,27 +388,27 @@ import SectionCTA from '../components/SectionCTA.astro';
 				? `<p class="mt-1 text-xs font-semibold uppercase tracking-wide text-gray-500 line-clamp-1 md:text-sm">${esc(brand)}</p>`
 				: '';
 
-			return `<article class="product-item group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-accent-light hover:shadow-lg" data-category="${esc(product.category)}" data-brand="${esc(brand)}" data-name="${esc(`${product.name} ${brand} ${product.sku}`.toLowerCase())}" data-price="${price}" data-sku="${esc(product.sku || '')}" data-published="${product.published === false ? '0' : '1'}">
-				<a href="${esc(detailUrl)}" data-astro-reload class="flex flex-1 flex-col text-inherit" aria-label="Ver detalle de ${esc(product.name)}">
-					<div class="relative border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
-						<div class="flex h-40 items-center justify-center p-3 md:h-44 md:p-4">
-							<img src="${esc(image)}" alt="${esc(product.name)}" class="max-h-[145px] w-auto object-contain mix-blend-multiply transition duration-500 group-hover:scale-105 md:max-h-[155px]" loading="lazy" width="240" height="240" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+			return `<article class="product-item group flex h-full flex-col overflow-hidden border-y border-gray-100 bg-white shadow-none transition duration-300 hover:border-accent-light sm:rounded-2xl sm:border sm:shadow-sm sm:hover:-translate-y-1 sm:hover:shadow-lg" data-category="${esc(product.category)}" data-brand="${esc(brand)}" data-name="${esc(`${product.name} ${brand} ${product.sku}`.toLowerCase())}" data-price="${price}" data-sku="${esc(product.sku || '')}" data-published="${product.published === false ? '0' : '1'}">
+				<a href="${esc(detailUrl)}" data-astro-reload class="flex flex-1 flex-row text-inherit sm:flex-col" aria-label="Ver detalle de ${esc(product.name)}">
+					<div class="relative w-32 shrink-0 border-r border-gray-100 bg-gradient-to-b from-gray-50 to-white sm:w-full sm:border-r-0 sm:border-b">
+						<div class="flex h-full min-h-36 items-center justify-center p-3 sm:h-40 md:h-44 md:p-4">
+							<img src="${esc(image)}" alt="${esc(product.name)}" class="max-h-[120px] w-auto object-contain mix-blend-multiply transition duration-500 group-hover:scale-105 sm:max-h-[145px] md:max-h-[155px]" loading="lazy" width="240" height="240" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
 							<span class="hidden absolute inset-0 items-center justify-center text-4xl bg-accent-soft" aria-hidden="true">${esc(categoryIcon[product.category] || '📦')}</span>
 						</div>
-						<span class="absolute left-2 top-2 rounded-full bg-emerald-50 px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wide text-emerald-700 shadow-sm">
+						<span class="absolute left-2 top-2 hidden rounded-full bg-emerald-50 px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wide text-emerald-700 shadow-sm sm:inline-flex">
 							Mejor Precio Garantizado
 						</span>
 					</div>
 
-					<div class="flex flex-1 flex-col p-3 md:p-4 md:pb-3">
+					<div class="flex min-w-0 flex-1 flex-col p-3 md:p-4 md:pb-3">
 						<div class="mb-2 flex items-center justify-between gap-2">
 							<span class="truncate rounded-full bg-accent-soft px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wide text-accent-main">Categoría: ${esc(displayCategory)}</span>
 							<span class="max-w-[6rem] truncate font-mono text-[0.65rem] font-bold text-gray-400">${esc(product.sku)}</span>
 						</div>
 
-						<h3 class="min-h-[2.35rem] text-sm font-bold leading-snug text-gray-950 transition group-hover:text-accent-main line-clamp-2 md:text-base">${esc(product.name)}</h3>
+						<h3 class="text-sm font-bold leading-snug text-gray-950 transition group-hover:text-accent-main line-clamp-2 md:min-h-[2.35rem] md:text-base">${esc(product.name)}</h3>
 						${brandMarkup}
-						<p class="mt-1.5 flex-1 text-xs leading-snug text-gray-500 line-clamp-2 md:text-sm">${esc(product.description || 'Producto publicado en el catálogo Mizo.')}</p>
+						<p class="mt-1.5 hidden flex-1 text-xs leading-snug text-gray-500 line-clamp-2 sm:block md:text-sm">${esc(product.description || 'Producto publicado en el catálogo Mizo.')}</p>
 
 						<div class="mt-2.5">
 							<p class="text-[0.62rem] font-bold uppercase tracking-wide text-gray-400">Precio venta</p>
@@ -421,7 +421,7 @@ import SectionCTA from '../components/SectionCTA.astro';
 					</div>
 				</a>
 
-				<div class="px-3 pb-3 md:px-4 md:pb-4">
+				<div class="px-3 pb-3 sm:px-3 md:px-4 md:pb-4">
 					<button
 						type="button"
 						data-add-to-cart
