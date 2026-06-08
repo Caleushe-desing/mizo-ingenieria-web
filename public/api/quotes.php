@@ -244,13 +244,6 @@ function quote_html(array $quote): string
     $quoteDate = clean_text($quote['date'] ?? $quote['createdAt'] ?? date('Y-m-d'), 40);
     $taxLabel = 'IVA ' . number_format(((float)($totals['taxRate'] ?? TAX_RATE)) * 100, 0, ',', '.') . '%';
 
-    $logo_base64 = '';
-    $logoPath = __DIR__ . '/../mizo-logo.svg';
-    if (is_file($logoPath)) {
-        $logo = file_get_contents($logoPath);
-        $logo_base64 = $logo === false ? '' : 'data:image/svg+xml;base64,' . base64_encode($logo);
-    }
-
     $itemsRows = '';
     foreach (is_array($quote['items'] ?? null) ? $quote['items'] : [] as $item) {
         $reference = item_reference($item);
@@ -267,9 +260,15 @@ function quote_html(array $quote): string
         $conditions .= '<li style="margin:0 0 4pt 0;">' . esc((string)$condition) . '</li>';
     }
 
-    $logoHtml = $logo_base64 !== ''
-        ? '<img src="' . esc($logo_base64) . '" class="logo-img" width="120" style="width:120pt;height:auto;display:block;">'
-        : '<span style="font-size:20pt;font-weight:bold;">MIZO</span>';
+    $logoHtml = '<table class="brand-table">
+            <tr>
+                <td class="brand-mark">M</td>
+                <td>
+                    <div class="brand-name">MIZO</div>
+                    <div class="company-title">Ingeniería audiovisual e instalaciones profesionales</div>
+                </td>
+            </tr>
+        </table>';
 
     return '<!DOCTYPE html>
     <html>
@@ -278,7 +277,7 @@ function quote_html(array $quote): string
         <style>
             @page { 
                 size: letter; 
-                margin: 50pt 40pt 50pt 40pt; 
+                margin: 0; 
             }
             * { 
                 box-sizing: border-box; 
@@ -291,26 +290,31 @@ function quote_html(array $quote): string
                 font-family: Helvetica, Arial, sans-serif; 
                 font-size: 10pt; 
                 line-height: 1.5; 
+                padding: 42pt 38pt;
             }
-            .header-table { width: 100%; margin-bottom: 25pt; border-collapse: collapse; }
-            .logo-img { width: 120pt; height: auto; display: block; }
-            .company-title { font-size: 8pt; color: #64748b; margin-top: 5pt; font-style: italic; }
+            .header-table { width: 100%; margin-bottom: 28pt; border-collapse: collapse; }
+            .brand-table { border-collapse: collapse; }
+            .brand-table td { vertical-align: middle; }
+            .brand-mark { width: 34pt; height: 34pt; background-color: #1877f2; color: #ffffff; font-size: 18pt; font-weight: bold; text-align: center; line-height: 34pt; border-radius: 8pt; }
+            .brand-name { margin-left: 10pt; font-size: 21pt; font-weight: bold; color: #0f172a; letter-spacing: 1.2pt; line-height: 1; }
+            .company-title { margin-left: 10pt; margin-top: 4pt; font-size: 8.5pt; color: #64748b; font-style: italic; }
             
-            .info-table { width: 100%; margin-bottom: 25pt; border-collapse: collapse; }
-            .info-box { width: 48%; padding: 12pt; background-color: #f8fafc; border: 1px solid #e2e8f0; vertical-align: top; }
+            .info-table { width: 100%; margin-bottom: 24pt; border-collapse: collapse; }
+            .info-box { width: 48%; padding: 13pt; background-color: #ffffff; border: 1px solid #e2e8f0; vertical-align: top; }
             .info-title { font-size: 9pt; font-weight: bold; color: #0284c7; text-transform: uppercase; margin-bottom: 5pt; }
             
-            .items-table { width: 100%; border-collapse: collapse; margin-top: 15pt; margin-bottom: 20pt; }
-            .items-table th { background-color: #0284c7; color: #ffffff; padding: 8pt 10pt; font-weight: bold; font-size: 9pt; text-align: left; }
-            .items-table td { padding: 9pt 10pt; border-bottom: 1px solid #e2e8f0; font-size: 9.5pt; color: #334155; }
+            .items-table { width: 100%; border-collapse: collapse; margin-top: 12pt; margin-bottom: 24pt; }
+            .items-table th { background-color: #f8fafc; color: #475569; padding: 10pt 10pt; font-weight: bold; font-size: 8.5pt; text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; }
+            .items-table td { padding: 11pt 10pt; border-bottom: 1px solid #e2e8f0; font-size: 9.5pt; color: #334155; vertical-align: top; }
             
-            .bottom-table { width: 100%; border-collapse: collapse; margin-top: 15pt; }
+            .bottom-table { width: 100%; border-collapse: collapse; margin-top: 18pt; }
             .conditions-td { width: 55%; vertical-align: top; font-size: 8.5pt; color: #64748b; padding-right: 15pt; }
             .totals-td { width: 45%; vertical-align: top; }
             
-            .totals-table { width: 100%; border-collapse: collapse; background-color: #f8fafc; border: 1px solid #e2e8f0; }
-            .totals-table td { padding: 8pt 12pt; font-size: 9.5pt; }
-            .totals-table .total-row { font-size: 12pt; font-weight: bold; color: #0f172a; background-color: #f1f5f9; border-top: 2px solid #0284c7; }
+            .totals-table { width: 100%; border-collapse: collapse; background-color: #ffffff; border-top: 2px solid #0284c7; }
+            .totals-table td { padding: 8pt 0 8pt 12pt; font-size: 9.5pt; border-bottom: 1px solid #e2e8f0; }
+            .totals-table td:last-child { text-align: right; font-weight: bold; white-space: nowrap; }
+            .totals-table .total-row { font-size: 12pt; font-weight: bold; color: #0f172a; background-color: #f8fafc; }
         </style>
     </head>
     <body>
@@ -318,7 +322,6 @@ function quote_html(array $quote): string
             <tr>
                 <td style="vertical-align: top;">
                     ' . $logoHtml . '
-                    <div class="company-title">Ingeniería audiovisual e instalaciones profesionales</div>
                 </td>
                 <td style="text-align: right; vertical-align: top;">
                     <div style="font-size: 14pt; font-weight: bold; color: #0f172a; letter-spacing: 1px;">PRESUPUESTO</div>
