@@ -89,7 +89,7 @@ function default_config(): array
         'email' => DEFAULT_FROM,
         'address' => 'Puerto Montt, Chile',
         'website' => 'https://mizo.cl',
-        'logo' => '/mizo-logo.svg',
+        'logo' => '/mizo-logo.png',
         'defaultConditions' => [
             'Vigencia de la cotización: 5 días.',
             'Forma de pago: Transferencia electrónica.',
@@ -260,15 +260,10 @@ function quote_html(array $quote): string
         $conditions .= '<li style="margin:0 0 4pt 0;">' . esc((string)$condition) . '</li>';
     }
 
-    $logoHtml = '<table class="brand-lockup">
-            <tr>
-                <td class="brand-symbol">M</td>
-                <td class="brand-word-cell">
-                    <div class="brand-word">MIZO</div>
-                    <div class="brand-rule"></div>
-                </td>
-            </tr>
-        </table>';
+    $logo = quote_asset_data_uri('/mizo-logo.png');
+    $logoHtml = $logo !== ''
+        ? '<img src="' . esc($logo) . '" class="logo-img" width="190" style="width:190pt;height:auto;display:block;">'
+        : '<span style="font-size:22pt;font-weight:bold;color:#0f172a;">MIZO</span>';
 
     return '<!DOCTYPE html>
     <html>
@@ -293,12 +288,7 @@ function quote_html(array $quote): string
                 padding: 42pt 38pt;
             }
             .header-table { width: 100%; margin-bottom: 30pt; border-collapse: collapse; }
-            .brand-lockup { border-collapse: collapse; width: 205pt; }
-            .brand-lockup td { vertical-align: middle; }
-            .brand-symbol { width: 39pt; height: 39pt; background-color: #1877f2; color: #ffffff; font-size: 21pt; line-height: 39pt; font-weight: bold; text-align: center; border-radius: 8pt; }
-            .brand-word-cell { padding-left: 10pt; }
-            .brand-word { color: #0f172a; font-size: 31pt; line-height: 30pt; letter-spacing: 4pt; font-weight: bold; }
-            .brand-rule { width: 128pt; height: 4pt; margin-top: 5pt; background-color: #1877f2; }
+            .logo-img { width: 190pt; height: auto; display: block; }
             .company-title { margin-top: 5pt; font-size: 8.5pt; color: #475569; font-style: italic; }
             
             .info-table { width: 100%; margin-bottom: 26pt; border-collapse: collapse; }
