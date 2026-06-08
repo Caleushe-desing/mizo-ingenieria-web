@@ -600,6 +600,31 @@ function load_quote(string $number): ?array
     return is_file($path) ? normalize_quote(read_json($path, [])) : null;
 }
 
+function quote_recipients(string $value): array
+{
+    $parts = preg_split('/[;,]+/', $value) ?: [];
+    $emails = [];
+    $invalid = [];
+
+    foreach ($parts as $part) {
+        $email = trim($part);
+        if ($email === '') {
+            continue;
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $invalid[] = $email;
+            continue;
+        }
+        $emails[strtolower($email)] = $email;
+    }
+
+    if ($invalid) {
+        json_response(['ok' => false, 'error' => 'Email de destino inválido: ' . implode(', ', $invalid)], 422);
+    }
+
+    return array_values($emails);
+}
+
 function send_quote(array $payload): void
 {
     $number = clean_text($payload['number'] ?? '', 30);
@@ -608,39 +633,55 @@ function send_quote(array $payload): void
         json_response(['ok' => false, 'error' => 'Cotización no encontrada.'], 404);
     }
 
-    $to = clean_text($payload['to'] ?? $quote['client']['email'] ?? '', 160);
-    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-        json_response(['ok' => false, 'error' => 'Email de destino inválido.'], 422);
+    $recipients = quote_recipients(clean_text($payload['to'] ?? $quote['client']['email'] ?? '', 1000));
+    if (!$recipients) {
+        json_response(['ok' => false, 'error' => 'Ingresa al menos un email de destino válido.'], 422);
     }
 
     $pdfPath = quote_path($number, 'pdf');
     file_put_contents($pdfPath, quote_pdf_content($quote), LOCK_EX);
 
-    $boundary = 'mizo_' . bin2hex(random_bytes(12));
     $subject = 'Cotización Mizo ' . $number;
     $body = clean_text($payload['message'] ?? "Hola,\n\nAdjuntamos la cotización solicitada.\n\nSaludos,\nMizo", 2000);
     $attachment = chunk_split(base64_encode(file_get_contents($pdfPath) ?: ''));
+    $sent = [];
+    $failed = [];
 
-    $headers = [
-        'From: Mizo Ventas <' . DEFAULT_FROM . '>',
-        'Reply-To: ' . DEFAULT_FROM,
-        'MIME-Version: 1.0',
-        'Content-Type: multipart/mixed; boundary="' . $boundary . '"',
-    ];
+    foreach ($recipients as $to) {
+        $boundary = 'mizo_' . bin2hex(random_bytes(12));
+        $headers = [
+            'From: Mizo Ventas <' . DEFAULT_FROM . '>',
+            'Reply-To: ' . DEFAULT_FROM,
+            'MIME-Version: 1.0',
+            'Content-Type: multipart/mixed; boundary="' . $boundary . '"',
+        ];
 
-    $message = "--{$boundary}\r\n"
-        . "Content-Type: text/plain; charset=UTF-8\r\n"
-        . "Content-Transfer-Encoding: 8bit\r\n\r\n"
-        . $body . "\r\n"
-        . "--{$boundary}\r\n"
-        . "Content-Type: application/pdf; name=\"{$number}.pdf\"\r\n"
-        . "Content-Transfer-Encoding: base64\r\n"
-        . "Content-Disposition: attachment; filename=\"{$number}.pdf\"\r\n\r\n"
-        . $attachment . "\r\n"
-        . "--{$boundary}--";
+        $message = "--{$boundary}\r\n"
+            . "Content-Type: text/plain; charset=UTF-8\r\n"
+            . "Content-Transfer-Encoding: 8bit\r\n\r\n"
+            . $body . "\r\n"
+            . "--{$boundary}\r\n"
+            . "Content-Type: application/pdf; name=\"{$number}.pdf\"\r\n"
+            . "Content-Transfer-Encoding: base64\r\n"
+            . "Content-Disposition: attachment; filename=\"{$number}.pdf\"\r\n\r\n"
+            . $attachment . "\r\n"
+            . "--{$boundary}--";
 
-    $sent = @mail($to, $subject, $message, implode("\r\n", $headers));
-    json_response(['ok' => $sent, 'sent' => $sent, 'error' => $sent ? null : 'El servidor no confirmó el envío con mail().']);
+        if (@mail($to, $subject, $message, implode("\r\n", $headers))) {
+            $sent[] = $to;
+        } else {
+            $failed[] = $to;
+        }
+    }
+
+    $ok = count($sent) > 0 && count($failed) === 0;
+    json_response([
+        'ok' => $ok,
+        'sent' => $ok,
+        'recipients' => $sent,
+        'failedRecipients' => $failed,
+        'error' => $ok ? null : 'El servidor no confirmó el envío a: ' . implode(', ', $failed),
+    ], $sent ? 200 : 500);
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';

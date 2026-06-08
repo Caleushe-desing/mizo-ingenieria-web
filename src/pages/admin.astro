@@ -176,12 +176,13 @@ const title = 'Panel central Mizo';
 									</div>
 									<div class="rounded-2xl border border-slate-200 p-4">
 										<p class="text-sm font-black">Generar y enviar</p>
-										<input id="quote-email-to" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Enviar a email" />
+										<input id="quote-email-to" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Correos separados por coma o punto y coma" />
+										<p class="mt-1 text-xs font-semibold text-slate-400">Ej: cliente@empresa.cl; compras@empresa.cl, gerencia@empresa.cl</p>
 										<textarea id="quote-email-message" rows="3" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Mensaje del correo"></textarea>
 										<div class="mt-3 grid grid-cols-1 gap-2">
 											<button id="new-quote" type="button" class="rounded-xl border border-slate-300 px-4 py-3 text-sm font-black text-slate-700 hover:bg-slate-50">Nueva cotización en blanco</button>
 											<button id="save-quote" type="button" class="rounded-xl bg-accent-main px-4 py-3 text-sm font-black text-white hover:bg-accent-hover">Guardar cotización y generar PDF</button>
-											<button id="send-quote" type="button" class="rounded-xl border border-accent-main px-4 py-3 text-sm font-black text-accent-main hover:bg-accent-soft">Enviar PDF por email</button>
+											<button id="send-quote" type="button" class="rounded-xl border border-accent-main px-4 py-3 text-sm font-black text-accent-main hover:bg-accent-soft">Enviar PDF por email(s)</button>
 										</div>
 										<p id="quote-message" class="mt-3 text-sm font-semibold text-slate-500"></p>
 									</div>
@@ -662,7 +663,8 @@ const title = 'Panel central Mizo';
 						to: $('quote-email-to').value.trim(),
 						message: $('quote-email-message').value.trim(),
 					});
-					quoteMessage(data.sent ? `Cotización ${quote.number} enviada por email.` : data.error || 'El servidor no confirmó el envío.', data.sent ? 'success' : 'error');
+					const sentCount = Array.isArray(data.recipients) ? data.recipients.length : 1;
+					quoteMessage(data.sent ? `Cotización ${quote.number} enviada a ${sentCount} destinatario(s).` : data.error || 'El servidor no confirmó el envío.', data.sent ? 'success' : 'error');
 				} catch (error) {
 					quoteMessage(error.message, 'error');
 				}
