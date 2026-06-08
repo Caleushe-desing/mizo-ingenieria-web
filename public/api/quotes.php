@@ -89,7 +89,7 @@ function default_config(): array
         'email' => DEFAULT_FROM,
         'address' => 'Puerto Montt, Chile',
         'website' => 'https://mizo.cl',
-        'logo' => '/mizo-logo.svg',
+        'logo' => '/mizo-logo.png',
         'defaultConditions' => [
             'Vigencia de la cotización: 5 días.',
             'Forma de pago: Transferencia electrónica.',
@@ -100,11 +100,7 @@ function default_config(): array
 
 function quote_config(): array
 {
-    $config = array_replace_recursive(default_config(), read_json(config_path(), []));
-    if (($config['logo'] ?? '') === '/mizo-logo.png') {
-        $config['logo'] = '/mizo-logo.svg';
-    }
-    return $config;
+    return array_replace_recursive(default_config(), read_json(config_path(), []));
 }
 
 function next_quote_number(): string
@@ -276,6 +272,19 @@ function pdf_text(string $text, int $x, int $y, int $size = 10, string $font = '
     return "BT\n/{$font} {$size} Tf\n{$x} {$y} Td\n(" . pdf_escape($text) . ") Tj\nET\n";
 }
 
+function pdf_text_width(string $text, int $size, string $font = 'F1'): int
+{
+    $plain = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
+    $plain = $plain === false ? $text : $plain;
+    $factor = in_array($font, ['F3', 'F4'], true) ? 0.60 : ($font === 'F2' ? 0.58 : 0.52);
+    return (int)ceil(strlen($plain) * $size * $factor);
+}
+
+function pdf_text_right(string $text, int $rightX, int $y, int $size = 10, string $font = 'F3'): string
+{
+    return pdf_text($text, $rightX - pdf_text_width($text, $size, $font), $y, $size, $font);
+}
+
 function pdf_wrap(string $text, int $maxChars): array
 {
     $text = trim(preg_replace('/\s+/', ' ', $text));
@@ -310,106 +319,115 @@ function quote_pdf_content(array $quote): string
     $taxLabel = 'IVA ' . number_format($taxRate * 100, 0, ',', '.') . '%';
 
     $stream = '';
-    $stream .= "1 1 1 rg\n0 0 595 842 re f\n";
-    $stream .= pdf_color(0.059, 0.090, 0.165) . "\n0 742 595 100 re f\n";
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n0 742 595 7 re f\n";
+    $stream .= pdf_color(0.969, 0.980, 0.996) . "\n0 0 595 842 re f\n";
+    $stream .= "1 1 1 rg\n36 38 523 766 re f\n";
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n36 794 523 10 re f\n";
+    $stream .= pdf_color(0.988, 0.827, 0.302) . "\n36 784 523 4 re f\n";
 
-    // Logo Mizo dibujado en vector/texto para no depender de librerías PDF externas.
-    $stream .= "1 1 1 rg\n48 770 58 44 re f\n";
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n54 776 46 32 re f\n";
-    $stream .= pdf_color(1, 1, 1) . "\n" . pdf_text('M', 68, 786, 20, 'F2');
-    $stream .= pdf_color(1, 1, 1) . "\n" . pdf_text('MIZO', 118, 792, 24, 'F2');
-    $stream .= pdf_color(0.796, 0.835, 0.902) . "\n" . pdf_text('Ingenieria audiovisual e integracion profesional', 120, 776, 9, 'F1');
+    // Wordmark Mizo basado en el logo de la web, dibujado nativamente en PDF.
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n52 735 54 54 re f\n";
+    $stream .= pdf_color(1, 1, 1) . "\n" . pdf_text('M', 67, 752, 25, 'F2');
+    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('MIZO', 118, 760, 30, 'F2');
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n" . pdf_text('Ingenieria audiovisual e instalaciones profesionales', 120, 742, 9, 'F1');
 
-    $stream .= pdf_color(0.580, 0.773, 0.992) . "\n" . pdf_text('COTIZACION PROFESIONAL', 386, 805, 8, 'F2');
-    $stream .= pdf_color(1, 1, 1) . "\n" . pdf_text('Presupuesto ' . $quote['number'], 386, 784, 18, 'F2');
-    $stream .= pdf_color(0.796, 0.835, 0.902) . "\n" . pdf_text('Fecha: ' . $quote['createdAt'], 386, 767, 9, 'F1');
+    $stream .= pdf_color(0.945, 0.961, 1.000) . "\n376 724 154 64 re f\n";
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n376 724 4 64 re f\n";
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n" . pdf_text('COTIZACION', 394, 766, 9, 'F2');
+    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('Presupuesto ' . $quote['number'], 394, 748, 15, 'F2');
+    $stream .= pdf_color(0.392, 0.455, 0.545) . "\n" . pdf_text('Fecha: ' . $quote['createdAt'], 394, 733, 8, 'F1');
 
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n46 704 238 2 re f\n";
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n316 704 232 2 re f\n";
-    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('DATOS DE MIZO', 46, 718, 10, 'F2');
-    $stream .= pdf_text('DATOS DEL CLIENTE', 316, 718, 10, 'F2');
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n52 708 228 2 re f\n";
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n316 708 214 2 re f\n";
+    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('DATOS DE MIZO', 52, 720, 10, 'F2');
+    $stream .= pdf_text('DATOS DEL CLIENTE', 316, 720, 10, 'F2');
 
     $stream .= pdf_color(0.275, 0.333, 0.424) . "\n";
-    $stream .= pdf_text($company['companyName'] ?? 'Mizo', 46, 684, 11, 'F2');
-    $stream .= pdf_text($company['address'] ?? '', 46, 669, 9, 'F1');
-    $stream .= pdf_text(($company['phone'] ?? '') . ' | ' . ($company['email'] ?? DEFAULT_FROM), 46, 655, 9, 'F1');
-    $stream .= pdf_text($company['website'] ?? 'https://mizo.cl', 46, 641, 9, 'F1');
+    $stream .= pdf_text($company['companyName'] ?? 'Mizo', 52, 688, 11, 'F2');
+    $stream .= pdf_text($company['address'] ?? '', 52, 673, 9, 'F1');
+    $stream .= pdf_text(($company['phone'] ?? '') . ' | ' . ($company['email'] ?? DEFAULT_FROM), 52, 659, 9, 'F1');
+    $stream .= pdf_text($company['website'] ?? 'https://mizo.cl', 52, 645, 9, 'F1');
 
-    $stream .= pdf_text($client['name'] ?? 'Cliente sin nombre', 316, 684, 11, 'F2');
-    $stream .= pdf_text($client['email'] ?? '', 316, 669, 9, 'F1');
-    $stream .= pdf_text(($client['phone'] ?? '') . (($client['rut'] ?? '') !== '' ? ' | RUT: ' . $client['rut'] : ''), 316, 655, 9, 'F1');
-    $stream .= pdf_text($client['address'] ?? '', 316, 641, 9, 'F1');
+    $stream .= pdf_text($client['name'] ?? 'Cliente sin nombre', 316, 688, 11, 'F2');
+    $stream .= pdf_text($client['email'] ?? '', 316, 673, 9, 'F1');
+    $stream .= pdf_text(($client['phone'] ?? '') . (($client['rut'] ?? '') !== '' ? ' | RUT: ' . $client['rut'] : ''), 316, 659, 9, 'F1');
+    $stream .= pdf_text($client['address'] ?? '', 316, 645, 9, 'F1');
 
-    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('DETALLE DE PRODUCTOS Y SERVICIOS', 46, 600, 11, 'F2');
-    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n46 575 502 24 re f\n";
+    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('DETALLE DE PRODUCTOS Y SERVICIOS', 52, 610, 11, 'F2');
+    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n52 584 478 26 re f\n";
     $stream .= pdf_color(1, 1, 1) . "\n";
-    $stream .= pdf_text('ITEM', 56, 583, 8, 'F2');
-    $stream .= pdf_text('CANT.', 344, 583, 8, 'F2');
-    $stream .= pdf_text('UNITARIO', 400, 583, 8, 'F2');
-    $stream .= pdf_text('NETO', 493, 583, 8, 'F2');
+    $stream .= pdf_text('ITEM', 64, 593, 8, 'F2');
+    $stream .= pdf_text_right('CANT.', 358, 593, 8, 'F2');
+    $stream .= pdf_text_right('UNITARIO', 442, 593, 8, 'F2');
+    $stream .= pdf_text_right('NETO', 518, 593, 8, 'F2');
 
-    $y = 552;
-    foreach (array_slice($quote['items'], 0, 12) as $item) {
-        $stream .= pdf_color(0.898, 0.906, 0.922) . "\n46 " . ($y - 10) . " 502 1 re f\n";
-        $stream .= pdf_color(0.067, 0.094, 0.153) . "\n";
-        $nameLines = pdf_wrap((string)$item['name'], 42);
-        $stream .= pdf_text($nameLines[0], 56, $y, 9, 'F2');
-        if (isset($nameLines[1])) {
-            $stream .= pdf_color(0.275, 0.333, 0.424) . "\n" . pdf_text($nameLines[1], 56, $y - 12, 8, 'F1');
+    $y = 558;
+    $rowIndex = 0;
+    foreach (array_slice($quote['items'], 0, 10) as $item) {
+        if ($rowIndex % 2 === 0) {
+            $stream .= pdf_color(0.973, 0.976, 0.984) . "\n52 " . ($y - 29) . " 478 39 re f\n";
         }
-        $stream .= pdf_color(0.392, 0.455, 0.545) . "\n" . pdf_text($item['sku'] ?: 'Manual', 56, $y - 24, 8, 'F1');
+        $stream .= pdf_color(0.898, 0.906, 0.922) . "\n52 " . ($y - 31) . " 478 1 re f\n";
         $stream .= pdf_color(0.067, 0.094, 0.153) . "\n";
-        $stream .= pdf_text((string)(int)$item['quantity'], 354, $y, 9, 'F1');
-        $stream .= pdf_text(clp((int)$item['unitPrice']), 400, $y, 9, 'F1');
-        $stream .= pdf_text(clp((int)$item['total']), 493, $y, 9, 'F2');
-        $y -= 44;
-        if ($y < 260) {
+        $nameLines = pdf_wrap((string)$item['name'], 43);
+        $stream .= pdf_text($nameLines[0], 64, $y, 9, 'F2');
+        if (isset($nameLines[1])) {
+            $stream .= pdf_color(0.275, 0.333, 0.424) . "\n" . pdf_text($nameLines[1], 64, $y - 11, 8, 'F1');
+        }
+        $stream .= pdf_color(0.094, 0.467, 0.949) . "\n" . pdf_text($item['sku'] ?: 'Manual', 64, $y - 23, 7, 'F1');
+        $stream .= pdf_color(0.067, 0.094, 0.153) . "\n";
+        $stream .= pdf_text_right((string)(int)$item['quantity'], 358, $y - 4, 9, 'F3');
+        $stream .= pdf_text_right(clp((int)$item['unitPrice']), 442, $y - 4, 9, 'F3');
+        $stream .= pdf_text_right(clp((int)$item['total']), 518, $y - 4, 9, 'F4');
+        $y -= 40;
+        $rowIndex++;
+        if ($y < 258) {
             break;
         }
     }
 
-    if (count($quote['items']) > 12 || $y < 260) {
-        $stream .= pdf_color(0.392, 0.455, 0.545) . "\n" . pdf_text('Detalle completo disponible en la version HTML guardada de la cotizacion.', 56, $y, 8, 'F1');
-        $y -= 24;
+    if (count($quote['items']) > 10 || $y < 258) {
+        $stream .= pdf_color(0.392, 0.455, 0.545) . "\n" . pdf_text('Detalle completo disponible en la vista HTML guardada de la cotizacion.', 64, $y, 8, 'F1');
+        $y -= 20;
     }
 
-    $boxY = max(176, $y - 120);
-    $stream .= pdf_color(0.945, 0.961, 1.000) . "\n330 {$boxY} 218 96 re f\n";
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n330 " . ($boxY + 94) . " 218 2 re f\n";
+    $boxY = max(172, $y - 118);
+    $stream .= pdf_color(0.945, 0.961, 1.000) . "\n316 {$boxY} 214 104 re f\n";
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n316 " . ($boxY + 100) . " 214 4 re f\n";
     $stream .= pdf_color(0.275, 0.333, 0.424) . "\n";
-    $stream .= pdf_text('Subtotal neto', 348, $boxY + 68, 10, 'F1');
-    $stream .= pdf_text(clp((int)$totals['subtotal']), 462, $boxY + 68, 10, 'F2');
-    $stream .= pdf_text($taxLabel, 348, $boxY + 45, 10, 'F1');
-    $stream .= pdf_text(clp((int)$totals['tax']), 462, $boxY + 45, 10, 'F2');
+    $stream .= pdf_text('Subtotal neto', 334, $boxY + 74, 10, 'F1');
+    $stream .= pdf_text_right(clp((int)$totals['subtotal']), 512, $boxY + 74, 10, 'F3');
+    $stream .= pdf_text($taxLabel, 334, $boxY + 50, 10, 'F1');
+    $stream .= pdf_text_right(clp((int)$totals['tax']), 512, $boxY + 50, 10, 'F3');
     $stream .= pdf_color(0.094, 0.467, 0.949) . "\n";
-    $stream .= pdf_text('TOTAL A PAGAR', 348, $boxY + 18, 11, 'F2');
-    $stream .= pdf_text(clp((int)$totals['total']), 454, $boxY + 16, 14, 'F2');
+    $stream .= pdf_text('TOTAL A PAGAR', 334, $boxY + 21, 11, 'F2');
+    $stream .= pdf_text_right(clp((int)$totals['total']), 512, $boxY + 18, 16, 'F4');
 
-    $conditionsY = $boxY + 70;
-    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('CONDICIONES COMERCIALES', 46, $conditionsY, 10, 'F2');
+    $conditionsY = $boxY + 84;
+    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('CONDICIONES COMERCIALES', 52, $conditionsY, 10, 'F2');
     $conditionsY -= 18;
     $stream .= pdf_color(0.275, 0.333, 0.424) . "\n";
     foreach (array_slice($quote['conditions'], 0, 5) as $condition) {
-        foreach (pdf_wrap('- ' . $condition, 48) as $line) {
-            $stream .= pdf_text($line, 46, $conditionsY, 8, 'F1');
+        foreach (pdf_wrap('- ' . $condition, 47) as $line) {
+            $stream .= pdf_text($line, 52, $conditionsY, 8, 'F1');
             $conditionsY -= 12;
-            if ($conditionsY < 92) {
+            if ($conditionsY < 94) {
                 break 2;
             }
         }
     }
 
-    $stream .= pdf_color(0.898, 0.906, 0.922) . "\n46 68 502 1 re f\n";
-    $stream .= pdf_color(0.392, 0.455, 0.545) . "\n" . pdf_text('Cotizacion generada automaticamente por Mizo. Valores en pesos chilenos. Total incluye IVA 19%.', 46, 48, 8, 'F1');
+    $stream .= pdf_color(0.898, 0.906, 0.922) . "\n52 76 478 1 re f\n";
+    $stream .= pdf_color(0.392, 0.455, 0.545) . "\n" . pdf_text('Cotizacion generada automaticamente por Mizo. Valores en pesos chilenos. Total incluye IVA 19%.', 52, 56, 8, 'F1');
 
     $objects = [
         "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n",
         "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n",
-        "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >> endobj\n",
+        "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R /F3 6 0 R /F4 7 0 R >> >> /Contents 8 0 R >> endobj\n",
         "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n",
         "5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> endobj\n",
-        "6 0 obj << /Length " . strlen($stream) . " >> stream\n" . $stream . "\nendstream endobj\n",
+        "6 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Courier >> endobj\n",
+        "7 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold >> endobj\n",
+        "8 0 obj << /Length " . strlen($stream) . " >> stream\n" . $stream . "\nendstream endobj\n",
     ];
 
     $pdf = "%PDF-1.4\n";
