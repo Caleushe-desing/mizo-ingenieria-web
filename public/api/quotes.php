@@ -263,10 +263,11 @@ function quote_html(array $quote): string
 
     return '<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>' . esc($quote['number']) . '</title>'
         . '<style>
-            @page { size: letter; margin: 20mm 15mm 20mm 15mm; }
+            @page { size: letter; margin: 0; }
             *{box-sizing:border-box}
             html,body{margin:0;padding:0;background-color:#ffffff;color:#1e293b;font-family:Helvetica,Arial,sans-serif}
             body{font-size:12px;line-height:1.45}
+            .invoice-container{padding:25mm 20mm;min-height:100%;box-sizing:border-box;background:#ffffff}
             .page{width:100%;background:#ffffff;padding:0}
             .header{width:100%;border-collapse:collapse;margin:0 0 34px}
             .header td{border:0;padding:0;vertical-align:top}
@@ -298,7 +299,7 @@ function quote_html(array $quote): string
             .totals .grand .amount{font-size:24px;line-height:1.1}
             ul{margin:6px 0 0;padding-left:18px;color:#42526a;font-size:12px;line-height:1.55}
             .footer{margin-top:30px;border-top:1px solid #e2e8f0;padding-top:16px;font-size:10.5px;color:#64748b;text-align:center}
-        </style></head><body><main class="page">'
+        </style></head><body><div class="invoice-container"><main class="page">'
         . '<table class="header"><tr><td style="width:158px">' . str_replace('<img ', '<img class="brand-logo" ', $logoHtml) . '</td><td class="brand-copy"><strong>Ingeniería Audiovisual e Instalaciones Profesionales</strong>' . esc($company['address']) . '<br>' . esc($company['phone']) . ' · ' . esc($company['email']) . '<br>' . esc($company['website']) . '</td>'
         . '<td class="quote-meta"><p class="quote-label">Cotización profesional</p><h1>Presupuesto ' . esc($quote['number']) . '</h1><p class="meta-text">Fecha: ' . esc($quote['createdAt']) . '<br>Emitido por ventas@mizo.cl</p></td></tr></table>'
         . '<table class="columns"><tr><td><div class="panel"><p class="section-title">Cliente</p><p class="muted"><span class="strong">' . esc($client['name']) . '</span><br>' . esc($client['email']) . '<br>' . esc($client['phone']) . '<br>' . esc($client['address']) . '</p></div></td>'
@@ -307,7 +308,7 @@ function quote_html(array $quote): string
         . '<div class="totals-wrap"><table class="totals" align="right"><tr><td class="label">Subtotal neto</td><td class="amount">' . clp((int)$totals['subtotal']) . '</td></tr><tr><td class="label">' . esc($taxLabel) . '</td><td class="amount">' . clp((int)$totals['tax']) . '</td></tr><tr class="grand"><td class="label">Total a pagar</td><td class="amount">' . clp((int)$totals['total']) . '</td></tr></table></div><div style="clear:both"></div></section>'
         . '<section class="panel" style="margin-top:22px"><p class="section-title">Condiciones comerciales</p><ul>' . $conditions . '</ul></section>'
         . '<p class="footer">Cotización generada automáticamente por Mizo. Valores expresados en pesos chilenos e incluyen IVA cuando se indica. ' . esc($company['website']) . '</p>'
-        . '</main></body></html>';
+        . '</main></div></body></html>';
 }
 
 function ensure_dompdf(): void
