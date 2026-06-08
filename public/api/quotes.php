@@ -263,9 +263,9 @@ function quote_html(array $quote): string
 
     return '<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>' . esc($quote['number']) . '</title>'
         . '<style>
-            @page{margin:46px 44px}
+            @page { size: letter; margin: 20mm 15mm 20mm 15mm; }
             *{box-sizing:border-box}
-            html,body{margin:0;background:#ffffff;color:#172033;font-family:DejaVu Sans,Arial,Helvetica,sans-serif}
+            html,body{margin:0;padding:0;background-color:#ffffff;color:#1e293b;font-family:Helvetica,Arial,sans-serif}
             body{font-size:12px;line-height:1.45}
             .page{width:100%;background:#ffffff;padding:0}
             .header{width:100%;border-collapse:collapse;margin:0 0 34px}
@@ -283,11 +283,12 @@ function quote_html(array $quote): string
             .columns{width:100%;border-collapse:separate;border-spacing:0;margin:0 0 24px}
             .columns td{width:50%;border:0;padding:0;vertical-align:top}.columns td:first-child{padding-right:11px}.columns td:last-child{padding-left:11px}
             .items{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
-            .items th{padding:12px 10px;color:#64748b;text-align:left;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:900}
-            .items td{padding:17px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top}
+            .items th,.items td{padding:12px 10px;text-align:left;border-bottom:1px solid #e2e8f0}
+            .items th{color:#64748b;border-top:1px solid #e2e8f0;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:900}
+            .items td{vertical-align:top}
             .items .item-cell{width:52%}.items td strong{color:#172033;font-size:12px}.items td span{color:#94a3b8;font-size:10px}
             .right{text-align:right;white-space:nowrap}
-            .totals-wrap{width:100%;margin-top:26px;page-break-inside:avoid}
+            .totals-wrap{width:100%;margin-top:30px;page-break-inside:avoid}
             .totals{width:366px;margin-left:auto;border-collapse:collapse;table-layout:fixed}
             .totals td{padding:9px 0;border-bottom:1px solid #e2e8f0;vertical-align:middle}
             .totals .label{width:174px;color:#64748b;text-align:right;padding-right:28px}
