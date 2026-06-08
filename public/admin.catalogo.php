@@ -91,7 +91,7 @@
 							<p class="text-sm text-gray-500">Cargando reporte de discrepancias...</p>
 						</div>
 					</section>
-					<section class="mb-6 overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-sm">
+					<section id="cotizaciones" class="mb-6 scroll-mt-8 overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-sm">
 						<div class="border-b border-blue-100 bg-blue-50 px-5 py-4">
 							<p class="text-xs font-extrabold uppercase tracking-[0.18em] text-accent-main">Catálogo Maestro · Cotizaciones</p>
 							<div class="mt-1 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -1256,6 +1256,9 @@
 					renderProducts(payload);
 					loadQualityReview();
 					loadPedidos();
+					if (location.hash === '#cotizaciones') {
+						setTimeout(() => document.getElementById('cotizaciones')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+					}
 				} catch (_) {
 					err.classList.remove('hidden');
 				}
