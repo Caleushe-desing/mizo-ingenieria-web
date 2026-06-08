@@ -467,10 +467,68 @@ function quote_path(string $number, string $extension): string
     return quotes_dir() . '/' . $safe . '.' . $extension;
 }
 
+function quote_exists(string $number): bool
+{
+    return is_file(quote_path($number, 'json'));
+}
+
+function quote_base_number(string $number): string
+{
+    $safe = preg_replace('/[^A-Z0-9_-]/i', '', $number);
+    return preg_replace('/-Rev\d+$/i', '', $safe);
+}
+
+function quote_revision_number(string $number): int
+{
+    return preg_match('/-Rev(\d+)$/i', $number, $matches) ? max(0, (int)$matches[1]) : 0;
+}
+
+function next_revision_number(string $baseNumber): string
+{
+    $revision = 1;
+    do {
+        $number = $baseNumber . '-Rev' . $revision;
+        $revision++;
+    } while (quote_exists($number));
+
+    return $number;
+}
+
+function resolve_quote_identity(array $payload): array
+{
+    $requested = clean_text($payload['updateOf'] ?? $payload['number'] ?? '', 40);
+    if ($requested !== '') {
+        $baseNumber = quote_base_number($requested);
+        if ($baseNumber !== '' && (quote_exists($requested) || quote_exists($baseNumber))) {
+            $number = next_revision_number($baseNumber);
+            return [
+                'number' => $number,
+                'baseNumber' => $baseNumber,
+                'revision' => quote_revision_number($number),
+                'previousNumber' => $requested,
+            ];
+        }
+    }
+
+    $number = claim_quote_number();
+    return [
+        'number' => $number,
+        'baseNumber' => $number,
+        'revision' => 0,
+        'previousNumber' => '',
+    ];
+}
+
 function normalize_quote(array $quote): array
 {
     if (isset($quote['items']) && is_array($quote['items'])) {
         $quote['totals'] = quote_totals($quote['items']);
+    }
+    if (($quote['number'] ?? '') !== '') {
+        $quote['baseNumber'] = $quote['baseNumber'] ?? quote_base_number((string)$quote['number']);
+        $quote['revision'] = $quote['revision'] ?? quote_revision_number((string)$quote['number']);
+        $quote['pdfUrl'] = '/api/quotes.php?action=download&number=' . rawurlencode((string)$quote['number']);
+        $quote['htmlPreviewUrl'] = '/api/quotes.php?action=html&number=' . rawurlencode((string)$quote['number']);
     }
     return $quote;
 }
@@ -490,9 +548,12 @@ function build_quote(array $payload): array
         $conditions = $config['defaultConditions'];
     }
 
-    $number = claim_quote_number();
+    $identity = resolve_quote_identity($payload);
     return [
-        'number' => $number,
+        'number' => $identity['number'],
+        'baseNumber' => $identity['baseNumber'],
+        'revision' => $identity['revision'],
+        'previousNumber' => $identity['previousNumber'],
         'createdAt' => date('Y-m-d H:i:s'),
         'company' => [
             'companyName' => clean_text($company['companyName'] ?? 'Mizo', 120),

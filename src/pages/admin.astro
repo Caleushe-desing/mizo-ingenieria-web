@@ -179,6 +179,7 @@ const title = 'Panel central Mizo';
 										<input id="quote-email-to" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Enviar a email" />
 										<textarea id="quote-email-message" rows="3" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Mensaje del correo"></textarea>
 										<div class="mt-3 grid grid-cols-1 gap-2">
+											<button id="new-quote" type="button" class="rounded-xl border border-slate-300 px-4 py-3 text-sm font-black text-slate-700 hover:bg-slate-50">Nueva cotización en blanco</button>
 											<button id="save-quote" type="button" class="rounded-xl bg-accent-main px-4 py-3 text-sm font-black text-white hover:bg-accent-hover">Guardar cotización y generar PDF</button>
 											<button id="send-quote" type="button" class="rounded-xl border border-accent-main px-4 py-3 text-sm font-black text-accent-main hover:bg-accent-soft">Enviar PDF por email</button>
 										</div>
@@ -244,6 +245,7 @@ const title = 'Panel central Mizo';
 			let quoteConfig = null;
 			let quoteItems = [];
 			let currentQuote = null;
+			let editingQuoteNumber = null;
 			const TAX_RATE = 0.19;
 
 			function $(id) {
@@ -302,7 +304,7 @@ const title = 'Panel central Mizo';
 				$('view-title').textContent = views[view] || views.catalogo;
 				if (view === 'auditoria') loadQualityReview();
 				if (view === 'pedidos') loadPedidos();
-				if (view === 'cotizador') bootstrapQuotes();
+				if (view === 'cotizador' && !quoteConfig) bootstrapQuotes();
 				location.hash = view === 'catalogo' ? '' : view;
 			}
 
@@ -412,6 +414,28 @@ const title = 'Panel central Mizo';
 				return $('quote-conditions').value.split('\n').map((line) => line.trim()).filter(Boolean);
 			}
 
+			function fillQuoteClientForm(client = {}) {
+				$('quote-client-name').value = client.name || '';
+				$('quote-client-email').value = client.email || '';
+				$('quote-client-phone').value = client.phone || '';
+				$('quote-client-rut').value = client.rut || '';
+				$('quote-client-address').value = client.address || '';
+				$('quote-email-to').value = client.email || '';
+			}
+
+			function startNewQuote() {
+				currentQuote = null;
+				editingQuoteNumber = null;
+				quoteItems = [];
+				fillQuoteClientForm({});
+				$('quote-notes').value = '';
+				$('quote-email-message').value = '';
+				$('quote-saved-link').innerHTML = '';
+				renderQuoteItems();
+				bootstrapQuotes();
+				quoteMessage('Formulario limpio para una nueva cotización.', 'success');
+			}
+
 			function renderQuoteCatalogOptions(items) {
 				$('quote-catalog-product').innerHTML = '<option value="">Importar producto del catálogo Mizo</option>' + items.map((product) => {
 					const price = Number(product.sellingPrice || product.basePrice || 0);
@@ -440,9 +464,9 @@ const title = 'Panel central Mizo';
 					<article class="rounded-xl border border-slate-200 bg-slate-50 p-3">
 						<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 							<div class="min-w-0">
-								<p class="font-mono text-[0.68rem] font-black uppercase text-accent-main">${escapeHtml(item.sku || 'Manual')}</p>
+								${item.sku ? `<p class="font-mono text-[0.68rem] font-black uppercase text-accent-main">${escapeHtml(item.sku)}</p>` : ''}
 								<h4 class="mt-1 text-sm font-black">${escapeHtml(item.name)}</h4>
-								<p class="mt-1 text-xs font-semibold text-slate-500">${escapeHtml(item.source === 'catalog' ? 'Catálogo Mizo' : 'Ítem manual')}</p>
+								<p class="mt-1 text-xs font-semibold text-slate-500">${escapeHtml(item.source === 'catalog' ? 'Catálogo Mizo' : 'Ítem personalizado')}</p>
 							</div>
 							<button type="button" class="remove-quote-item text-xs font-black text-red-600" data-index="${index}">Eliminar</button>
 						</div>
@@ -505,7 +529,7 @@ const title = 'Panel central Mizo';
 				}
 				addQuoteItem({
 					source: 'manual',
-					sku: $('quote-manual-sku').value.trim() || 'MANUAL',
+					sku: $('quote-manual-sku').value.trim(),
 					name,
 					quantity: $('quote-manual-qty').value,
 					unitPrice: price,
@@ -515,15 +539,61 @@ const title = 'Panel central Mizo';
 				quoteMessage('Ítem manual agregado.', 'success');
 			}
 
+			async function loadQuoteForEditing(number) {
+				try {
+					quoteMessage(`Cargando ${number} para edición...`, 'info');
+					const data = await apiQuotes('get', { number });
+					const quote = data.quote;
+					currentQuote = quote;
+					editingQuoteNumber = quote.number;
+					quoteItems = Array.isArray(quote.items) ? quote.items.map((item) => ({
+						source: item.source || 'manual',
+						sku: item.sku || '',
+						name: item.name || '',
+						quantity: Math.max(1, Number(item.quantity) || 1),
+						unitPrice: Math.max(0, Number(item.unitPrice) || 0),
+					})) : [];
+					fillQuoteCompanyForm(quote.company || quoteConfig || {});
+					fillQuoteClientForm(quote.client || {});
+					$('quote-conditions').value = (quote.conditions || []).join('\n');
+					$('quote-notes').value = quote.notes || '';
+					$('quote-saved-link').innerHTML = `<a class="text-blue-200 underline" href="${escapeHtml(quote.pdfUrl)}" target="_blank" rel="noopener">Descargar ${escapeHtml(quote.number)}.pdf</a>`;
+					$('quote-next-number').textContent = `Editando: ${quote.number}`;
+					renderQuoteItems();
+					setView('cotizador');
+					quoteMessage(`Editando ${quote.number}. Al guardar se creará la siguiente revisión.`, 'success');
+				} catch (error) {
+					quoteMessage(error.message, 'error');
+				}
+			}
+
 			async function loadQuotesHistory() {
 				const container = $('quotes-history');
 				container.innerHTML = '<p class="text-slate-400">Cargando cotizaciones...</p>';
 				try {
 					const data = await apiQuotes('list');
 					const quotes = data.quotes || [];
-					container.innerHTML = quotes.length
-						? quotes.slice(0, 8).map((quote) => `<a class="block rounded-xl border border-slate-200 p-3 hover:bg-accent-soft" href="${escapeHtml(quote.pdfUrl)}" target="_blank" rel="noopener"><span class="font-black">${escapeHtml(quote.number)}</span><span class="block text-xs text-slate-500">${escapeHtml(quote.client || 'Cliente')} · ${clp(Number(quote.total) || 0)}</span></a>`).join('')
-						: '<p class="text-slate-400">Aún no hay cotizaciones guardadas.</p>';
+					if (!quotes.length) {
+						container.innerHTML = '<p class="text-slate-400">Aún no hay cotizaciones guardadas.</p>';
+						return;
+					}
+					container.innerHTML = quotes.slice(0, 8).map((quote) => `
+						<article class="rounded-xl border border-slate-200 p-3">
+							<div class="flex items-start justify-between gap-3">
+								<div class="min-w-0">
+									<p class="font-black text-slate-950">${escapeHtml(quote.number)}</p>
+									<p class="mt-1 text-xs text-slate-500">${escapeHtml(quote.client || 'Cliente')} · ${clp(Number(quote.total) || 0)}</p>
+								</div>
+								<div class="flex shrink-0 gap-2">
+									<button type="button" class="load-quote rounded-full bg-accent-soft px-3 py-1 text-xs font-black text-accent-main" data-number="${escapeHtml(quote.number)}">Editar</button>
+									<a class="rounded-full border border-slate-200 px-3 py-1 text-xs font-black text-slate-600 hover:bg-slate-50" href="${escapeHtml(quote.pdfUrl)}" target="_blank" rel="noopener">PDF</a>
+								</div>
+							</div>
+						</article>
+					`).join('');
+					container.querySelectorAll('.load-quote').forEach((button) => {
+						button.onclick = () => loadQuoteForEditing(button.dataset.number);
+					});
 				} catch (error) {
 					container.innerHTML = `<p class="text-red-600">${escapeHtml(error.message)}</p>`;
 				}
@@ -559,7 +629,9 @@ const title = 'Panel central Mizo';
 				}
 				try {
 					quoteMessage('Generando cotización y PDF...', 'info');
+					const updateOf = editingQuoteNumber || currentQuote?.number || '';
 					const data = await apiQuotes('create_quote', {
+						...(updateOf ? { updateOf } : {}),
 						company: quoteCompanyFromForm(),
 						client: quoteClientFromForm(),
 						items: quoteItems,
@@ -567,10 +639,11 @@ const title = 'Panel central Mizo';
 						notes: $('quote-notes').value.trim(),
 					});
 					currentQuote = data.quote;
+					editingQuoteNumber = currentQuote.number;
 					$('quote-next-number').textContent = `Presupuesto: ${data.nextNumber || ''}`;
 					$('quote-saved-link').innerHTML = `<a class="text-blue-200 underline" href="${escapeHtml(currentQuote.pdfUrl)}" target="_blank" rel="noopener">Descargar ${escapeHtml(currentQuote.number)}.pdf</a>`;
 					$('quote-email-to').value = currentQuote.client?.email || $('quote-client-email').value;
-					quoteMessage(`Cotización ${currentQuote.number} guardada correctamente.`, 'success');
+					quoteMessage(currentQuote.revision > 0 ? `Revisión ${currentQuote.number} guardada correctamente.` : `Cotización ${currentQuote.number} guardada correctamente.`, 'success');
 					await loadQuotesHistory();
 					return currentQuote;
 				} catch (error) {
@@ -667,6 +740,7 @@ const title = 'Panel central Mizo';
 			$('save-quote-config').addEventListener('click', saveQuoteConfig);
 			$('add-catalog-quote-item').addEventListener('click', addCatalogQuoteItem);
 			$('add-manual-quote-item').addEventListener('click', addManualQuoteItem);
+			$('new-quote').addEventListener('click', startNewQuote);
 			$('clear-quote-items').addEventListener('click', () => {
 				quoteItems = [];
 				currentQuote = null;
