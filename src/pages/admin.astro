@@ -1,0 +1,683 @@
+---
+const title = 'Panel central Mizo';
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="robots" content="noindex, nofollow" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
+		<title>{title}</title>
+		<script is:inline>
+			window.tailwind = window.tailwind || {};
+			window.tailwind.config = {
+				theme: {
+					extend: {
+						colors: {
+							'accent-main': '#1877f2',
+							'accent-soft': '#e7f0ff',
+							'accent-hover': '#166fe5',
+						},
+					},
+				},
+			};
+		</script>
+		<script is:inline src="https://cdn.tailwindcss.com"></script>
+		<style>
+			.view-panel { display: none; }
+			.view-panel.active { display: block; }
+			.nav-active { background: #1877f2; color: white; box-shadow: 0 10px 25px rgb(24 119 242 / 0.18); }
+		</style>
+	</head>
+	<body class="min-h-screen bg-slate-100 text-slate-950">
+		<main class="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col lg:flex-row">
+			<aside class="border-b border-slate-200 bg-white p-5 lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:border-b-0 lg:border-r">
+				<a href="/" class="flex items-center gap-3">
+					<img src="/mizo-logo.png" alt="Mizo" class="h-10 w-auto" onerror="this.src='/mizo-logo.svg';" />
+					<div>
+						<p class="text-xs font-black uppercase tracking-[0.22em] text-accent-main">Mizo Admin</p>
+						<h1 class="text-xl font-black">Panel central</h1>
+					</div>
+				</a>
+
+				<nav id="admin-nav" class="mt-6 grid grid-cols-2 gap-2 lg:grid-cols-1">
+					<button class="admin-nav-btn nav-active rounded-2xl px-4 py-3 text-left text-sm font-black" data-view="catalogo">Catálogo Maestro</button>
+					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="cotizador">Cotizador</button>
+					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="auditoria">Auditoría</button>
+					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="pedidos">Pedidos</button>
+				</nav>
+
+				<div class="mt-6 rounded-2xl border border-blue-100 bg-accent-soft p-4 text-sm text-slate-700">
+					<p class="font-black text-slate-950">Fuente única</p>
+					<p class="mt-1">Este panel lee el catálogo cifrado central de Mizo y evita catálogos paralelos en PHP.</p>
+				</div>
+			</aside>
+
+			<section class="flex-1 p-4 sm:p-6 lg:p-8">
+				<div id="login-card" class="mx-auto mt-10 max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+					<p class="text-xs font-black uppercase tracking-[0.2em] text-accent-main">Acceso privado</p>
+					<h2 class="mt-2 text-2xl font-black">Administrador Central Mizo</h2>
+					<p class="mt-2 text-sm text-slate-500">Ingresa la clave del panel para descifrar el catálogo maestro y operar cotizaciones.</p>
+					<form id="login-form" class="mt-6 space-y-3">
+						<input id="password" type="password" autocomplete="current-password" placeholder="Clave privada" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-accent-main focus:ring-2 focus:ring-blue-100" required />
+						<button class="w-full rounded-2xl bg-accent-main px-4 py-3 text-sm font-black text-white hover:bg-accent-hover">Entrar</button>
+						<p id="login-error" class="hidden text-sm font-semibold text-red-600">No se pudo abrir el panel. Revisa la clave o el archivo datos-privados.json.</p>
+					</form>
+				</div>
+
+				<div id="panel" class="hidden">
+					<header class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+						<div>
+							<p class="text-xs font-black uppercase tracking-[0.2em] text-accent-main">Administración unificada</p>
+							<h2 id="view-title" class="mt-1 text-3xl font-black">Catálogo Maestro</h2>
+							<p id="catalog-meta" class="mt-1 text-sm font-semibold text-slate-500"></p>
+						</div>
+						<button id="logout" class="self-start rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-50">Cerrar sesión</button>
+					</header>
+
+					<section id="view-catalogo" class="view-panel active">
+						<div id="catalog-summary" class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"></div>
+						<div class="mt-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+							<div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+								<div>
+									<h3 class="text-xl font-black">Catálogo unificado</h3>
+									<p class="text-sm text-slate-500">Productos disponibles para publicación, costos y cotizaciones.</p>
+								</div>
+								<input id="catalog-search" type="search" placeholder="Buscar por SKU, marca, producto o proveedor..." class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm lg:max-w-md" />
+							</div>
+							<p id="catalog-count" class="mt-4 text-sm font-semibold text-slate-500"></p>
+							<div id="catalog-list" class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2"></div>
+						</div>
+					</section>
+
+					<section id="view-cotizador" class="view-panel">
+						<div class="overflow-hidden rounded-3xl border border-blue-200 bg-white shadow-sm">
+							<div class="border-b border-blue-100 bg-blue-50 px-5 py-4">
+								<p class="text-xs font-black uppercase tracking-[0.2em] text-accent-main">Cotizador profesional</p>
+								<div class="mt-1 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+									<div>
+										<h3 class="text-2xl font-black">Nueva cotización Mizo</h3>
+										<p class="text-sm font-semibold text-blue-900">Correlativo seguro, productos del catálogo, ítems manuales, PDF y envío por email.</p>
+									</div>
+									<span id="quote-next-number" class="inline-flex self-start rounded-full bg-white px-4 py-2 text-xs font-black text-accent-main shadow-sm">Presupuesto: M1001</span>
+								</div>
+							</div>
+
+							<div class="grid grid-cols-1 gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+								<div class="space-y-5">
+									<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+										<div class="rounded-2xl border border-slate-200 p-4">
+											<div class="flex items-center justify-between gap-3">
+												<p class="text-sm font-black">Datos fijos de Mizo</p>
+												<button id="save-quote-config" type="button" class="text-xs font-black text-accent-main">Guardar config</button>
+											</div>
+											<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+												<input id="quote-company-name" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Empresa" />
+												<input id="quote-company-phone" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Teléfono" />
+												<input id="quote-company-email" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="ventas@mizo.cl" />
+												<input id="quote-company-address" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Dirección" />
+												<input id="quote-company-website" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Sitio web" />
+												<input id="quote-company-logo" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="URL/Base64 logo" />
+											</div>
+										</div>
+
+										<div class="rounded-2xl border border-slate-200 p-4">
+											<p class="text-sm font-black">Datos del cliente</p>
+											<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+												<input id="quote-client-name" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Nombre cliente" />
+												<input id="quote-client-email" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Email" />
+												<input id="quote-client-phone" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Teléfono" />
+												<input id="quote-client-rut" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="RUT / Código" />
+												<input id="quote-client-address" class="rounded-xl border border-slate-300 px-3 py-2 text-sm sm:col-span-2" placeholder="Dirección / comuna" />
+											</div>
+										</div>
+									</div>
+
+									<div class="rounded-2xl border border-slate-200 p-4">
+										<p class="text-sm font-black">Agregar ítems</p>
+										<div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.2fr)_90px_130px_auto]">
+											<select id="quote-catalog-product" class="rounded-xl border border-slate-300 px-3 py-2 text-sm">
+												<option value="">Importar producto del catálogo Mizo</option>
+											</select>
+											<input id="quote-catalog-qty" type="number" min="1" value="1" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Cant." />
+											<input id="quote-catalog-price" inputmode="numeric" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Precio opcional" />
+											<button id="add-catalog-quote-item" type="button" class="rounded-xl bg-slate-950 px-4 py-2 text-xs font-black text-white">Agregar catálogo</button>
+										</div>
+										<div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_120px_90px_130px_auto]">
+											<input id="quote-manual-name" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Ítem manual / servicio externo" />
+											<input id="quote-manual-sku" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="SKU temporal" />
+											<input id="quote-manual-qty" type="number" min="1" value="1" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Cant." />
+											<input id="quote-manual-price" inputmode="numeric" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Precio unit." />
+											<button id="add-manual-quote-item" type="button" class="rounded-xl bg-accent-main px-4 py-2 text-xs font-black text-white">Agregar manual</button>
+										</div>
+									</div>
+
+									<div class="rounded-2xl border border-slate-200 p-4">
+										<div class="flex items-center justify-between gap-3">
+											<p class="text-sm font-black">Detalle de cotización</p>
+											<button id="clear-quote-items" type="button" class="text-xs font-bold text-slate-500 hover:text-red-600">Limpiar ítems</button>
+										</div>
+										<div id="quote-items-list" class="mt-3 space-y-2"></div>
+									</div>
+								</div>
+
+								<aside class="space-y-4">
+									<div class="rounded-2xl bg-slate-950 p-5 text-white">
+										<p class="text-xs font-black uppercase tracking-[0.2em] text-blue-200">Total presupuesto</p>
+										<p id="quote-total" class="mt-2 text-3xl font-black">$0</p>
+										<p id="quote-saved-link" class="mt-3 text-xs font-semibold text-white/70"></p>
+									</div>
+									<div class="rounded-2xl border border-slate-200 p-4">
+										<p class="text-sm font-black">Condiciones comerciales</p>
+										<textarea id="quote-conditions" rows="6" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Vigencia, forma de pago y plazo. Una condición por línea."></textarea>
+										<textarea id="quote-notes" rows="3" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Notas internas / alcance"></textarea>
+									</div>
+									<div class="rounded-2xl border border-slate-200 p-4">
+										<p class="text-sm font-black">Generar y enviar</p>
+										<input id="quote-email-to" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Enviar a email" />
+										<textarea id="quote-email-message" rows="3" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Mensaje del correo"></textarea>
+										<div class="mt-3 grid grid-cols-1 gap-2">
+											<button id="save-quote" type="button" class="rounded-xl bg-accent-main px-4 py-3 text-sm font-black text-white hover:bg-accent-hover">Guardar cotización y generar PDF</button>
+											<button id="send-quote" type="button" class="rounded-xl border border-accent-main px-4 py-3 text-sm font-black text-accent-main hover:bg-accent-soft">Enviar PDF por email</button>
+										</div>
+										<p id="quote-message" class="mt-3 text-sm font-semibold text-slate-500"></p>
+									</div>
+									<div class="rounded-2xl border border-slate-200 p-4">
+										<div class="flex items-center justify-between">
+											<p class="text-sm font-black">Últimas cotizaciones</p>
+											<button id="refresh-quotes" type="button" class="text-xs font-bold text-accent-main">Actualizar</button>
+										</div>
+										<div id="quotes-history" class="mt-3 space-y-2 text-sm"></div>
+									</div>
+								</aside>
+							</div>
+						</div>
+					</section>
+
+					<section id="view-auditoria" class="view-panel">
+						<div class="rounded-3xl border border-amber-200 bg-white shadow-sm">
+							<div class="flex flex-col gap-2 border-b border-amber-100 bg-amber-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+								<div>
+									<p class="text-xs font-black uppercase tracking-[0.2em] text-amber-700">Control de calidad</p>
+									<h3 class="text-2xl font-black">Auditoría del Catálogo Maestro</h3>
+									<p class="text-sm font-semibold text-amber-900">Productos bajo revisión manual por diferencias de stock o precio frente al mayorista.</p>
+								</div>
+								<button id="refresh-quality-review" type="button" class="self-start rounded-full border border-amber-300 bg-white px-4 py-2 text-xs font-black text-amber-800 hover:bg-amber-100">Actualizar reporte</button>
+							</div>
+							<div id="quality-review-panel" class="p-5">
+								<p class="text-sm text-slate-500">Cargando reporte de discrepancias...</p>
+							</div>
+						</div>
+					</section>
+
+					<section id="view-pedidos" class="view-panel">
+						<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+							<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+								<div>
+									<h3 class="text-2xl font-black">Pedidos</h3>
+									<p class="text-sm text-slate-500">Vista operativa conectada a la función de pedidos existente.</p>
+								</div>
+								<button id="refresh-pedidos" type="button" class="rounded-full border border-slate-300 px-4 py-2 text-xs font-black text-slate-700 hover:bg-slate-50">Actualizar</button>
+							</div>
+							<div id="pedidos-list" class="mt-4">
+								<p class="text-sm text-slate-500">Inicia sesión para cargar pedidos.</p>
+							</div>
+						</div>
+					</section>
+				</div>
+			</section>
+		</main>
+
+		<script is:inline>
+			const fmt = new Intl.NumberFormat('es-CL');
+			const clp = (value) => '$' + fmt.format(Number(value) || 0);
+			const views = {
+				catalogo: 'Catálogo Maestro',
+				cotizador: 'Cotizador',
+				auditoria: 'Auditoría',
+				pedidos: 'Pedidos',
+			};
+			let adminPassword = '';
+			let allItems = [];
+			let quoteConfig = null;
+			let quoteItems = [];
+			let currentQuote = null;
+
+			function $(id) {
+				return document.getElementById(id);
+			}
+
+			function escapeHtml(value) {
+				return String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+					'&': '&amp;',
+					'<': '&lt;',
+					'>': '&gt;',
+					'"': '&quot;',
+					"'": '&#39;',
+				}[ch]));
+			}
+
+			function moneyNumber(value) {
+				return Number(String(value ?? '').replace(/[^\d-]/g, '')) || 0;
+			}
+
+			function b64ToBytes(b64) {
+				return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+			}
+
+			async function decryptData(password) {
+				const res = await fetch('/datos-privados.json', { cache: 'no-store' });
+				if (!res.ok) throw new Error('No existe datos-privados.json');
+				const data = await res.json();
+				const enc = new TextEncoder();
+				const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+				const key = await crypto.subtle.deriveKey(
+					{ name: 'PBKDF2', salt: b64ToBytes(data.salt), iterations: data.iterations, hash: 'SHA-256' },
+					baseKey,
+					{ name: 'AES-GCM', length: 256 },
+					false,
+					['decrypt']
+				);
+				const ptBuf = await crypto.subtle.decrypt(
+					{ name: 'AES-GCM', iv: b64ToBytes(data.iv) },
+					key,
+					b64ToBytes(data.ciphertext)
+				);
+				return JSON.parse(new TextDecoder().decode(ptBuf));
+			}
+
+			function setView(view) {
+				Object.keys(views).forEach((name) => {
+					$(`view-${name}`).classList.toggle('active', name === view);
+				});
+				document.querySelectorAll('.admin-nav-btn').forEach((button) => {
+					const active = button.dataset.view === view;
+					button.classList.toggle('nav-active', active);
+					button.classList.toggle('text-slate-600', !active);
+					button.classList.toggle('hover:bg-accent-soft', !active);
+				});
+				$('view-title').textContent = views[view] || views.catalogo;
+				if (view === 'auditoria') loadQualityReview();
+				if (view === 'pedidos') loadPedidos();
+				if (view === 'cotizador') bootstrapQuotes();
+				location.hash = view === 'catalogo' ? '' : view;
+			}
+
+			function renderCatalog(payload) {
+				allItems = Array.isArray(payload.products) ? payload.products : [];
+				const totalCompra = allItems.reduce((sum, item) => sum + Number(item.basePrice || 0), 0);
+				const totalVenta = allItems.reduce((sum, item) => sum + Number(item.sellingPrice || item.basePrice || 0), 0);
+				$('catalog-meta').textContent = `${allItems.length} productos · datos al ${payload.generatedAt || 'catálogo cifrado'}`;
+				$('catalog-summary').innerHTML = [
+					['Productos', allItems.length],
+					['Costo total compra', clp(totalCompra)],
+					['Total publicado', clp(totalVenta)],
+					['Ganancia estimada', clp(totalVenta - totalCompra)],
+				].map(([label, value]) => `<article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-xs font-black uppercase tracking-wide text-slate-400">${label}</p><p class="mt-2 text-2xl font-black">${value}</p></article>`).join('');
+				renderCatalogList(allItems);
+				renderQuoteCatalogOptions(allItems);
+			}
+
+			function renderCatalogList(items) {
+				$('catalog-count').textContent = `${items.length} de ${allItems.length} productos`;
+				$('catalog-list').innerHTML = items.slice(0, 120).map((item) => {
+					const price = Number(item.sellingPrice || item.basePrice || 0);
+					return `<article class="rounded-2xl border border-slate-200 bg-white p-4">
+						<div class="flex gap-4">
+							<div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-2">
+								<img src="${escapeHtml(item.image || '/mizo-logo.svg')}" alt="${escapeHtml(item.name)}" class="max-h-full max-w-full object-contain" loading="lazy" onerror="this.src='/mizo-logo.svg';" />
+							</div>
+							<div class="min-w-0 flex-1">
+								<p class="font-mono text-xs font-black text-accent-main">${escapeHtml(item.sku || item.id || 'SKU')}</p>
+								<h4 class="mt-1 line-clamp-2 text-sm font-black">${escapeHtml(item.name)}</h4>
+								<p class="mt-1 text-xs font-bold uppercase tracking-wide text-slate-500">${escapeHtml(item.brand || item.store || 'Mizo')}</p>
+								<div class="mt-3 flex flex-wrap gap-2 text-xs font-black">
+									<span class="rounded-full bg-slate-100 px-3 py-1">Stock ${escapeHtml(item.stock ?? '—')}</span>
+									<span class="rounded-full bg-blue-50 px-3 py-1 text-accent-main">${clp(price)}</span>
+								</div>
+							</div>
+						</div>
+					</article>`;
+				}).join('');
+			}
+
+			function filterCatalog() {
+				const query = $('catalog-search').value.trim().toLowerCase();
+				if (!query) {
+					renderCatalogList(allItems);
+					return;
+				}
+				renderCatalogList(allItems.filter((item) => [
+					item.id, item.sku, item.name, item.brand, item.store, item.category,
+				].some((value) => String(value || '').toLowerCase().includes(query))));
+			}
+
+			async function apiQuotes(action, payload = {}) {
+				const response = await fetch('/api/quotes.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+					cache: 'no-store',
+					body: JSON.stringify({ action, password: adminPassword, ...payload }),
+				});
+				const data = await response.json();
+				if (!response.ok || !data?.ok) throw new Error(data?.error || 'No se pudo operar con cotizaciones.');
+				return data;
+			}
+
+			function quoteMessage(text, type = 'info') {
+				const el = $('quote-message');
+				el.textContent = text;
+				el.className = 'mt-3 text-sm font-semibold ' + (type === 'error' ? 'text-red-600' : type === 'success' ? 'text-green-700' : 'text-slate-500');
+			}
+
+			function quoteCompanyFromForm() {
+				return {
+					companyName: $('quote-company-name').value.trim(),
+					phone: $('quote-company-phone').value.trim(),
+					email: $('quote-company-email').value.trim(),
+					address: $('quote-company-address').value.trim(),
+					website: $('quote-company-website').value.trim(),
+					logo: $('quote-company-logo').value.trim(),
+				};
+			}
+
+			function fillQuoteCompanyForm(config) {
+				quoteConfig = config || {};
+				$('quote-company-name').value = quoteConfig.companyName || 'Mizo';
+				$('quote-company-phone').value = quoteConfig.phone || '';
+				$('quote-company-email').value = quoteConfig.email || 'ventas@mizo.cl';
+				$('quote-company-address').value = quoteConfig.address || 'Puerto Montt, Chile';
+				$('quote-company-website').value = quoteConfig.website || 'https://mizo.cl';
+				$('quote-company-logo').value = quoteConfig.logo || '/mizo-logo.png';
+				$('quote-conditions').value = (quoteConfig.defaultConditions || [
+					'Vigencia de la cotización: 5 días.',
+					'Forma de pago: Transferencia electrónica.',
+				]).join('\n');
+			}
+
+			function quoteClientFromForm() {
+				return {
+					name: $('quote-client-name').value.trim(),
+					email: $('quote-client-email').value.trim(),
+					phone: $('quote-client-phone').value.trim(),
+					rut: $('quote-client-rut').value.trim(),
+					address: $('quote-client-address').value.trim(),
+				};
+			}
+
+			function quoteConditionsFromForm() {
+				return $('quote-conditions').value.split('\n').map((line) => line.trim()).filter(Boolean);
+			}
+
+			function renderQuoteCatalogOptions(items) {
+				$('quote-catalog-product').innerHTML = '<option value="">Importar producto del catálogo Mizo</option>' + items.map((product) => {
+					const price = Number(product.sellingPrice || product.basePrice || 0);
+					return `<option value="${escapeHtml(product.id)}">${escapeHtml(product.sku || product.id)} · ${escapeHtml(product.brand || '')} ${escapeHtml(product.name)} · ${clp(price)}</option>`;
+				}).join('');
+			}
+
+			function quoteTotal() {
+				return quoteItems.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.unitPrice)), 0);
+			}
+
+			function renderQuoteItems() {
+				const list = $('quote-items-list');
+				$('quote-total').textContent = clp(quoteTotal());
+				if (!quoteItems.length) {
+					list.innerHTML = '<div class="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm font-semibold text-slate-400">Aún no hay ítems en esta cotización.</div>';
+					return;
+				}
+				list.innerHTML = quoteItems.map((item, index) => `
+					<article class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+						<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+							<div class="min-w-0">
+								<p class="font-mono text-[0.68rem] font-black uppercase text-accent-main">${escapeHtml(item.sku || 'Manual')}</p>
+								<h4 class="mt-1 text-sm font-black">${escapeHtml(item.name)}</h4>
+								<p class="mt-1 text-xs font-semibold text-slate-500">${escapeHtml(item.source === 'catalog' ? 'Catálogo Mizo' : 'Ítem manual')}</p>
+							</div>
+							<button type="button" class="remove-quote-item text-xs font-black text-red-600" data-index="${index}">Eliminar</button>
+						</div>
+						<div class="mt-3 grid grid-cols-3 gap-2 text-sm">
+							<div><p class="text-xs text-slate-500">Cantidad</p><p class="font-black">${Number(item.quantity)}</p></div>
+							<div><p class="text-xs text-slate-500">Unitario</p><p class="font-black">${clp(Number(item.unitPrice))}</p></div>
+							<div><p class="text-xs text-slate-500">Total</p><p class="font-black">${clp(Number(item.quantity) * Number(item.unitPrice))}</p></div>
+						</div>
+					</article>
+				`).join('');
+				list.querySelectorAll('.remove-quote-item').forEach((button) => {
+					button.onclick = () => {
+						quoteItems.splice(Number(button.dataset.index), 1);
+						currentQuote = null;
+						$('quote-saved-link').innerHTML = '';
+						renderQuoteItems();
+					};
+				});
+			}
+
+			function addQuoteItem(item) {
+				quoteItems.push({
+					source: item.source || 'manual',
+					sku: item.sku || '',
+					name: item.name,
+					quantity: Math.max(1, Number(item.quantity) || 1),
+					unitPrice: Math.max(0, moneyNumber(item.unitPrice)),
+				});
+				currentQuote = null;
+				$('quote-saved-link').innerHTML = '';
+				renderQuoteItems();
+			}
+
+			function addCatalogQuoteItem() {
+				const product = allItems.find((item) => item.id === $('quote-catalog-product').value);
+				if (!product) {
+					quoteMessage('Selecciona un producto del catálogo.', 'error');
+					return;
+				}
+				const overridePrice = moneyNumber($('quote-catalog-price').value);
+				addQuoteItem({
+					source: 'catalog',
+					sku: product.sku || product.id,
+					name: `${product.brand || ''} ${product.name}`.trim(),
+					quantity: $('quote-catalog-qty').value,
+					unitPrice: overridePrice || Number(product.sellingPrice || product.basePrice || 0),
+				});
+				$('quote-catalog-product').value = '';
+				$('quote-catalog-price').value = '';
+				$('quote-catalog-qty').value = '1';
+				quoteMessage('Producto agregado a la cotización.', 'success');
+			}
+
+			function addManualQuoteItem() {
+				const name = $('quote-manual-name').value.trim();
+				const price = moneyNumber($('quote-manual-price').value);
+				if (!name || !price) {
+					quoteMessage('Completa nombre y precio unitario del ítem manual.', 'error');
+					return;
+				}
+				addQuoteItem({
+					source: 'manual',
+					sku: $('quote-manual-sku').value.trim() || 'MANUAL',
+					name,
+					quantity: $('quote-manual-qty').value,
+					unitPrice: price,
+				});
+				['quote-manual-name', 'quote-manual-sku', 'quote-manual-price'].forEach((id) => $(id).value = '');
+				$('quote-manual-qty').value = '1';
+				quoteMessage('Ítem manual agregado.', 'success');
+			}
+
+			async function loadQuotesHistory() {
+				const container = $('quotes-history');
+				container.innerHTML = '<p class="text-slate-400">Cargando cotizaciones...</p>';
+				try {
+					const data = await apiQuotes('list');
+					const quotes = data.quotes || [];
+					container.innerHTML = quotes.length
+						? quotes.slice(0, 8).map((quote) => `<a class="block rounded-xl border border-slate-200 p-3 hover:bg-accent-soft" href="${escapeHtml(quote.pdfUrl)}" target="_blank" rel="noopener"><span class="font-black">${escapeHtml(quote.number)}</span><span class="block text-xs text-slate-500">${escapeHtml(quote.client || 'Cliente')} · ${clp(Number(quote.total) || 0)}</span></a>`).join('')
+						: '<p class="text-slate-400">Aún no hay cotizaciones guardadas.</p>';
+				} catch (error) {
+					container.innerHTML = `<p class="text-red-600">${escapeHtml(error.message)}</p>`;
+				}
+			}
+
+			async function bootstrapQuotes() {
+				try {
+					const data = await apiQuotes('bootstrap');
+					$('quote-next-number').textContent = `Presupuesto: ${data.nextNumber || 'M1001'}`;
+					fillQuoteCompanyForm(data.config || {});
+					renderQuoteItems();
+					await loadQuotesHistory();
+				} catch (error) {
+					quoteMessage(error.message, 'error');
+				}
+			}
+
+			async function saveQuoteConfig() {
+				try {
+					const config = { ...quoteCompanyFromForm(), defaultConditions: quoteConditionsFromForm() };
+					const data = await apiQuotes('save_config', { config });
+					fillQuoteCompanyForm(data.config || config);
+					quoteMessage('Datos fijos de Mizo guardados.', 'success');
+				} catch (error) {
+					quoteMessage(error.message, 'error');
+				}
+			}
+
+			async function saveQuote() {
+				if (!quoteItems.length) {
+					quoteMessage('Agrega al menos un ítem antes de guardar.', 'error');
+					return null;
+				}
+				try {
+					quoteMessage('Generando cotización y PDF...', 'info');
+					const data = await apiQuotes('create_quote', {
+						company: quoteCompanyFromForm(),
+						client: quoteClientFromForm(),
+						items: quoteItems,
+						conditions: quoteConditionsFromForm(),
+						notes: $('quote-notes').value.trim(),
+					});
+					currentQuote = data.quote;
+					$('quote-next-number').textContent = `Presupuesto: ${data.nextNumber || ''}`;
+					$('quote-saved-link').innerHTML = `<a class="text-blue-200 underline" href="${escapeHtml(currentQuote.pdfUrl)}" target="_blank" rel="noopener">Descargar ${escapeHtml(currentQuote.number)}.pdf</a>`;
+					$('quote-email-to').value = currentQuote.client?.email || $('quote-client-email').value;
+					quoteMessage(`Cotización ${currentQuote.number} guardada correctamente.`, 'success');
+					await loadQuotesHistory();
+					return currentQuote;
+				} catch (error) {
+					quoteMessage(error.message, 'error');
+					return null;
+				}
+			}
+
+			async function sendQuote() {
+				const quote = currentQuote || await saveQuote();
+				if (!quote) return;
+				try {
+					quoteMessage('Enviando PDF por correo...', 'info');
+					const data = await apiQuotes('send_quote', {
+						number: quote.number,
+						to: $('quote-email-to').value.trim(),
+						message: $('quote-email-message').value.trim(),
+					});
+					quoteMessage(data.sent ? `Cotización ${quote.number} enviada por email.` : data.error || 'El servidor no confirmó el envío.', data.sent ? 'success' : 'error');
+				} catch (error) {
+					quoteMessage(error.message, 'error');
+				}
+			}
+
+			function renderQualityReview(products) {
+				if (!products.length) {
+					$('quality-review-panel').innerHTML = '<div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm font-black text-emerald-700">✅ Inventario 100% cuadrado con los mayoristas.</div>';
+					return;
+				}
+				$('quality-review-panel').innerHTML = `<div class="overflow-x-auto"><table class="min-w-full text-sm"><thead class="bg-slate-950 text-white"><tr><th class="px-4 py-3 text-left">SKU</th><th class="px-4 py-3 text-right">Stock proveedor</th><th class="px-4 py-3 text-right">Stock Mizo</th><th class="px-4 py-3 text-right">Precio proveedor</th><th class="px-4 py-3 text-right">Precio Mizo</th></tr></thead><tbody>${products.map((product) => `<tr class="border-b border-slate-100"><td class="px-4 py-3 font-mono font-black text-accent-main">${escapeHtml(product.sku)}</td><td class="px-4 py-3 text-right font-semibold">${escapeHtml(product.stock_proveedor ?? '—')}</td><td class="px-4 py-3 text-right font-semibold">${escapeHtml(product.stock_mizo ?? '—')}</td><td class="px-4 py-3 text-right font-semibold">${product.precio_proveedor == null ? '—' : clp(product.precio_proveedor)}</td><td class="px-4 py-3 text-right font-semibold">${product.precio_mizo == null ? '—' : clp(product.precio_mizo)}</td></tr>`).join('')}</tbody></table></div>`;
+			}
+
+			async function loadQualityReview() {
+				$('quality-review-panel').innerHTML = '<p class="text-sm text-slate-500">Cargando reporte de discrepancias...</p>';
+				try {
+					const response = await fetch('/api-productos-en-revision.php?ts=' + Date.now(), { headers: { Accept: 'application/json' }, cache: 'no-store' });
+					const payload = await response.json();
+					if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'No se pudo leer el reporte.');
+					renderQualityReview(Array.isArray(payload.products) ? payload.products : []);
+				} catch (error) {
+					console.warn('No se pudo cargar productos bajo revisión.', error);
+					renderQualityReview([]);
+				}
+			}
+
+			async function loadPedidos() {
+				const list = $('pedidos-list');
+				list.innerHTML = '<p class="text-sm text-slate-500">Cargando pedidos...</p>';
+				try {
+					const response = await fetch('/.netlify/functions/pedidos-api', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ password: adminPassword, action: 'list' }),
+					});
+					const data = await response.json();
+					if (!response.ok) throw new Error(data.error || 'No se pudieron cargar pedidos.');
+					const orders = data.orders || [];
+					list.innerHTML = orders.length
+						? orders.slice(0, 40).map((order) => `<article class="mb-3 rounded-2xl border border-slate-200 p-4"><p class="font-black">${escapeHtml(order.id || 'Pedido')}</p><p class="text-sm text-slate-500">${escapeHtml(order.customer?.name || 'Cliente')} · ${clp(order.total || 0)}</p></article>`).join('')
+						: '<p class="text-sm text-slate-500">Aún no hay pedidos registrados.</p>';
+				} catch (error) {
+					list.innerHTML = `<p class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-600">${escapeHtml(error.message)}</p>`;
+				}
+			}
+
+			$('login-form').addEventListener('submit', async (event) => {
+				event.preventDefault();
+				$('login-error').classList.add('hidden');
+				try {
+					const password = $('password').value;
+					const payload = await decryptData(password);
+					adminPassword = password;
+					$('login-card').classList.add('hidden');
+					$('panel').classList.remove('hidden');
+					renderCatalog(payload);
+					renderQuoteItems();
+					await bootstrapQuotes();
+					await loadQualityReview();
+					const initial = (location.hash || '').replace('#', '');
+					setView(views[initial] ? initial : initial === 'cotizaciones' ? 'cotizador' : 'catalogo');
+				} catch (error) {
+					console.warn(error);
+					$('login-error').classList.remove('hidden');
+				}
+			});
+
+			document.querySelectorAll('.admin-nav-btn').forEach((button) => {
+				button.addEventListener('click', () => setView(button.dataset.view));
+			});
+			$('logout').addEventListener('click', () => location.reload());
+			$('catalog-search').addEventListener('input', filterCatalog);
+			$('refresh-quality-review').addEventListener('click', loadQualityReview);
+			$('refresh-pedidos').addEventListener('click', loadPedidos);
+			$('save-quote-config').addEventListener('click', saveQuoteConfig);
+			$('add-catalog-quote-item').addEventListener('click', addCatalogQuoteItem);
+			$('add-manual-quote-item').addEventListener('click', addManualQuoteItem);
+			$('clear-quote-items').addEventListener('click', () => {
+				quoteItems = [];
+				currentQuote = null;
+				$('quote-saved-link').innerHTML = '';
+				renderQuoteItems();
+			});
+			$('save-quote').addEventListener('click', saveQuote);
+			$('send-quote').addEventListener('click', sendQuote);
+			$('refresh-quotes').addEventListener('click', loadQuotesHistory);
+			$('quote-client-email').addEventListener('input', (event) => {
+				$('quote-email-to').value = event.target.value;
+			});
+			['quote-catalog-price', 'quote-manual-price'].forEach((id) => {
+				$(id).addEventListener('blur', (event) => {
+					const value = moneyNumber(event.target.value);
+					if (value) event.target.value = clp(value);
+				});
+			});
+		</script>
+	</body>
+</html>

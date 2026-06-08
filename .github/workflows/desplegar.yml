@@ -66,5 +66,15 @@ jobs:
                       ftp.storbinary(f"STOR {remote_path}", file)
 
           upload_dir(local_root, remote_root)
+          for obsolete_path in (
+              "/public_html/admin.catalogo.php",
+              "/public_html/admin-catalogo.php",
+          ):
+              try:
+                  print(f"Eliminando obsoleto {obsolete_path}")
+                  ftp.delete(obsolete_path)
+              except ftplib.error_perm as error:
+                  if not str(error).startswith("550"):
+                      raise
           ftp.quit()
           PY
