@@ -244,6 +244,7 @@ const title = 'Panel central Mizo';
 			let quoteConfig = null;
 			let quoteItems = [];
 			let currentQuote = null;
+			const TAX_RATE = 0.19;
 
 			function $(id) {
 				return document.getElementById(id);
@@ -390,7 +391,7 @@ const title = 'Panel central Mizo';
 				$('quote-company-email').value = quoteConfig.email || 'ventas@mizo.cl';
 				$('quote-company-address').value = quoteConfig.address || 'Puerto Montt, Chile';
 				$('quote-company-website').value = quoteConfig.website || 'https://mizo.cl';
-				$('quote-company-logo').value = quoteConfig.logo || '/mizo-logo.png';
+				$('quote-company-logo').value = quoteConfig.logo || '/mizo-logo.svg';
 				$('quote-conditions').value = (quoteConfig.defaultConditions || [
 					'Vigencia de la cotización: 5 días.',
 					'Forma de pago: Transferencia electrónica.',
@@ -422,9 +423,15 @@ const title = 'Panel central Mizo';
 				return quoteItems.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.unitPrice)), 0);
 			}
 
+			function quoteGrandTotal() {
+				const subtotal = quoteTotal();
+				return subtotal + Math.round(subtotal * TAX_RATE);
+			}
+
 			function renderQuoteItems() {
 				const list = $('quote-items-list');
-				$('quote-total').textContent = clp(quoteTotal());
+				const subtotal = quoteTotal();
+				$('quote-total').innerHTML = `${clp(quoteGrandTotal())}<span class="mt-1 block text-sm font-bold text-white/60">Incluye IVA 19% · Neto ${clp(subtotal)}</span>`;
 				if (!quoteItems.length) {
 					list.innerHTML = '<div class="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm font-semibold text-slate-400">Aún no hay ítems en esta cotización.</div>';
 					return;
