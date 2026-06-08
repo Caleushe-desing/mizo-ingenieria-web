@@ -260,15 +260,10 @@ function quote_html(array $quote): string
         $conditions .= '<li style="margin:0 0 4pt 0;">' . esc((string)$condition) . '</li>';
     }
 
-    $logoHtml = '<table class="brand-table">
-            <tr>
-                <td class="brand-mark">M</td>
-                <td>
-                    <div class="brand-name">MIZO</div>
-                    <div class="company-title">Ingeniería audiovisual e instalaciones profesionales</div>
-                </td>
-            </tr>
-        </table>';
+    $logo = quote_asset_data_uri('/mizo-logo-pdf.png');
+    $logoHtml = $logo !== ''
+        ? '<img src="' . esc($logo) . '" class="logo-img" width="180" style="width:180pt;height:auto;display:block;">'
+        : '<span style="font-size:22pt;font-weight:bold;color:#0f172a;">MIZO</span>';
 
     return '<!DOCTYPE html>
     <html>
@@ -292,29 +287,26 @@ function quote_html(array $quote): string
                 line-height: 1.5; 
                 padding: 42pt 38pt;
             }
-            .header-table { width: 100%; margin-bottom: 28pt; border-collapse: collapse; }
-            .brand-table { border-collapse: collapse; }
-            .brand-table td { vertical-align: middle; }
-            .brand-mark { width: 34pt; height: 34pt; background-color: #1877f2; color: #ffffff; font-size: 18pt; font-weight: bold; text-align: center; line-height: 34pt; border-radius: 8pt; }
-            .brand-name { margin-left: 10pt; font-size: 21pt; font-weight: bold; color: #0f172a; letter-spacing: 1.2pt; line-height: 1; }
-            .company-title { margin-left: 10pt; margin-top: 4pt; font-size: 8.5pt; color: #64748b; font-style: italic; }
+            .header-table { width: 100%; margin-bottom: 30pt; border-collapse: collapse; }
+            .logo-img { width: 180pt; height: auto; display: block; }
+            .company-title { margin-top: 5pt; font-size: 8.5pt; color: #475569; font-style: italic; }
             
-            .info-table { width: 100%; margin-bottom: 24pt; border-collapse: collapse; }
-            .info-box { width: 48%; padding: 13pt; background-color: #ffffff; border: 1px solid #e2e8f0; vertical-align: top; }
-            .info-title { font-size: 9pt; font-weight: bold; color: #0284c7; text-transform: uppercase; margin-bottom: 5pt; }
+            .info-table { width: 100%; margin-bottom: 26pt; border-collapse: collapse; }
+            .info-box { width: 48%; padding: 13pt; background-color: #ffffff; border: 1.4pt solid #94a3b8; vertical-align: top; }
+            .info-title { font-size: 9pt; font-weight: bold; color: #0f172a; text-transform: uppercase; margin-bottom: 6pt; border-bottom: 1pt solid #0284c7; padding-bottom: 4pt; }
             
             .items-table { width: 100%; border-collapse: collapse; margin-top: 12pt; margin-bottom: 24pt; }
-            .items-table th { background-color: #f8fafc; color: #475569; padding: 10pt 10pt; font-weight: bold; font-size: 8.5pt; text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; }
-            .items-table td { padding: 11pt 10pt; border-bottom: 1px solid #e2e8f0; font-size: 9.5pt; color: #334155; vertical-align: top; }
+            .items-table th { background-color: #0f172a; color: #ffffff; padding: 10pt 10pt; font-weight: bold; font-size: 8.5pt; text-align: left; border-bottom: 1.4pt solid #0f172a; text-transform: uppercase; }
+            .items-table td { padding: 12pt 10pt; border-bottom: 1.2pt solid #94a3b8; font-size: 9.5pt; color: #334155; vertical-align: top; }
             
             .bottom-table { width: 100%; border-collapse: collapse; margin-top: 18pt; }
             .conditions-td { width: 55%; vertical-align: top; font-size: 8.5pt; color: #64748b; padding-right: 15pt; }
             .totals-td { width: 45%; vertical-align: top; }
             
-            .totals-table { width: 100%; border-collapse: collapse; background-color: #ffffff; border-top: 2px solid #0284c7; }
-            .totals-table td { padding: 8pt 0 8pt 12pt; font-size: 9.5pt; border-bottom: 1px solid #e2e8f0; }
+            .totals-table { width: 100%; border-collapse: collapse; background-color: #ffffff; border-top: 2.2pt solid #0f172a; }
+            .totals-table td { padding: 8pt 0 8pt 12pt; font-size: 9.5pt; border-bottom: 1.2pt solid #94a3b8; }
             .totals-table td:last-child { text-align: right; font-weight: bold; white-space: nowrap; }
-            .totals-table .total-row { font-size: 12pt; font-weight: bold; color: #0f172a; background-color: #f8fafc; }
+            .totals-table .total-row { font-size: 12pt; font-weight: bold; color: #0f172a; background-color: #e2e8f0; }
         </style>
     </head>
     <body>
@@ -322,6 +314,7 @@ function quote_html(array $quote): string
             <tr>
                 <td style="vertical-align: top;">
                     ' . $logoHtml . '
+                    <div class="company-title">Ingeniería audiovisual e instalaciones profesionales</div>
                 </td>
                 <td style="text-align: right; vertical-align: top;">
                     <div style="font-size: 14pt; font-weight: bold; color: #0f172a; letter-spacing: 1px;">PRESUPUESTO</div>
