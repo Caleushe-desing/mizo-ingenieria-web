@@ -89,7 +89,7 @@ function default_config(): array
         'email' => DEFAULT_FROM,
         'address' => 'Puerto Montt, Chile',
         'website' => 'https://mizo.cl',
-        'logo' => '/mizo-logo.png',
+        'logo' => '/mizo-logo.svg',
         'defaultConditions' => [
             'Vigencia de la cotización: 5 días.',
             'Forma de pago: Transferencia electrónica.',
@@ -201,6 +201,16 @@ function clp(int $value): string
     return '$' . number_format($value, 0, ',', '.');
 }
 
+function item_reference(array $item): string
+{
+    $source = strtolower((string)($item['source'] ?? ''));
+    $sku = trim((string)($item['sku'] ?? ''));
+    if ($source === 'manual' || strtolower($sku) === 'manual') {
+        return '';
+    }
+    return $sku;
+}
+
 function esc(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -213,8 +223,9 @@ function quote_html(array $quote): string
     $totals = $quote['totals'];
     $rows = '';
     foreach ($quote['items'] as $item) {
+        $reference = item_reference($item);
         $rows .= '<tr>'
-            . '<td><strong>' . esc($item['name']) . '</strong><br><span>' . esc($item['sku'] ?: 'Manual') . '</span></td>'
+            . '<td><strong>' . esc($item['name']) . '</strong>' . ($reference !== '' ? '<br><span>' . esc($reference) . '</span>' : '') . '</td>'
             . '<td class="right">' . (int)$item['quantity'] . '</td>'
             . '<td class="right">' . clp((int)$item['unitPrice']) . '</td>'
             . '<td class="right">' . clp((int)$item['total']) . '</td>'
@@ -232,27 +243,27 @@ function quote_html(array $quote): string
 
     return '<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>' . esc($quote['number']) . '</title>'
         . '<style>
-            body{font-family:Arial,Helvetica,sans-serif;color:#111827;margin:0;background:#e5e7eb}
-            .page{max-width:920px;margin:0 auto;background:#fff;min-height:100vh}
-            .hero{background:#0f172a;color:#fff;padding:34px 42px 28px;border-bottom:6px solid #1877f2}
-            .top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}
-            img{max-width:170px;max-height:74px;object-fit:contain}.logo-fallback{font-size:34px;font-weight:900;color:#fff}
-            h1{margin:0;font-size:32px}.doc-label{color:#93c5fd;font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
-            .content{padding:34px 42px 42px}.muted{color:#6b7280;font-size:13px;line-height:1.55}.box{border:1px solid #e5e7eb;border-radius:18px;padding:18px;background:#fff}
-            .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}.box-title{font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#1877f2}
-            table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}th{background:#111827;color:#fff;text-align:left;padding:13px}td{border-bottom:1px solid #e5e7eb;padding:13px;vertical-align:top}
-            td span{color:#6b7280;font-size:11px}.right{text-align:right}.totals{margin-left:auto;margin-top:20px;width:320px;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden}
-            .totals-row{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:13px}.totals-row strong{font-size:20px;color:#1877f2}.grand{background:#eff6ff;font-weight:900}
-            ul{margin:10px 0 0;padding-left:18px}.footer{margin-top:28px;border-top:1px solid #e5e7eb;padding-top:18px;font-size:12px;color:#6b7280;text-align:center}
+            body{font-family:Arial,Helvetica,sans-serif;color:#1e293b;margin:0;background:#f1f5f9}
+            .page{max-width:920px;margin:0 auto;background:#fff;min-height:100vh;padding:44px}
+            .top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding-bottom:24px}
+            img{max-width:165px;max-height:50px;object-fit:contain}.logo-fallback{font-size:30px;font-weight:900;color:#1877f2}
+            h1{margin:0;color:#1e293b;font-size:28px}.doc-label{color:#1877f2;font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+            .muted{color:#64748b;font-size:13px;line-height:1.55}.box{border:1px solid #e2e8f0;border-radius:18px;padding:18px;background:#fff}
+            .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:26px 0}.box-title{font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#1877f2}
+            table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}th{background:#f8fafc;color:#475569;text-align:left;padding:13px;border-bottom:1px solid #e2e8f0}
+            td{border-bottom:1px solid #e2e8f0;padding:16px 13px;vertical-align:top}td span{color:#94a3b8;font-size:11px}.right{text-align:right;white-space:nowrap}
+            .totals{margin-left:auto;margin-top:22px;width:330px;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;background:#fff}.totals-row{display:flex;justify-content:space-between;gap:18px;padding:13px 16px;border-bottom:1px solid #e2e8f0;font-size:13px}
+            .totals-row span:last-child{font-variant-numeric:tabular-nums;text-align:right}.totals-row strong{font-size:21px;color:#1e293b;font-variant-numeric:tabular-nums}.grand{background:#f8fafc;font-weight:900}
+            ul{margin:10px 0 0;padding-left:18px;color:#475569;font-size:13px;line-height:1.55}.footer{margin-top:30px;border-top:1px solid #e2e8f0;padding-top:18px;font-size:12px;color:#64748b;text-align:center}
         </style></head><body><main class="page">'
-        . '<section class="hero"><div class="top"><div>' . $logoHtml . '<p style="margin:14px 0 0;color:#cbd5e1;font-size:13px;line-height:1.5">' . esc($company['address']) . '<br>' . esc($company['phone']) . ' · ' . esc($company['email']) . '<br>' . esc($company['website']) . '</p></div>'
-        . '<div style="text-align:right"><p class="doc-label">Cotización profesional</p><h1>Presupuesto ' . esc($quote['number']) . '</h1><p style="margin:10px 0 0;color:#cbd5e1;font-size:13px">Fecha: ' . esc($quote['createdAt']) . '<br>Emitido por ventas@mizo.cl</p></div></div></section>'
-        . '<section class="content"><section class="grid"><div class="box"><p class="box-title">Cliente</p><p class="muted"><strong style="color:#111827">' . esc($client['name']) . '</strong><br>' . esc($client['email']) . '<br>' . esc($client['phone']) . '<br>' . esc($client['address']) . '</p></div>'
-        . '<div class="box"><p class="box-title">Resumen ejecutivo</p><p class="muted">Cotización emitida por Mizo para productos, servicios e integración audiovisual profesional.</p><p style="margin:12px 0 0;font-size:24px;font-weight:900;color:#1877f2">' . clp((int)$totals['total']) . '</p><p class="muted">Total con IVA incluido</p></div></section>'
+        . '<section class="top"><div>' . $logoHtml . '<p class="muted" style="margin:14px 0 0">' . esc($company['address']) . '<br>' . esc($company['phone']) . ' · ' . esc($company['email']) . '<br>' . esc($company['website']) . '</p></div>'
+        . '<div style="text-align:right"><p class="doc-label">Cotización profesional</p><h1>Presupuesto ' . esc($quote['number']) . '</h1><p class="muted" style="margin:10px 0 0">Fecha: ' . esc($quote['createdAt']) . '<br>Emitido por ventas@mizo.cl</p></div></section>'
+        . '<section class="grid"><div class="box"><p class="box-title">Cliente</p><p class="muted"><strong style="color:#1e293b">' . esc($client['name']) . '</strong><br>' . esc($client['email']) . '<br>' . esc($client['phone']) . '<br>' . esc($client['address']) . '</p></div>'
+        . '<div class="box"><p class="box-title">Resumen</p><p class="muted">Productos, servicios e integración audiovisual profesional.</p><p style="margin:12px 0 0;font-size:24px;font-weight:900;color:#1e293b">' . clp((int)$totals['total']) . '</p><p class="muted">Total con IVA incluido</p></div></section>'
         . '<section class="box"><p class="box-title">Detalle de productos y servicios</p><table><thead><tr><th>Ítem</th><th class="right">Cant.</th><th class="right">Precio unit.</th><th class="right">Neto</th></tr></thead><tbody>' . $rows . '</tbody></table>'
         . '<div class="totals"><div class="totals-row"><span>Subtotal neto</span><span>' . clp((int)$totals['subtotal']) . '</span></div><div class="totals-row"><span>' . esc($taxLabel) . '</span><span>' . clp((int)$totals['tax']) . '</span></div><div class="totals-row grand"><span>Total a pagar</span><strong>' . clp((int)$totals['total']) . '</strong></div></div></section>'
         . '<section class="box" style="margin-top:22px"><p class="box-title">Condiciones comerciales</p><ul>' . $conditions . '</ul></section>'
-        . '<p class="footer">Cotización generada automáticamente por Mizo. Valores expresados en pesos chilenos e incluyen IVA cuando se indica. ' . esc($company['website']) . '</p></section>'
+        . '<p class="footer">Cotización generada automáticamente por Mizo. Valores expresados en pesos chilenos e incluyen IVA cuando se indica. ' . esc($company['website']) . '</p>'
         . '</main></body></html>';
 }
 
@@ -319,22 +330,21 @@ function quote_pdf_content(array $quote): string
     $taxLabel = 'IVA ' . number_format($taxRate * 100, 0, ',', '.') . '%';
 
     $stream = '';
-    $stream .= pdf_color(0.969, 0.980, 0.996) . "\n0 0 595 842 re f\n";
+    $stream .= pdf_color(0.973, 0.976, 0.984) . "\n0 0 595 842 re f\n";
     $stream .= "1 1 1 rg\n36 38 523 766 re f\n";
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n36 794 523 10 re f\n";
-    $stream .= pdf_color(0.988, 0.827, 0.302) . "\n36 784 523 4 re f\n";
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n36 794 523 6 re f\n";
 
     // Wordmark Mizo basado en el logo de la web, dibujado nativamente en PDF.
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n52 735 54 54 re f\n";
-    $stream .= pdf_color(1, 1, 1) . "\n" . pdf_text('M', 67, 752, 25, 'F2');
-    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('MIZO', 118, 760, 30, 'F2');
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n" . pdf_text('Ingenieria audiovisual e instalaciones profesionales', 120, 742, 9, 'F1');
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n52 742 46 46 re f\n";
+    $stream .= pdf_color(1, 1, 1) . "\n" . pdf_text('M', 65, 756, 22, 'F2');
+    $stream .= pdf_color(0.118, 0.161, 0.231) . "\n" . pdf_text('MIZO', 112, 765, 28, 'F2');
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n" . pdf_text('Ingenieria audiovisual e instalaciones profesionales', 114, 748, 8, 'F1');
 
-    $stream .= pdf_color(0.945, 0.961, 1.000) . "\n376 724 154 64 re f\n";
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n376 724 4 64 re f\n";
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n" . pdf_text('COTIZACION', 394, 766, 9, 'F2');
-    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('Presupuesto ' . $quote['number'], 394, 748, 15, 'F2');
-    $stream .= pdf_color(0.392, 0.455, 0.545) . "\n" . pdf_text('Fecha: ' . $quote['createdAt'], 394, 733, 8, 'F1');
+    $stream .= pdf_color(0.973, 0.976, 0.984) . "\n376 728 154 58 re f\n";
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n376 728 3 58 re f\n";
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n" . pdf_text('COTIZACION', 394, 767, 8, 'F2');
+    $stream .= pdf_color(0.118, 0.161, 0.231) . "\n" . pdf_text('Presupuesto ' . $quote['number'], 394, 750, 14, 'F2');
+    $stream .= pdf_color(0.392, 0.455, 0.545) . "\n" . pdf_text('Fecha: ' . $quote['createdAt'], 394, 735, 8, 'F1');
 
     $stream .= pdf_color(0.094, 0.467, 0.949) . "\n52 708 228 2 re f\n";
     $stream .= pdf_color(0.094, 0.467, 0.949) . "\n316 708 214 2 re f\n";
@@ -352,9 +362,9 @@ function quote_pdf_content(array $quote): string
     $stream .= pdf_text(($client['phone'] ?? '') . (($client['rut'] ?? '') !== '' ? ' | RUT: ' . $client['rut'] : ''), 316, 659, 9, 'F1');
     $stream .= pdf_text($client['address'] ?? '', 316, 645, 9, 'F1');
 
-    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('DETALLE DE PRODUCTOS Y SERVICIOS', 52, 610, 11, 'F2');
-    $stream .= pdf_color(0.067, 0.094, 0.153) . "\n52 584 478 26 re f\n";
-    $stream .= pdf_color(1, 1, 1) . "\n";
+    $stream .= pdf_color(0.118, 0.161, 0.231) . "\n" . pdf_text('DETALLE DE PRODUCTOS Y SERVICIOS', 52, 610, 11, 'F2');
+    $stream .= pdf_color(0.973, 0.976, 0.984) . "\n52 584 478 26 re f\n";
+    $stream .= pdf_color(0.392, 0.455, 0.545) . "\n";
     $stream .= pdf_text('ITEM', 64, 593, 8, 'F2');
     $stream .= pdf_text_right('CANT.', 358, 593, 8, 'F2');
     $stream .= pdf_text_right('UNITARIO', 442, 593, 8, 'F2');
@@ -367,14 +377,17 @@ function quote_pdf_content(array $quote): string
             $stream .= pdf_color(0.973, 0.976, 0.984) . "\n52 " . ($y - 29) . " 478 39 re f\n";
         }
         $stream .= pdf_color(0.898, 0.906, 0.922) . "\n52 " . ($y - 31) . " 478 1 re f\n";
-        $stream .= pdf_color(0.067, 0.094, 0.153) . "\n";
+        $stream .= pdf_color(0.118, 0.161, 0.231) . "\n";
         $nameLines = pdf_wrap((string)$item['name'], 43);
         $stream .= pdf_text($nameLines[0], 64, $y, 9, 'F2');
         if (isset($nameLines[1])) {
             $stream .= pdf_color(0.275, 0.333, 0.424) . "\n" . pdf_text($nameLines[1], 64, $y - 11, 8, 'F1');
         }
-        $stream .= pdf_color(0.094, 0.467, 0.949) . "\n" . pdf_text($item['sku'] ?: 'Manual', 64, $y - 23, 7, 'F1');
-        $stream .= pdf_color(0.067, 0.094, 0.153) . "\n";
+        $reference = item_reference($item);
+        if ($reference !== '') {
+            $stream .= pdf_color(0.392, 0.455, 0.545) . "\n" . pdf_text($reference, 64, $y - 23, 7, 'F1');
+        }
+        $stream .= pdf_color(0.118, 0.161, 0.231) . "\n";
         $stream .= pdf_text_right((string)(int)$item['quantity'], 358, $y - 4, 9, 'F3');
         $stream .= pdf_text_right(clp((int)$item['unitPrice']), 442, $y - 4, 9, 'F3');
         $stream .= pdf_text_right(clp((int)$item['total']), 518, $y - 4, 9, 'F4');
@@ -391,16 +404,17 @@ function quote_pdf_content(array $quote): string
     }
 
     $boxY = max(172, $y - 118);
-    $stream .= pdf_color(0.945, 0.961, 1.000) . "\n316 {$boxY} 214 104 re f\n";
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n316 " . ($boxY + 100) . " 214 4 re f\n";
+    $stream .= pdf_color(0.973, 0.976, 0.984) . "\n316 {$boxY} 214 108 re f\n";
+    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n316 " . ($boxY + 104) . " 214 3 re f\n";
     $stream .= pdf_color(0.275, 0.333, 0.424) . "\n";
-    $stream .= pdf_text('Subtotal neto', 334, $boxY + 74, 10, 'F1');
-    $stream .= pdf_text_right(clp((int)$totals['subtotal']), 512, $boxY + 74, 10, 'F3');
-    $stream .= pdf_text($taxLabel, 334, $boxY + 50, 10, 'F1');
-    $stream .= pdf_text_right(clp((int)$totals['tax']), 512, $boxY + 50, 10, 'F3');
-    $stream .= pdf_color(0.094, 0.467, 0.949) . "\n";
-    $stream .= pdf_text('TOTAL A PAGAR', 334, $boxY + 21, 11, 'F2');
-    $stream .= pdf_text_right(clp((int)$totals['total']), 512, $boxY + 18, 16, 'F4');
+    $stream .= pdf_text('Subtotal neto', 334, $boxY + 78, 10, 'F1');
+    $stream .= pdf_text_right(clp((int)$totals['subtotal']), 512, $boxY + 78, 10, 'F3');
+    $stream .= pdf_text($taxLabel, 334, $boxY + 54, 10, 'F1');
+    $stream .= pdf_text_right(clp((int)$totals['tax']), 512, $boxY + 54, 10, 'F3');
+    $stream .= pdf_color(0.898, 0.906, 0.922) . "\n334 " . ($boxY + 39) . " 178 1 re f\n";
+    $stream .= pdf_color(0.118, 0.161, 0.231) . "\n";
+    $stream .= pdf_text('TOTAL A PAGAR', 334, $boxY + 20, 10, 'F2');
+    $stream .= pdf_text_right(clp((int)$totals['total']), 512, $boxY + 18, 15, 'F4');
 
     $conditionsY = $boxY + 84;
     $stream .= pdf_color(0.067, 0.094, 0.153) . "\n" . pdf_text('CONDICIONES COMERCIALES', 52, $conditionsY, 10, 'F2');
