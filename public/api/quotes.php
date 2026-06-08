@@ -238,34 +238,47 @@ function quote_asset_data_uri(string $path): string
 
 function quote_html(array $quote): string
 {
-    $company = $quote['company'];
-    $client = $quote['client'];
-    $totals = $quote['totals'];
-    $rows = '';
-    foreach ($quote['items'] as $item) {
+    $company = is_array($quote['company'] ?? null) ? $quote['company'] : [];
+    $client = is_array($quote['client'] ?? null) ? $quote['client'] : [];
+    $totals = is_array($quote['totals'] ?? null) ? $quote['totals'] : quote_totals(is_array($quote['items'] ?? null) ? $quote['items'] : []);
+    $quoteDate = clean_text($quote['date'] ?? $quote['createdAt'] ?? date('Y-m-d'), 40);
+    $taxLabel = 'IVA ' . number_format(((float)($totals['taxRate'] ?? TAX_RATE)) * 100, 0, ',', '.') . '%';
+
+    $logo_base64 = '';
+    $logoPath = __DIR__ . '/../mizo-logo.svg';
+    if (is_file($logoPath)) {
+        $logo = file_get_contents($logoPath);
+        $logo_base64 = $logo === false ? '' : 'data:image/svg+xml;base64,' . base64_encode($logo);
+    }
+
+    $itemsRows = '';
+    foreach (is_array($quote['items'] ?? null) ? $quote['items'] : [] as $item) {
         $reference = item_reference($item);
-        $rows .= '<tr>'
-            . '<td class="item-cell"><strong>' . esc($item['name']) . '</strong>' . ($reference !== '' ? '<br><span>' . esc($reference) . '</span>' : '') . '</td>'
-            . '<td class="right">' . (int)$item['quantity'] . '</td>'
-            . '<td class="right">' . clp((int)$item['unitPrice']) . '</td>'
-            . '<td class="right">' . clp((int)$item['total']) . '</td>'
+        $itemsRows .= '<tr>'
+            . '<td><strong>' . esc((string)($item['name'] ?? '')) . '</strong>' . ($reference !== '' ? '<br><span style="font-size:8pt;color:#94a3b8;">' . esc($reference) . '</span>' : '') . '</td>'
+            . '<td style="text-align:right;">' . (int)($item['quantity'] ?? 0) . '</td>'
+            . '<td style="text-align:right;">' . clp((int)($item['unitPrice'] ?? 0)) . '</td>'
+            . '<td style="text-align:right;">' . clp((int)($item['total'] ?? 0)) . '</td>'
             . '</tr>';
     }
 
     $conditions = '';
-    foreach ($quote['conditions'] as $condition) {
-        $conditions .= '<li>' . esc($condition) . '</li>';
+    foreach (is_array($quote['conditions'] ?? null) ? $quote['conditions'] : [] as $condition) {
+        $conditions .= '<li style="margin:0 0 4pt 0;">' . esc((string)$condition) . '</li>';
     }
 
-    $logo = quote_asset_data_uri(clean_text($company['logo'] ?? '/mizo-logo.svg', 3000));
-    $logoHtml = $logo !== '' ? '<img src="' . esc($logo) . '" alt="' . esc($company['companyName']) . '">' : '<div class="logo-fallback">Mizo</div>';
-    $taxLabel = 'IVA ' . number_format(((float)($totals['taxRate'] ?? TAX_RATE)) * 100, 0, ',', '.') . '%';
+    $logoHtml = $logo_base64 !== ''
+        ? '<img src="' . esc($logo_base64) . '" class="logo-img" width="120" style="width:120pt;height:auto;display:block;">'
+        : '<span style="font-size:20pt;font-weight:bold;">MIZO</span>';
 
-    return '<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>' . esc($quote['number']) . '</title>'
-        . '<style>
+    return '<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
             @page { 
                 size: letter; 
-                margin: 45pt 36pt 45pt 36pt; 
+                margin: 50pt 40pt 50pt 40pt; 
             }
             * { 
                 box-sizing: border-box; 
@@ -279,17 +292,100 @@ function quote_html(array $quote): string
                 font-size: 10pt; 
                 line-height: 1.5; 
             }
-            /* Elimina aquí cualquier contenedor secundario como .invoice-container que duplique márgenes */
-        </style></head><body><main class="page">'
-        . '<table class="header"><tr><td style="width:158px">' . str_replace('<img ', '<img class="brand-logo" ', $logoHtml) . '</td><td class="brand-copy"><strong>Ingeniería Audiovisual e Instalaciones Profesionales</strong>' . esc($company['address']) . '<br>' . esc($company['phone']) . ' · ' . esc($company['email']) . '<br>' . esc($company['website']) . '</td>'
-        . '<td class="quote-meta"><p class="quote-label">Cotización profesional</p><h1>Presupuesto ' . esc($quote['number']) . '</h1><p class="meta-text">Fecha: ' . esc($quote['createdAt']) . '<br>Emitido por ventas@mizo.cl</p></td></tr></table>'
-        . '<table class="columns"><tr><td><div class="panel"><p class="section-title">Cliente</p><p class="muted"><span class="strong">' . esc($client['name']) . '</span><br>' . esc($client['email']) . '<br>' . esc($client['phone']) . '<br>' . esc($client['address']) . '</p></div></td>'
-        . '<td><div class="panel"><p class="section-title">Resumen</p><p class="muted">Productos, servicios e integración audiovisual profesional.</p><p style="margin:12px 0 0;font-size:24px;font-weight:900;color:#172033">' . clp((int)$totals['total']) . '</p><p class="muted">Total con IVA incluido</p></div></td></tr></table>'
-        . '<section class="panel"><p class="section-title">Detalle de productos y servicios</p><table class="items"><thead><tr><th>Ítem</th><th class="right">Cant.</th><th class="right">Precio unit.</th><th class="right">Neto</th></tr></thead><tbody>' . $rows . '</tbody></table>'
-        . '<div class="totals-wrap"><table class="totals" align="right"><tr><td class="label">Subtotal neto</td><td class="amount">' . clp((int)$totals['subtotal']) . '</td></tr><tr><td class="label">' . esc($taxLabel) . '</td><td class="amount">' . clp((int)$totals['tax']) . '</td></tr><tr class="grand"><td class="label">Total a pagar</td><td class="amount">' . clp((int)$totals['total']) . '</td></tr></table></div><div style="clear:both"></div></section>'
-        . '<section class="panel" style="margin-top:22px"><p class="section-title">Condiciones comerciales</p><ul>' . $conditions . '</ul></section>'
-        . '<p class="footer">Cotización generada automáticamente por Mizo. Valores expresados en pesos chilenos e incluyen IVA cuando se indica. ' . esc($company['website']) . '</p>'
-        . '</main></body></html>';
+            .header-table { width: 100%; margin-bottom: 25pt; border-collapse: collapse; }
+            .logo-img { width: 120pt; height: auto; display: block; }
+            .company-title { font-size: 8pt; color: #64748b; margin-top: 5pt; font-style: italic; }
+            
+            .info-table { width: 100%; margin-bottom: 25pt; border-collapse: collapse; }
+            .info-box { width: 48%; padding: 12pt; background-color: #f8fafc; border: 1px solid #e2e8f0; vertical-align: top; }
+            .info-title { font-size: 9pt; font-weight: bold; color: #0284c7; text-transform: uppercase; margin-bottom: 5pt; }
+            
+            .items-table { width: 100%; border-collapse: collapse; margin-top: 15pt; margin-bottom: 20pt; }
+            .items-table th { background-color: #0284c7; color: #ffffff; padding: 8pt 10pt; font-weight: bold; font-size: 9pt; text-align: left; }
+            .items-table td { padding: 9pt 10pt; border-bottom: 1px solid #e2e8f0; font-size: 9.5pt; color: #334155; }
+            
+            .bottom-table { width: 100%; border-collapse: collapse; margin-top: 15pt; }
+            .conditions-td { width: 55%; vertical-align: top; font-size: 8.5pt; color: #64748b; padding-right: 15pt; }
+            .totals-td { width: 45%; vertical-align: top; }
+            
+            .totals-table { width: 100%; border-collapse: collapse; background-color: #f8fafc; border: 1px solid #e2e8f0; }
+            .totals-table td { padding: 8pt 12pt; font-size: 9.5pt; }
+            .totals-table .total-row { font-size: 12pt; font-weight: bold; color: #0f172a; background-color: #f1f5f9; border-top: 2px solid #0284c7; }
+        </style>
+    </head>
+    <body>
+        <table class="header-table">
+            <tr>
+                <td style="vertical-align: top;">
+                    ' . $logoHtml . '
+                    <div class="company-title">Ingeniería audiovisual e instalaciones profesionales</div>
+                </td>
+                <td style="text-align: right; vertical-align: top;">
+                    <div style="font-size: 14pt; font-weight: bold; color: #0f172a; letter-spacing: 1px;">PRESUPUESTO</div>
+                    <div style="font-size: 12pt; font-weight: bold; color: #0284c7; margin-top: 3pt;">' . esc((string)($quote['number'] ?? '')) . '</div>
+                    <div style="font-size: 8.5pt; color: #64748b; margin-top: 2pt;">Fecha: ' . esc($quoteDate) . '</div>
+                </td>
+            </tr>
+        </table>
+
+        <table class="info-table">
+            <tr>
+                <td class="info-box">
+                    <div class="info-title">Cliente</div>
+                    <strong>' . esc((string)($client['name'] ?? 'Cliente sin nombre')) . '</strong><br>
+                    ' . esc((string)($client['email'] ?? '')) . '<br>
+                    ' . esc((string)($client['phone'] ?? '')) . '<br>
+                    ' . esc((string)($client['address'] ?? '')) . '
+                </td>
+                <td style="width:4%;"></td>
+                <td class="info-box">
+                    <div class="info-title">Mizo</div>
+                    <strong>' . esc((string)($company['companyName'] ?? 'Mizo')) . '</strong><br>
+                    ' . esc((string)($company['address'] ?? '')) . '<br>
+                    ' . esc((string)($company['phone'] ?? '')) . '<br>
+                    ' . esc((string)($company['email'] ?? DEFAULT_FROM)) . '
+                </td>
+            </tr>
+        </table>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th style="text-align:right;">Cant.</th>
+                    <th style="text-align:right;">Precio unit.</th>
+                    <th style="text-align:right;">Neto</th>
+                </tr>
+            </thead>
+            <tbody>' . $itemsRows . '</tbody>
+        </table>
+
+        <table class="bottom-table">
+            <tr>
+                <td class="conditions-td">
+                    <strong style="color:#0f172a;">Condiciones comerciales</strong>
+                    <ul style="margin-top:6pt; padding-left:12pt;">' . $conditions . '</ul>
+                </td>
+                <td class="totals-td">
+                    <table class="totals-table">
+                        <tr>
+                            <td>Subtotal neto</td>
+                            <td style="text-align:right;">' . clp((int)($totals['subtotal'] ?? 0)) . '</td>
+                        </tr>
+                        <tr>
+                            <td>' . esc($taxLabel) . '</td>
+                            <td style="text-align:right;">' . clp((int)($totals['tax'] ?? 0)) . '</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>TOTAL A PAGAR</td>
+                            <td style="text-align:right;">' . clp((int)($totals['total'] ?? 0)) . '</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>';
 }
 
 function ensure_dompdf(): void
@@ -317,7 +413,7 @@ function quote_pdf_content(array $quote): string
 
     $dompdf = new \Dompdf\Dompdf($options);
     $dompdf->loadHtml(quote_html($quote), 'UTF-8');
-    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->setPaper('letter', 'portrait');
     $dompdf->render();
 
     return $dompdf->output();
