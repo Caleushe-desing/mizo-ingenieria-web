@@ -91,6 +91,100 @@
 							<p class="text-sm text-gray-500">Cargando reporte de discrepancias...</p>
 						</div>
 					</section>
+					<section class="mb-6 overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-sm">
+						<div class="border-b border-blue-100 bg-blue-50 px-5 py-4">
+							<p class="text-xs font-extrabold uppercase tracking-[0.18em] text-accent-main">Catálogo Maestro · Cotizaciones</p>
+							<div class="mt-1 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+								<div>
+									<h2 class="text-xl font-extrabold text-gray-950">Módulo profesional de cotizaciones</h2>
+									<p class="mt-1 text-sm font-semibold text-blue-900">Correlativo automático, ítems del catálogo o manuales, condiciones comerciales, PDF y correo.</p>
+								</div>
+								<span id="quote-next-number" class="inline-flex self-start rounded-full bg-white px-4 py-2 text-xs font-black text-accent-main shadow-sm">Presupuesto: M1001</span>
+							</div>
+						</div>
+						<div class="grid grid-cols-1 gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+							<div class="space-y-5">
+								<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+									<div class="rounded-2xl border border-gray-200 p-4">
+										<p class="text-sm font-extrabold text-gray-950">Datos de la compañía</p>
+										<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+											<input id="quote-company-name" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Nombre empresa" />
+											<input id="quote-company-phone" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Teléfono" />
+											<input id="quote-company-email" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Email ventas" />
+											<input id="quote-company-address" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Dirección" />
+											<input id="quote-company-website" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Sitio web" />
+											<input id="quote-company-logo" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="URL/Base64 logo" />
+										</div>
+										<button id="save-quote-config" type="button" class="mt-3 rounded-xl border border-accent-main px-4 py-2 text-xs font-black text-accent-main hover:bg-accent-soft">Guardar datos de compañía</button>
+									</div>
+									<div class="rounded-2xl border border-gray-200 p-4">
+										<p class="text-sm font-extrabold text-gray-950">Datos del cliente</p>
+										<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+											<input id="quote-client-name" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Nombre cliente" />
+											<input id="quote-client-email" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Email" />
+											<input id="quote-client-phone" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Teléfono" />
+											<input id="quote-client-rut" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="RUT / Código" />
+											<input id="quote-client-address" class="rounded-xl border border-gray-300 px-3 py-2 text-sm sm:col-span-2" placeholder="Dirección / comuna" />
+										</div>
+									</div>
+								</div>
+								<div class="rounded-2xl border border-gray-200 p-4">
+									<p class="text-sm font-extrabold text-gray-950">Agregar ítems</p>
+									<div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.3fr)_90px_130px_auto]">
+										<select id="quote-catalog-product" class="rounded-xl border border-gray-300 px-3 py-2 text-sm">
+											<option value="">Importar producto del catálogo Mizo</option>
+										</select>
+										<input id="quote-catalog-qty" type="number" min="1" value="1" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Cant." />
+										<input id="quote-catalog-price" inputmode="numeric" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Precio opcional" />
+										<button id="add-catalog-quote-item" type="button" class="rounded-xl bg-gray-950 px-4 py-2 text-xs font-black text-white">Agregar catálogo</button>
+									</div>
+									<div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_120px_90px_130px_auto]">
+										<input id="quote-manual-name" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Ítem manual / servicio" />
+										<input id="quote-manual-sku" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Código" />
+										<input id="quote-manual-qty" type="number" min="1" value="1" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Cant." />
+										<input id="quote-manual-price" inputmode="numeric" class="rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Precio unit." />
+										<button id="add-manual-quote-item" type="button" class="rounded-xl bg-accent-main px-4 py-2 text-xs font-black text-white">Agregar manual</button>
+									</div>
+								</div>
+								<div class="rounded-2xl border border-gray-200 p-4">
+									<div class="flex items-center justify-between gap-3">
+										<p class="text-sm font-extrabold text-gray-950">Detalle de cotización</p>
+										<button id="clear-quote-items" type="button" class="text-xs font-bold text-gray-500 hover:text-red-600">Limpiar ítems</button>
+									</div>
+									<div id="quote-items-list" class="mt-3 space-y-2"></div>
+								</div>
+							</div>
+							<aside class="space-y-4">
+								<div class="rounded-2xl bg-gray-950 p-5 text-white">
+									<p class="text-xs font-extrabold uppercase tracking-[0.18em] text-blue-200">Total presupuesto</p>
+									<p id="quote-total" class="mt-2 text-3xl font-black">$0</p>
+									<p id="quote-saved-link" class="mt-3 text-xs font-semibold text-white/70"></p>
+								</div>
+								<div class="rounded-2xl border border-gray-200 p-4">
+									<p class="text-sm font-extrabold text-gray-950">Condiciones comerciales</p>
+									<textarea id="quote-conditions" rows="6" class="mt-3 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Una condición por línea"></textarea>
+									<textarea id="quote-notes" rows="3" class="mt-3 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Notas internas / alcance"></textarea>
+								</div>
+								<div class="rounded-2xl border border-gray-200 p-4">
+									<p class="text-sm font-extrabold text-gray-950">Generar y enviar</p>
+									<input id="quote-email-to" class="mt-3 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Enviar a email" />
+									<textarea id="quote-email-message" rows="3" class="mt-3 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Mensaje del correo"></textarea>
+									<div class="mt-3 grid grid-cols-1 gap-2">
+										<button id="save-quote" type="button" class="rounded-xl bg-accent-main px-4 py-3 text-sm font-black text-white hover:bg-accent-hover">Guardar cotización y generar PDF</button>
+										<button id="send-quote" type="button" class="rounded-xl border border-accent-main px-4 py-3 text-sm font-black text-accent-main hover:bg-accent-soft">Enviar PDF por email</button>
+									</div>
+									<p id="quote-message" class="mt-3 text-sm font-semibold text-gray-500"></p>
+								</div>
+								<div class="rounded-2xl border border-gray-200 p-4">
+									<div class="flex items-center justify-between">
+										<p class="text-sm font-extrabold text-gray-950">Últimas cotizaciones</p>
+										<button id="refresh-quotes" type="button" class="text-xs font-bold text-accent-main">Actualizar</button>
+									</div>
+									<div id="quotes-history" class="mt-3 space-y-2 text-sm"></div>
+								</div>
+							</aside>
+						</div>
+					</section>
 					<div class="relative mb-4 max-w-xl">
 						<input id="admin-search" type="search" placeholder="Buscar por SKU, nombre, marca o tienda..." class="w-full pl-11 pr-4 py-3 rounded-md border border-gray-300 focus:ring-accent-main focus:border-accent-main focus:outline-none" />
 						<svg class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
@@ -250,6 +344,9 @@
 			const INSTALL_CONFIG_KEY = 'mizo-admin-installation-configs';
 			const HOME_SLOT_COUNT = 8;
 			let homeFeaturedConfigs = {};
+			let quoteConfig = null;
+			let quoteItems = [];
+			let currentQuote = null;
 
 			const chileRegions = [
 				'Arica y Parinacota',
@@ -407,6 +504,7 @@
 
 				allItems = items;
 				initInstallationManager(items);
+				initQuotesModule(items);
 				renderRows(items);
 			}
 
@@ -488,6 +586,257 @@
 					'"': '&quot;',
 					"'": '&#39;',
 				}[ch]));
+			}
+
+			async function apiQuotes(action, payload = {}) {
+				const response = await fetch('/api/quotes.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+					cache: 'no-store',
+					body: JSON.stringify({ action, password: adminPassword, ...payload }),
+				});
+				const data = await response.json();
+				if (!response.ok || !data?.ok) throw new Error(data?.error || 'No se pudo operar con cotizaciones.');
+				return data;
+			}
+
+			function quoteMessage(text, type = 'info') {
+				const el = document.getElementById('quote-message');
+				if (!el) return;
+				el.textContent = text;
+				el.className = 'mt-3 text-sm font-semibold ' + (type === 'error' ? 'text-red-600' : type === 'success' ? 'text-green-700' : 'text-gray-500');
+			}
+
+			function quoteCompanyFromForm() {
+				return {
+					companyName: document.getElementById('quote-company-name').value.trim(),
+					phone: document.getElementById('quote-company-phone').value.trim(),
+					email: document.getElementById('quote-company-email').value.trim(),
+					address: document.getElementById('quote-company-address').value.trim(),
+					website: document.getElementById('quote-company-website').value.trim(),
+					logo: document.getElementById('quote-company-logo').value.trim(),
+				};
+			}
+
+			function fillQuoteCompanyForm(config) {
+				quoteConfig = config || {};
+				document.getElementById('quote-company-name').value = quoteConfig.companyName || 'Mizo';
+				document.getElementById('quote-company-phone').value = quoteConfig.phone || '';
+				document.getElementById('quote-company-email').value = quoteConfig.email || 'ventas@mizo.cl';
+				document.getElementById('quote-company-address').value = quoteConfig.address || '';
+				document.getElementById('quote-company-website').value = quoteConfig.website || 'https://mizo.cl';
+				document.getElementById('quote-company-logo').value = quoteConfig.logo || '/mizo-logo.png';
+				document.getElementById('quote-conditions').value = (quoteConfig.defaultConditions || []).join('\n');
+			}
+
+			function quoteClientFromForm() {
+				return {
+					name: document.getElementById('quote-client-name').value.trim(),
+					email: document.getElementById('quote-client-email').value.trim(),
+					phone: document.getElementById('quote-client-phone').value.trim(),
+					rut: document.getElementById('quote-client-rut').value.trim(),
+					address: document.getElementById('quote-client-address').value.trim(),
+				};
+			}
+
+			function quoteConditionsFromForm() {
+				return document.getElementById('quote-conditions').value
+					.split('\n')
+					.map((line) => line.trim())
+					.filter(Boolean);
+			}
+
+			function renderQuoteCatalogOptions(items) {
+				const select = document.getElementById('quote-catalog-product');
+				select.innerHTML = '<option value="">Importar producto del catálogo Mizo</option>' + items.map((product) => {
+					const price = Number(product.sellingPrice || product.basePrice || 0);
+					return `<option value="${escapeHtml(product.id)}">${escapeHtml(product.sku || product.id)} · ${escapeHtml(product.brand || '')} ${escapeHtml(product.name)} · ${clp(price)}</option>`;
+				}).join('');
+			}
+
+			function quoteTotal() {
+				return quoteItems.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.unitPrice)), 0);
+			}
+
+			function renderQuoteItems() {
+				const list = document.getElementById('quote-items-list');
+				const total = quoteTotal();
+				document.getElementById('quote-total').textContent = clp(total);
+				if (!quoteItems.length) {
+					list.innerHTML = '<div class="rounded-xl border border-dashed border-gray-300 px-4 py-8 text-center text-sm font-semibold text-gray-400">Aún no hay ítems en esta cotización.</div>';
+					return;
+				}
+				list.innerHTML = quoteItems.map((item, index) => `
+					<article class="rounded-xl border border-gray-200 bg-gray-50 p-3">
+						<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+							<div class="min-w-0">
+								<p class="font-mono text-[0.68rem] font-black uppercase text-accent-main">${escapeHtml(item.sku || 'Manual')}</p>
+								<h4 class="mt-1 text-sm font-black text-gray-950">${escapeHtml(item.name)}</h4>
+								<p class="mt-1 text-xs font-semibold text-gray-500">${escapeHtml(item.source === 'catalog' ? 'Catálogo Mizo' : 'Ítem manual')}</p>
+							</div>
+							<button type="button" class="remove-quote-item text-xs font-black text-red-600" data-index="${index}">Eliminar</button>
+						</div>
+						<div class="mt-3 grid grid-cols-3 gap-2 text-sm">
+							<div><p class="text-xs text-gray-500">Cantidad</p><p class="font-black">${Number(item.quantity)}</p></div>
+							<div><p class="text-xs text-gray-500">Unitario</p><p class="font-black">${clp(Number(item.unitPrice))}</p></div>
+							<div><p class="text-xs text-gray-500">Total</p><p class="font-black">${clp(Number(item.quantity) * Number(item.unitPrice))}</p></div>
+						</div>
+					</article>
+				`).join('');
+				list.querySelectorAll('.remove-quote-item').forEach((button) => {
+					button.onclick = () => {
+						quoteItems.splice(Number(button.dataset.index), 1);
+						renderQuoteItems();
+					};
+				});
+			}
+
+			function addQuoteItem(item) {
+				quoteItems.push({
+					source: item.source || 'manual',
+					sku: item.sku || '',
+					name: item.name,
+					quantity: Math.max(1, Number(item.quantity) || 1),
+					unitPrice: Math.max(0, moneyNumber(item.unitPrice)),
+				});
+				currentQuote = null;
+				document.getElementById('quote-saved-link').innerHTML = '';
+				renderQuoteItems();
+			}
+
+			function addCatalogQuoteItem() {
+				const productId = document.getElementById('quote-catalog-product').value;
+				const product = allItems.find((item) => item.id === productId);
+				if (!product) {
+					quoteMessage('Selecciona un producto del catálogo para importarlo.', 'error');
+					return;
+				}
+				const overridePrice = moneyNumber(document.getElementById('quote-catalog-price').value);
+				addQuoteItem({
+					source: 'catalog',
+					sku: product.sku || product.id,
+					name: `${product.brand || ''} ${product.name}`.trim(),
+					quantity: document.getElementById('quote-catalog-qty').value,
+					unitPrice: overridePrice || Number(product.sellingPrice || product.basePrice || 0),
+				});
+				document.getElementById('quote-catalog-product').value = '';
+				document.getElementById('quote-catalog-price').value = '';
+				document.getElementById('quote-catalog-qty').value = '1';
+				quoteMessage('Producto agregado a la cotización.', 'success');
+			}
+
+			function addManualQuoteItem() {
+				const name = document.getElementById('quote-manual-name').value.trim();
+				const price = moneyNumber(document.getElementById('quote-manual-price').value);
+				if (!name || !price) {
+					quoteMessage('Completa nombre y precio unitario del ítem manual.', 'error');
+					return;
+				}
+				addQuoteItem({
+					source: 'manual',
+					sku: document.getElementById('quote-manual-sku').value.trim() || 'MANUAL',
+					name,
+					quantity: document.getElementById('quote-manual-qty').value,
+					unitPrice: price,
+				});
+				['quote-manual-name', 'quote-manual-sku', 'quote-manual-price'].forEach((id) => document.getElementById(id).value = '');
+				document.getElementById('quote-manual-qty').value = '1';
+				quoteMessage('Ítem manual agregado.', 'success');
+			}
+
+			async function loadQuotesHistory() {
+				const container = document.getElementById('quotes-history');
+				container.innerHTML = '<p class="text-gray-400">Cargando cotizaciones...</p>';
+				try {
+					const data = await apiQuotes('list');
+					const quotes = data.quotes || [];
+					if (!quotes.length) {
+						container.innerHTML = '<p class="text-gray-400">Aún no hay cotizaciones guardadas.</p>';
+						return;
+					}
+					container.innerHTML = quotes.slice(0, 8).map((quote) => `
+						<a class="block rounded-xl border border-gray-200 p-3 hover:bg-accent-soft" href="${escapeHtml(quote.pdfUrl)}" target="_blank" rel="noopener">
+							<span class="font-black text-gray-950">${escapeHtml(quote.number)}</span>
+							<span class="block text-xs text-gray-500">${escapeHtml(quote.client || 'Cliente')} · ${clp(Number(quote.total) || 0)}</span>
+						</a>
+					`).join('');
+				} catch (error) {
+					container.innerHTML = `<p class="text-red-600">${escapeHtml(error.message)}</p>`;
+				}
+			}
+
+			async function bootstrapQuotes() {
+				try {
+					const data = await apiQuotes('bootstrap');
+					document.getElementById('quote-next-number').textContent = `Presupuesto: ${data.nextNumber || 'M1001'}`;
+					fillQuoteCompanyForm(data.config || {});
+					renderQuoteItems();
+					await loadQuotesHistory();
+				} catch (error) {
+					quoteMessage(error.message, 'error');
+				}
+			}
+
+			function initQuotesModule(items) {
+				renderQuoteCatalogOptions(items);
+				if (!quoteConfig) bootstrapQuotes();
+			}
+
+			async function saveQuoteConfig() {
+				try {
+					const config = {
+						...quoteCompanyFromForm(),
+						defaultConditions: quoteConditionsFromForm(),
+					};
+					const data = await apiQuotes('save_config', { config });
+					fillQuoteCompanyForm(data.config || config);
+					quoteMessage('Datos de compañía guardados para futuras cotizaciones.', 'success');
+				} catch (error) {
+					quoteMessage(error.message, 'error');
+				}
+			}
+
+			async function saveQuote() {
+				if (!quoteItems.length) {
+					quoteMessage('Agrega al menos un ítem antes de guardar.', 'error');
+					return;
+				}
+				try {
+					quoteMessage('Generando cotización y PDF...', 'info');
+					const data = await apiQuotes('create_quote', {
+						company: quoteCompanyFromForm(),
+						client: quoteClientFromForm(),
+						items: quoteItems,
+						conditions: quoteConditionsFromForm(),
+						notes: document.getElementById('quote-notes').value.trim(),
+					});
+					currentQuote = data.quote;
+					document.getElementById('quote-next-number').textContent = `Presupuesto: ${data.nextNumber || ''}`;
+					document.getElementById('quote-saved-link').innerHTML = `<a class="text-blue-200 underline" href="${escapeHtml(currentQuote.pdfUrl)}" target="_blank" rel="noopener">Descargar ${escapeHtml(currentQuote.number)}.pdf</a>`;
+					document.getElementById('quote-email-to').value = currentQuote.client?.email || document.getElementById('quote-client-email').value;
+					quoteMessage(`Cotización ${currentQuote.number} guardada correctamente.`, 'success');
+					await loadQuotesHistory();
+					return currentQuote;
+				} catch (error) {
+					quoteMessage(error.message, 'error');
+					return null;
+				}
+			}
+
+			async function sendQuote() {
+				const quote = currentQuote || await saveQuote();
+				if (!quote) return;
+				try {
+					quoteMessage('Enviando PDF por correo...', 'info');
+					const data = await apiQuotes('send_quote', {
+						number: quote.number,
+						to: document.getElementById('quote-email-to').value.trim(),
+						message: document.getElementById('quote-email-message').value.trim(),
+					});
+					quoteMessage(data.sent ? `Cotización ${quote.number} enviada por email.` : data.error || 'El servidor no confirmó el envío.', data.sent ? 'success' : 'error');
+				} catch (error) {
+					quoteMessage(error.message, 'error');
+				}
 			}
 
 			function reviewValue(value) {
@@ -923,6 +1272,27 @@
 				renderPedidos();
 			};
 			document.getElementById('export-pedidos').onclick = () => exportPedidosCsv();
+			document.getElementById('save-quote-config').onclick = () => saveQuoteConfig();
+			document.getElementById('add-catalog-quote-item').onclick = () => addCatalogQuoteItem();
+			document.getElementById('add-manual-quote-item').onclick = () => addManualQuoteItem();
+			document.getElementById('clear-quote-items').onclick = () => {
+				quoteItems = [];
+				currentQuote = null;
+				document.getElementById('quote-saved-link').innerHTML = '';
+				renderQuoteItems();
+			};
+			document.getElementById('save-quote').onclick = () => saveQuote();
+			document.getElementById('send-quote').onclick = () => sendQuote();
+			document.getElementById('refresh-quotes').onclick = () => loadQuotesHistory();
+			['quote-catalog-price', 'quote-manual-price'].forEach((id) => {
+				document.getElementById(id).addEventListener('blur', (event) => {
+					const value = moneyNumber(event.target.value);
+					if (value) event.target.value = clp(value);
+				});
+			});
+			document.getElementById('quote-client-email').addEventListener('input', (event) => {
+				document.getElementById('quote-email-to').value = event.target.value;
+			});
 			document.getElementById('featured-slot').onchange = (e) => loadInstallationSlot(e.target.value);
 			document.getElementById('featured-product').onchange = () => loadSelectedProductDefaults();
 			['install-base-price', 'additional-unit-price'].forEach((id) => {
