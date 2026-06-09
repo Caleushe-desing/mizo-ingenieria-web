@@ -39,6 +39,8 @@ $company = clean_text($payload['empresa'] ?? '', 160);
 $phone = clean_text($payload['telefono'] ?? '', 80);
 $email = clean_text($payload['correo'] ?? '', 160);
 $space = clean_text($payload['espacio'] ?? '', 160);
+$specialty = clean_text($payload['especialidad'] ?? '', 200);
+$projection = clean_text($payload['proyeccion'] ?? '', 200);
 $dimension = clean_text($payload['dimension'] ?? '', 160);
 $purpose = clean_text($payload['proposito'] ?? '', 200);
 $details = clean_text($payload['detalles'] ?? '', 1200);
@@ -59,6 +61,8 @@ $lines = [
     'Correo: ' . $email,
     '',
     'Entorno: ' . ($space !== '' ? $space : 'No indicado'),
+    'Especialidad técnica: ' . ($specialty !== '' ? $specialty : 'No indicada'),
+    'Proyección / Pantallas: ' . ($projection !== '' ? $projection : 'No indicado'),
     'Dimensión: ' . ($dimension !== '' ? $dimension : 'No indicada'),
     'Propósito: ' . ($purpose !== '' ? $purpose : 'No indicado'),
     '',

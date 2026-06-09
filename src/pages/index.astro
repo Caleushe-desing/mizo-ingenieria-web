@@ -37,6 +37,27 @@ const processSteps = [
 	'Un ingeniero valida acústica, estructura y operación.',
 	'Entregamos propuesta de solución corporativa.',
 ];
+
+const fieldGallery = [
+	{
+		title: 'Auditorios y teatros',
+		desc: 'Proyección láser, cobertura sonora, control técnico y acústica aplicada para alta concurrencia.',
+		tag: 'Proyección + acústica',
+		image: 'https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1400&q=80',
+	},
+	{
+		title: 'Plantas industriales',
+		desc: 'Voceo IP, audio de evacuación, zonas operativas y continuidad para espacios críticos.',
+		tag: 'Evacuación + voceo IP',
+		image: 'https://images.unsplash.com/photo-1581093458791-9d09cc08742a?auto=format&fit=crop&w=1400&q=80',
+	},
+	{
+		title: 'Proyecciones corporativas',
+		desc: 'Salas limpias, videowall, pantallas LED y sistemas preparados para operación ejecutiva.',
+		tag: 'Pantallas profesionales',
+		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1400&q=80',
+	},
+];
 ---
 
 <Layout
@@ -151,6 +172,34 @@ const processSteps = [
 						<span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#0284c7] text-sm font-black text-white">{index + 1}</span>
 						<p class="self-center text-lg font-bold text-slate-800">{step}</p>
 					</div>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="bg-white py-16">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div class="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+				<div class="max-w-3xl">
+					<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Soluciones de Ingeniería en Terreno</p>
+					<h2 class="mt-3 text-3xl font-black text-slate-950 md:text-5xl">Implementaciones visuales, limpias y preparadas para operación profesional.</h2>
+				</div>
+				<a href="/configurador" class="inline-flex rounded-full bg-[#0284c7] px-6 py-3 text-sm font-black text-white shadow-lg transition hover:bg-sky-700">
+					Iniciar diagnóstico
+				</a>
+			</div>
+
+			<div class="grid gap-5 lg:grid-cols-3">
+				{fieldGallery.map((item, index) => (
+					<article class={`group relative overflow-hidden rounded-[2rem] bg-slate-950 shadow-xl ${index === 0 ? 'lg:col-span-2' : ''}`}>
+						<img src={item.image} alt={item.title} class="h-80 w-full object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-90" loading="lazy" width="1400" height="900" />
+						<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/35 to-transparent"></div>
+						<div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+							<span class="inline-flex rounded-full bg-[#0284c7] px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.18em] text-white">{item.tag}</span>
+							<h3 class="mt-4 text-3xl font-black text-white">{item.title}</h3>
+							<p class="mt-2 max-w-xl text-sm leading-6 text-white/80">{item.desc}</p>
+						</div>
+					</article>
 				))}
 			</div>
 		</div>
