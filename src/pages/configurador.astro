@@ -3,212 +3,216 @@ import Layout from '../layouts/Layout.astro';
 
 const environments = [
 	{
-		value: 'Auditorios / Teatros',
-		title: 'Auditorios / Teatros',
-		desc: 'Proyección avanzada, acústica, inteligibilidad y operación para alta concurrencia.',
-		focus: 'Proyección avanzada y acústica',
-		image: 'https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1200&q=80',
-		needsProjection: true,
+		id: 'auditorio',
+		title: 'Auditorio / Teatro',
+		label: 'Auditorio',
+		desc: 'Proyección avanzada, acústica arquitectónica e inteligibilidad para alta concurrencia.',
+		image: 'https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1400&q=80',
 	},
 	{
-		value: 'Gimnasios / Espacios Deportivos',
-		title: 'Gimnasios / Espacios Deportivos',
-		desc: 'Amplificación de alta potencia, dispersión y cobertura homogénea en espacios reverberantes.',
-		focus: 'Alta potencia y dispersión',
-		image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1200&q=80',
-		needsProjection: false,
+		id: 'gimnasio',
+		title: 'Gimnasio / Espacio Deportivo',
+		label: 'Gimnasio',
+		desc: 'Alta potencia, dispersión controlada y cobertura sonora en recintos reverberantes.',
+		image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1400&q=80',
 	},
 	{
-		value: 'Plantas Industriales / Logística',
-		title: 'Plantas Industriales / Logística',
-		desc: 'Sistemas de evacuación, voceo IP, zonas críticas y continuidad operacional.',
-		focus: 'Evacuación y voceo IP',
-		image: 'https://images.unsplash.com/photo-1581093458791-9d09cc08742a?auto=format&fit=crop&w=1200&q=80',
-		needsProjection: false,
+		id: 'sala',
+		title: 'Sala Corporativa',
+		label: 'Sala Corporativa',
+		desc: 'Videoconferencia inteligente, visualización profesional y operación ejecutiva simple.',
+		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1400&q=80',
 	},
 	{
-		value: 'Salas de Reuniones Corporativas',
-		title: 'Salas de Reuniones Corporativas',
-		desc: 'Videoconferencia inteligente, captura de voz, cámaras, pantallas y control simple.',
-		focus: 'Videoconferencia inteligente',
-		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
-		needsProjection: true,
+		id: 'planta',
+		title: 'Planta Industrial / Logística',
+		label: 'Planta Industrial',
+		desc: 'Voceo IP, audio de evacuación, zonas operativas y continuidad para espacios críticos.',
+		image: 'https://images.unsplash.com/photo-1581093458791-9d09cc08742a?auto=format&fit=crop&w=1400&q=80',
 	},
 ];
 
-const projectionOptions = [
-	{
-		value: 'Sí, Proyección Láser Gran Formato',
-		title: 'Sí, Proyección Láser Gran Formato',
-		desc: 'Alta luminosidad, óptica adecuada, pantalla y calibración para presentaciones críticas.',
-		image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1200&q=80',
-	},
-	{
-		value: 'Sí, Videowall / Pantalla LED',
-		title: 'Sí, Videowall / Pantalla LED',
-		desc: 'Módulos LED, procesadores, estructura, control y operación para visualización continua.',
-		image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80',
-	},
-	{
-		value: 'No, solo audio',
-		title: 'No, solo audio',
-		desc: 'Sistema enfocado en inteligibilidad, cobertura sonora y operación robusta sin componente visual.',
-		image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80',
-	},
+const specialties = [
+	{ id: 'audio', title: 'Audio', desc: 'Cobertura, SPL, inteligibilidad, microfonía y amplificación.' },
+	{ id: 'video', title: 'Video', desc: 'Proyección, pantallas profesionales, videowall, cámaras y visualización.' },
+	{ id: 'ambos', title: 'Audio + Video', desc: 'Sistema integral con audio, imagen, control y conectividad.' },
 ];
 
-const dimensions = [
-	{ value: 'Pequeño (hasta 50 m²)', title: 'Pequeño', desc: 'Hasta 50 m²', image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=80' },
-	{ value: 'Mediano (50-150 m²)', title: 'Mediano', desc: '50-150 m²', image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80' },
-	{ value: 'Grande (Más de 150 m²)', title: 'Grande', desc: 'Más de 150 m²', image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80' },
-];
-
-const purposes = [
-	{ value: 'Audio de evacuación/avisos', title: 'Audio de evacuación/avisos', desc: 'Inteligibilidad, zonas y continuidad operativa.', image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80' },
-	{ value: 'Videoconferencias claras', title: 'Videoconferencias claras', desc: 'Captura de voz, cámara, pantalla y control.', image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1200&q=80' },
-	{ value: 'Música ambiental de alta fidelidad', title: 'Música ambiental de alta fidelidad', desc: 'Cobertura equilibrada y experiencia sonora premium.', image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80' },
+const sizes = [
+	{ id: 'pequeno', title: 'Pequeño', desc: 'Hasta 50 m²' },
+	{ id: 'mediano', title: 'Mediano', desc: '50-150 m²' },
+	{ id: 'grande', title: 'Grande', desc: 'Más de 150 m²' },
 ];
 ---
 
 <Layout
-	title="Configurador Audiovisual | Mizo"
-	description="Aplicación configuradora de sistemas audiovisuales corporativos para plantas industriales, salas, auditorios y locales comerciales."
+	title="Software de Pre-Diseño Audiovisual | Mizo"
+	description="Configura una propuesta técnica preliminar con motor de cálculo para soluciones de ingeniería audiovisual Mizo."
 >
-	<section class="min-h-[calc(100vh-12rem)] bg-slate-50 font-sans">
+	<section class="min-h-[calc(100vh-12rem)] bg-slate-950 text-white">
+		<div class="absolute inset-0 -z-10 opacity-20" style="background-image: radial-gradient(#0284c7 1px, transparent 1px); background-size: 26px 26px;"></div>
 		<div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-			<div class="mb-8 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+			<div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
 				<div>
-					<span class="inline-flex rounded-full bg-sky-100 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">
-						Aplicación Configuradora Mizo
+					<span class="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-cyan-100 backdrop-blur">
+						Software de pre-diseño de ingeniería
 					</span>
-					<h1 class="mt-4 max-w-4xl text-4xl font-black tracking-tight text-slate-950 md:text-6xl">
-						Diseña tu solución audiovisual de nivel corporativo.
+					<h1 class="mt-5 max-w-4xl text-4xl font-black leading-tight text-white md:text-6xl">
+						Simula tu sistema audiovisual con lógica técnica Mizo.
 					</h1>
-					<p class="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-						Responde tres decisiones clave y nuestro sistema preparará una base técnica para que un ingeniero de Mizo valide tu proyecto.
+					<p class="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
+						Selecciona entorno, especialidad y tamaño. Nuestro motor calcula una propuesta preliminar con equipamiento recomendado antes de la validación en terreno.
 					</p>
 				</div>
-				<div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-					<p class="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Contacto directo</p>
-					<div class="mt-3 grid gap-2 text-sm font-bold text-slate-800">
-						<a href="tel:+56994390870" class="hover:text-[#0284c7]">+56 9 9439 0870</a>
-						<a href="mailto:ventas@mizo.cl" class="hover:text-[#0284c7]">ventas@mizo.cl</a>
-						<a href="https://wa.me/56994390870?text=Hola%20Mizo,%20quiero%20usar%20el%20configurador%20audiovisual" target="_blank" rel="noopener noreferrer" class="text-green-700 hover:text-green-800">WhatsApp inmediato</a>
+				<div class="grid gap-3 rounded-[2rem] border border-white/10 bg-white/10 p-5 backdrop-blur md:grid-cols-3">
+					<div>
+						<p class="text-3xl font-black text-cyan-200">SPL</p>
+						<p class="mt-1 text-sm text-slate-300">Presión sonora estimada</p>
+					</div>
+					<div>
+						<p class="text-3xl font-black text-cyan-200">AV</p>
+						<p class="mt-1 text-sm text-slate-300">Audio, video y control</p>
+					</div>
+					<div>
+						<p class="text-3xl font-black text-cyan-200">2h</p>
+						<p class="mt-1 text-sm text-slate-300">Contacto comercial</p>
 					</div>
 				</div>
 			</div>
 
-			<div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl">
-				<div class="border-b border-slate-200 bg-white p-5">
-					<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-						<div>
-							<p class="text-sm font-black text-slate-950">Pre-configuración guiada</p>
-							<p class="text-sm text-slate-500">Entorno, proyección condicional, dimensión, propósito y validación técnica.</p>
+			<div class="mt-8 overflow-hidden rounded-[2rem] border border-white/10 bg-white text-slate-950 shadow-2xl">
+				<div class="grid gap-0 lg:grid-cols-[360px_1fr]">
+					<aside class="bg-slate-100 p-5 lg:p-7">
+						<p class="text-xs font-black uppercase tracking-[0.2em] text-[#0284c7]">Matriz técnica</p>
+						<h2 class="mt-3 text-2xl font-black text-slate-950">Variables de diseño</h2>
+						<div class="mt-6 space-y-3 text-sm">
+							<div class="rounded-2xl bg-white p-4 shadow-sm">
+								<p class="font-black text-slate-950">Entorno</p>
+								<p data-current="entorno" class="mt-1 text-slate-500">No seleccionado</p>
+							</div>
+							<div class="rounded-2xl bg-white p-4 shadow-sm">
+								<p class="font-black text-slate-950">Especialidad</p>
+								<p data-current="especialidad" class="mt-1 text-slate-500">No seleccionado</p>
+							</div>
+							<div class="rounded-2xl bg-white p-4 shadow-sm">
+								<p class="font-black text-slate-950">Tamaño</p>
+								<p data-current="tamano" class="mt-1 text-slate-500">No seleccionado</p>
+							</div>
 						</div>
-						<div class="flex gap-2" aria-label="Progreso del configurador">
-							{[1, 2, 3, 4].map((step) => (
-								<span class="step-pill flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-black text-slate-500" data-progress-step={step}>{step}</span>
-							))}
-						</div>
-					</div>
-				</div>
+						<button id="run-engine" type="button" disabled class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[#0284c7] px-5 py-4 text-sm font-black text-white shadow-lg transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+							Ejecutar pre-diseño IA
+						</button>
+					</aside>
 
-				<div class="relative min-h-[36rem] p-5 sm:p-8 lg:p-10">
-					<div class="config-step" data-step="entorno">
-						<div class="max-w-3xl">
-							<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 1 · Entorno</p>
-							<h2 class="mt-3 text-3xl font-black text-slate-950">¿Qué tipo de espacio necesitas equipar?</h2>
-						</div>
-						<div class="mt-8 grid gap-4 md:grid-cols-2">
-							{environments.map((option) => (
-								<button type="button" class="option-card visual-card group text-left" data-field="entorno" data-value={option.value} data-focus={option.focus} data-needs-projection={String(option.needsProjection)} style={`background-image: linear-gradient(135deg, rgba(15,23,42,0.86), rgba(2,132,199,0.36)), url('${option.image}');`}>
-									<span class="inline-flex rounded-full bg-white/15 px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.18em] text-cyan-100 backdrop-blur">{option.focus}</span>
-									<span class="mt-10 block text-2xl font-black text-white">{option.title}</span>
-									<span class="mt-2 block text-sm leading-6 text-white/80">{option.desc}</span>
-								</button>
-							))}
-						</div>
-					</div>
+					<div class="p-5 sm:p-8 lg:p-10">
+						<div id="selector-panel">
+							<div class="mb-8">
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 1 · Entorno</p>
+								<h2 class="mt-3 text-3xl font-black text-slate-950">Define el recinto a intervenir.</h2>
+							</div>
+							<div class="grid gap-4 md:grid-cols-2">
+								{environments.map((item) => (
+									<button type="button" class="visual-option text-left" data-select="entorno" data-id={item.id} data-label={item.label} style={`background-image: linear-gradient(135deg, rgba(15,23,42,.88), rgba(2,132,199,.28)), url('${item.image}');`}>
+										<span class="text-2xl font-black text-white">{item.title}</span>
+										<span class="mt-3 block text-sm leading-6 text-white/80">{item.desc}</span>
+									</button>
+								))}
+							</div>
 
-					<div class="config-step hidden" data-step="proyeccion">
-						<div class="max-w-3xl">
-							<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Sub-paso · Imagen profesional</p>
-							<h2 class="mt-3 text-3xl font-black text-slate-950">¿Requiere Sistema de Proyección o Pantallas Profesionales?</h2>
-							<p class="mt-3 text-base text-slate-500">Esta pregunta se activa para auditorios, teatros y salas corporativas.</p>
-						</div>
-						<div class="mt-8 grid gap-4 lg:grid-cols-3">
-							{projectionOptions.map((option) => (
-								<button type="button" class="option-card visual-card text-left" data-field="proyeccion" data-value={option.value} style={`background-image: linear-gradient(135deg, rgba(15,23,42,0.84), rgba(2,132,199,0.34)), url('${option.image}');`}>
-									<span class="block text-xl font-black text-white">{option.title}</span>
-									<span class="mt-3 block text-sm leading-6 text-white/80">{option.desc}</span>
-								</button>
-							))}
-						</div>
-					</div>
+							<div class="mt-10">
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 2 · Especialidad</p>
+								<h2 class="mt-3 text-3xl font-black text-slate-950">Selecciona el alcance técnico.</h2>
+								<div class="mt-5 grid gap-4 lg:grid-cols-3">
+									{specialties.map((item) => (
+										<button type="button" class="logic-option text-left" data-select="especialidad" data-id={item.id} data-label={item.title}>
+											<span class="text-xl font-black text-slate-950">{item.title}</span>
+											<span class="mt-2 block text-sm leading-6 text-slate-500">{item.desc}</span>
+										</button>
+									))}
+								</div>
+							</div>
 
-					<div class="config-step hidden" data-step="dimension">
-						<div class="max-w-3xl">
-							<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 2 · Dimensión</p>
-							<h2 class="mt-3 text-3xl font-black text-slate-950">¿Cuál es la escala aproximada del espacio?</h2>
-						</div>
-						<div class="mt-8 grid gap-4 md:grid-cols-3">
-							{dimensions.map((option) => (
-								<button type="button" class="option-card visual-card text-left" data-field="dimension" data-value={option.value} style={`background-image: linear-gradient(135deg, rgba(15,23,42,0.82), rgba(2,132,199,0.26)), url('${option.image}');`}>
-									<span class="block text-2xl font-black text-white">{option.title}</span>
-									<span class="mt-2 block text-sm leading-6 text-white/80">{option.desc}</span>
-								</button>
-							))}
-						</div>
-					</div>
-
-					<div class="config-step hidden" data-step="proposito">
-						<div class="max-w-3xl">
-							<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 3 · Propósito</p>
-							<h2 class="mt-3 text-3xl font-black text-slate-950">¿Cuál es el objetivo principal del sistema?</h2>
-						</div>
-						<div class="mt-8 grid gap-4 lg:grid-cols-3">
-							{purposes.map((option) => (
-								<button type="button" class="option-card visual-card text-left" data-field="proposito" data-value={option.value} style={`background-image: linear-gradient(135deg, rgba(15,23,42,0.82), rgba(2,132,199,0.26)), url('${option.image}');`}>
-									<span class="block text-xl font-black text-white">{option.title}</span>
-									<span class="mt-2 block text-sm leading-6 text-white/80">{option.desc}</span>
-								</button>
-							))}
-						</div>
-					</div>
-
-					<div class="config-step hidden" data-step="lead">
-						<div id="loading-panel" class="flex min-h-[26rem] flex-col items-center justify-center text-center">
-							<div class="h-16 w-16 animate-spin rounded-full border-4 border-slate-200 border-t-[#0284c7]"></div>
-							<p class="mt-6 text-xl font-black text-slate-950">Calculando pre-configuración óptima...</p>
-							<p class="mt-2 max-w-xl text-sm text-slate-500">Cruzando entorno, dimensión y propósito para preparar la validación técnica.</p>
+							<div class="mt-10">
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 3 · Tamaño</p>
+								<h2 class="mt-3 text-3xl font-black text-slate-950">Indica la escala aproximada.</h2>
+								<div class="mt-5 grid gap-4 lg:grid-cols-3">
+									{sizes.map((item) => (
+										<button type="button" class="logic-option text-left" data-select="tamano" data-id={item.id} data-label={item.title}>
+											<span class="text-xl font-black text-slate-950">{item.title}</span>
+											<span class="mt-2 block text-sm leading-6 text-slate-500">{item.desc}</span>
+										</button>
+									))}
+								</div>
+							</div>
 						</div>
 
-						<div id="lead-panel" class="hidden">
-							<div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-								<div class="rounded-3xl bg-slate-950 p-6 text-white">
-									<p class="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">Paso 4 · Validación técnica</p>
-									<h2 class="mt-3 text-3xl font-black text-white">Tu configuración requiere revisión de ingeniería.</h2>
-									<p class="mt-4 text-base leading-7 text-slate-300">
-										Para garantizar que esta configuración responda perfectamente a la acústica y estructura de tu espacio, un Ingeniero de Mizo debe validar los coeficientes. Te contactaremos en menos de 2 horas
-									</p>
-									<div class="mt-6 space-y-3 text-sm">
-										<p><strong>Entorno:</strong> <span data-summary="entorno">-</span></p>
-										<p><strong>Especialidad:</strong> <span data-summary="entornoDetalle">-</span></p>
-										<p><strong>Proyección / Pantallas:</strong> <span data-summary="proyeccion">-</span></p>
-										<p><strong>Dimensión:</strong> <span data-summary="dimension">-</span></p>
-										<p><strong>Propósito:</strong> <span data-summary="proposito">-</span></p>
+						<div id="analysis-panel" class="hidden min-h-[34rem] flex-col items-center justify-center text-center">
+							<div class="relative h-28 w-28">
+								<div class="absolute inset-0 rounded-full border-4 border-sky-100"></div>
+								<div class="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-[#0284c7]"></div>
+								<div class="absolute inset-5 rounded-full bg-[#0284c7]/10"></div>
+							</div>
+							<p class="mt-8 text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Motor IA Mizo</p>
+							<p id="analysis-text" class="mt-3 max-w-2xl text-3xl font-black text-slate-950">Inicializando matriz técnica...</p>
+							<div class="mt-8 h-2 w-full max-w-xl overflow-hidden rounded-full bg-slate-100">
+								<div id="analysis-bar" class="h-full w-0 rounded-full bg-[#0284c7] transition-all duration-500"></div>
+							</div>
+						</div>
+
+						<div id="result-panel" class="hidden">
+							<div class="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-7">
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Informe Técnico Preliminar de Ingeniería</p>
+								<div class="mt-4 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-start">
+									<div>
+										<h2 id="report-title" class="text-3xl font-black text-slate-950">Pre-diseño generado</h2>
+										<p id="report-summary" class="mt-3 max-w-3xl text-base leading-7 text-slate-600"></p>
 									</div>
+									<button id="restart-engine" type="button" class="rounded-full border border-slate-300 px-5 py-3 text-sm font-black text-slate-700 transition hover:border-[#0284c7] hover:text-[#0284c7]">
+										Recalcular
+									</button>
 								</div>
 
-								<form id="configurator-form" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+								<div class="mt-6 grid gap-3 md:grid-cols-3">
+									<div class="rounded-2xl bg-white p-4 shadow-sm">
+										<p class="text-xs font-black uppercase text-slate-400">Entorno</p>
+										<p id="result-entorno" class="mt-1 font-black text-slate-950"></p>
+									</div>
+									<div class="rounded-2xl bg-white p-4 shadow-sm">
+										<p class="text-xs font-black uppercase text-slate-400">Especialidad</p>
+										<p id="result-especialidad" class="mt-1 font-black text-slate-950"></p>
+									</div>
+									<div class="rounded-2xl bg-white p-4 shadow-sm">
+										<p class="text-xs font-black uppercase text-slate-400">Tamaño</p>
+										<p id="result-tamano" class="mt-1 font-black text-slate-950"></p>
+									</div>
+								</div>
+							</div>
+
+							<div class="mt-6 overflow-hidden rounded-[2rem] border border-slate-200 bg-white">
+								<div class="border-b border-slate-200 bg-slate-950 px-5 py-4 text-white">
+									<p class="text-sm font-black">Equipamiento recomendado por algoritmo</p>
+								</div>
+								<div id="equipment-list" class="divide-y divide-slate-100"></div>
+							</div>
+
+							<div class="mt-6 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+								<div class="rounded-[2rem] bg-slate-950 p-6 text-white">
+									<p class="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">Validación obligatoria</p>
+									<h3 class="mt-3 text-2xl font-black text-white">Cierre técnico antes de compra.</h3>
+									<p class="mt-4 text-sm leading-7 text-slate-300">
+										Este reporte ha sido generado mediante algoritmos automáticos de cobertura estándar. Sin embargo, para garantizar que la dispersión acústica exacta, las zonas muertas de audio y los ángulos de visión sean 100% compatibles con la estructura física y acústica real de tu espacio, un Ingeniero de Mizo debe validar este informe en terreno antes de la compra. Ingresa tus datos para agendar la visita y enviarte el plano de conectividad
+									</p>
+								</div>
+
+								<form id="lead-form" class="rounded-[2rem] border-2 border-[#0284c7] bg-white p-6 shadow-xl shadow-sky-900/10">
 									<input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
-									<input type="hidden" name="espacio" data-hidden-field="entorno">
-									<input type="hidden" name="especialidad" data-hidden-field="entornoDetalle">
-									<input type="hidden" name="proyeccion" data-hidden-field="proyeccion">
-									<input type="hidden" name="dimension" data-hidden-field="dimension">
-									<input type="hidden" name="proposito" data-hidden-field="proposito">
-									<input type="hidden" name="pack" value="Configurador audiovisual Mizo">
-									<input type="hidden" name="detalles" data-hidden-field="detalles">
+									<input type="hidden" name="pack" value="Software de Pre-Diseño IA Mizo">
+									<input type="hidden" name="espacio" id="lead-espacio">
+									<input type="hidden" name="especialidad" id="lead-especialidad">
+									<input type="hidden" name="dimension" id="lead-dimension">
+									<input type="hidden" name="proposito" id="lead-proposito">
+									<input type="hidden" name="productos" id="lead-productos">
+									<input type="hidden" name="detalles" id="lead-detalles">
 
 									<div class="grid gap-4 sm:grid-cols-2">
 										<label class="block">
@@ -228,20 +232,13 @@ const purposes = [
 											<input name="correo" required type="email" autocomplete="email" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#0284c7] focus:ring-4 focus:ring-sky-100">
 										</label>
 									</div>
-
-									<button id="configurator-submit" type="submit" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[#0284c7] px-6 py-4 text-sm font-black text-white shadow-lg transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60">
-										Solicitar validación de ingeniería
+									<button id="lead-submit" type="submit" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[#0284c7] px-6 py-4 text-sm font-black text-white shadow-lg transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60">
+										Agendar visita y recibir plano de conectividad
 									</button>
-									<p id="configurator-status" class="mt-4 hidden rounded-2xl px-4 py-3 text-sm font-bold"></p>
-									<p class="mt-4 text-center text-xs font-semibold text-slate-400">Tus datos se usan únicamente para responder esta solicitud técnica.</p>
+									<p id="lead-status" class="mt-4 hidden rounded-2xl px-4 py-3 text-sm font-bold"></p>
 								</form>
 							</div>
 						</div>
-					</div>
-
-					<div class="mt-8 flex items-center justify-between border-t border-slate-200 pt-6">
-						<button id="prev-step" type="button" class="rounded-full border border-slate-200 px-5 py-3 text-sm font-black text-slate-600 transition hover:border-[#0284c7] hover:text-[#0284c7] disabled:cursor-not-allowed disabled:opacity-40">Volver</button>
-						<p class="text-sm font-bold text-slate-400"><span id="step-label">Paso 1</span></p>
 					</div>
 				</div>
 			</div>
@@ -250,152 +247,210 @@ const purposes = [
 </Layout>
 
 <style>
-	.option-card {
+	.visual-option,
+	.logic-option {
 		border: 1px solid #e2e8f0;
 		border-radius: 1.5rem;
-		background: #ffffff;
-		padding: 1.5rem;
-		box-shadow: 0 10px 30px rgb(15 23 42 / 0.04);
-		transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+		box-shadow: 0 12px 34px rgb(15 23 42 / 0.06);
+		transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 	}
-	.option-card:hover,
-	.option-card.is-selected {
-		border-color: #0284c7;
-		background: #f0f9ff;
-		box-shadow: 0 18px 40px rgb(2 132 199 / 0.14);
-		transform: translateY(-2px);
-	}
-	.visual-card {
-		min-height: 15rem;
+	.visual-option {
+		min-height: 17rem;
 		background-position: center;
 		background-size: cover;
-		color: #ffffff;
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-end;
-		overflow: hidden;
+		padding: 1.5rem;
 	}
-	.visual-card.is-selected {
+	.logic-option {
+		background: #ffffff;
+		padding: 1.25rem;
+	}
+	.visual-option:hover,
+	.visual-option.is-selected,
+	.logic-option:hover,
+	.logic-option.is-selected {
+		border-color: #0284c7;
+		box-shadow: 0 18px 46px rgb(2 132 199 / 0.18);
+		transform: translateY(-2px);
+	}
+	.visual-option.is-selected,
+	.logic-option.is-selected {
 		outline: 3px solid #0284c7;
 		outline-offset: 3px;
-	}
-	.config-step {
-		animation: configuratorFade 260ms ease both;
-	}
-	@keyframes configuratorFade {
-		from { opacity: 0; transform: translateY(8px); }
-		to { opacity: 1; transform: translateY(0); }
 	}
 </style>
 
 <script is:inline>
 	(function () {
-		const state = {
-			entorno: '',
-			entornoDetalle: '',
-			proyeccion: 'No aplica',
-			dimension: '',
-			proposito: '',
-			requiresProjection: false,
+		const analysisMessages = [
+			'IA analizando volumen de aire...',
+			'Calculando presión sonora (SPL) necesaria...',
+			'Evaluando tiro y lúmenes de proyección...',
+			'Sincronizando con catálogo maestro Mizo...',
+		];
+
+		const designMatrix = {
+			'gimnasio|grande|audio': {
+				title: 'Sistema deportivo de alta presión sonora',
+				summary: 'La matriz detectó un recinto deportivo grande con prioridad de audio. Se recomienda arquitectura de alta potencia con dispersión controlada, rack dedicado y microfonía robusta para operación deportiva.',
+				equipment: [
+					{ qty: 1, unit: 'sistema', name: 'Sistema de Arreglo Lineal (Line Array)', note: 'Cobertura principal para gradas y cancha.' },
+					{ qty: 1, unit: 'unidad', name: 'Rack de Amplificación de 3200W', note: 'Potencia estimada para alta presión sonora.' },
+					{ qty: 1, unit: 'unidad', name: 'Consola de mezcla digital', note: 'Operación de eventos, música y locución.' },
+					{ qty: 2, unit: 'unidades', name: 'Microfonía Inalámbrica UHF', note: 'Locución deportiva y actividades masivas.' },
+				],
+			},
+			'auditorio|mediano|ambos': {
+				title: 'Sistema integral para auditorio mediano',
+				summary: 'La matriz detectó un auditorio mediano con necesidad audiovisual completa. Se recomienda proyección láser, pantalla eléctrica y audio de cobertura controlada para inteligibilidad y operación corporativa.',
+				equipment: [
+					{ qty: 1, unit: 'unidad', name: 'Proyector Láser de 6000 Lúmenes', note: 'Brillo recomendado para sala mediana.' },
+					{ qty: 1, unit: 'unidad', name: 'Pantalla Eléctrica de 150 pulgadas', note: 'Formato para presentaciones y video institucional.' },
+					{ qty: 4, unit: 'unidades', name: 'Parlantes de Cobertura Controlada', note: 'Distribución frontal/lateral para audiencia.' },
+					{ qty: 1, unit: 'unidad', name: 'Amplificador Digital', note: 'Procesamiento y potencia centralizada.' },
+				],
+			},
+			'sala|pequeno|video': {
+				title: 'Sala corporativa compacta con videoconferencia IA',
+				summary: 'La matriz detectó una sala pequeña orientada a video. Se recomienda una solución todo en uno con tracking IA y pantalla profesional para reuniones híbridas limpias.',
+				equipment: [
+					{ qty: 1, unit: 'unidad', name: 'Barra de Video Inteligente con Tracking IA todo en uno', note: 'Cámara, micrófonos y procesamiento integrado.' },
+					{ qty: 1, unit: 'unidad', name: 'Pantalla Profesional de 65 pulgadas', note: 'Visualización corporativa para reuniones ejecutivas.' },
+				],
+			},
 		};
-		let currentStep = 'entorno';
-		const history = [];
-		const steps = Array.from(document.querySelectorAll('.config-step'));
-		const progress = Array.from(document.querySelectorAll('[data-progress-step]'));
-		const prev = document.getElementById('prev-step');
-		const label = document.getElementById('step-label');
-		const loadingPanel = document.getElementById('loading-panel');
-		const leadPanel = document.getElementById('lead-panel');
-		const form = document.getElementById('configurator-form');
-		const submit = document.getElementById('configurator-submit');
-		const status = document.getElementById('configurator-status');
 
-		function detailsText() {
-			return `Configurador audiovisual Mizo | Entorno: ${state.entorno} | Especialidad: ${state.entornoDetalle} | Proyección/Pantallas: ${state.proyeccion} | Dimensión: ${state.dimension} | Propósito: ${state.proposito}`;
+		const fallbacks = {
+			audio: [
+				{ qty: 4, unit: 'unidades', name: 'Parlantes de cobertura profesional', note: 'Cantidad base ajustable por cálculo acústico.' },
+				{ qty: 1, unit: 'unidad', name: 'Amplificador digital con DSP', note: 'Procesamiento, limitación y ecualización.' },
+				{ qty: 1, unit: 'unidad', name: 'Microfonía inalámbrica UHF', note: 'Operación vocal y avisos.' },
+			],
+			video: [
+				{ qty: 1, unit: 'unidad', name: 'Pantalla profesional o proyector láser', note: 'Selección final según distancia de visión y luminosidad.' },
+				{ qty: 1, unit: 'unidad', name: 'Sistema de conectividad HDMI/USB-C', note: 'Integración de fuentes y operación simple.' },
+				{ qty: 1, unit: 'unidad', name: 'Controlador de presentación', note: 'Gestión de encendido, fuentes y escenas.' },
+			],
+			ambos: [
+				{ qty: 1, unit: 'sistema', name: 'Sistema audiovisual integrado', note: 'Audio, video, control y conectividad en una arquitectura única.' },
+				{ qty: 4, unit: 'unidades', name: 'Parlantes profesionales calibrables', note: 'Cobertura inicial estimada.' },
+				{ qty: 1, unit: 'unidad', name: 'Pantalla profesional o proyector láser', note: 'Definición por ángulos de visión y luminosidad.' },
+				{ qty: 1, unit: 'unidad', name: 'Procesador / matriz de control', note: 'Operación centralizada.' },
+			],
+		};
+
+		const state = {
+			entorno: null,
+			especialidad: null,
+			tamano: null,
+			report: null,
+		};
+
+		const selectorPanel = document.getElementById('selector-panel');
+		const analysisPanel = document.getElementById('analysis-panel');
+		const resultPanel = document.getElementById('result-panel');
+		const runButton = document.getElementById('run-engine');
+		const restartButton = document.getElementById('restart-engine');
+		const analysisText = document.getElementById('analysis-text');
+		const analysisBar = document.getElementById('analysis-bar');
+		const equipmentList = document.getElementById('equipment-list');
+		const form = document.getElementById('lead-form');
+		const submit = document.getElementById('lead-submit');
+		const status = document.getElementById('lead-status');
+
+		function updateCurrentLabels() {
+			document.querySelector('[data-current="entorno"]').textContent = state.entorno?.label || 'No seleccionado';
+			document.querySelector('[data-current="especialidad"]').textContent = state.especialidad?.label || 'No seleccionado';
+			document.querySelector('[data-current="tamano"]').textContent = state.tamano?.label || 'No seleccionado';
+			runButton.disabled = !(state.entorno && state.especialidad && state.tamano);
 		}
 
-		function visibleStepNumber() {
-			if (currentStep === 'entorno') return 1;
-			if (currentStep === 'proyeccion') return 1;
-			if (currentStep === 'dimension') return 2;
-			if (currentStep === 'proposito') return 3;
-			return 4;
+		function selectOption(button) {
+			const group = button.dataset.select;
+			const value = { id: button.dataset.id, label: button.dataset.label };
+			state[group] = value;
+			document.querySelectorAll(`[data-select="${group}"]`).forEach((item) => item.classList.toggle('is-selected', item === button));
+			updateCurrentLabels();
 		}
 
-		function visibleStepLabel() {
-			if (currentStep === 'proyeccion') return 'Sub-paso de imagen profesional';
-			return `Paso ${visibleStepNumber()} de 4`;
+		function calculateDesign() {
+			const key = `${state.entorno.id}|${state.tamano.id}|${state.especialidad.id}`;
+			const direct = designMatrix[key];
+			if (direct) return direct;
+			const scaleQty = state.tamano.id === 'grande' ? 2 : 1;
+			const base = fallbacks[state.especialidad.id] || fallbacks.ambos;
+			return {
+				title: `Pre-diseño ${state.entorno.label} ${state.tamano.label}`,
+				summary: `La matriz IA generó una propuesta preliminar para ${state.entorno.label}, tamaño ${state.tamano.label}, con especialidad ${state.especialidad.label}. La ingeniería final debe validar cobertura, cableado y condiciones físicas.`,
+				equipment: base.map((item) => ({ ...item, qty: Math.max(1, item.qty * scaleQty) })),
+			};
 		}
 
-		function goTo(nextStep) {
-			if (nextStep !== currentStep) history.push(currentStep);
-			currentStep = nextStep;
-			render();
+		function productText(report) {
+			return report.equipment.map((item) => `${item.qty} ${item.unit} - ${item.name} (${item.note})`).join('\n');
 		}
 
-		function nextStepFor(field) {
-			if (field === 'entorno') return state.requiresProjection ? 'proyeccion' : 'dimension';
-			if (field === 'proyeccion') return 'dimension';
-			if (field === 'dimension') return 'proposito';
-			if (field === 'proposito') return 'lead';
-			return 'entorno';
+		function fillLeadFields(report) {
+			document.getElementById('lead-espacio').value = state.entorno.label;
+			document.getElementById('lead-especialidad').value = state.especialidad.label;
+			document.getElementById('lead-dimension').value = state.tamano.label;
+			document.getElementById('lead-proposito').value = 'Pre-diseño IA de equipamiento audiovisual';
+			document.getElementById('lead-productos').value = productText(report);
+			document.getElementById('lead-detalles').value = [
+				`Informe: ${report.title}`,
+				`Entorno: ${state.entorno.label}`,
+				`Especialidad: ${state.especialidad.label}`,
+				`Tamaño: ${state.tamano.label}`,
+				'Equipamiento:',
+				productText(report),
+			].join('\n');
 		}
 
-		function updateHiddenFields() {
-			document.querySelectorAll('[data-hidden-field]').forEach((input) => {
-				const key = input.dataset.hiddenField;
-				input.value = key === 'detalles' ? detailsText() : (state[key] || '');
-			});
-			document.querySelectorAll('[data-summary]').forEach((item) => {
-				item.textContent = state[item.dataset.summary] || '-';
-			});
+		function renderReport(report) {
+			document.getElementById('report-title').textContent = report.title;
+			document.getElementById('report-summary').textContent = report.summary;
+			document.getElementById('result-entorno').textContent = state.entorno.label;
+			document.getElementById('result-especialidad').textContent = state.especialidad.label;
+			document.getElementById('result-tamano').textContent = state.tamano.label;
+			equipmentList.innerHTML = report.equipment.map((item) => `
+				<div class="grid gap-4 px-5 py-4 sm:grid-cols-[7rem_1fr] sm:items-center">
+					<div class="rounded-2xl bg-sky-50 px-4 py-3 text-center">
+						<p class="text-2xl font-black text-[#0284c7]">${item.qty}</p>
+						<p class="text-xs font-black uppercase text-slate-500">${item.unit}</p>
+					</div>
+					<div>
+						<p class="text-lg font-black text-slate-950">${item.name}</p>
+						<p class="mt-1 text-sm leading-6 text-slate-500">${item.note}</p>
+					</div>
+				</div>
+			`).join('');
+			fillLeadFields(report);
 		}
 
-		function render() {
-			steps.forEach((item) => item.classList.toggle('hidden', item.dataset.step !== currentStep));
-			const stepNumber = visibleStepNumber();
-			progress.forEach((item) => {
-				const active = Number(item.dataset.progressStep) <= stepNumber;
-				item.classList.toggle('bg-[#0284c7]', active);
-				item.classList.toggle('border-[#0284c7]', active);
-				item.classList.toggle('text-white', active);
-				item.classList.toggle('bg-slate-50', !active);
-				item.classList.toggle('border-slate-200', !active);
-				item.classList.toggle('text-slate-500', !active);
-			});
-			if (label) label.textContent = visibleStepLabel();
-			if (prev) prev.disabled = history.length === 0;
-			if (currentStep === 'lead') {
-				updateHiddenFields();
-				loadingPanel.classList.remove('hidden');
-				leadPanel.classList.add('hidden');
-				window.setTimeout(() => {
-					loadingPanel.classList.add('hidden');
-					leadPanel.classList.remove('hidden');
-				}, 1100);
-			}
-		}
-
-		document.querySelectorAll('[data-field]').forEach((button) => {
-			button.addEventListener('click', () => {
-				const field = button.dataset.field;
-				state[field] = button.dataset.value || '';
-				if (field === 'entorno') {
-					state.entornoDetalle = button.dataset.focus || '';
-					state.requiresProjection = button.dataset.needsProjection === 'true';
-					state.proyeccion = state.requiresProjection ? '' : 'No aplica';
+		function runAnalysis() {
+			selectorPanel.classList.add('hidden');
+			resultPanel.classList.add('hidden');
+			analysisPanel.classList.remove('hidden');
+			analysisPanel.classList.add('flex');
+			analysisBar.style.width = '0%';
+			let index = 0;
+			analysisText.textContent = analysisMessages[0];
+			const timer = window.setInterval(() => {
+				index += 1;
+				analysisBar.style.width = `${Math.min(100, (index / analysisMessages.length) * 100)}%`;
+				if (index < analysisMessages.length) {
+					analysisText.textContent = analysisMessages[index];
+					return;
 				}
-				document.querySelectorAll(`[data-field="${field}"]`).forEach((item) => item.classList.toggle('is-selected', item === button));
-				goTo(nextStepFor(field));
-			});
-		});
-
-		if (prev) {
-			prev.addEventListener('click', () => {
-				if (!history.length) return;
-				currentStep = history.pop();
-				render();
-			});
+				window.clearInterval(timer);
+				state.report = calculateDesign();
+				renderReport(state.report);
+				analysisPanel.classList.add('hidden');
+				analysisPanel.classList.remove('flex');
+				resultPanel.classList.remove('hidden');
+			}, 900);
 		}
 
 		function showStatus(message, error) {
@@ -403,33 +458,41 @@ const purposes = [
 			status.className = `mt-4 rounded-2xl px-4 py-3 text-sm font-bold ${error ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
 		}
 
-		if (form) {
-			form.addEventListener('submit', async (event) => {
-				event.preventDefault();
-				updateHiddenFields();
-				submit.disabled = true;
-				submit.textContent = 'Enviando a ingeniería...';
-				try {
-					const data = Object.fromEntries(new FormData(form).entries());
-					const response = await fetch('/api/enviar-cotizacion-proyecto.php', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify(data),
-					});
-					const payload = await response.json().catch(() => null);
-					if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'No se pudo enviar la solicitud.');
-					form.reset();
-					updateHiddenFields();
-					showStatus(payload.message || 'Solicitud recibida. Un ingeniero de Mizo te contactará en menos de 2 horas.', false);
-				} catch (error) {
-					showStatus(error.message || 'No se pudo enviar la solicitud.', true);
-				} finally {
-					submit.disabled = false;
-					submit.textContent = 'Solicitar validación de ingeniería';
-				}
-			});
-		}
+		document.querySelectorAll('[data-select]').forEach((button) => {
+			button.addEventListener('click', () => selectOption(button));
+		});
 
-		render();
+		runButton.addEventListener('click', runAnalysis);
+		restartButton.addEventListener('click', () => {
+			resultPanel.classList.add('hidden');
+			selectorPanel.classList.remove('hidden');
+		});
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			if (state.report) fillLeadFields(state.report);
+			submit.disabled = true;
+			submit.textContent = 'Enviando informe a ingeniería...';
+			try {
+				const data = Object.fromEntries(new FormData(form).entries());
+				const response = await fetch('/api/enviar-cotizacion-proyecto.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(data),
+				});
+				const payload = await response.json().catch(() => null);
+				if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'No se pudo enviar la solicitud.');
+				form.reset();
+				if (state.report) fillLeadFields(state.report);
+				showStatus(payload.message || 'Informe enviado. Un ingeniero de Mizo te contactará en menos de 2 horas.', false);
+			} catch (error) {
+				showStatus(error.message || 'No se pudo enviar la solicitud.', true);
+			} finally {
+				submit.disabled = false;
+				submit.textContent = 'Agendar visita y recibir plano de conectividad';
+			}
+		});
+
+		updateCurrentLabels();
 	})();
 </script>

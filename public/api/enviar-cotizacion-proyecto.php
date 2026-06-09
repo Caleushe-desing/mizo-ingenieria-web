@@ -43,7 +43,8 @@ $specialty = clean_text($payload['especialidad'] ?? '', 200);
 $projection = clean_text($payload['proyeccion'] ?? '', 200);
 $dimension = clean_text($payload['dimension'] ?? '', 160);
 $purpose = clean_text($payload['proposito'] ?? '', 200);
-$details = clean_text($payload['detalles'] ?? '', 1200);
+$products = clean_text($payload['productos'] ?? '', 4000);
+$details = clean_text($payload['detalles'] ?? '', 4000);
 $pack = clean_text($payload['pack'] ?? 'Configurador audiovisual Mizo', 200);
 
 if ($name === '' || $company === '' || $phone === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -65,6 +66,9 @@ $lines = [
     'Proyección / Pantallas: ' . ($projection !== '' ? $projection : 'No indicado'),
     'Dimensión: ' . ($dimension !== '' ? $dimension : 'No indicada'),
     'Propósito: ' . ($purpose !== '' ? $purpose : 'No indicado'),
+    '',
+    'Equipamiento pre-calculado por IA:',
+    $products !== '' ? $products : 'Sin desglose de productos.',
     '',
     'Detalle técnico:',
     $details !== '' ? $details : 'Sin detalle adicional.',
