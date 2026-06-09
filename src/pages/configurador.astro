@@ -291,63 +291,6 @@ const sizes = [
 			'Sincronizando con catálogo maestro Mizo...',
 		];
 
-		const designMatrix = {
-			'gimnasio|grande|audio': {
-				title: 'Pre-diseño deportivo con audio profesional de alta potencia',
-				summary: 'La matriz detectó un recinto deportivo grande con prioridad de audio. Se recomienda arquitectura de alta potencia con dispersión controlada, rack dedicado y microfonía robusta para operación deportiva.',
-				equipment: [
-					{ qty: 2, unit: 'unidades', name: 'Sistemas de Arreglo Lineal Compacto (Line Array)', note: 'Cobertura principal para gradas y cancha con dispersión controlada.' },
-					{ qty: 1, unit: 'unidad', name: 'Rack de Amplificación Profesional de 3200W', note: 'Potencia estimada para alta presión sonora en recintos deportivos.' },
-					{ qty: 1, unit: 'unidad', name: 'Consola de Mezcla Behringer con Micrófono UHF Shure', note: 'Operación de eventos, locución deportiva y actividades masivas.' },
-				],
-			},
-			'auditorio|mediano|ambos': {
-				title: 'Pre-diseño audiovisual para auditorio mediano',
-				summary: 'La matriz detectó un auditorio mediano con necesidad audiovisual completa. Se recomienda proyección láser, pantalla eléctrica y audio de cobertura controlada para inteligibilidad y operación corporativa.',
-				equipment: [
-					{ qty: 1, unit: 'unidad', name: 'Proyector Láser Profesional (6000 Lúmenes)', note: 'Brillo recomendado para sala mediana con presentaciones críticas.' },
-					{ qty: 1, unit: 'unidad', name: 'Pantalla Eléctrica de Proyección 150 pulgadas', note: 'Formato para presentaciones y video institucional.' },
-					{ qty: 4, unit: 'unidades', name: 'Parlantes de Cobertura Controlada', note: 'Distribución frontal/lateral para audiencia.' },
-					{ qty: 1, unit: 'unidad', name: 'Amplificador Digital Crown', note: 'Potencia y control para parlantes de cobertura controlada.' },
-				],
-			},
-			'sala|pequeno|video': {
-				title: 'Pre-diseño para sala corporativa compacta con video IA',
-				summary: 'La matriz detectó una sala pequeña orientada a video. Se recomienda una solución todo en uno con tracking IA y pantalla profesional para reuniones híbridas limpias.',
-				equipment: [
-					{ qty: 1, unit: 'unidad', name: 'Barra de Video Inteligente Logitech Rally con Tracking IA', note: 'Cámara, micrófonos y encuadre automático para reuniones híbridas.' },
-					{ qty: 1, unit: 'unidad', name: 'Pantalla Profesional LED 65 pulgadas 4K', note: 'Visualización corporativa para reuniones ejecutivas.' },
-				],
-			},
-			'sala|pequeno|ambos': {
-				title: 'Pre-diseño para sala corporativa compacta con audio y video IA',
-				summary: 'La matriz detectó una sala pequeña con necesidad audiovisual completa. Se recomienda video inteligente con tracking IA y visualización profesional 4K para reuniones híbridas.',
-				equipment: [
-					{ qty: 1, unit: 'unidad', name: 'Barra de Video Inteligente Logitech Rally con Tracking IA', note: 'Cámara, micrófonos y encuadre automático para reuniones híbridas.' },
-					{ qty: 1, unit: 'unidad', name: 'Pantalla Profesional LED 65 pulgadas 4K', note: 'Visualización corporativa para reuniones ejecutivas.' },
-				],
-			},
-		};
-
-		const fallbacks = {
-			audio: [
-				{ qty: 4, unit: 'unidades', name: 'Parlantes de Muro de Alta Presión', note: 'Cantidad base ajustable por cálculo acústico.' },
-				{ qty: 1, unit: 'unidad', name: 'Amplificador de Potencia Digital con DSP', note: 'Limitación, ecualización y protección de parlantes.' },
-				{ qty: 1, unit: 'unidad', name: 'Micrófono Inalámbrico UHF Shure', note: 'Operación vocal, avisos y presentaciones.' },
-			],
-			video: [
-				{ qty: 1, unit: 'unidad', name: 'Proyector Láser Profesional o Pantalla LED Profesional', note: 'Selección final según distancia de visión y luminosidad.' },
-				{ qty: 1, unit: 'unidad', name: 'Kit de Conectividad HDMI/USB-C Profesional', note: 'Integración de notebooks, cámaras y fuentes de presentación.' },
-				{ qty: 1, unit: 'unidad', name: 'Controlador de Presentación Audiovisual', note: 'Gestión de encendido, fuentes y escenas.' },
-			],
-			ambos: [
-				{ qty: 4, unit: 'unidades', name: 'Parlantes de Cobertura Controlada', note: 'Cobertura inicial estimada para audiencia o zona de trabajo.' },
-				{ qty: 1, unit: 'unidad', name: 'Amplificador de Potencia Digital con DSP', note: 'Potencia, limitación y ecualización para audio profesional.' },
-				{ qty: 1, unit: 'unidad', name: 'Proyector Láser Profesional o Pantalla LED Profesional', note: 'Definición final por ángulos de visión y luminosidad.' },
-				{ qty: 1, unit: 'unidad', name: 'Consola de Audio Digital', note: 'Operación de entradas, micrófonos y niveles de sala.' },
-			],
-		};
-
 		const state = {
 			entorno: null,
 			especialidad: null,
@@ -382,21 +325,46 @@ const sizes = [
 			updateCurrentLabels();
 		}
 
-		function calculateDesign() {
-			const key = `${state.entorno.id}|${state.tamano.id}|${state.especialidad.id}`;
-			const direct = designMatrix[key];
-			if (direct) return direct;
-			const scaleQty = state.tamano.id === 'grande' ? 2 : 1;
-			const base = fallbacks[state.especialidad.id] || fallbacks.ambos;
+		function escapeHtml(value) {
+			return String(value ?? '')
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;');
+		}
+
+		async function calculateDesign() {
+			const response = await fetch('/api/recomendar-equipamiento.php', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+				body: JSON.stringify({
+					entorno: state.entorno.id,
+					especialidad: state.especialidad.id,
+					tamano: state.tamano.id,
+				}),
+			});
+			const payload = await response.json().catch(() => null);
+			if (!response.ok || !payload?.ok) {
+				throw new Error(payload?.error || 'No se pudo conectar con el catálogo maestro de productos.');
+			}
 			return {
-				title: `Pre-diseño ${state.entorno.label} ${state.tamano.label}`,
-				summary: `La matriz IA generó una propuesta preliminar para ${state.entorno.label}, tamaño ${state.tamano.label}, con especialidad ${state.especialidad.label}. La ingeniería final debe validar cobertura, cableado y condiciones físicas.`,
-				equipment: base.map((item) => ({ ...item, qty: Math.max(1, item.qty * scaleQty) })),
+				title: payload.title || 'Pre-diseño IA con productos reales del catálogo Mizo',
+				summary: payload.summary || 'El motor cruzó las variables seleccionadas con productos reales publicados en el catálogo maestro.',
+				source: payload.source || 'Catálogo maestro Mizo',
+				equipment: Array.isArray(payload.products) ? payload.products : [],
 			};
 		}
 
 		function productText(report) {
-			return report.equipment.map((item) => `${item.qty} ${item.unit.toUpperCase()} - ${item.name} (${item.note})`).join('\n');
+			return report.equipment.map((item) => [
+				`${item.qty} ${String(item.unit || 'unidad').toUpperCase()} - ${item.name}`,
+				item.sku ? `SKU: ${item.sku}` : '',
+				item.brand ? `Marca: ${item.brand}` : '',
+				item.category ? `Categoría: ${item.category}` : '',
+				item.stock != null ? `Stock: ${item.stock}` : '',
+				item.description ? `Descripción: ${item.description}` : '',
+			].filter(Boolean).join(' | ')).join('\n');
 		}
 
 		function fillLeadFields(report) {
@@ -422,17 +390,28 @@ const sizes = [
 			document.getElementById('result-especialidad').textContent = state.especialidad.label;
 			document.getElementById('result-tamano').textContent = state.tamano.label;
 			equipmentList.innerHTML = report.equipment.map((item) => `
-				<div class="grid gap-4 px-5 py-4 sm:grid-cols-[7rem_1fr] sm:items-center">
-					<div class="rounded-2xl bg-[#0284c7] px-4 py-3 text-center text-white shadow-lg shadow-sky-900/15">
-						<p class="text-2xl font-black">${item.qty}</p>
-						<p class="text-xs font-black uppercase">${item.unit}</p>
+				<div class="grid gap-5 px-5 py-5 lg:grid-cols-[9rem_1fr] lg:items-start">
+					<div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+						<img src="${escapeHtml(item.image || '/mizo-logo.png')}" alt="${escapeHtml(item.name)}" class="h-32 w-full object-contain p-3" loading="lazy">
 					</div>
 					<div>
-						<p class="text-lg font-black text-slate-950">${item.name}</p>
-						<p class="mt-1 text-sm leading-6 text-slate-500">${item.note}</p>
+						<div class="flex flex-wrap items-start gap-3">
+							<span class="rounded-2xl bg-[#0284c7] px-4 py-2 text-xs font-black uppercase text-white shadow-lg shadow-sky-900/15">
+								${escapeHtml(item.qty)} ${escapeHtml(item.unit || 'unidad')}
+							</span>
+							${item.role ? `<span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-black uppercase text-slate-500">${escapeHtml(item.role)}</span>` : ''}
+						</div>
+						<p class="mt-3 text-lg font-black text-slate-950">${escapeHtml(item.name)}</p>
+						<div class="mt-2 flex flex-wrap gap-2 text-xs font-black uppercase tracking-wide text-slate-500">
+							${item.sku ? `<span>SKU ${escapeHtml(item.sku)}</span>` : ''}
+							${item.brand ? `<span>Marca ${escapeHtml(item.brand)}</span>` : ''}
+							${item.category ? `<span>${escapeHtml(item.category)}</span>` : ''}
+							${item.stock != null ? `<span>Stock ${escapeHtml(item.stock)}</span>` : ''}
+						</div>
+						<p class="mt-3 text-sm leading-6 text-slate-600">${escapeHtml(item.description || 'Descripción técnica no disponible en el catálogo maestro.')}</p>
 					</div>
 				</div>
-			`).join('') + '<div class="bg-slate-50 px-5 py-4 text-xs font-semibold italic text-slate-500">*Equipamiento referenciado de los catálogos técnicos de marcas oficiales distribuidas por Mizo.</div>';
+			`).join('') + '<div class="bg-slate-50 px-5 py-4 text-xs font-semibold italic text-slate-500">*Equipamiento leído dinámicamente desde el catálogo maestro MySQL publicado por Mizo.</div>';
 			fillLeadFields(report);
 		}
 
@@ -452,11 +431,22 @@ const sizes = [
 					return;
 				}
 				window.clearInterval(timer);
-				state.report = calculateDesign();
-				renderReport(state.report);
-				analysisPanel.classList.add('hidden');
-				analysisPanel.classList.remove('flex');
-				resultPanel.classList.remove('hidden');
+				analysisText.textContent = 'Consultando productos reales con stock disponible...';
+				analysisBar.style.width = '100%';
+				calculateDesign()
+					.then((report) => {
+						state.report = report;
+						renderReport(state.report);
+						analysisPanel.classList.add('hidden');
+						analysisPanel.classList.remove('flex');
+						resultPanel.classList.remove('hidden');
+					})
+					.catch((error) => {
+						analysisPanel.classList.add('hidden');
+						analysisPanel.classList.remove('flex');
+						selectorPanel.classList.remove('hidden');
+						showStatus(error.message || 'No se pudo generar el informe con productos reales.', true);
+					});
 			}, 900);
 		}
 
