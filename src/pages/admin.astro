@@ -114,7 +114,8 @@ const title = 'Panel central Mizo';
 												<button id="save-quote-config" type="button" class="text-xs font-black text-accent-main">Guardar config</button>
 											</div>
 											<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-												<input id="quote-company-name" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Empresa" />
+												<input id="quote-company-name" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Razón social" />
+												<input id="quote-company-tax-id" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="RUT" />
 												<input id="quote-company-phone" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Teléfono" />
 												<input id="quote-company-email" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="ventas@mizo.cl" />
 												<input id="quote-company-address" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="Dirección" />
@@ -379,6 +380,7 @@ const title = 'Panel central Mizo';
 			function quoteCompanyFromForm() {
 				return {
 					companyName: $('quote-company-name').value.trim(),
+					taxId: $('quote-company-tax-id').value.trim(),
 					phone: $('quote-company-phone').value.trim(),
 					email: $('quote-company-email').value.trim(),
 					address: $('quote-company-address').value.trim(),
@@ -389,11 +391,12 @@ const title = 'Panel central Mizo';
 
 			function fillQuoteCompanyForm(config) {
 				quoteConfig = config || {};
-				$('quote-company-name').value = quoteConfig.companyName || 'Mizo';
-				$('quote-company-phone').value = quoteConfig.phone || '';
-				$('quote-company-email').value = quoteConfig.email || 'ventas@mizo.cl';
-				$('quote-company-address').value = quoteConfig.address || 'Puerto Montt, Chile';
-				$('quote-company-website').value = quoteConfig.website || 'https://mizo.cl';
+				$('quote-company-name').value = 'Mizo Estilo y Color';
+				$('quote-company-tax-id').value = '77.589.163-7';
+				$('quote-company-phone').value = '+56 99 4390870';
+				$('quote-company-email').value = 'ventas@mizo.cl';
+				$('quote-company-address').value = '';
+				$('quote-company-website').value = 'www.mizo.cl';
 				$('quote-company-logo').value = quoteConfig.logo || '/mizo-logo.png';
 				$('quote-conditions').value = (quoteConfig.defaultConditions || [
 					'Vigencia de la cotización: 5 días.',

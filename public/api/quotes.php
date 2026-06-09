@@ -83,24 +83,31 @@ function counter_path(): string
 
 function default_config(): array
 {
-    return [
-        'companyName' => 'Mizo',
-        'phone' => '+56 9 0000 0000',
-        'email' => DEFAULT_FROM,
-        'address' => 'Puerto Montt, Chile',
-        'website' => 'https://mizo.cl',
-        'logo' => '/mizo-logo.png',
+    return array_replace(company_defaults(), [
         'defaultConditions' => [
             'Vigencia de la cotización: 5 días.',
             'Forma de pago: Transferencia electrónica.',
             'Tiempo de entrega: Inmediata según disponibilidad de stock.',
         ],
+    ]);
+}
+
+function company_defaults(): array
+{
+    return [
+        'companyName' => 'Mizo Estilo y Color',
+        'taxId' => '77.589.163-7',
+        'phone' => '+56 99 4390870',
+        'email' => DEFAULT_FROM,
+        'address' => '',
+        'website' => 'www.mizo.cl',
+        'logo' => '/mizo-logo.png',
     ];
 }
 
 function quote_config(): array
 {
-    return array_replace_recursive(default_config(), read_json(config_path(), []));
+    return array_replace(array_replace_recursive(default_config(), read_json(config_path(), [])), company_defaults());
 }
 
 function next_quote_number(): string
@@ -238,7 +245,7 @@ function quote_asset_data_uri(string $path): string
 
 function quote_html(array $quote): string
 {
-    $company = is_array($quote['company'] ?? null) ? $quote['company'] : [];
+    $company = array_replace(is_array($quote['company'] ?? null) ? $quote['company'] : [], company_defaults());
     $client = is_array($quote['client'] ?? null) ? $quote['client'] : [];
     $totals = is_array($quote['totals'] ?? null) ? $quote['totals'] : quote_totals(is_array($quote['items'] ?? null) ? $quote['items'] : []);
     $quoteDate = clean_text($quote['date'] ?? $quote['createdAt'] ?? date('Y-m-d'), 40);
@@ -295,9 +302,10 @@ function quote_html(array $quote): string
             .info-box { width: 48%; padding: 13pt; background-color: #ffffff; border: 1.4pt solid #94a3b8; vertical-align: top; }
             .info-title { font-size: 9pt; font-weight: bold; color: #0f172a; text-transform: uppercase; margin-bottom: 6pt; border-bottom: 1pt solid #0284c7; padding-bottom: 4pt; }
             
-            .items-table { width: 100%; border-collapse: collapse; margin-top: 12pt; margin-bottom: 24pt; }
-            .items-table th { background-color: #0f172a; color: #ffffff; padding: 10pt 10pt; font-weight: bold; font-size: 8.5pt; text-align: left; border-bottom: 1.4pt solid #0f172a; text-transform: uppercase; }
-            .items-table td { padding: 12pt 10pt; border-bottom: 1.2pt solid #94a3b8; font-size: 9.5pt; color: #334155; vertical-align: top; }
+            .items-table { width: 100%; border-collapse: collapse; margin-top: 12pt; margin-bottom: 24pt; border: 1.1pt solid #94a3b8; }
+            .items-table th { background-color: #1877f2; color: #ffffff; padding: 10pt 10pt; font-weight: bold; font-size: 8.5pt; text-align: left; border: 1.1pt solid #94a3b8; text-transform: uppercase; }
+            .items-table td { padding: 12pt 10pt; border: 1.1pt solid #cbd5e1; font-size: 9.5pt; color: #334155; vertical-align: top; }
+            .items-table tbody tr:nth-child(even) td { background-color: #f8fafc; }
             
             .bottom-table { width: 100%; border-collapse: collapse; margin-top: 18pt; }
             .conditions-td { width: 55%; vertical-align: top; font-size: 8.5pt; color: #64748b; padding-right: 15pt; }
@@ -338,9 +346,10 @@ function quote_html(array $quote): string
                 <td class="info-box">
                     <div class="info-title">Mizo</div>
                     <strong>' . esc((string)($company['companyName'] ?? 'Mizo')) . '</strong><br>
-                    ' . esc((string)($company['address'] ?? '')) . '<br>
-                    ' . esc((string)($company['phone'] ?? '')) . '<br>
-                    ' . esc((string)($company['email'] ?? DEFAULT_FROM)) . '
+                    RUT: ' . esc((string)($company['taxId'] ?? '')) . '<br>
+                    Teléfono: ' . esc((string)($company['phone'] ?? '')) . '<br>
+                    Email: ' . esc((string)($company['email'] ?? DEFAULT_FROM)) . '<br>
+                    Web: ' . esc((string)($company['website'] ?? '')) . '
                 </td>
             </tr>
         </table>
@@ -511,6 +520,7 @@ function build_quote(array $payload): array
 
     $config = quote_config();
     $company = array_replace($config, is_array($payload['company'] ?? null) ? $payload['company'] : []);
+    $company = array_replace($company, company_defaults());
     $client = is_array($payload['client'] ?? null) ? $payload['client'] : [];
     $conditions = sanitize_conditions($payload['conditions'] ?? $config['defaultConditions']);
     if (!$conditions) {
@@ -526,6 +536,7 @@ function build_quote(array $payload): array
         'createdAt' => date('Y-m-d H:i:s'),
         'company' => [
             'companyName' => clean_text($company['companyName'] ?? 'Mizo', 120),
+            'taxId' => clean_text($company['taxId'] ?? '', 40),
             'phone' => clean_text($company['phone'] ?? '', 80),
             'email' => clean_text($company['email'] ?? DEFAULT_FROM, 120),
             'address' => clean_text($company['address'] ?? '', 180),
