@@ -35,7 +35,7 @@ const environments = [
 const specialties = [
 	{ id: 'audio', title: 'Audio', desc: 'Cobertura, SPL, inteligibilidad, microfonía y amplificación.' },
 	{ id: 'video', title: 'Video', desc: 'Proyección, pantallas profesionales, videowall, cámaras y visualización.' },
-	{ id: 'ambos', title: 'Audio + Video', desc: 'Sistema integral con audio, imagen, control y conectividad.' },
+	{ id: 'ambos', title: 'Audio + Video', desc: 'Parlantes, amplificación, proyección, pantalla profesional y conectividad.' },
 ];
 
 const sizes = [
@@ -293,51 +293,58 @@ const sizes = [
 
 		const designMatrix = {
 			'gimnasio|grande|audio': {
-				title: 'Sistema deportivo de alta presión sonora',
+				title: 'Pre-diseño deportivo con audio profesional de alta potencia',
 				summary: 'La matriz detectó un recinto deportivo grande con prioridad de audio. Se recomienda arquitectura de alta potencia con dispersión controlada, rack dedicado y microfonía robusta para operación deportiva.',
 				equipment: [
-					{ qty: 1, unit: 'sistema', name: 'Sistema de Arreglo Lineal (Line Array)', note: 'Cobertura principal para gradas y cancha.' },
-					{ qty: 1, unit: 'unidad', name: 'Rack de Amplificación de 3200W', note: 'Potencia estimada para alta presión sonora.' },
-					{ qty: 1, unit: 'unidad', name: 'Consola de mezcla digital', note: 'Operación de eventos, música y locución.' },
-					{ qty: 2, unit: 'unidades', name: 'Microfonía Inalámbrica UHF', note: 'Locución deportiva y actividades masivas.' },
+					{ qty: 2, unit: 'unidades', name: 'Sistemas de Arreglo Lineal Compacto (Line Array)', note: 'Cobertura principal para gradas y cancha con dispersión controlada.' },
+					{ qty: 1, unit: 'unidad', name: 'Rack de Amplificación Profesional de 3200W', note: 'Potencia estimada para alta presión sonora en recintos deportivos.' },
+					{ qty: 1, unit: 'unidad', name: 'Consola de Mezcla Behringer con Micrófono UHF Shure', note: 'Operación de eventos, locución deportiva y actividades masivas.' },
 				],
 			},
 			'auditorio|mediano|ambos': {
-				title: 'Sistema integral para auditorio mediano',
+				title: 'Pre-diseño audiovisual para auditorio mediano',
 				summary: 'La matriz detectó un auditorio mediano con necesidad audiovisual completa. Se recomienda proyección láser, pantalla eléctrica y audio de cobertura controlada para inteligibilidad y operación corporativa.',
 				equipment: [
-					{ qty: 1, unit: 'unidad', name: 'Proyector Láser de 6000 Lúmenes', note: 'Brillo recomendado para sala mediana.' },
-					{ qty: 1, unit: 'unidad', name: 'Pantalla Eléctrica de 150 pulgadas', note: 'Formato para presentaciones y video institucional.' },
+					{ qty: 1, unit: 'unidad', name: 'Proyector Láser Profesional (6000 Lúmenes)', note: 'Brillo recomendado para sala mediana con presentaciones críticas.' },
+					{ qty: 1, unit: 'unidad', name: 'Pantalla Eléctrica de Proyección 150 pulgadas', note: 'Formato para presentaciones y video institucional.' },
 					{ qty: 4, unit: 'unidades', name: 'Parlantes de Cobertura Controlada', note: 'Distribución frontal/lateral para audiencia.' },
-					{ qty: 1, unit: 'unidad', name: 'Amplificador Digital', note: 'Procesamiento y potencia centralizada.' },
+					{ qty: 1, unit: 'unidad', name: 'Amplificador Digital Crown', note: 'Potencia y control para parlantes de cobertura controlada.' },
 				],
 			},
 			'sala|pequeno|video': {
-				title: 'Sala corporativa compacta con videoconferencia IA',
+				title: 'Pre-diseño para sala corporativa compacta con video IA',
 				summary: 'La matriz detectó una sala pequeña orientada a video. Se recomienda una solución todo en uno con tracking IA y pantalla profesional para reuniones híbridas limpias.',
 				equipment: [
-					{ qty: 1, unit: 'unidad', name: 'Barra de Video Inteligente con Tracking IA todo en uno', note: 'Cámara, micrófonos y procesamiento integrado.' },
-					{ qty: 1, unit: 'unidad', name: 'Pantalla Profesional de 65 pulgadas', note: 'Visualización corporativa para reuniones ejecutivas.' },
+					{ qty: 1, unit: 'unidad', name: 'Barra de Video Inteligente Logitech Rally con Tracking IA', note: 'Cámara, micrófonos y encuadre automático para reuniones híbridas.' },
+					{ qty: 1, unit: 'unidad', name: 'Pantalla Profesional LED 65 pulgadas 4K', note: 'Visualización corporativa para reuniones ejecutivas.' },
+				],
+			},
+			'sala|pequeno|ambos': {
+				title: 'Pre-diseño para sala corporativa compacta con audio y video IA',
+				summary: 'La matriz detectó una sala pequeña con necesidad audiovisual completa. Se recomienda video inteligente con tracking IA y visualización profesional 4K para reuniones híbridas.',
+				equipment: [
+					{ qty: 1, unit: 'unidad', name: 'Barra de Video Inteligente Logitech Rally con Tracking IA', note: 'Cámara, micrófonos y encuadre automático para reuniones híbridas.' },
+					{ qty: 1, unit: 'unidad', name: 'Pantalla Profesional LED 65 pulgadas 4K', note: 'Visualización corporativa para reuniones ejecutivas.' },
 				],
 			},
 		};
 
 		const fallbacks = {
 			audio: [
-				{ qty: 4, unit: 'unidades', name: 'Parlantes de cobertura profesional', note: 'Cantidad base ajustable por cálculo acústico.' },
-				{ qty: 1, unit: 'unidad', name: 'Amplificador digital con DSP', note: 'Procesamiento, limitación y ecualización.' },
-				{ qty: 1, unit: 'unidad', name: 'Microfonía inalámbrica UHF', note: 'Operación vocal y avisos.' },
+				{ qty: 4, unit: 'unidades', name: 'Parlantes de Muro de Alta Presión', note: 'Cantidad base ajustable por cálculo acústico.' },
+				{ qty: 1, unit: 'unidad', name: 'Amplificador de Potencia Digital con DSP', note: 'Limitación, ecualización y protección de parlantes.' },
+				{ qty: 1, unit: 'unidad', name: 'Micrófono Inalámbrico UHF Shure', note: 'Operación vocal, avisos y presentaciones.' },
 			],
 			video: [
-				{ qty: 1, unit: 'unidad', name: 'Pantalla profesional o proyector láser', note: 'Selección final según distancia de visión y luminosidad.' },
-				{ qty: 1, unit: 'unidad', name: 'Sistema de conectividad HDMI/USB-C', note: 'Integración de fuentes y operación simple.' },
-				{ qty: 1, unit: 'unidad', name: 'Controlador de presentación', note: 'Gestión de encendido, fuentes y escenas.' },
+				{ qty: 1, unit: 'unidad', name: 'Proyector Láser Profesional o Pantalla LED Profesional', note: 'Selección final según distancia de visión y luminosidad.' },
+				{ qty: 1, unit: 'unidad', name: 'Kit de Conectividad HDMI/USB-C Profesional', note: 'Integración de notebooks, cámaras y fuentes de presentación.' },
+				{ qty: 1, unit: 'unidad', name: 'Controlador de Presentación Audiovisual', note: 'Gestión de encendido, fuentes y escenas.' },
 			],
 			ambos: [
-				{ qty: 1, unit: 'sistema', name: 'Sistema audiovisual integrado', note: 'Audio, video, control y conectividad en una arquitectura única.' },
-				{ qty: 4, unit: 'unidades', name: 'Parlantes profesionales calibrables', note: 'Cobertura inicial estimada.' },
-				{ qty: 1, unit: 'unidad', name: 'Pantalla profesional o proyector láser', note: 'Definición por ángulos de visión y luminosidad.' },
-				{ qty: 1, unit: 'unidad', name: 'Procesador / matriz de control', note: 'Operación centralizada.' },
+				{ qty: 4, unit: 'unidades', name: 'Parlantes de Cobertura Controlada', note: 'Cobertura inicial estimada para audiencia o zona de trabajo.' },
+				{ qty: 1, unit: 'unidad', name: 'Amplificador de Potencia Digital con DSP', note: 'Potencia, limitación y ecualización para audio profesional.' },
+				{ qty: 1, unit: 'unidad', name: 'Proyector Láser Profesional o Pantalla LED Profesional', note: 'Definición final por ángulos de visión y luminosidad.' },
+				{ qty: 1, unit: 'unidad', name: 'Consola de Audio Digital', note: 'Operación de entradas, micrófonos y niveles de sala.' },
 			],
 		};
 
@@ -389,7 +396,7 @@ const sizes = [
 		}
 
 		function productText(report) {
-			return report.equipment.map((item) => `${item.qty} ${item.unit} - ${item.name} (${item.note})`).join('\n');
+			return report.equipment.map((item) => `${item.qty} ${item.unit.toUpperCase()} - ${item.name} (${item.note})`).join('\n');
 		}
 
 		function fillLeadFields(report) {
@@ -416,16 +423,16 @@ const sizes = [
 			document.getElementById('result-tamano').textContent = state.tamano.label;
 			equipmentList.innerHTML = report.equipment.map((item) => `
 				<div class="grid gap-4 px-5 py-4 sm:grid-cols-[7rem_1fr] sm:items-center">
-					<div class="rounded-2xl bg-sky-50 px-4 py-3 text-center">
-						<p class="text-2xl font-black text-[#0284c7]">${item.qty}</p>
-						<p class="text-xs font-black uppercase text-slate-500">${item.unit}</p>
+					<div class="rounded-2xl bg-[#0284c7] px-4 py-3 text-center text-white shadow-lg shadow-sky-900/15">
+						<p class="text-2xl font-black">${item.qty}</p>
+						<p class="text-xs font-black uppercase">${item.unit}</p>
 					</div>
 					<div>
 						<p class="text-lg font-black text-slate-950">${item.name}</p>
 						<p class="mt-1 text-sm leading-6 text-slate-500">${item.note}</p>
 					</div>
 				</div>
-			`).join('');
+			`).join('') + '<div class="bg-slate-50 px-5 py-4 text-xs font-semibold italic text-slate-500">*Equipamiento referenciado de los catálogos técnicos de marcas oficiales distribuidas por Mizo.</div>';
 			fillLeadFields(report);
 		}
 
