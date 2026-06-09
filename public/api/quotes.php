@@ -450,6 +450,25 @@ function quote_exists(string $number): bool
     return is_file(quote_path($number, 'json'));
 }
 
+function delete_quote_files(string $number): array
+{
+    $safe = clean_text($number, 30);
+    if ($safe === '' || !quote_exists($safe)) {
+        json_response(['ok' => false, 'error' => 'Cotización no encontrada.'], 404);
+    }
+
+    $deleted = [];
+    foreach (['json', 'html', 'pdf'] as $extension) {
+        $path = quote_path($safe, $extension);
+        if (is_file($path) && !@unlink($path)) {
+            json_response(['ok' => false, 'error' => 'No se pudo eliminar el archivo ' . $extension . ' de la cotización.'], 500);
+        }
+        $deleted[] = $extension;
+    }
+
+    return $deleted;
+}
+
 function quote_base_number(string $number): string
 {
     $safe = preg_replace('/[^A-Z0-9_-]/i', '', $number);
@@ -743,6 +762,12 @@ if ($action === 'list') {
 if ($action === 'get') {
     $quote = load_quote(clean_text($payload['number'] ?? $_GET['number'] ?? '', 30));
     json_response($quote ? ['ok' => true, 'quote' => $quote] : ['ok' => false, 'error' => 'Cotización no encontrada.'], $quote ? 200 : 404);
+}
+
+if ($action === 'delete_quote') {
+    $number = clean_text($payload['number'] ?? '', 30);
+    $deleted = delete_quote_files($number);
+    json_response(['ok' => true, 'number' => $number, 'deleted' => $deleted]);
 }
 
 if ($action === 'send_quote') {

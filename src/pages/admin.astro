@@ -591,6 +591,7 @@ const title = 'Panel central Mizo';
 								<div class="flex shrink-0 gap-2">
 									<button type="button" class="load-quote rounded-full bg-accent-soft px-3 py-1 text-xs font-black text-accent-main" data-number="${escapeHtml(quote.number)}">Editar</button>
 									<a class="rounded-full border border-slate-200 px-3 py-1 text-xs font-black text-slate-600 hover:bg-slate-50" href="${escapeHtml(quote.pdfUrl)}" target="_blank" rel="noopener">PDF</a>
+									<button type="button" class="delete-quote rounded-full border border-red-200 px-3 py-1 text-xs font-black text-red-600 hover:bg-red-50" data-number="${escapeHtml(quote.number)}">Eliminar</button>
 								</div>
 							</div>
 						</article>
@@ -598,8 +599,28 @@ const title = 'Panel central Mizo';
 					container.querySelectorAll('.load-quote').forEach((button) => {
 						button.onclick = () => loadQuoteForEditing(button.dataset.number);
 					});
+					container.querySelectorAll('.delete-quote').forEach((button) => {
+						button.onclick = () => deleteQuote(button.dataset.number);
+					});
 				} catch (error) {
 					container.innerHTML = `<p class="text-red-600">${escapeHtml(error.message)}</p>`;
+				}
+			}
+
+			async function deleteQuote(number) {
+				if (!number) return;
+				if (!confirm(`¿Eliminar definitivamente el presupuesto ${number}? Esta acción no se puede deshacer.`)) return;
+
+				try {
+					quoteMessage(`Eliminando ${number}...`, 'info');
+					await apiQuotes('delete_quote', { number });
+					if (currentQuote?.number === number || editingQuoteNumber === number) {
+						startNewQuote();
+					}
+					await loadQuotesHistory();
+					quoteMessage(`Presupuesto ${number} eliminado correctamente.`, 'success');
+				} catch (error) {
+					quoteMessage(error.message, 'error');
 				}
 			}
 
