@@ -432,6 +432,21 @@ const roofTypes = [
 			status.className = `mt-4 rounded-2xl px-4 py-3 text-sm font-bold ${error ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
 		}
 
+		function saveLocalLead(data) {
+			try {
+				const key = 'mizoPendingDiagnosticLeads';
+				const current = JSON.parse(localStorage.getItem(key) || '[]');
+				current.unshift({
+					...data,
+					localSavedAt: new Date().toISOString(),
+				});
+				localStorage.setItem(key, JSON.stringify(current.slice(0, 20)));
+				return true;
+			} catch (error) {
+				return false;
+			}
+		}
+
 		function metricText(report) {
 			const metrics = report.metricas || {};
 			return [
@@ -627,18 +642,22 @@ const roofTypes = [
 			submit.textContent = 'Enviando diagnóstico a ingeniería...';
 			try {
 				const data = Object.fromEntries(new FormData(form).entries());
-				const response = await fetch('/api/enviar-cotizacion-proyecto.php', {
+				const response = await fetch('/api/guardar-lead.php', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(data),
 				});
 				const payload = await response.json().catch(() => null);
-				if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'No se pudo enviar la solicitud.');
+				if (!response.ok || !(payload?.success || payload?.ok)) {
+					throw new Error(payload?.error || 'Tu diagnóstico se guardó localmente, un ingeniero te contactará en breve.');
+				}
 				form.reset();
 				if (state.report) fillLeadFields(state.report);
-				showStatus(payload.message || 'Diagnóstico enviado. Un ingeniero de Mizo te contactará para validar el espacio.', false);
+				showStatus(payload.message || 'Diagnóstico guardado. Un ingeniero de Mizo te contactará para validar el espacio.', false);
 			} catch (error) {
-				showStatus(error.message || 'No se pudo enviar la solicitud.', true);
+				const data = Object.fromEntries(new FormData(form).entries());
+				saveLocalLead(data);
+				showStatus(error.message || 'Tu diagnóstico se guardó localmente, un ingeniero te contactará en breve.', false);
 			} finally {
 				submit.disabled = false;
 				submit.textContent = 'Solicitar validación y plano de conectividad';

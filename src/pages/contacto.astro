@@ -139,13 +139,13 @@ const badges = ['Ingeniería Certificada', 'Garantía de Satisfacción', 'Soport
 			submit.textContent = 'Enviando solicitud...';
 			try {
 				const data = Object.fromEntries(new FormData(form).entries());
-				const response = await fetch('/api/enviar-cotizacion-proyecto.php', {
+				const response = await fetch('/api/guardar-lead.php', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(data),
 				});
 				const payload = await response.json().catch(() => null);
-				if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'No se pudo enviar la solicitud.');
+				if (!response.ok || !(payload?.success || payload?.ok)) throw new Error(payload?.error || 'No se pudo guardar la solicitud.');
 				form.reset();
 				selectedSpace.value = 'Sala de Reuniones';
 				selectedPack.value = pack;

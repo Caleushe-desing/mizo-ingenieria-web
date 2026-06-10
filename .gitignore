@@ -35,6 +35,7 @@ PRECIOS-FUENTES.md
 
 # Datos runtime del panel Admin en modo SSR/cPanel
 data/
+public/mizo-data/leads.json
 
 # Seguridad: credenciales, FTP y pruebas locales
 .vscode/
