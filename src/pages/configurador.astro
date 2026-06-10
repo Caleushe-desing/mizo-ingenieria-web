@@ -186,13 +186,19 @@ const sizes = [
 										<p id="result-tamano" class="mt-1 font-black text-slate-950"></p>
 									</div>
 								</div>
+
+								<div class="mt-6">
+									<p class="text-xs font-black uppercase tracking-[0.22em] text-slate-400">Metricas calculadas</p>
+									<div id="metrics-grid" class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"></div>
+								</div>
 							</div>
 
 							<div class="mt-6 overflow-hidden rounded-[2rem] border border-slate-200 bg-white">
-								<div class="border-b border-slate-200 bg-slate-950 px-5 py-4 text-white">
-									<p class="text-sm font-black">Equipamiento recomendado por algoritmo</p>
+								<div class="border-b border-slate-200 bg-slate-950 px-5 py-4 text-white sm:px-7">
+									<p class="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Cadena electroacustica</p>
+									<p class="mt-1 text-lg font-black">Equipamiento recomendado por etapa tecnica</p>
 								</div>
-								<div id="equipment-list" class="divide-y divide-slate-100"></div>
+								<div id="equipment-list" class="bg-slate-50"></div>
 							</div>
 
 							<div class="mt-6 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
@@ -306,6 +312,7 @@ const sizes = [
 		const analysisText = document.getElementById('analysis-text');
 		const analysisBar = document.getElementById('analysis-bar');
 		const equipmentList = document.getElementById('equipment-list');
+		const metricsGrid = document.getElementById('metrics-grid');
 		const form = document.getElementById('lead-form');
 		const submit = document.getElementById('lead-submit');
 		const status = document.getElementById('lead-status');
@@ -352,12 +359,19 @@ const sizes = [
 				title: payload.title || 'Pre-diseño IA con productos reales del catálogo Mizo',
 				summary: payload.summary || 'El motor cruzó las variables seleccionadas con productos reales publicados en el catálogo maestro.',
 				source: payload.source || 'Catálogo maestro Mizo',
+				metricas: payload.metricas_proyecto || {},
+				groups: payload.grupos || {},
 				equipment: Array.isArray(payload.products) ? payload.products : [],
 			};
 		}
 
 		function productText(report) {
-			return report.equipment.map((item) => [
+			const groups = Object.values(report.groups || {});
+			const products = groups.length
+				? groups.flatMap((group) => (group.products || []).map((item) => ({ ...item, groupTitle: group.title })))
+				: report.equipment;
+			return products.map((item) => [
+				item.groupTitle ? `[${item.groupTitle}]` : '',
 				`${item.qty} ${String(item.unit || 'unidad').toUpperCase()} - ${item.name}`,
 				item.sku ? `SKU: ${item.sku}` : '',
 				item.brand ? `Marca: ${item.brand}` : '',
@@ -365,6 +379,16 @@ const sizes = [
 				item.stock != null ? `Stock: ${item.stock}` : '',
 				item.description ? `Descripción: ${item.description}` : '',
 			].filter(Boolean).join(' | ')).join('\n');
+		}
+
+		function metricText(report) {
+			const metrics = report.metricas || {};
+			return [
+				metrics.volumen_estimado_m3 ? `Volumen estimado: ${metrics.volumen_estimado_m3.value} ${metrics.volumen_estimado_m3.unit}` : '',
+				metrics.presion_sonora_objetivo_db_spl ? `SPL objetivo: ${metrics.presion_sonora_objetivo_db_spl.value} ${metrics.presion_sonora_objetivo_db_spl.unit}` : '',
+				metrics.flujo_luminico_ansi_lumenes ? `Flujo lumínico: ${metrics.flujo_luminico_ansi_lumenes.value} ${metrics.flujo_luminico_ansi_lumenes.unit}` : '',
+				metrics.rack_requerido ? `Rack requerido: ${metrics.rack_requerido.value}` : '',
+			].filter(Boolean).join('\n');
 		}
 
 		function fillLeadFields(report) {
@@ -378,19 +402,50 @@ const sizes = [
 				`Entorno: ${state.entorno.label}`,
 				`Especialidad: ${state.especialidad.label}`,
 				`Tamaño: ${state.tamano.label}`,
+				'Métricas:',
+				metricText(report),
 				'Equipamiento:',
 				productText(report),
 			].join('\n');
 		}
 
-		function renderReport(report) {
-			document.getElementById('report-title').textContent = report.title;
-			document.getElementById('report-summary').textContent = report.summary;
-			document.getElementById('result-entorno').textContent = state.entorno.label;
-			document.getElementById('result-especialidad').textContent = state.especialidad.label;
-			document.getElementById('result-tamano').textContent = state.tamano.label;
-			equipmentList.innerHTML = report.equipment.map((item) => `
-				<div class="grid gap-5 px-5 py-5 lg:grid-cols-[9rem_1fr] lg:items-start">
+		function metricIcon(icon) {
+			const common = 'h-6 w-6';
+			const icons = {
+				cube: `<svg class="${common}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linejoin="round" d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z"/><path stroke-linejoin="round" d="M12 12 4 7.5M12 12l8-4.5M12 12v9"/></svg>`,
+				wave: `<svg class="${common}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 12h2m12 0h2M8 8c1.5 2.5 1.5 5.5 0 8m4-10c2.5 3.5 2.5 8.5 0 12m4-14c3.5 4.5 3.5 11.5 0 16"/></svg>`,
+				beam: `<svg class="${common}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.36-6.36-2.12 2.12M7.76 16.24l-2.12 2.12m12.72 0-2.12-2.12M7.76 7.76 5.64 5.64"/><circle cx="12" cy="12" r="3"/></svg>`,
+				rack: `<svg class="${common}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path stroke-linecap="round" d="M8 7h8M8 12h8M8 17h8"/><path stroke-linecap="round" d="M16 7h.01M16 12h.01M16 17h.01"/></svg>`,
+			};
+			return icons[icon] || icons.cube;
+		}
+
+		function renderMetrics(metrics) {
+			const items = [
+				metrics.volumen_estimado_m3,
+				metrics.presion_sonora_objetivo_db_spl,
+				metrics.flujo_luminico_ansi_lumenes,
+				metrics.rack_requerido,
+			].filter(Boolean);
+			metricsGrid.innerHTML = items.map((metric) => `
+				<div class="rounded-2xl border border-sky-100 bg-white p-4 shadow-sm">
+					<div class="flex items-center gap-3">
+						<span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0284c7] text-white shadow-lg shadow-sky-900/15">
+							${metricIcon(metric.icon)}
+						</span>
+						<div>
+							<p class="text-xs font-black uppercase text-slate-400">${escapeHtml(metric.label)}</p>
+							<p class="mt-1 text-2xl font-black text-slate-950">${escapeHtml(metric.value)} <span class="text-sm text-[#0284c7]">${escapeHtml(metric.unit || '')}</span></p>
+						</div>
+					</div>
+					<p class="mt-3 text-xs leading-5 text-slate-500">${escapeHtml(metric.formula || '')}</p>
+				</div>
+			`).join('');
+		}
+
+		function productCard(item) {
+			return `
+				<div class="grid gap-5 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[9rem_1fr] lg:items-start">
 					<div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
 						<img src="${escapeHtml(item.image || '/mizo-logo.png')}" alt="${escapeHtml(item.name)}" class="h-32 w-full object-contain p-3" loading="lazy">
 					</div>
@@ -411,7 +466,36 @@ const sizes = [
 						<p class="mt-3 text-sm leading-6 text-slate-600">${escapeHtml(item.description || 'Descripción técnica no disponible en el catálogo maestro.')}</p>
 					</div>
 				</div>
-			`).join('') + '<div class="bg-slate-50 px-5 py-4 text-xs font-semibold italic text-slate-500">*Equipamiento leído dinámicamente desde el catálogo maestro MySQL publicado por Mizo.</div>';
+			`;
+		}
+
+		function renderEquipment(report) {
+			const groups = Object.entries(report.groups || {}).filter(([, group]) => Array.isArray(group.products) && group.products.length);
+			if (!groups.length) {
+				equipmentList.innerHTML = '<div class="p-6 text-sm font-semibold text-slate-500">No hay productos agrupados para este informe.</div>';
+				return;
+			}
+			equipmentList.innerHTML = groups.map(([stage, group]) => `
+				<section class="border-b border-slate-200 p-5 last:border-b-0 sm:p-7" data-chain-stage="${escapeHtml(stage)}">
+					<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+						<h3 class="text-xl font-black text-slate-950">${escapeHtml(group.title)}</h3>
+						<span class="rounded-full bg-[#0284c7] px-4 py-2 text-xs font-black uppercase text-white">${group.products.length} items</span>
+					</div>
+					<div class="grid gap-4">
+						${group.products.map(productCard).join('')}
+					</div>
+				</section>
+			`).join('') + '<div class="bg-white px-5 py-4 text-xs font-semibold italic text-slate-500 sm:px-7">*Equipamiento leído dinámicamente desde MySQL y nutrido por el radar diario de tendencias del mercado audiovisual nacional.</div>';
+		}
+
+		function renderReport(report) {
+			document.getElementById('report-title').textContent = report.title;
+			document.getElementById('report-summary').textContent = report.summary;
+			document.getElementById('result-entorno').textContent = state.entorno.label;
+			document.getElementById('result-especialidad').textContent = state.especialidad.label;
+			document.getElementById('result-tamano').textContent = state.tamano.label;
+			renderMetrics(report.metricas || {});
+			renderEquipment(report);
 			fillLeadFields(report);
 		}
 
