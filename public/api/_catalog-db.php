@@ -340,6 +340,125 @@ function mizo_fetch_products_from_json(): array
     return [];
 }
 
+function mizo_seed_trend_products(): array
+{
+	$capturedAt = date('Y-m-d');
+	$items = [
+		[
+			'id' => 'seed-shure-slxd24-sm58',
+			'sku' => 'AM-SHU-SLXD24-SM58',
+			'name' => 'Shure SLXD24/SM58 Sistema Inalambrico Digital',
+			'brand' => 'Shure',
+			'category' => 'microfonos',
+			'categoryLabel' => 'Microfonos',
+			'engineeringCategory' => 'Captacion vocal inalambrica',
+			'chainStage' => 'captacion-mezcla',
+			'description' => 'Sistema digital UHF para voz principal con receptor diversity, capsula dinamica SM58 y salida balanceada XLR hacia consola o DSP.',
+			'technicalChain' => 'Captacion vocal inalambrica -> preamplificacion de consola -> DSP de sala -> amplificacion -> sistema PA.',
+			'image' => 'https://www.audiomusica.com/on/demandware.static/-/Sites-master-catalog/default/dw7a14606f/images/large/SHU-SLXD24SM58.jpg',
+			'basePrice' => 719990,
+			'price' => 863990,
+			'stock' => 6,
+			'trendScore' => 98,
+			'source' => ['store' => 'Audiomusica', 'url' => 'https://www.audiomusica.com/', 'image' => '', 'capturedAt' => $capturedAt],
+		],
+		[
+			'id' => 'seed-behringer-x32-compact',
+			'sku' => 'AM-BEH-X32-COMPACT',
+			'name' => 'Behringer X32 Compact Consola Digital 40 Canales',
+			'brand' => 'Behringer',
+			'category' => 'consolas-mixers',
+			'categoryLabel' => 'Consolas y Mixers',
+			'engineeringCategory' => 'Mezcla digital y control de buses',
+			'chainStage' => 'captacion-mezcla',
+			'description' => 'Consola digital con preamplificadores, buses de mezcla, escenas, interfaz USB y ruteo para sistemas AV instalados.',
+			'technicalChain' => 'Microfonia y fuentes -> mezcla digital -> buses auxiliares -> procesador de sistema -> potencia y parlantes.',
+			'image' => 'https://www.audiomusica.com/on/demandware.static/-/Sites-master-catalog/default/dw946275b2/images/large/BEH-X32COMPACT.jpg',
+			'basePrice' => 2099990,
+			'price' => 2519990,
+			'stock' => 3,
+			'trendScore' => 95,
+			'source' => ['store' => 'Audiomusica', 'url' => 'https://www.audiomusica.com/', 'image' => '', 'capturedAt' => $capturedAt],
+		],
+		[
+			'id' => 'seed-dbx-driverack-pa2',
+			'sku' => 'PM-DBX-PA2',
+			'name' => 'dbx DriveRack PA2 Procesador de Altavoces',
+			'brand' => 'dbx',
+			'category' => 'procesadores',
+			'categoryLabel' => 'Procesadores',
+			'engineeringCategory' => 'DSP de sistema para crossover y proteccion',
+			'chainStage' => 'rack-potencia',
+			'description' => 'Procesador rack 1U con AutoEQ, limitadores, control de feedback, alineacion temporal y crossover para proteger el sistema.',
+			'technicalChain' => 'Salida de consola -> DSP/crossover/limitacion -> amplificadores o parlantes activos -> cobertura del recinto.',
+			'image' => 'https://www.promusic.cl/cdn/shop/products/dbx-driverack-pa2.jpg',
+			'basePrice' => 459990,
+			'price' => 551990,
+			'stock' => 5,
+			'trendScore' => 91,
+			'source' => ['store' => 'Promusic', 'url' => 'https://www.promusic.cl/', 'image' => '', 'capturedAt' => $capturedAt],
+		],
+		[
+			'id' => 'seed-qsc-cp12',
+			'sku' => 'PM-QSC-CP12',
+			'name' => 'QSC CP12 Parlante Activo 12 Pulgadas 1000W',
+			'brand' => 'QSC',
+			'category' => 'parlantes',
+			'categoryLabel' => 'Parlantes',
+			'engineeringCategory' => 'Transduccion final de alta presion sonora',
+			'chainStage' => 'rack-potencia',
+			'description' => 'Caja activa de 12 pulgadas con amplificacion Clase D, DSP interno, cobertura amplia y entradas balanceadas para recintos medianos.',
+			'technicalChain' => 'Senal procesada -> amplificacion Clase D interna -> transductor LF/HF -> SPL uniforme al publico.',
+			'image' => 'https://www.promusic.cl/cdn/shop/products/qsc-cp12.jpg',
+			'basePrice' => 699990,
+			'price' => 839990,
+			'stock' => 8,
+			'trendScore' => 94,
+			'source' => ['store' => 'Promusic', 'url' => 'https://www.promusic.cl/', 'image' => '', 'capturedAt' => $capturedAt],
+		],
+		[
+			'id' => 'seed-epson-eb-fh52',
+			'sku' => 'CR-EPSON-EB-FH52',
+			'name' => 'Epson EB-FH52 Proyector 3LCD Full HD 4000 Lumenes',
+			'brand' => 'Epson',
+			'category' => 'proyector',
+			'categoryLabel' => 'Proyectores',
+			'engineeringCategory' => 'Proyeccion Full HD de alto brillo',
+			'chainStage' => 'proyeccion-video',
+			'description' => 'Proyector 3LCD Full HD de 4000 lumenes para salas iluminadas, auditorios y aulas con fuente HDMI o matriz AV.',
+			'technicalChain' => 'Fuente HDMI -> matriz o extensor -> proyector Full HD -> superficie de proyeccion calibrada por luz ambiente.',
+			'image' => 'https://www.casaroyal.cl/arquivos/ids/210483/epson-eb-fh52.jpg',
+			'basePrice' => 799990,
+			'price' => 959990,
+			'stock' => 7,
+			'trendScore' => 97,
+			'source' => ['store' => 'Casa Royal', 'url' => 'https://www.casaroyal.cl/', 'image' => '', 'capturedAt' => $capturedAt],
+		],
+		[
+			'id' => 'seed-hikvision-ptz-4mp',
+			'sku' => 'CR-HIK-DS2DE2A404IW',
+			'name' => 'Hikvision DS-2DE2A404IW-DE3 Camara PTZ IP 4MP',
+			'brand' => 'Hikvision',
+			'category' => 'camara',
+			'categoryLabel' => 'Camaras',
+			'engineeringCategory' => 'Captura de video IP para streaming y registro',
+			'chainStage' => 'proyeccion-video',
+			'description' => 'Camara PTZ IP 4MP con movimiento remoto, vision IR y salida por red para monitoreo, streaming o registro de eventos.',
+			'technicalChain' => 'Camara IP/PoE -> switch de red -> NVR o plataforma de streaming -> visualizacion y control AV.',
+			'image' => 'https://www.casaroyal.cl/arquivos/ids/214810/hikvision-ds-2de2a404iw.jpg',
+			'basePrice' => 399990,
+			'price' => 479990,
+			'stock' => 9,
+			'trendScore' => 89,
+			'source' => ['store' => 'Casa Royal', 'url' => 'https://www.casaroyal.cl/', 'image' => '', 'capturedAt' => $capturedAt],
+		],
+	];
+
+	return array_map(function ($product) {
+		return mizo_public_product(mizo_normalize_product($product));
+	}, $items);
+}
+
 function mizo_fetch_public_products(array $filters = []): array
 {
     $mysql = mizo_fetch_products_from_mysql($filters);
@@ -348,5 +467,9 @@ function mizo_fetch_public_products(array $filters = []): array
     }
 
     $fallback = mizo_fetch_products_from_json();
-    return ['products' => $fallback, 'source' => count($fallback) > 0 ? 'json-fallback' : 'empty'];
+	if (count($fallback) > 0) {
+		return ['products' => $fallback, 'source' => 'json-fallback'];
+	}
+
+	return ['products' => mizo_seed_trend_products(), 'source' => 'seed-trends'];
 }

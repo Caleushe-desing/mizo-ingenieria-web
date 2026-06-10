@@ -55,13 +55,13 @@ const sizes = [
 			<div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
 				<div>
 					<span class="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-cyan-100 backdrop-blur">
-						Software de pre-diseño de ingeniería
+						Radar diario de tendencias AV + pre-diseño de ingeniería
 					</span>
 					<h1 class="mt-5 max-w-4xl text-4xl font-black leading-tight text-white md:text-6xl">
-						Simula tu sistema audiovisual con lógica técnica Mizo.
+						Simula tu sistema audiovisual con física aplicada y catálogo vivo.
 					</h1>
 					<p class="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
-						Selecciona entorno, especialidad y tamaño. Nuestro motor calcula una propuesta preliminar con equipamiento recomendado antes de la validación en terreno.
+						Selecciona entorno, especialidad y tamaño. El motor calcula volumen, SPL, lúmenes y rack requerido antes de cruzarlo con productos tendencia del mercado nacional.
 					</p>
 				</div>
 				<div class="grid gap-3 rounded-[2rem] border border-white/10 bg-white/10 p-5 backdrop-blur md:grid-cols-3">
@@ -102,6 +102,7 @@ const sizes = [
 						<button id="run-engine" type="button" disabled class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[#0284c7] px-5 py-4 text-sm font-black text-white shadow-lg transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300">
 							Ejecutar pre-diseño IA
 						</button>
+						<p id="engine-status" class="mt-4 hidden rounded-2xl px-4 py-3 text-sm font-bold"></p>
 					</aside>
 
 					<div class="p-5 sm:p-8 lg:p-10">
@@ -313,6 +314,7 @@ const sizes = [
 		const analysisBar = document.getElementById('analysis-bar');
 		const equipmentList = document.getElementById('equipment-list');
 		const metricsGrid = document.getElementById('metrics-grid');
+		const engineStatus = document.getElementById('engine-status');
 		const form = document.getElementById('lead-form');
 		const submit = document.getElementById('lead-submit');
 		const status = document.getElementById('lead-status');
@@ -351,9 +353,16 @@ const sizes = [
 					tamano: state.tamano.id,
 				}),
 			});
-			const payload = await response.json().catch(() => null);
+			const responseText = await response.text();
+			const payload = (() => {
+				try {
+					return JSON.parse(responseText);
+				} catch (error) {
+					return null;
+				}
+			})();
 			if (!response.ok || !payload?.ok) {
-				throw new Error(payload?.error || 'No se pudo conectar con el catálogo maestro de productos.');
+				throw new Error(payload?.error || 'El motor no respondió JSON válido. Revisa que la API esté publicada correctamente.');
 			}
 			return {
 				title: payload.title || 'Pre-diseño IA con productos reales del catálogo Mizo',
@@ -447,7 +456,7 @@ const sizes = [
 			return `
 				<div class="grid gap-5 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[9rem_1fr] lg:items-start">
 					<div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-						<img src="${escapeHtml(item.image || '/mizo-logo.png')}" alt="${escapeHtml(item.name)}" class="h-32 w-full object-contain p-3" loading="lazy">
+						<img src="${escapeHtml(item.image || '/mizo-logo.png')}" alt="${escapeHtml(item.name)}" class="h-32 w-full object-contain p-3" loading="lazy" onerror="this.onerror=null;this.src='/mizo-logo.png';">
 					</div>
 					<div>
 						<div class="flex flex-wrap items-start gap-3">
@@ -504,6 +513,7 @@ const sizes = [
 			resultPanel.classList.add('hidden');
 			analysisPanel.classList.remove('hidden');
 			analysisPanel.classList.add('flex');
+			showEngineStatus('', false, true);
 			analysisBar.style.width = '0%';
 			let index = 0;
 			analysisText.textContent = analysisMessages[0];
@@ -529,7 +539,7 @@ const sizes = [
 						analysisPanel.classList.add('hidden');
 						analysisPanel.classList.remove('flex');
 						selectorPanel.classList.remove('hidden');
-						showStatus(error.message || 'No se pudo generar el informe con productos reales.', true);
+						showEngineStatus(error.message || 'No se pudo generar el informe con productos reales.', true);
 					});
 			}, 900);
 		}
@@ -537,6 +547,17 @@ const sizes = [
 		function showStatus(message, error) {
 			status.textContent = message;
 			status.className = `mt-4 rounded-2xl px-4 py-3 text-sm font-bold ${error ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
+		}
+
+		function showEngineStatus(message, error, hide) {
+			if (!engineStatus) return;
+			if (hide || !message) {
+				engineStatus.className = 'mt-4 hidden rounded-2xl px-4 py-3 text-sm font-bold';
+				engineStatus.textContent = '';
+				return;
+			}
+			engineStatus.textContent = message;
+			engineStatus.className = `mt-4 rounded-2xl px-4 py-3 text-sm font-bold ${error ? 'bg-red-50 text-red-700' : 'bg-sky-50 text-sky-800'}`;
 		}
 
 		document.querySelectorAll('[data-select]').forEach((button) => {
