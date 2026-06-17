@@ -19,26 +19,13 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: 3. Configurar PHP y Composer
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: dom, mbstring, gd
-          tools: composer:v2
-
-      - name: 4. Instalar dependencias del frontend
+      - name: 3. Instalar dependencias del frontend
         run: npm ci
 
-      - name: 5. Instalar dependencias PHP
-        run: composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
-
-      - name: 6. Compilar el sitio web (Astro Build)
+      - name: 4. Compilar el sitio web (Astro Build)
         run: npm run build
 
-      - name: 7. Incluir dependencias PHP en el artefacto FTP
-        run: cp -R vendor dist/vendor
-
-      - name: 8. Subir archivos al Hosting por FTP Nativo
+      - name: 5. Subir archivos al Hosting por FTP Nativo
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
