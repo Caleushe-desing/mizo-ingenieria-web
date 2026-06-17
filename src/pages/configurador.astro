@@ -202,6 +202,7 @@ const roofTypes = [
 										<input type="hidden" name="proposito" id="lead-proposito">
 										<input type="hidden" name="productos" id="lead-productos">
 										<input type="hidden" name="detalles" id="lead-detalles">
+										<input type="hidden" name="reporte" id="lead-reporte">
 
 										<p class="text-xs font-black uppercase tracking-[0.2em] text-[#0284c7]">Desbloquear validación</p>
 										<h3 class="mt-2 text-2xl font-black text-slate-950">Recibe el cierre técnico del diagnóstico.</h3>
@@ -493,6 +494,26 @@ const roofTypes = [
 				'Productos precalificados:',
 				productText(report),
 			].join('\n');
+			try {
+				document.getElementById('lead-reporte').value = JSON.stringify({
+					title: report.title || 'Informe de Diagnóstico Técnico Mizo',
+					summary: report.summary || '',
+					source: report.source || '',
+					criteria: {
+						entorno: state.entorno?.label || '',
+						especialidad: state.especialidad?.label || '',
+						tamano: size.label,
+						areaM2: state.areaM2,
+						alturaM: state.alturaM,
+						personas: state.personas,
+						techo: state.techo?.label || '',
+					},
+					metricas: report.metricas || {},
+					grupos: report.groups || {},
+				});
+			} catch (error) {
+				document.getElementById('lead-reporte').value = '';
+			}
 		}
 
 		function renderLockedSummary(report) {

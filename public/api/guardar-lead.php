@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/_catalog-db.php';
+require_once __DIR__ . '/generar-pdf.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -85,6 +86,7 @@ function normalize_lead(array $payload): array
     $email = lead_clean($payload['correo'] ?? '', 180);
     $details = lead_multiline($payload['detalles'] ?? '', 12000);
     $products = lead_multiline($payload['productos'] ?? '', 12000);
+    $report = lead_multiline($payload['reporte'] ?? '', 60000);
 
     return [
         'id' => 'lead_' . gmdate('Ymd_His') . '_' . substr(sha1($email . $phone . microtime(true)), 0, 10),
@@ -101,6 +103,7 @@ function normalize_lead(array $payload): array
         'proposito' => lead_clean($payload['proposito'] ?? '', 260),
         'productos' => $products,
         'detalles' => $details,
+        'reporte' => $report,
         'resumenTecnico' => trim($details . "\n\n" . $products),
         'mailAdminOk' => false,
         'mailClientOk' => false,
@@ -241,21 +244,72 @@ function update_mysql_mail_status(string $id, bool $adminOk, bool $clientOk): vo
     }
 }
 
-function email_headers(string $replyTo = ''): string
+function lead_closing_message(): string
 {
+    return defined('MIZO_PDF_CLOSING_MESSAGE')
+        ? MIZO_PDF_CLOSING_MESSAGE
+        : 'Hemos recibido tu solicitud de diagnóstico. Un especialista de Mizo revisará los detalles de tu proyecto y te contactará para optimizar tu propuesta de ingeniería y entregarte una solución personalizada ajustada a tus necesidades operativas y presupuestarias.';
+}
+
+function lead_encode_subject(string $subject): string
+{
+    return '=?UTF-8?B?' . base64_encode($subject) . '?=';
+}
+
+function send_lead_email(string $to, string $subject, string $body, ?array $attachment = null, string $replyTo = ''): bool
+{
+    $eol = "\r\n";
+    $boundary = 'mizo_' . bin2hex(random_bytes(10));
+    $hasAttachment = is_array($attachment) && !empty($attachment['content']);
+
     $headers = [
         'MIME-Version: 1.0',
-        'Content-Type: text/plain; charset=UTF-8',
         'From: Mizo Web <' . MIZO_LEADS_EMAIL . '>',
     ];
     if ($replyTo !== '') {
         $headers[] = 'Reply-To: ' . $replyTo;
     }
-    return implode("\r\n", $headers);
+
+    if (!$hasAttachment) {
+        $headers[] = 'Content-Type: text/plain; charset=UTF-8';
+        $headers[] = 'Content-Transfer-Encoding: 8bit';
+        return @mail($to, lead_encode_subject($subject), $body, implode($eol, $headers));
+    }
+
+    $headers[] = 'Content-Type: multipart/mixed; boundary="' . $boundary . '"';
+
+    $message = '--' . $boundary . $eol;
+    $message .= 'Content-Type: text/plain; charset=UTF-8' . $eol;
+    $message .= 'Content-Transfer-Encoding: 8bit' . $eol . $eol;
+    $message .= $body . $eol . $eol;
+
+    $filename = (string) ($attachment['filename'] ?? 'Informe-Mizo.pdf');
+    $mime = (string) ($attachment['mime'] ?? 'application/pdf');
+    $encoded = chunk_split(base64_encode((string) $attachment['content']));
+    $message .= '--' . $boundary . $eol;
+    $message .= 'Content-Type: ' . $mime . '; name="' . $filename . '"' . $eol;
+    $message .= 'Content-Transfer-Encoding: base64' . $eol;
+    $message .= 'Content-Disposition: attachment; filename="' . $filename . '"' . $eol . $eol;
+    $message .= $encoded . $eol;
+    $message .= '--' . $boundary . '--';
+
+    return @mail($to, lead_encode_subject($subject), $message, implode($eol, $headers));
 }
 
-function send_lead_emails(array $lead): array
+function send_lead_emails(array $lead, ?array $pdf = null): array
 {
+    $closing = lead_closing_message();
+    $attachment = (is_array($pdf) && !empty($pdf['content'])) ? [
+        'filename' => $pdf['filename'] ?? 'Informe-Mizo.pdf',
+        'mime' => $pdf['mime'] ?? 'application/pdf',
+        'content' => $pdf['content'],
+    ] : null;
+    $attachmentNote = $attachment
+        ? (($pdf['mode'] ?? '') === 'dompdf'
+            ? 'Adjuntamos el informe PDF profesional con las métricas de ingeniería y los grupos de equipamiento.'
+            : 'Adjuntamos el informe técnico del diagnóstico (documento HTML imprimible).')
+        : '';
+
     $adminLines = [
         'Nuevo diagnóstico técnico recibido desde mizo.cl',
         '',
@@ -272,25 +326,36 @@ function send_lead_emails(array $lead): array
         'Resumen técnico:',
         $lead['resumenTecnico'] ?: 'Sin resumen técnico.',
     ];
+    if ($attachmentNote !== '') {
+        $adminLines[] = '';
+        $adminLines[] = $attachmentNote;
+    }
 
     $clientLines = [
-        'Hola ' . $lead['nombre'] . ',',
+        'Estimado/a ' . $lead['nombre'] . ',',
         '',
-        'Recibimos tu diagnóstico técnico en Mizo.',
-        'Un ingeniero revisará los datos del espacio y te contactará para validar acústica real, puntos de montaje, rutas de cableado y plano de conectividad.',
+        $closing,
         '',
-        'Resumen recibido:',
+    ];
+    if ($attachmentNote !== '') {
+        $clientLines[] = $attachmentNote;
+        $clientLines[] = '';
+    }
+    $clientLines = array_merge($clientLines, [
+        'Resumen de tu diagnóstico:',
         'Entorno: ' . ($lead['espacio'] ?: 'No indicado'),
         'Especialidad: ' . ($lead['especialidad'] ?: 'No indicada'),
         'Dimensión: ' . ($lead['dimension'] ?: 'No indicada'),
         '',
         'Gracias por confiar en Mizo.',
         'Equipo de Ingeniería Audiovisual Mizo',
-    ];
+        'ventas@mizo.cl · www.mizo.cl',
+    ]);
 
     $replyTo = $lead['nombre'] . ' <' . $lead['correo'] . '>';
-    $adminOk = @mail(MIZO_LEADS_EMAIL, 'Nuevo lead Asistente de Diagnóstico Técnico Mizo', implode("\r\n", $adminLines), email_headers($replyTo));
-    $clientOk = @mail($lead['correo'], 'Recibimos tu diagnóstico técnico Mizo', implode("\r\n", $clientLines), email_headers());
+    $adminOk = send_lead_email(MIZO_LEADS_EMAIL, 'Nuevo lead · Asistente de Diagnóstico Técnico Mizo', implode("\r\n", $adminLines), $attachment, $replyTo);
+    $clientOk = send_lead_email($lead['correo'], 'Recibimos tu diagnóstico técnico · Mizo Ingeniería', implode("\r\n", $clientLines), $attachment);
+
     return ['admin' => (bool) $adminOk, 'client' => (bool) $clientOk];
 }
 
@@ -375,7 +440,16 @@ if (!$savedTo) {
     ], 500);
 }
 
-$mail = send_lead_emails($lead);
+$pdf = null;
+try {
+    if (function_exists('mizo_generar_pdf_informe')) {
+        $pdf = mizo_generar_pdf_informe($lead);
+    }
+} catch (Throwable $error) {
+    $pdf = null;
+}
+
+$mail = send_lead_emails($lead, $pdf);
 if ($savedTo === 'mysql') {
     update_mysql_mail_status($lead['id'], $mail['admin'], $mail['client']);
 } else {
@@ -388,6 +462,7 @@ lead_response([
     'id' => $lead['id'],
     'savedTo' => $savedTo,
     'mail' => $mail,
+    'pdf' => is_array($pdf) ? ['ok' => (bool) ($pdf['ok'] ?? false), 'mode' => $pdf['mode'] ?? 'none'] : ['ok' => false, 'mode' => 'none'],
     'message' => $mail['admin'] || $mail['client']
         ? 'Diagnóstico guardado y notificación enviada. Un ingeniero de Mizo te contactará en breve.'
         : 'Diagnóstico guardado. Un ingeniero de Mizo te contactará en breve.',
