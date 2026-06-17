@@ -13,7 +13,8 @@
     "fetch-images": "node scripts/download-images.mjs",
     "fetch-logos": "node scripts/fetch-logos.mjs",
     "fuentes": "node scripts/make-fuentes.mjs",
-    "build-admin": "node scripts/build-admin.mjs"
+    "build-admin": "node scripts/build-admin.mjs",
+    "make-pdf-logo": "node scripts/make-pdf-logo.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",

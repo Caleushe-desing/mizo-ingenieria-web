@@ -305,9 +305,9 @@ function send_lead_emails(array $lead, ?array $pdf = null): array
         'content' => $pdf['content'],
     ] : null;
     $attachmentNote = $attachment
-        ? (($pdf['mode'] ?? '') === 'dompdf'
+        ? (($pdf['mode'] ?? '') === 'native'
             ? 'Adjuntamos el informe PDF profesional con las métricas de ingeniería y los grupos de equipamiento.'
-            : 'Adjuntamos el informe técnico del diagnóstico (documento HTML imprimible).')
+            : 'Adjuntamos el informe técnico del diagnóstico.')
         : '';
 
     $adminLines = [
