@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: {}
 
 jobs:
   build-and-deploy:
@@ -30,21 +31,33 @@ jobs:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
         run: |
           python - <<'PY'
           import ftplib
           import os
+          import time
           from pathlib import Path
 
           local_root = Path("dist").resolve()
           remote_root = "/public_html"
+          host = os.environ["FTP_SERVER"].strip().replace("ftp://", "").replace("ftps://", "").rstrip("/")
+          port = int(os.environ.get("FTP_PORT") or 21)
+          user = os.environ["FTP_USERNAME"]
+          password = os.environ["FTP_PASSWORD"]
 
-          ftp = ftplib.FTP(timeout=90)
-          ftp.connect(os.environ["FTP_SERVER"], 21)
-          ftp.login(os.environ["FTP_USERNAME"], os.environ["FTP_PASSWORD"])
-          ftp.set_pasv(True)
+          MAX_ATTEMPTS = 5
+          TIMEOUT = 120
 
-          def ensure_dir(remote_path):
+          def connect():
+              ftp = ftplib.FTP(timeout=TIMEOUT)
+              print(f"Conectando a {host}:{port} ...")
+              ftp.connect(host, port)
+              ftp.login(user, password)
+              ftp.set_pasv(True)
+              return ftp
+
+          def ensure_dir(ftp, remote_path):
               current = ""
               for part in remote_path.strip("/").split("/"):
                   current += f"/{part}"
@@ -54,27 +67,53 @@ jobs:
                       if not str(error).startswith("550"):
                           raise
 
-          def upload_dir(local_dir, remote_dir):
-              ensure_dir(remote_dir)
+          def upload_dir(ftp, local_dir, remote_dir):
+              ensure_dir(ftp, remote_dir)
               for item in local_dir.iterdir():
                   remote_path = f"{remote_dir.rstrip('/')}/{item.name}"
                   if item.is_dir():
-                      upload_dir(item, remote_path)
+                      upload_dir(ftp, item, remote_path)
                       continue
                   with item.open("rb") as file:
                       print(f"Subiendo {item} -> {remote_path}")
                       ftp.storbinary(f"STOR {remote_path}", file)
 
-          upload_dir(local_root, remote_root)
-          for obsolete_path in (
-              "/public_html/admin.catalogo.php",
-              "/public_html/admin-catalogo.php",
-          ):
+          def deploy():
+              ftp = connect()
               try:
-                  print(f"Eliminando obsoleto {obsolete_path}")
-                  ftp.delete(obsolete_path)
-              except ftplib.error_perm as error:
-                  if not str(error).startswith("550"):
-                      raise
-          ftp.quit()
+                  upload_dir(ftp, local_root, remote_root)
+                  for obsolete_path in (
+                      "/public_html/admin.catalogo.php",
+                      "/public_html/admin-catalogo.php",
+                  ):
+                      try:
+                          print(f"Eliminando obsoleto {obsolete_path}")
+                          ftp.delete(obsolete_path)
+                      except ftplib.error_perm as error:
+                          if not str(error).startswith("550"):
+                              raise
+              finally:
+                  try:
+                      ftp.quit()
+                  except Exception:
+                      pass
+
+          last_error = None
+          for attempt in range(1, MAX_ATTEMPTS + 1):
+              try:
+                  print(f"== Intento de despliegue {attempt}/{MAX_ATTEMPTS} ==")
+                  deploy()
+                  print("Despliegue FTP completado correctamente.")
+                  last_error = None
+                  break
+              except Exception as error:  # noqa: BLE001
+                  last_error = error
+                  wait = attempt * 20
+                  print(f"Fallo el intento {attempt}: {error}")
+                  if attempt < MAX_ATTEMPTS:
+                      print(f"Reintentando en {wait}s ...")
+                      time.sleep(wait)
+
+          if last_error is not None:
+              raise SystemExit(f"Despliegue FTP fallido tras {MAX_ATTEMPTS} intentos: {last_error}")
           PY
