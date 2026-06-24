@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SectionCTA from '../components/SectionCTA.astro';
+import PageHero from '../components/PageHero.astro';
 
 const values = [
 	{
@@ -34,25 +35,13 @@ const capabilities = [
 	title="Nosotros | Mizo"
 	description="Conoce a Mizo: especialistas en instalación de sistemas de sonido, audiovisual e instalaciones eléctricas en Chile, y venta de equipos profesionales."
 >
-	<section class="relative overflow-hidden bg-slate-950 py-20 text-white sm:py-28">
-		<div class="absolute inset-0 opacity-35">
-			<img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80" alt="" class="h-full w-full object-cover" loading="eager" width="1600" height="900" />
-		</div>
-		<div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-950/45"></div>
-		<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="max-w-4xl">
-				<span class="inline-flex rounded-full bg-white/10 px-4 py-1.5 text-sm font-black uppercase tracking-[0.18em] text-brand-orange">
-					Nosotros
-				</span>
-				<h1 class="mt-6 text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
-					La ingeniería detrás de instalaciones audiovisuales confiables.
-				</h1>
-				<p class="mt-5 max-w-3xl text-lg leading-relaxed text-white/75 sm:text-xl">
-					Mizo combina selección de equipamiento, diseño técnico, ejecución en terreno y soporte posterior para entregar sistemas que funcionan desde el primer día.
-				</p>
-			</div>
-		</div>
-	</section>
+	<PageHero
+		eyebrow="Nosotros"
+		title="La ingeniería detrás de instalaciones audiovisuales confiables."
+		subtitle="Mizo combina selección de equipamiento, diseño técnico, ejecución en terreno y soporte posterior para entregar sistemas que funcionan desde el primer día."
+		image="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80"
+		chips={["Criterio técnico", "AV + infraestructura", "Soporte local"]}
+	/>
 
 	<section class="bg-white py-20">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">

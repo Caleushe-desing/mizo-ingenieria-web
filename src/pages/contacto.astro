@@ -9,16 +9,23 @@ const badges = ['Ingeniería Certificada', 'Garantía de Satisfacción', 'Soport
 	title="Contacto | Mizo"
 	description="Contáctanos para cotizaciones de instalación de sonido, audiovisual, electricidad o venta de equipos en Chile."
 >
-	<section class="relative overflow-hidden bg-slate-950 py-20 sm:py-28">
-		<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#1c9bd8 1px, transparent 1px); background-size: 24px 24px;"></div>
+	<section class="relative isolate overflow-hidden bg-ink py-20 text-white sm:py-28">
+		<img src="https://images.unsplash.com/photo-1581093458791-9d09cc08742a?auto=format&fit=crop&w=1600&q=80" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover" loading="eager" width="1600" height="900" />
+		<div class="absolute inset-0 bg-gradient-to-r from-ink via-ink/92 to-ink/60"></div>
+		<div class="absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-transparent"></div>
+		<div class="absolute inset-0 opacity-[0.12]" style="background-image: radial-gradient(#1c9bd8 1px, transparent 1px); background-size: 24px 24px;"></div>
+		<div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent-main/20 blur-3xl"></div>
 		<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 			<div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
 				<div>
-					<span class="inline-flex rounded-full bg-brand-orange px-4 py-1.5 text-sm font-black text-white">Cotizador guiado de proyectos</span>
-					<h1 class="mt-6 text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-white">
+					<span class="inline-flex items-center gap-2 rounded-full border border-brand-orange/40 bg-brand-orange/10 px-4 py-1.5 text-[0.7rem] font-black uppercase tracking-[0.22em] text-brand-orange backdrop-blur">
+						<span class="h-1.5 w-1.5 rounded-full bg-brand-orange"></span>
+						Cotizador guiado de proyectos
+					</span>
+					<h1 class="mt-6 text-balance text-3xl font-black leading-[1.1] tracking-tight text-white sm:text-4xl lg:text-5xl">
 						Cuéntanos tu espacio y un ingeniero de Mizo arma la solución.
 					</h1>
-					<p class="mt-5 text-lg text-slate-300">
+					<p class="mt-5 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
 						Recibimos tu requerimiento, revisamos dimensiones, uso del espacio y equipamiento esperado para coordinar una visita técnica o propuesta inicial.
 					</p>
 					<div class="mt-7 grid gap-3 sm:grid-cols-3">

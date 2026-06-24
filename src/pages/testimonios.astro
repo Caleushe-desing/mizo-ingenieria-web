@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SectionCTA from '../components/SectionCTA.astro';
+import PageHero from '../components/PageHero.astro';
 
 const testimonials = [
 	{ quote: "Aquí estará tu testimonio.", author: "—", icon: "🔊" },
@@ -13,16 +14,13 @@ const testimonials = [
 	title="Testimonios | Mizo"
 	description="Opiniones de nuestros clientes sobre instalaciones de sonido, audiovisual, electricidad y venta de equipos."
 >
-	<section class="bg-gradient-to-b from-accent-soft to-white py-20 sm:py-28">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
-				Lo que dicen <span class="text-accent-main">nuestros clientes</span>
-			</h1>
-			<p class="mt-4 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-				La confianza de nuestros clientes es el mejor reflejo de nuestro compromiso con la calidad. Acabamos de inaugurar esta sección y ya estamos recopilando sus historias.
-			</p>
-		</div>
-	</section>
+	<PageHero
+		eyebrow="Testimonios"
+		title="Lo que dicen nuestros clientes"
+		subtitle="La confianza de nuestros clientes es el mejor reflejo de nuestro compromiso con la calidad. Acabamos de inaugurar esta sección y ya estamos recopilando sus historias."
+		image="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=80"
+		align="center"
+	/>
 
 	<section class="py-20 bg-white">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

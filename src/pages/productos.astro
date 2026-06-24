@@ -1,24 +1,22 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SectionCTA from '../components/SectionCTA.astro';
+import PageHero from '../components/PageHero.astro';
 ---
 
 <Layout
 	title="Tienda | Mizo - Parlantes, Proyectores y Cámaras"
 	description="Compra equipos de audio y video en Chile: parlantes, proyectores y cámaras de las mejores marcas. Con opción de instalación profesional. Precios en CLP."
 >
-	<!-- Encabezado tienda -->
-	<section class="bg-gradient-to-b from-accent-soft to-white py-7 sm:py-14">
-		<div class="mx-auto w-full max-w-[1920px] px-3 text-center sm:px-6 lg:px-8">
-			<h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
-				Tienda Mizo de <span class="text-accent-main">audio y video</span>
-			</h1>
-			<p class="mt-3 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-				Todos los productos viven aquí. Usa los filtros para ver Audio Profesional, Proyectores o Cámaras sin salir de la tienda.
-			</p>
-
-		</div>
-	</section>
+	<PageHero
+		eyebrow="Tienda Mizo"
+		title="Equipos profesionales de audio y video"
+		subtitle="Todos los productos viven aquí. Usa los filtros para ver Audio Profesional, Proyectores o Cámaras sin salir de la tienda."
+		image="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1600&q=80"
+		align="center"
+		size="sm"
+		chips={["Audio profesional", "Proyectores", "Cámaras"]}
+	/>
 
 	<section class="bg-slate-100 py-3 sm:bg-white sm:py-8">
 		<div class="mx-auto w-full max-w-[1920px] px-0 sm:px-6 lg:px-8">

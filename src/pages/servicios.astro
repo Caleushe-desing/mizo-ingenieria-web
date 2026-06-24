@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SectionCTA from '../components/SectionCTA.astro';
+import PageHero from '../components/PageHero.astro';
 
 const services = [
 	{
@@ -53,25 +54,13 @@ const process = [
 	title="Servicios | Mizo - Sonido, Audiovisual y Electricidad"
 	description="Servicios de instalación de sistemas de sonido, soluciones audiovisuales e instalaciones eléctricas profesionales en Chile."
 >
-	<section class="relative overflow-hidden bg-slate-950 py-20 text-white sm:py-28">
-		<div class="absolute inset-0 opacity-35">
-			<img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80" alt="" class="h-full w-full object-cover" loading="eager" width="1600" height="900" />
-		</div>
-		<div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-950/40"></div>
-		<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="max-w-4xl">
-				<span class="inline-flex rounded-full bg-white/10 px-4 py-1.5 text-sm font-black uppercase tracking-[0.18em] text-brand-orange">
-					Integración audiovisual premium
-				</span>
-				<h1 class="mt-6 text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
-					Servicios profesionales para espacios que deben sonar, verse y operar perfecto.
-				</h1>
-				<p class="mt-5 max-w-3xl text-lg leading-relaxed text-white/75 sm:text-xl">
-					Diseñamos e instalamos sistemas audiovisuales completos: acústica, cableado oculto, montaje estructural, proyección láser, control y calibración final.
-				</p>
-			</div>
-		</div>
-	</section>
+	<PageHero
+		eyebrow="Integración audiovisual premium"
+		title="Servicios profesionales para espacios que deben sonar, verse y operar perfecto."
+		subtitle="Diseñamos e instalamos sistemas audiovisuales completos: acústica, cableado oculto, montaje estructural, proyección láser, control y calibración final."
+		image="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80"
+		chips={["Audio calibrado", "Imagen + control", "Infraestructura AV"]}
+	/>
 
 	<section class="bg-white py-20">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
