@@ -24,6 +24,16 @@ export default {
         'brand-orange-hover': '#e06814',
         'brand-orange-dark': '#c2560d',
         'brand-orange-soft': '#fdebd9',
+        // Negro suavizado: gris muy oscuro, cercano a negro (reemplaza al negro puro)
+        'ink': '#181b20',
+        // Sustituye los tonos "negros" usados en el sitio por un gris muy oscuro
+        black: '#181b20',
+        slate: {
+          950: '#181b20',
+        },
+        gray: {
+          950: '#181b20',
+        },
       },
       fontFamily: {
         sans: ['Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
