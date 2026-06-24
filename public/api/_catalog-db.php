@@ -702,10 +702,17 @@ function mizo_fetch_showcase_products(): array
                 continue;
             }
             $shown = mizo_showcase_product($product, trim((string) ($item['note'] ?? '')));
-            if ($shown['image'] === '/mizo-logo.png') {
+            if ($shown['image'] === '/mizo-logo.png' && trim((string) ($shown['sourceImage'] ?? '')) === '') {
                 continue;
             }
             $products[] = $shown;
+        }
+
+        if (count($products) === 0 && count($catalog) > 0) {
+            foreach ($catalog as $product) {
+                $key = (string) ($product['id'] ?? $product['sku'] ?? '');
+                $products[] = mizo_showcase_product($product, $notesByKey[$key] ?? '');
+            }
         }
 
         return [
@@ -720,10 +727,16 @@ function mizo_fetch_showcase_products(): array
     $products = [];
     foreach ($catalog as $product) {
         $shown = mizo_showcase_product($product, $notesByKey[(string) ($product['id'] ?? '')] ?? $notesByKey[(string) ($product['sku'] ?? '')] ?? '');
-        if ($shown['image'] === '/mizo-logo.png') {
+        if ($shown['image'] === '/mizo-logo.png' && trim((string) ($shown['sourceImage'] ?? '')) === '') {
             continue;
         }
         $products[] = $shown;
+    }
+
+    if (count($products) === 0 && count($catalog) > 0) {
+        foreach ($catalog as $product) {
+            $products[] = mizo_showcase_product($product, $notesByKey[(string) ($product['id'] ?? '')] ?? $notesByKey[(string) ($product['sku'] ?? '')] ?? '');
+        }
     }
 
     usort($products, static function (array $a, array $b): int {
