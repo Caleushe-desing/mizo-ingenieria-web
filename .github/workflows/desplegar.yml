@@ -24,7 +24,7 @@ jobs:
         run: npm ci
 
       - name: 4. Sincronizar catálogo e imágenes de productos
-        run: npm run sync-catalogo || echo "sync fallo: se usa catalogo existente"
+        run: npm run sync-catalogo || echo 'sync fallo, se usa catalogo existente'
 
       - name: 5. Regenerar catálogo cifrado del admin
         run: npm run build-admin
