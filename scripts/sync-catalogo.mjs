@@ -55,12 +55,46 @@ const SOURCES = [
 		store: 'Casa Royal',
 		type: 'vtex',
 		host: 'https://www.casaroyal.cl',
-		category: 'video', // se divide en 'proyector' o 'camara' según el producto
-		target: 60,
+		category: 'video',
+		target: 50,
 		terms: [
-			'proyector', 'proyector wanbo', 'proyector philco', 'proyector epson',
-			'proyector full hd', 'proyector 4k', 'mini proyector', 'home theater proyector',
 			'camara seguridad', 'camara wifi', 'camara vigilancia', 'camara ip',
+		],
+	},
+	{
+		store: 'Casa Royal',
+		type: 'vtex',
+		host: 'https://www.casaroyal.cl',
+		category: 'proyector',
+		target: 28,
+		terms: [
+			'proyector', 'proyector wanbo', 'wanbo proyector', 'proyector philco',
+			'proyector full hd', 'proyector 4k', 'mini proyector', 'proyector portatil',
+			'proyector android', 'proyector laser',
+		],
+	},
+	{
+		store: 'Epson Chile',
+		type: 'magento',
+		host: 'https://www.tiendaepson.cl',
+		category: 'proyector',
+		target: 12,
+		paths: ['/proyectores'],
+	},
+	{
+		store: 'BIP',
+		type: 'bip',
+		host: 'https://bip.cl',
+		category: 'proyector',
+		target: 30,
+		terms: [
+			'proyector benq', 'proyector epson', 'proyector viewsonic', 'proyector optoma',
+			'proyector sony', 'proyector',
+		],
+		seeds: [
+			'https://bip.cl/proyector-dlp-benq-mw560c-xga-4000-lumenes-hdmi-usb-lan-9hjtd771nl_37649',
+			'https://bip.cl/proyector-pa503s-svga-3800lum-hdmivgaparlantes-pa503s-pn-PA503S_23435',
+			'https://bip.cl/proyector-pa503x-xga-3800l-1024x768-blancohdmivgax2p-ag025-pn-PA503X_23436',
 		],
 	},
 ];
@@ -192,7 +226,8 @@ const BLOCKLIST = new RegExp(
 		'interlight',
 		// accesorios
 		'soporte', '\\bbolso\\b', 'tripode', 'trípode', '\\bbase para\\b', '\\bcable\\b',
-		'maleta', 'funda', 'pantalla de proyec', 'mochila',
+		'maleta', 'funda', 'pantalla de proyec', 'mochila', 'tel[oó]n mural', 'soporte mural',
+		'soporte para proyector', 'soporte-mural',
 		// equipos de audio que NO son parlantes
 		'audifono', 'audífono', '\\bin[- ]ear\\b', 'monitoreo', 'micr[oó]fono',
 		'grabadora', 'preamplificad', '\\bpreamp\\b', 'tornamesa', 'controlador',
@@ -217,6 +252,188 @@ async function fetchJson(url) {
 	const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
 	if (!res.ok) throw new Error(`HTTP ${res.status} en ${url}`);
 	return res.json();
+}
+
+async function fetchHtml(url) {
+	const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'text/html' }, redirect: 'follow' });
+	if (!res.ok) throw new Error(`HTTP ${res.status} en ${url}`);
+	return res.text();
+}
+
+function resolveCategory(srcCategory, name) {
+	if (srcCategory === 'proyector' || srcCategory === 'camara') {
+		return srcCategory === 'proyector' && !/proyector/i.test(name) ? null : srcCategory;
+	}
+	return finalCategory(srcCategory, name);
+}
+
+function buildProductRecord({
+	id,
+	name,
+	brand,
+	category,
+	description = '',
+	descriptionLong = '',
+	specs = [],
+	weightKg,
+	basePrice,
+	stock = null,
+	store,
+	url,
+	imageUrl,
+}) {
+	if (!id || !name || !imageUrl || Number(basePrice) <= 0) return null;
+	const nameForFilter = `${brand || ''} ${name}`;
+	if (BLOCKLIST.test(nameForFilter)) return null;
+	const finalCat = category === 'proyector' || category === 'camara' ? category : resolveCategory(category, name);
+	if (!finalCat) return null;
+
+	const cleanName = clean(name);
+	const cleanBrand = titleCase(clean(brand) || 'Genérico');
+	const desc = clean(description);
+	const descLong = clean(descriptionLong);
+
+	return {
+		id,
+		sku: skuFor(id, finalCat),
+		name: cleanName,
+		brand: cleanBrand,
+		category: finalCat,
+		description: desc ? desc.slice(0, 200).replace(/\s+\S*$/, '') : `${cleanBrand} — ${cleanName}.`,
+		descriptionLong: descLong ? descLong.slice(0, 1200) : (desc ? desc.slice(0, 1200) : ''),
+		specs,
+		weightKg: weightKg ?? weightFor(finalCat, specs, descLong || desc),
+		basePrice: Math.round(Number(basePrice)),
+		stock,
+		available: true,
+		image: `/images/productos/${id}.jpg`,
+		source: {
+			store,
+			url,
+			image: imageUrl,
+			capturedAt: new Date().toISOString().slice(0, 10),
+		},
+	};
+}
+
+function parseMagentoCategory(html, store, host, category) {
+	const products = [];
+	const chunks = html.split(/id=\"product-item-info_/).slice(1);
+	for (const chunk of chunks) {
+		const href = chunk.match(/class=\"product-item-link\"\s+href=\"([^\"]+)\"/)?.[1];
+		const imageRaw = chunk.match(/product-image-photo[^>]*src=\"([^\"]+)\"/)?.[1];
+		const price = chunk.match(/data-price-amount=\"(\d+)\"/)?.[1];
+		const nameRaw = chunk.match(/class=\"product-item-link\"[^>]*>\s*([^<]+)/)?.[1];
+		if (!href || !imageRaw || !price || !nameRaw) continue;
+		const hrefPath = href.startsWith('http') ? href : `${host}${href.startsWith('/') ? '' : '/'}${href}`;
+		const id = slugify(hrefPath.replace(/^https?:\/\/[^/]+\//, '').replace(/\/p$/, '').split('/').filter(Boolean).pop() || nameRaw);
+		const imageUrl = decodeEntities(imageRaw).replace(/&amp;/g, '&').split('?')[0];
+		const product = buildProductRecord({
+			id,
+			name: nameRaw,
+			brand: nameRaw.match(/\bEpson\b/i)?.[0] || store.split(' ')[0],
+			category,
+			basePrice: price,
+			store,
+			url: hrefPath,
+			imageUrl,
+		});
+		if (product) products.push(product);
+	}
+	return products;
+}
+
+function extractBipProjectorLinks(html, host) {
+	const escapedHost = host.replace(/\./g, '\\.');
+	const re = new RegExp(`href=\"(${escapedHost}/proyector[^\"#]+)\"`, 'gi');
+	return [...new Set([...html.matchAll(re)].map((m) => m[1]).filter((u) => !/soporte-mural|telon-mural|soporte-para-proyector/i.test(u)))];
+}
+
+function parseBipProduct(html, url, store) {
+	if (!/proyector/i.test(html)) return null;
+	const name = clean(
+		html.match(/<div class=\"cloth-details-size\">[\s\S]*?<h2>([\s\S]*?)<\/h2>/i)?.[1]?.replace(/<[^>]+>/g, '')
+		|| html.match(/<title>([^<|]+)/i)?.[1]
+		|| '',
+	);
+	if (!name || !/proyector/i.test(name)) return null;
+	const brand = clean(html.match(/label-text[^>]*><b>([^<]+)/i)?.[1] || name.match(/\b(BenQ|Epson|ViewSonic|Optoma|Sony|Philco|Wanbo)\b/i)?.[1] || 'Genérico');
+	const priceTxt = html.match(/Precio Efectivo[\s\S]{0,400}?price-detail[^>]*>\$?\s*([\d\.]+)/i)?.[1]
+		|| html.match(/class=\"theme-color\">\$\s*([\d\.]+)/i)?.[1];
+	const price = Math.round(Number(String(priceTxt || '').replace(/\./g, '')) || 0);
+	const imageUrl = (
+		html.match(/https:\/\/s3\.amazonaws\.com\/w3\.assets\/fotos\/\d+\/[^\"'\s>]+\.webp[^\"'\s>]*/i)?.[0]
+		|| html.match(/https:\/\/s3\.amazonaws\.com\/w3\.assets\/fotos\/\d+\/[^\"'\s>]+\.webp/i)?.[0]
+		|| ''
+	).replace(/&amp;/g, '&');
+	const id = slugify(url.replace(/^https?:\/\/[^/]+\//, '').replace(/_\d+$/, ''));
+	const description = clean(html.match(/<meta name=\"description\" content=\"([^\"]+)/i)?.[1] || '');
+
+	return buildProductRecord({
+		id,
+		name,
+		brand,
+		category: 'proyector',
+		description,
+		descriptionLong: description,
+		basePrice: price,
+		store,
+		url,
+		imageUrl,
+	});
+}
+
+async function searchMagento(src) {
+	const products = new Map();
+	for (const pagePath of src.paths || []) {
+		try {
+			const html = await fetchHtml(`${src.host}${pagePath}`);
+			for (const product of parseMagentoCategory(html, src.store, src.host, src.category)) {
+				if (products.size >= src.target) break;
+				if (!products.has(product.id)) products.set(product.id, product);
+			}
+			console.log(`  ${pagePath}: ${products.size} producto(s)`);
+		} catch (err) {
+			console.warn(`  (aviso) ${pagePath}: ${err.message}`);
+		}
+	}
+	return [...products.values()];
+}
+
+async function searchBip(src) {
+	const queue = [...new Set([...(src.seeds || []), ...(src.seedUrls || [])])];
+	const visited = new Set();
+	const products = new Map();
+
+	for (const term of src.terms || []) {
+		try {
+			const html = await fetchHtml(`${src.host}/index.php?controller=search&search_query=${encodeURIComponent(term)}`);
+			for (const link of extractBipProjectorLinks(html, src.host)) queue.push(link);
+		} catch (err) {
+			console.warn(`  (aviso) búsqueda "${term}": ${err.message}`);
+		}
+	}
+
+	while (queue.length && products.size < src.target) {
+		const url = queue.shift();
+		if (!url || visited.has(url)) continue;
+		visited.add(url);
+		try {
+			const html = await fetchHtml(url);
+			for (const link of extractBipProjectorLinks(html, src.host)) {
+				if (!visited.has(link)) queue.push(link);
+			}
+			const product = parseBipProduct(html, url, src.store);
+			if (product && !products.has(product.id)) {
+				products.set(product.id, product);
+				console.log(`  + ${product.brand} · ${product.name.slice(0, 55)}`);
+			}
+		} catch (err) {
+			console.warn(`  (aviso) ${url}: ${err.message}`);
+		}
+	}
+
+	return [...products.values()];
 }
 
 async function searchTerm(host, term) {
@@ -257,7 +474,7 @@ function normalize(raw, store, host, category) {
 	if (BLOCKLIST.test(nameForFilter)) return null;
 
 	const name = clean(raw.productName);
-	const finalCat = finalCategory(category, name);
+	const finalCat = resolveCategory(category, name);
 	if (!finalCat) return null;
 
 	const rawQty = Number(offer.AvailableQuantity) || 0;
@@ -444,6 +661,22 @@ async function main() {
 				collected.set(p.id, p);
 			}
 			console.log(`  Shopify: ${collected.size} productos`);
+		} else if (src.type === 'magento') {
+			const results = await searchMagento(src);
+			for (const p of results) {
+				if (collected.size >= src.target) break;
+				if (collected.has(p.id) || byId.has(p.id)) continue;
+				collected.set(p.id, p);
+			}
+			console.log(`  Magento: ${collected.size} productos`);
+		} else if (src.type === 'bip') {
+			const results = await searchBip(src);
+			for (const p of results) {
+				if (collected.size >= src.target) break;
+				if (collected.has(p.id) || byId.has(p.id)) continue;
+				collected.set(p.id, p);
+			}
+			console.log(`  BIP: ${collected.size} productos`);
 		} else {
 			for (const term of src.terms) {
 				if (collected.size >= src.target) break;

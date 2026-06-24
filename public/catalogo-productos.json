@@ -178,40 +178,6 @@
 		}
 	},
 	{
-		"id": "ezviz-camara-wi-fi-3k-full-hd-1080p-con-sirena-y-luz-vision-nocturna-cc1009",
-		"sku": "MZ-CAM-E7TMJS",
-		"name": "EZVIZ CAMARA WI FI 3K FULL HD 1080P CON SIRENA Y LUZ VISION NOCTURNA CC1009",
-		"brand": "Ezviz",
-		"category": "camara",
-		"description": "Protege grandes espacios exteriores con una solución duradera que ofrece vigilancia inteligente las 24 horas del día. La cámara EZVIZ CC1009 soluciona la necesidad de una visión clara y alertas",
-		"descriptionLong": "Protege grandes espacios exteriores con una solución duradera que ofrece vigilancia inteligente las 24 horas del día. La cámara EZVIZ CC1009 soluciona la necesidad de una visión clara y alertas precisas para mantener tu hogar seguro. Gracias a su tecnología de IA integrada, este dispositivo detecta personas, vehículos e incluso movimientos de mano para enviar notificaciones inteligentes. Su resolución 3K y visión nocturna en color aseguran que no pierdas ningún detalle, incluso en la oscuridad. Disfruta de una tranquilidad total con su sistema de defensa activa, que utiliza una sirena y luz estroboscópica para disuadir intrusos de manera efectiva. Su fabricación en aleación de aluminio garantiza resistencia frente a las condiciones climáticas más exigentes. Resolución 3K Diseño resistente a la intemperie IP67 Tecnología de Video H.265 Soporta tarjeta MicroSD de hasta 512GB Asegura tu tranquilidad y la de tu familia con la tecnología más avanzada en protección perimetral para tu hogar.",
-		"specs": [
-			{
-				"label": "Tipo",
-				"value": "Cámaras de seguridad WIFI"
-			},
-			{
-				"label": "Modelo",
-				"value": "CS-H3-R100-1J5WKFL"
-			},
-			{
-				"label": "Características",
-				"value": "Cámaras de seguridad WIFI"
-			}
-		],
-		"weightKg": 0.7,
-		"basePrice": 64990,
-		"stock": 10,
-		"available": true,
-		"image": "/images/productos/ezviz-camara-wi-fi-3k-full-hd-1080p-con-sirena-y-luz-vision-nocturna-cc1009.jpg",
-		"source": {
-			"store": "Casa Royal",
-			"url": "https://www.casaroyal.cl/ezviz-camara-wi-fi-3k-full-hd-1080p-con-sirena-y-luz-vision-nocturna-cc1009/p",
-			"image": "https://casaroyal.vteximg.com.br/arquivos/ids/158090/111213_1.jpg?v=638941625609230000",
-			"capturedAt": "2026-06-24"
-		}
-	},
-	{
 		"id": "ezviz-camara-wi-fi-tipo-baby-system-2mp-cc1016",
 		"sku": "MZ-CAM-G90WL8",
 		"name": "EZVIZ CAMARA WI FI TIPO BABY SYSTEM 2MP CC1016",
@@ -417,7 +383,7 @@
 		],
 		"weightKg": 0.7,
 		"basePrice": 64990,
-		"stock": 4,
+		"stock": 3,
 		"available": true,
 		"image": "/images/productos/ezviz-camara-wifi-h7c-doble-lente-2k-2k-cc1066.jpg",
 		"source": {
@@ -538,82 +504,6 @@
 			"store": "Casa Royal",
 			"url": "https://www.casaroyal.cl/ezviz-camara-wifi-inteligente-h6-3k-con-deteccion-de-personas-y-mascotas-seguimiento-automatico-y-audio-bidireccional/p",
 			"image": "https://casaroyal.vteximg.com.br/arquivos/ids/167942/113860_1.jpg?v=638815496077500000",
-			"capturedAt": "2026-06-24"
-		}
-	},
-	{
-		"id": "hikvision-camara-domo-dvr-2mp-con-audio-full-hd-1080p-28mm-cc6085",
-		"sku": "MZ-CAM-TS0E2P",
-		"name": "HIKVISION CAMARA DOMO DVR 2MP CON AUDIO FULL HD 1080P 28MM CC6085",
-		"brand": "Hikvision",
-		"category": "camara",
-		"description": "Descripción del Producto Cámara de torreta fija con audio ligero híbrido inteligente de 2 MP - Imágenes de alta calidad con resolución de 2 MP y 1920&times;1080 - Lente focal fija de 2,8 mm -",
-		"descriptionLong": "Descripción del Producto Cámara de torreta fija con audio ligero híbrido inteligente de 2 MP - Imágenes de alta calidad con resolución de 2 MP y 1920&times;1080 - Lente focal fija de 2,8 mm - Distancia IR de hasta 20 m para imágenes nocturnas brillantes - Distancia de luz blanca de hasta 20 m para imágenes nocturnas brillantes - Audio de alta calidad con audio a través de cable coaxial, micrófono incorporado - Un puerto para cuatro señales conmutables (TVI/AHD/CVI/CVBS） - Luz Smart-Hybrid, optimice su seguridad con opciones de iluminación flexibles Ficha Tecnica Audio Solo Escuchar Composición Plastica Lente Lente Fijo Marca Hikvision Megapixel 2 MP Smart IR20 metros Tecnología TVI/CVI/AHD/Analogo Instalación Interior Tipo Domo Luz Blanca 20m",
-		"specs": [
-			{
-				"label": "Tipo",
-				"value": "Camara de seguridad"
-			},
-			{
-				"label": "Modelo",
-				"value": "DS-2CE76D0T-LPFS"
-			},
-			{
-				"label": "Color",
-				"value": "Blanco"
-			},
-			{
-				"label": "Características",
-				"value": "Camara de seguridad · Audio Solo Escuchar · Megapixel 2 MP"
-			}
-		],
-		"weightKg": 0.7,
-		"basePrice": 19990,
-		"stock": 8,
-		"available": true,
-		"image": "/images/productos/hikvision-camara-domo-dvr-2mp-con-audio-full-hd-1080p-28mm-cc6085.jpg",
-		"source": {
-			"store": "Casa Royal",
-			"url": "https://www.casaroyal.cl/hikvision-camara-domo-dvr-2mp-con-audio-full-hd-1080p-28mm-cc6085/p",
-			"image": "https://casaroyal.vteximg.com.br/arquivos/ids/166637/113390_1.jpg?v=638971756055770000",
-			"capturedAt": "2026-06-24"
-		}
-	},
-	{
-		"id": "hikvision-camara-dvr-tvi-2mp-full-hd-1080p-dual-light-ds-2ce76d0t-exlpfhikvision-cc6284",
-		"sku": "MZ-CAM-CZ77DV",
-		"name": "HIKVISION CAMARA DVR TVI 2MP FULL HD 1080P DUAL LIGHT DS-2CE76D0T-EXLPFHIKVISION CC6284",
-		"brand": "Hikvision",
-		"category": "camara",
-		"description": "Descripción del Producto Cámara de torreta fija para interiores con luz híbrida inteligente de 2 MP - Imágenes de alta calidad con resolución de 2 MP, 1920 &times; 1080 - Luz Smart-Hybrid, optimice",
-		"descriptionLong": "Descripción del Producto Cámara de torreta fija para interiores con luz híbrida inteligente de 2 MP - Imágenes de alta calidad con resolución de 2 MP, 1920 &times; 1080 - Luz Smart-Hybrid, optimice su seguridad con opciones de iluminación flexibles - Lente focal fija de 2,8 mm - Distancia IR de hasta 20 m para imágenes nocturnas brillantes - Distancia de luz blanca de hasta 20 m para imágenes nocturnas brillantes - Un puerto para 4 señales conmutables (TVI/AHD/CVI/CVBS) Ficha Tecnica Composición Plastica Lente Lente Fijo Marca Hikvision Megapixel 2 MP Smart IR20 metros Tecnología TVI/CVI/AHD/Analogo Instalación Interior Tipo Domo Luz Blanca 20m Funciones Dual Light",
-		"specs": [
-			{
-				"label": "Tipo",
-				"value": "Camara de seguridad"
-			},
-			{
-				"label": "Modelo",
-				"value": "DS-2CE76D0T-EXLPF"
-			},
-			{
-				"label": "Color",
-				"value": "Blanco"
-			},
-			{
-				"label": "Características",
-				"value": "Camara de seguridad · Lente Fijo · Megapixel 2 MP · Instalación Interior"
-			}
-		],
-		"weightKg": 0.7,
-		"basePrice": 18990,
-		"stock": 8,
-		"available": true,
-		"image": "/images/productos/hikvision-camara-dvr-tvi-2mp-full-hd-1080p-dual-light-ds-2ce76d0t-exlpfhikvision-cc6284.jpg",
-		"source": {
-			"store": "Casa Royal",
-			"url": "https://www.casaroyal.cl/hikvision-camara-dvr-tvi-2mp-full-hd-1080p-dual-light-ds-2ce76d0t-exlpfhikvision-cc6284/p",
-			"image": "https://casaroyal.vteximg.com.br/arquivos/ids/166638/113391_1.jpg?v=638971756691900000",
 			"capturedAt": "2026-06-24"
 		}
 	},
@@ -1728,6 +1618,426 @@
 		}
 	},
 	{
+		"id": "proyector-4000l-mx560-xga-1024x768-vga-hdmi-usb-9hjne7713l",
+		"sku": "MZ-PRO-3DLJN3",
+		"name": "Proyector 4000L MX560 XGA (1024x768) VGA, HDMI, USB - 9H.JNE77.13L",
+		"brand": "Benq",
+		"category": "proyector",
+		"description": "Proyector 4000L MX560 XGA 1024x768 VGA HDMI USB 9HJNE7713L Experimenta Claridad Pura con los Ms Finos Lentes",
+		"descriptionLong": "Proyector 4000L MX560 XGA 1024x768 VGA HDMI USB 9HJNE7713L Experimenta Claridad Pura con los Ms Finos Lentes Entra..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 453990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-4000l-mx560-xga-1024x768-vga-hdmi-usb-9hjne7713l.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-4000l-mx560-xga-1024x768-vga-hdmi-usb-9hjne7713l_33720",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/33720/1..webp?v=2099467343",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-3500-lumens-1080p-full-hd-usb-hdmi-70ppr3115n-dsw16j-pr0y0725",
+		"sku": "MZ-PRO-Z0N5SK",
+		"name": "Proyector 7000 Lumens 1080P FULL HD USB HDMI - 70PPR3115N DSW16J PR0Y0725",
+		"brand": "Philco",
+		"category": "proyector",
+		"description": "Philco Proyector 7000 Lmenes 1080P FULL HD USB HDMI 70PPR3115N Caractersticas Lmpara 58",
+		"descriptionLong": "Philco Proyector 7000 Lmenes 1080P FULL HD USB HDMI 70PPR3115N Caractersticas Lmpara 58 LCD..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 154990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-3500-lumens-1080p-full-hd-usb-hdmi-70ppr3115n-dsw16j-pr0y0725.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-3500-lumens-1080p-full-hd-usb-hdmi-70ppr3115n-dsw16j-pr0y0725_31866",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/31866/1..webp?v=211427413",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-7000-lumens-1080p-full-hd-usb-hdmi-70ppr3115n-dsw16j-pr0y0725-pn-70ppr3115n",
+		"sku": "MZ-PRO-IAP9F6",
+		"name": "Proyector 7000 Lumens 1080P FULL HD USB HDMI - 70PPR3115N DSW16J PR0Y0725",
+		"brand": "Philco",
+		"category": "proyector",
+		"description": "Philco Proyector 7000 Lmenes 1080P FULL HD USB HDMI 70PPR3115N Caractersticas Lmpara 58",
+		"descriptionLong": "Philco Proyector 7000 Lmenes 1080P FULL HD USB HDMI 70PPR3115N Caractersticas Lmpara 58 LCD..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 154990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-7000-lumens-1080p-full-hd-usb-hdmi-70ppr3115n-dsw16j-pr0y0725-pn-70ppr3115n.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-7000-lumens-1080p-full-hd-usb-hdmi-70ppr3115n-dsw16j-pr0y0725-pn-70PPR3115N_31866",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/31866/1..webp?v=413088272",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-dlp-benq-mw560c-xga-4000-lumenes-hdmi-usb-lan-9hjtd771nl",
+		"sku": "MZ-PRO-3DQQBF",
+		"name": "Proyector DLP BenQ MW560C WXGA 4000 Lumenes HDMI USB LAN - 9H.JTD77.1NL",
+		"brand": "Benq",
+		"category": "proyector",
+		"description": "Proyector DLP BenQ MW560C XGA 4000 Lumenes HDMI USB LAN 9HJTD771NL Optimizacin Energtica para la",
+		"descriptionLong": "Proyector DLP BenQ MW560C XGA 4000 Lumenes HDMI USB LAN 9HJTD771NL Optimizacin Energtica para la Transformacin..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 429990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-dlp-benq-mw560c-xga-4000-lumenes-hdmi-usb-lan-9hjtd771nl.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-dlp-benq-mw560c-xga-4000-lumenes-hdmi-usb-lan-9hjtd771nl_37649",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/37649/1..webp?v=1558043079",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-dlp-benq-mw560c-wxga-4000-lumenes-hdmi-usb-lan-9hjtd771nl",
+		"sku": "MZ-PRO-RAAKXK",
+		"name": "Proyector DLP BenQ MW560C WXGA 4000 Lumenes HDMI USB LAN - 9H.JTD77.1NL",
+		"brand": "Benq",
+		"category": "proyector",
+		"description": "Proyector DLP BenQ MW560C XGA 4000 Lumenes HDMI USB LAN 9HJTD771NL Optimizacin Energtica para la",
+		"descriptionLong": "Proyector DLP BenQ MW560C XGA 4000 Lumenes HDMI USB LAN 9HJTD771NL Optimizacin Energtica para la Transformacin..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 429990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-dlp-benq-mw560c-wxga-4000-lumenes-hdmi-usb-lan-9hjtd771nl.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-dlp-benq-mw560c-wxga-4000-lumenes-hdmi-usb-lan-9hjtd771nl_37649",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/37649/1..webp?v=1274692404",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-epson-lifestudio-ef-30",
+		"sku": "MZ-PRO-G288IC",
+		"name": "Proyector Epson EF-30 portátil",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Epson — Proyector Epson EF-30 portátil.",
+		"descriptionLong": "",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 499990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-epson-lifestudio-ef-30.jpg",
+		"source": {
+			"store": "Epson Chile",
+			"url": "https://www.tiendaepson.cl/proyectores/proyector-epson-lifestudio-ef-30",
+			"image": "https://www.tiendaepson.cl/media/catalog/product/E/P/EPS0003526_1.jpg",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "epson-epiqvision-flex-co-fh02-3lcd-projector-portable",
+		"sku": "MZ-PRO-MKXPYN",
+		"name": "Proyector Epson Fh02 Portátil Smart 3lcd Full-hd",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Epson — Proyector Epson Fh02 Portátil Smart 3lcd Full-hd.",
+		"descriptionLong": "",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 499990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/epson-epiqvision-flex-co-fh02-3lcd-projector-portable.jpg",
+		"source": {
+			"store": "Epson Chile",
+			"url": "https://www.tiendaepson.cl/proyectores/epson-epiqvision-flex-co-fh02-3lcd-projector-portable",
+			"image": "https://www.tiendaepson.cl/media/catalog/product/E/P/EPS0002937_1.jpg",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "epson-powerlite-119w-3lcd-projector-portable",
+		"sku": "MZ-PRO-HAMZ80",
+		"name": "Proyector Epson PowerLite 119W - 3LCD - portable",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Epson — Proyector Epson PowerLite 119W - 3LCD - portable.",
+		"descriptionLong": "",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 860490,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/epson-powerlite-119w-3lcd-projector-portable.jpg",
+		"source": {
+			"store": "Epson Chile",
+			"url": "https://www.tiendaepson.cl/proyectores/epson-powerlite-119w-3lcd-projector-portable",
+			"image": "https://www.tiendaepson.cl/media/catalog/product/M/M/MM724EPS54_1.jpg",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-epson-powerlite-e20-3lcd-xga-3400-lumenes-blanco-y-color-v11h981020-dsw16j",
+		"sku": "MZ-PRO-RROZ1Q",
+		"name": "Proyector Epson PowerLite E20, 3LCD, XGA, 3400 Lúmenes (Blanco y Color) - V11H981020 DSW16J",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Epson PowerLite E20 Proyector para Salas de Clases 3LCD XGA 3400 Lmenes Blanco y Color V11H981020 Crea entornos",
+		"descriptionLong": "Epson PowerLite E20 Proyector para Salas de Clases 3LCD XGA 3400 Lmenes Blanco y Color V11H981020 Crea entornos de..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 519990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-epson-powerlite-e20-3lcd-xga-3400-lumenes-blanco-y-color-v11h981020-dsw16j.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-epson-powerlite-e20-3lcd-xga-3400-lúmenes-blanco-y-color-v11h981020-dsw16j_27999",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/27999/1..webp?v=2047925310",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "epson-proyector-powerlite-e24",
+		"sku": "MZ-PRO-WUJ3NR",
+		"name": "Proyector Epson PowerLite E24 / Altavoz para Salas de Clase",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Epson — Proyector Epson PowerLite E24 / Altavoz para Salas de Clase.",
+		"descriptionLong": "",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 497490,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/epson-proyector-powerlite-e24.jpg",
+		"source": {
+			"store": "Epson Chile",
+			"url": "https://www.tiendaepson.cl/proyectores/epson-proyector-powerlite-e24",
+			"image": "https://www.tiendaepson.cl/media/catalog/product/E/P/EPS0003420_1.jpg",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-epson-powerlite-e24-3600-lumenes-xga-3lcd-hdmi-usb-altavoz-300-pulgadas-v11hb51021",
+		"sku": "MZ-PRO-PYXJWH",
+		"name": "Proyector Epson PowerLite E24 3600 Lúmenes XGA 3LCD HDMI USB Altavoz 300 Pulgadas - V11HB51021",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Proyector Porttil PowerLite E24 3600 lmenes V11HB51021 Proyector para Salas de Clases PowerLite E24 Eleva la",
+		"descriptionLong": "Proyector Porttil PowerLite E24 3600 lmenes V11HB51021 Proyector para Salas de Clases PowerLite E24 Eleva la calidad..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 499990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-epson-powerlite-e24-3600-lumenes-xga-3lcd-hdmi-usb-altavoz-300-pulgadas-v11hb51021.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-epson-powerlite-e24-3600-lúmenes-xga-3lcd-hdmi-usb-altavoz-300-pulgadas-v11hb51021_37010",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/37010/1..webp?v=1159496790",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-epson-lifestudio-flex-ef-71",
+		"sku": "MZ-PRO-A2W51J",
+		"name": "Proyector Epson Smart Lifestudio Flex EF-71 Blanco",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Epson — Proyector Epson Smart Lifestudio Flex EF-71 Blanco.",
+		"descriptionLong": "",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 779990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-epson-lifestudio-flex-ef-71.jpg",
+		"source": {
+			"store": "Epson Chile",
+			"url": "https://www.tiendaepson.cl/proyectores/proyector-epson-lifestudio-flex-ef-71",
+			"image": "https://www.tiendaepson.cl/media/catalog/product/E/P/EPS0003530_1.jpg",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-epson-lifestudio-pop-blanco-ef-61w",
+		"sku": "MZ-PRO-VPSP61",
+		"name": "Proyector Epson Smart Lifestudio Pop EF-61 Blanco",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Epson — Proyector Epson Smart Lifestudio Pop EF-61 Blanco.",
+		"descriptionLong": "",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 524990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-epson-lifestudio-pop-blanco-ef-61w.jpg",
+		"source": {
+			"store": "Epson Chile",
+			"url": "https://www.tiendaepson.cl/proyectores/proyector-epson-lifestudio-pop-blanco-ef-61w",
+			"image": "https://www.tiendaepson.cl/media/catalog/product/E/P/EPS0003527_1.jpg",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-epson-lifestudio-pop-verde-ef-61g",
+		"sku": "MZ-PRO-F9RDDM",
+		"name": "Proyector Epson Smart Lifestudio Pop EF-61 Verde",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Epson — Proyector Epson Smart Lifestudio Pop EF-61 Verde.",
+		"descriptionLong": "",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 524990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-epson-lifestudio-pop-verde-ef-61g.jpg",
+		"source": {
+			"store": "Epson Chile",
+			"url": "https://www.tiendaepson.cl/proyectores/proyector-epson-lifestudio-pop-verde-ef-61g",
+			"image": "https://www.tiendaepson.cl/media/catalog/product/E/P/EPS0003529_1.jpg",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-smart-portatil-lifestudio-pop-plus-ef-62-negro-metalico-4k-pro-uhd",
+		"sku": "MZ-PRO-VZE4W7",
+		"name": "Proyector Epson Smart Lifestudio Pop Plus EF-62 Negro metálico",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Epson — Proyector Epson Smart Lifestudio Pop Plus EF-62 Negro metálico.",
+		"descriptionLong": "",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 669990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-smart-portatil-lifestudio-pop-plus-ef-62-negro-metalico-4k-pro-uhd.jpg",
+		"source": {
+			"store": "Epson Chile",
+			"url": "https://www.tiendaepson.cl/proyectores/proyector-smart-portatil-lifestudio-pop-plus-ef-62-negro-metalico-4k-pro-uhd",
+			"image": "https://www.tiendaepson.cl/media/catalog/product/E/P/EPS0003550_1_2.jpg",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-interactivo-benq-mw826sth-dlp-1280x800-3500-lumenes-tiro-corto-parlantes-blanco-9hjmw7713l",
+		"sku": "MZ-PRO-UZGW6D",
+		"name": "Proyector Interactivo BenQ MW826STH DLP, 1280x800, 3500 Lúmenes, Tiro Corto, Parlantes, Blanco - 9H.JMW77.13L",
+		"brand": "Benq",
+		"category": "proyector",
+		"description": "Proyector Interactivo BenQ MW826STH DLP 1280x800 3500 Lmenes Tiro Corto Parlantes Blanco 9HJMW7713L Imagen de",
+		"descriptionLong": "Proyector Interactivo BenQ MW826STH DLP 1280x800 3500 Lmenes Tiro Corto Parlantes Blanco 9HJMW7713L Imagen de Alta..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 839990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-interactivo-benq-mw826sth-dlp-1280x800-3500-lumenes-tiro-corto-parlantes-blanco-9hjmw7713l.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-interactivo-benq-mw826sth-dlp-1280x800-3500-lúmenes-tiro-corto-parlantes-blanco-9hjmw7713l_37790",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/37790/1..webp?v=888362573",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-ls740w-laser-5000lum-wxga24x7-hdmix2-ligero-pn-ls740w-pn-ls740w",
+		"sku": "MZ-PRO-NE27DW",
+		"name": "Proyector LS740W LASER 5000LUM WXGA24X7 HDMIX2 LIGERO pn LS740W",
+		"brand": "Viewsonic",
+		"category": "proyector",
+		"description": "Proyector ViewSonic LS740W LASER 5000LUM WXGA24X7 HDMIX2 LIGERO LS740W Proyector Lser de Instalacin WXGA 5000",
+		"descriptionLong": "Proyector ViewSonic LS740W LASER 5000LUM WXGA24X7 HDMIX2 LIGERO LS740W Proyector Lser de Instalacin WXGA 5000 ANSI..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 964990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-ls740w-laser-5000lum-wxga24x7-hdmix2-ligero-pn-ls740w-pn-ls740w.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-ls740w-laser-5000lum-wxga24x7-hdmix2-ligero-pn-ls740w-pn-LS740W_35906",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/35906/1..webp?v=995931641",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-pa503s-svga-3800lum-hdmivgaparlantes-pa503s-pn-pa503s",
+		"sku": "MZ-PRO-DWZTIW",
+		"name": "Proyector PA503S SVGA 3800Lum HDMI/VGA/PARLANTES - PA503S",
+		"brand": "Viewsonic",
+		"category": "proyector",
+		"description": "ViewSonic PA503S Proyector SVGA DLP de 3800 lmenes HDMIVGA Proyector SVGA DLP de 3800 lmenes para espacios",
+		"descriptionLong": "ViewSonic PA503S Proyector SVGA DLP de 3800 lmenes HDMIVGA Proyector SVGA DLP de 3800 lmenes para espacios pequeos..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 359990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-pa503s-svga-3800lum-hdmivgaparlantes-pa503s-pn-pa503s.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-pa503s-svga-3800lum-hdmivgaparlantes-pa503s-pn-PA503S_23435",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/23435/1..webp?v=250471219",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-pa503x-xga-3800l-1024x768-blancohdmivgax2p-ag025-pn-pa503x",
+		"sku": "MZ-PRO-MEA01U",
+		"name": "Proyector PA503X XGA 3800L 1024X768 BLANCO/HDMI/VGAX2/P AG025",
+		"brand": "Viewsonic",
+		"category": "proyector",
+		"description": "ViewSonic PA503X Proyector XGA de 3800 lmenes HDMI2VGA Proyector PA503X El proyector PA503X de ViewSonic con",
+		"descriptionLong": "ViewSonic PA503X Proyector XGA de 3800 lmenes HDMI2VGA Proyector PA503X El proyector PA503X de ViewSonic con una..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 419990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-pa503x-xga-3800l-1024x768-blancohdmivgax2p-ag025-pn-pa503x.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-pa503x-xga-3800l-1024x768-blancohdmivgax2p-ag025-pn-PA503X_23436",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/23436/1..webp?v=1039625739",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
+		"id": "proyector-smart-portatil-epson-epiqvision-fh02-con-android-tv-3000-lumenes-full-hd-streaming-full-hd-v11ha85020",
+		"sku": "MZ-PRO-0251VM",
+		"name": "Proyector Smart Portátil Epson EpiqVision FH02 con Android TV, 3000 Lúmenes, Full HD, Streaming Full HD - V11HA85020",
+		"brand": "Epson",
+		"category": "proyector",
+		"description": "Proyector EpiqVision Android TV FH02 Full HD 1920x1080 3000 Lumenes con Bocinas Blanco hasta 300 V11HA85020 Proyector",
+		"descriptionLong": "Proyector EpiqVision Android TV FH02 Full HD 1920x1080 3000 Lumenes con Bocinas Blanco hasta 300 V11HA85020 Proyector Porttil..",
+		"specs": [],
+		"weightKg": 2.5,
+		"basePrice": 505990,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/proyector-smart-portatil-epson-epiqvision-fh02-con-android-tv-3000-lumenes-full-hd-streaming-full-hd-v11ha85020.jpg",
+		"source": {
+			"store": "BIP",
+			"url": "https://bip.cl/proyector-smart-portátil-epson-epiqvision-fh02-con-android-tv-3000-lúmenes-full-hd-streaming-full-hd-v11ha85020_34682",
+			"image": "https://s3.amazonaws.com/w3.assets/fotos/34682/1..webp?v=1961863977",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
 		"id": "wanbo-proyector-dali-1-led-lcd-350-ansi-bt-wifi-auto-screen-fit",
 		"sku": "MZ-PRO-X4FAPN",
 		"name": "WANBO PROYECTOR DALI 1 LED/LCD / 350 ANSI / BT / WIFI / AUTO SCREEN FIT",
@@ -1995,7 +2305,7 @@
 		],
 		"weightKg": 0.01,
 		"basePrice": 349990,
-		"stock": 10,
+		"stock": 9,
 		"available": true,
 		"image": "/images/productos/wanbo-proyector-x5-pro-new-1100-ansi.jpg",
 		"source": {
@@ -4732,6 +5042,84 @@
 		}
 	},
 	{
+		"id": "focal-alpha50-evo-monitor-de-estudio-activo-5-par",
+		"sku": "MZ-SON-ID1Q6K",
+		"name": "Focal Alpha50 Evo Monitor de Estudio Activo 5\" (PAR)",
+		"brand": "Focal",
+		"category": "sonido",
+		"description": "Monitores reacondicionados, tweeters cambiados, rasgos de uso y estéticos menores. Embalaje original, sin accesorios. Imagen referencial. Monitor de estudio activo biamplificado de 2 vías Focal, con",
+		"descriptionLong": "Monitores reacondicionados, tweeters cambiados, rasgos de uso y estéticos menores. Embalaje original, sin accesorios. Imagen referencial. Monitor de estudio activo biamplificado de 2 vías Focal, con woofer de 5\" Slatefiber y tweeter de cúpula invertida de aluminio de 1\". Amplificación Clase D, puerto bass-reflex frontal para control de graves en espacios reducidos y conectividad triple simúltánea. Diseñado y fabricado en Francia. Ideal para: Productores, compositores y músicos en home studios que buscan su primer monitor de referencia con sonido Focal. Su tamaño compacto y el puerto frontal lo hacen excelente para escritorios cercanos a la pared, donde los monitores con puerto trasero pueden perder control en los graves. Características técnicas (por unidad): Tipo de monitor y amplificación: Activo biamplificado Clase D, 2 vías. Woofer: 5\" (13 cm) con cono Slatefiber (fibra de pizarra, desarrollado en Francia). Tweeter: 1\" cúpula invertida de aluminio. Respuesta en frecuencia: 45 Hz – 22 kHz (±3 dB). SPL máximo: 101 dB a 1 m. Potencia: LF 30–35 W + HF 20–25 W = aprox. 60 W totales. Entradas: 1 × XLR balanceada, 1 × TRS 6,3 mm balanceada/desbalanceada, 1 × RCA desbalanceada (conecti",
+		"specs": [
+			{
+				"label": "Ideal para",
+				"value": "Productores, compositores y músicos en home studios que buscan su primer monitor de referencia con sonido Focal. Su tamaño compacto y el puerto frontal lo hacen excelente para…"
+			},
+			{
+				"label": "Tipo de monitor y amplificación",
+				"value": "Activo biamplificado Clase D, 2 vías."
+			},
+			{
+				"label": "Woofer",
+				"value": "5\" (13 cm) con cono Slatefiber (fibra de pizarra, desarrollado en Francia)."
+			},
+			{
+				"label": "Tweeter",
+				"value": "1\" cúpula invertida de aluminio."
+			},
+			{
+				"label": "Respuesta en frecuencia",
+				"value": "45 Hz – 22 kHz (±3 dB)."
+			},
+			{
+				"label": "SPL máximo",
+				"value": "101 dB a 1 m."
+			},
+			{
+				"label": "Potencia",
+				"value": "LF 30–35 W + HF 20–25 W = aprox. 60 W totales."
+			},
+			{
+				"label": "Entradas",
+				"value": "1 × XLR balanceada, 1 × TRS 6,3 mm balanceada/desbalanceada, 1 × RCA desbalanceada (conectividad triple simultánea)."
+			},
+			{
+				"label": "Controles de EQ",
+				"value": "Graves (0–300 Hz): ±6 dB. Agudos (4,5–22 kHz): ±3 dB."
+			},
+			{
+				"label": "Ajuste de sensibilidad",
+				"value": "0 / +6 dB."
+			},
+			{
+				"label": "Acoustic Space",
+				"value": "No especificado."
+			},
+			{
+				"label": "Modo standby automático",
+				"value": "15 minutos sin señal (desactivable). Consumo en reposo: <0,5 W."
+			},
+			{
+				"label": "Gabinete",
+				"value": "MDF con acabado en vinilo negro. Puerto bass-reflex frontal."
+			},
+			{
+				"label": "Montaje",
+				"value": "Insertos para pared o techo incluidos."
+			}
+		],
+		"weightKg": 5.9,
+		"basePrice": 439900,
+		"stock": null,
+		"available": true,
+		"image": "/images/productos/focal-alpha50-evo-monitor-de-estudio-activo-5-par.jpg",
+		"source": {
+			"store": "Promusic",
+			"url": "https://www.promusic.cl/products/focal-alpha50-evo-monitor-de-estudio-activo-5-par",
+			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/REAALPHA50EVOPAR.jpg?v=1782335758",
+			"capturedAt": "2026-06-24"
+		}
+	},
+	{
 		"id": "focal-alpha65-evo-monitor-de-estudio-activo-6-6",
 		"sku": "MZ-SON-NI2OZQ",
 		"name": "Focal Alpha65 Evo Monitor de Estudio Activo 6.5\"",
@@ -5276,84 +5664,6 @@
 			"store": "Audiomúsica",
 			"url": "https://www.audiomusica.com/monitor-de-piso-activo-wharfedale-evpx15pm/p",
 			"image": "https://audiomusicacl.vteximg.com.br/arquivos/ids/200708/1088357-2.jpg?v=638840360277000000",
-			"capturedAt": "2026-06-24"
-		}
-	},
-	{
-		"id": "neumann-kh310-arg-monitor-de-estudio-activo-3-vias",
-		"sku": "MZ-SON-9H7C2J",
-		"name": "Neumann KH310 ARG Monitor de Estudio Activo",
-		"brand": "Neumann",
-		"category": "sonido",
-		"description": "Monitor de estudio activo triamplificado de 3 vías de Neumann. Woofer de 8,25\", rango medio de 3\" y tweeter de 1\". 290 W totales Clase D, respuesta de 34 Hz a 21 kHz y SPL máximo de 108 dB. La",
-		"descriptionLong": "Monitor de estudio activo triamplificado de 3 vías de Neumann. Woofer de 8,25\", rango medio de 3\" y tweeter de 1\". 290 W totales Clase D, respuesta de 34 Hz a 21 kHz y SPL máximo de 108 dB. La referencia de campo cercano de gama alta Neumann para cuartos de control profesionales y postproducción. Color gris claro (Rock Grey). Ideal para: Ingenieros de mezcla y masterización profesionales que exigen la máxima definición en el rango medio, en entornos con luminosidad y decoración clara donde el acabado gris claro es preferido. Las mismas especificaciones técnicas del KH310 ALG, en coloración diferente. Características técnicas: Tipo de monitor y amplificación: Activo triamplificado Clase D, 3 vías. Woofer: 8,25\". Rango medio: 3\". Tweeter: 1\". Respuesta en frecuencia: 34 Hz – 21 kHz. SPL máximo: 108 dB. Potencia: LF 150 W + MF 70 W + HF 70 W = 290 W totales. Entradas: 1 × XLR. Controles acústicos: 4 posiciones para graves, medios y agudos. Control de nivel de salida y ganancia de entrada. Control de brillo del logo. Ground lift. Color: Gris claro (Rock Grey). Peso neto: 13 kg. Peso bruto (con embalaje): Aprox. 17 kg. Conexión y uso: Conecta la salida XLR de tu interfaz o consola al KH",
-		"specs": [
-			{
-				"label": "Ideal para",
-				"value": "Ingenieros de mezcla y masterización profesionales que exigen la máxima definición en el rango medio, en entornos con luminosidad y decoración clara donde el acabado gris claro es…"
-			},
-			{
-				"label": "Tipo de monitor y amplificación",
-				"value": "Activo triamplificado Clase D, 3 vías."
-			},
-			{
-				"label": "Woofer",
-				"value": "8,25\"."
-			},
-			{
-				"label": "Rango medio",
-				"value": "3\"."
-			},
-			{
-				"label": "Tweeter",
-				"value": "1\"."
-			},
-			{
-				"label": "Respuesta en frecuencia",
-				"value": "34 Hz – 21 kHz."
-			},
-			{
-				"label": "SPL máximo",
-				"value": "108 dB."
-			},
-			{
-				"label": "Potencia",
-				"value": "LF 150 W + MF 70 W + HF 70 W = 290 W totales."
-			},
-			{
-				"label": "Entradas",
-				"value": "1 × XLR."
-			},
-			{
-				"label": "Controles acústicos",
-				"value": "4 posiciones para graves, medios y agudos. Control de nivel de salida y ganancia de entrada. Control de brillo del logo. Ground lift."
-			},
-			{
-				"label": "Color",
-				"value": "Gris claro (Rock Grey)."
-			},
-			{
-				"label": "Peso neto",
-				"value": "13 kg."
-			},
-			{
-				"label": "Peso bruto (con embalaje)",
-				"value": "Aprox. 17 kg."
-			},
-			{
-				"label": "Conexión y uso",
-				"value": "Conecta la salida XLR de tu interfaz o consola al KH310. Su control de 4 posiciones por banda permite ajustar la respuesta del monitor según la acústica del cuarto. Se vende por…"
-			}
-		],
-		"weightKg": 13,
-		"basePrice": 2999900,
-		"stock": null,
-		"available": true,
-		"image": "/images/productos/neumann-kh310-arg-monitor-de-estudio-activo-3-vias.jpg",
-		"source": {
-			"store": "Promusic",
-			"url": "https://www.promusic.cl/products/neumann-kh310-arg-monitor-de-estudio-activo-3-vias",
-			"image": "https://cdn.shopify.com/s/files/1/0865/2265/9098/files/KH310ARG_1.jpg?v=1748319396",
 			"capturedAt": "2026-06-24"
 		}
 	},
