@@ -26,10 +26,15 @@ jobs:
       - name: 4. Sincronizar catálogo e imágenes de productos
         run: npm run sync-catalogo || echo "sync fallo: se usa catalogo existente"
 
-      - name: 5. Compilar el sitio web (Astro Build)
+      - name: 5. Regenerar catálogo cifrado del admin
+        run: npm run build-admin
+        env:
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+
+      - name: 6. Compilar el sitio web (Astro Build)
         run: npm run build
 
-      - name: 6. Subir archivos al Hosting por FTP Nativo
+      - name: 7. Subir archivos al Hosting por FTP Nativo
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}

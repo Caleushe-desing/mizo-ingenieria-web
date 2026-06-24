@@ -37,6 +37,7 @@ const payload = {
 		category: p.category,
 		description: p.description,
 		image: p.image,
+		sourceImage: p.source?.image || '',
 		weightKg: p.weightKg ?? 0,
 		stock: p.stock ?? null,
 		available: p.available !== false,

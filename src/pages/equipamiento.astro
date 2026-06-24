@@ -101,10 +101,12 @@ import SectionCTA from '../components/SectionCTA.astro';
 			const brand = product.brand && product.brand.toLowerCase() !== 'mizo' ? product.brand : '';
 			const consultUrl = '/contacto?equipo=' + encodeURIComponent(product.name || '');
 			const configUrl = '/configurador?ref=' + encodeURIComponent(product.sku || product.id || '');
+			const imgSrc = product.image || product.sourceImage || '/mizo-logo.png';
+			const imgFallback = product.sourceImage && product.sourceImage !== imgSrc ? product.sourceImage : '/mizo-logo.png';
 			return `<article class="showcase-card group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-accent-main/40 hover:shadow-lg">
-				<div class="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white">
+				<div class="relative overflow-hidden bg-slate-50">
 					<div class="flex h-48 items-center justify-center p-5 sm:h-52">
-						<img src="${esc(product.image || '/mizo-logo.png')}" alt="${esc(product.name)}" class="max-h-full w-auto object-contain mix-blend-multiply transition duration-500 group-hover:scale-105" loading="lazy" onerror="this.onerror=null;this.src='/mizo-logo.png';" />
+						<img src="${esc(imgSrc)}" data-fallback="${esc(imgFallback)}" alt="${esc(product.name)}" class="max-h-full w-auto max-w-full object-contain transition duration-500 group-hover:scale-105" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.fallback&&!this.dataset.tried){this.dataset.tried='1';this.src=this.dataset.fallback}else{this.onerror=null;this.src='/mizo-logo.png';}" />
 					</div>
 					${product.categoryLabel ? `<span class="absolute left-3 top-3 rounded-full border border-accent-main/20 bg-white/90 px-2.5 py-1 text-[0.62rem] font-black uppercase tracking-[0.16em] text-accent-main backdrop-blur">${esc(product.categoryLabel)}</span>` : ''}
 				</div>

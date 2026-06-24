@@ -647,8 +647,9 @@ function mizo_showcase_product(array $product, string $note = ''): array
         'engineeringCategory' => (string) ($product['engineeringCategory'] ?? ''),
         'chainStage' => (string) ($product['chainStage'] ?? ''),
         'description' => $description,
-        'image' => mizo_resolve_product_image($product),
-        'note' => $note,
+		'image' => mizo_resolve_product_image($product),
+		'sourceImage' => trim((string) ($product['source']['image'] ?? $product['source_image'] ?? $product['sourceImage'] ?? '')),
+		'note' => $note,
     ];
 }
 

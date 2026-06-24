@@ -34,9 +34,11 @@
 
 		function card(product) {
 			const brand = product.brand && product.brand.toLowerCase() !== 'mizo' ? product.brand : '';
+			const imgSrc = product.image || product.sourceImage || '/mizo-logo.png';
+			const imgFallback = product.sourceImage && product.sourceImage !== imgSrc ? product.sourceImage : '/mizo-logo.png';
 			return `<article class="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
-				<div class="flex h-40 items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4">
-					<img src="${esc(product.image || '/mizo-logo.png')}" alt="${esc(product.name)}" class="max-h-full w-auto object-contain mix-blend-multiply" loading="lazy" onerror="this.onerror=null;this.src='/mizo-logo.png';" />
+				<div class="flex h-40 items-center justify-center bg-slate-50 p-4">
+					<img src="${esc(imgSrc)}" data-fallback="${esc(imgFallback)}" alt="${esc(product.name)}" class="max-h-full w-auto max-w-full object-contain" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.fallback&&!this.dataset.tried){this.dataset.tried='1';this.src=this.dataset.fallback}else{this.onerror=null;this.src='/mizo-logo.png';}" />
 				</div>
 				<div class="p-5">
 					${brand ? `<p class="text-[0.65rem] font-black uppercase tracking-[0.18em] text-brand-orange">${esc(brand)}</p>` : ''}

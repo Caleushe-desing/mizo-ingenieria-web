@@ -9,6 +9,7 @@ interface Props {
 		engineeringCategory?: string;
 		description?: string;
 		image?: string;
+		sourceImage?: string;
 		note?: string;
 	};
 	compact?: boolean;
@@ -22,15 +23,17 @@ const configUrl = `/configurador?ref=${encodeURIComponent(product.sku || product
 
 <article class="showcase-card group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-accent-main/40 hover:shadow-lg">
 	<div class="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white">
-		<div class:list={['flex items-center justify-center p-5', compact ? 'h-40' : 'h-48 sm:h-52']}>
+		<div class:list={['flex items-center justify-center bg-slate-50 p-5', compact ? 'h-40' : 'h-48 sm:h-52']}>
 			<img
-				src={product.image || '/mizo-logo.png'}
+				src={product.image || product.sourceImage || '/mizo-logo.png'}
 				alt={product.name}
-				class="max-h-full w-auto object-contain mix-blend-multiply transition duration-500 group-hover:scale-105"
+				class="max-h-full w-auto max-w-full object-contain transition duration-500 group-hover:scale-105"
 				loading="lazy"
 				width="240"
 				height="240"
-				onerror="this.onerror=null;this.src='/mizo-logo.png';"
+				referrerpolicy="no-referrer"
+				onerror="if(this.dataset.fallback&&!this.dataset.tried){this.dataset.tried='1';this.src=this.dataset.fallback}else{this.onerror=null;this.src='/mizo-logo.png';}"
+				data-fallback={product.sourceImage && product.sourceImage !== product.image ? product.sourceImage : '/mizo-logo.png'}
 			/>
 		</div>
 		{product.categoryLabel && (

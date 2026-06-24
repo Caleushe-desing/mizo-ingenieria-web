@@ -48,7 +48,7 @@ const title = 'Panel central Mizo';
 					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="cotizador">Cotizador</button>
 					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="auditoria">Auditoría</button>
 					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="pedidos">Pedidos</button>
-					<a class="rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" href="/admin/leads">Leads diagnóstico</a>
+					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="leads">Leads diagnóstico</button>
 				</nav>
 
 				<div class="mt-6 rounded-2xl border border-blue-100 bg-accent-soft p-4 text-sm text-slate-700">
@@ -61,7 +61,7 @@ const title = 'Panel central Mizo';
 				<div id="login-card" class="mx-auto mt-10 max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
 					<p class="text-xs font-black uppercase tracking-[0.2em] text-accent-main">Acceso privado</p>
 					<h2 class="mt-2 text-2xl font-black">Administrador Central Mizo</h2>
-					<p class="mt-2 text-sm text-slate-500">Ingresa la clave del panel para descifrar el catálogo maestro y operar cotizaciones.</p>
+					<p class="mt-2 text-sm text-slate-500">Un solo acceso para catálogo, vitrina, cotizaciones, leads y pedidos. La clave debe coincidir con <code>ADMIN_PASSWORD</code> del servidor.</p>
 					<form id="login-form" class="mt-6 space-y-3">
 						<input id="password" type="password" autocomplete="current-password" placeholder="Clave privada" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-accent-main focus:ring-2 focus:ring-blue-100" required />
 						<button class="w-full rounded-2xl bg-accent-main px-4 py-3 text-sm font-black text-white hover:bg-accent-hover">Entrar</button>
@@ -250,9 +250,53 @@ const title = 'Panel central Mizo';
 							</div>
 						</div>
 					</section>
+
+					<section id="view-leads" class="view-panel">
+						<div class="mb-5 grid gap-3 sm:grid-cols-3">
+							<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+								<p class="text-xs font-black uppercase text-slate-400">Total leads</p>
+								<p id="lead-count" class="mt-2 text-3xl font-black text-slate-950">0</p>
+							</div>
+							<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+								<p class="text-xs font-black uppercase text-slate-400">Fuente</p>
+								<p id="lead-source" class="mt-2 text-3xl font-black text-slate-950">-</p>
+							</div>
+							<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+								<p class="text-xs font-black uppercase text-slate-400">Escritura JSON</p>
+								<p id="storage-status" class="mt-2 text-lg font-black text-slate-950">-</p>
+							</div>
+						</div>
+						<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+							<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+								<div>
+									<h3 class="text-2xl font-black">Leads de Diagnóstico Técnico</h3>
+									<p class="text-sm text-slate-500">Clientes capturados por el asistente. Datos desde MySQL o <code>leads.json</code>.</p>
+								</div>
+								<div class="flex flex-wrap gap-2">
+									<a href="/configurador" class="rounded-full border border-slate-300 px-5 py-2.5 text-xs font-black text-slate-700 hover:bg-slate-50">Abrir asistente</a>
+									<button id="refresh-leads" type="button" class="rounded-full bg-accent-main px-5 py-2.5 text-xs font-black text-white hover:bg-accent-hover">Actualizar</button>
+								</div>
+							</div>
+							<p id="leads-status" class="mt-4 hidden text-sm font-semibold text-red-600"></p>
+							<div id="lead-list" class="mt-5 grid gap-3"></div>
+						</div>
+					</section>
 				</div>
 			</section>
 		</main>
+
+		<div id="lead-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 p-4">
+			<div class="mx-auto mt-10 max-h-[85vh] max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+				<div class="flex items-start justify-between gap-4 border-b border-slate-200 p-5">
+					<div>
+						<p id="lead-modal-meta" class="text-xs font-black uppercase tracking-[0.2em] text-accent-main"></p>
+						<h3 id="lead-modal-title" class="mt-2 text-2xl font-black"></h3>
+					</div>
+					<button id="lead-modal-close" type="button" class="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700">Cerrar</button>
+				</div>
+				<pre id="lead-modal-body" class="max-h-[65vh] overflow-auto whitespace-pre-wrap bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
+			</div>
+		</div>
 
 		<script is:inline>
 			const fmt = new Intl.NumberFormat('es-CL');
@@ -263,9 +307,12 @@ const title = 'Panel central Mizo';
 				cotizador: 'Cotizador',
 				auditoria: 'Auditoría',
 				pedidos: 'Pedidos',
+				leads: 'Leads diagnóstico',
 			};
+			const IMG_FALLBACK_ONERROR = "if(this.dataset.fallback&&!this.dataset.tried){this.dataset.tried='1';this.referrerPolicy='no-referrer';this.src=this.dataset.fallback}else{this.onerror=null;this.src='/mizo-logo.png';}";
 			let adminPassword = '';
 			let allItems = [];
+			let adminLeads = [];
 			let showcaseMap = new Map();
 			let showcaseMode = 'all';
 			let quoteConfig = null;
@@ -286,6 +333,23 @@ const title = 'Panel central Mizo';
 					'"': '&quot;',
 					"'": '&#39;',
 				}[ch]));
+			}
+
+			function productImageSrc(item) {
+				return item?.image || item?.sourceImage || '/mizo-logo.png';
+			}
+
+			function productImageFallback(item) {
+				const local = String(item?.image || '');
+				const remote = String(item?.sourceImage || '');
+				if (local && remote && local !== remote && !/^https?:\/\//i.test(local)) {
+					return remote;
+				}
+				return '/mizo-logo.png';
+			}
+
+			function productImageTag(item, alt, className = 'max-h-full max-w-full object-contain') {
+				return `<img src="${escapeHtml(productImageSrc(item))}" data-fallback="${escapeHtml(productImageFallback(item))}" alt="${escapeHtml(alt)}" class="${className}" loading="lazy" referrerpolicy="no-referrer" onerror="${IMG_FALLBACK_ONERROR}" />`;
 			}
 
 			function moneyNumber(value) {
@@ -330,13 +394,17 @@ const title = 'Panel central Mizo';
 				$('view-title').textContent = views[view] || views.catalogo;
 				if (view === 'auditoria') loadQualityReview();
 				if (view === 'pedidos') loadPedidos();
+				if (view === 'leads') loadAdminLeads();
 				if (view === 'vitrina') renderShowcaseManager();
 				if (view === 'cotizador' && !quoteConfig) bootstrapQuotes();
 				location.hash = view === 'catalogo' ? '' : view;
 			}
 
 			function renderCatalog(payload) {
-				allItems = Array.isArray(payload.products) ? payload.products : [];
+				allItems = (Array.isArray(payload.products) ? payload.products : []).map((item) => ({
+					...item,
+					sourceImage: item.sourceImage || item.source?.image || '',
+				}));
 				const totalCompra = allItems.reduce((sum, item) => sum + Number(item.basePrice || 0), 0);
 				const totalVenta = allItems.reduce((sum, item) => sum + Number(item.sellingPrice || item.basePrice || 0), 0);
 				$('catalog-meta').textContent = `${allItems.length} productos · datos al ${payload.generatedAt || 'catálogo cifrado'}`;
@@ -357,7 +425,7 @@ const title = 'Panel central Mizo';
 					return `<article class="rounded-2xl border border-slate-200 bg-white p-4">
 						<div class="flex gap-4">
 							<div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-2">
-								<img src="${escapeHtml(item.image || '/mizo-logo.svg')}" alt="${escapeHtml(item.name)}" class="max-h-full max-w-full object-contain" loading="lazy" onerror="this.src='/mizo-logo.svg';" />
+								${productImageTag(item, item.name)}
 							</div>
 							<div class="min-w-0 flex-1">
 								<p class="font-mono text-xs font-black text-accent-main">${escapeHtml(item.sku || item.id || 'SKU')}</p>
@@ -427,6 +495,9 @@ const title = 'Panel central Mizo';
 							<label class="flex shrink-0 items-start pt-1">
 								<input type="checkbox" class="showcase-toggle h-5 w-5 rounded border-slate-300" data-key="${escapeHtml(key)}" ${active ? 'checked' : ''} />
 							</label>
+							<div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-1.5">
+								${productImageTag(item, item.name, 'max-h-full max-w-full object-contain')}
+							</div>
 							<div class="min-w-0 flex-1">
 								<p class="font-mono text-xs font-black text-accent-main">${escapeHtml(item.sku || item.id || 'SKU')}</p>
 								<h4 class="mt-1 line-clamp-2 text-sm font-black">${escapeHtml(item.name)}</h4>
@@ -876,6 +947,107 @@ const title = 'Panel central Mizo';
 				}
 			}
 
+			function formatLeadDate(value) {
+				const date = new Date(value);
+				if (Number.isNaN(date.getTime())) return value || '-';
+				return date.toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' });
+			}
+
+			function leadSummaryText(lead) {
+				return [
+					`Nombre: ${lead.nombre || ''}`,
+					`Empresa: ${lead.empresa || ''}`,
+					`Teléfono: ${lead.telefono || ''}`,
+					`Correo: ${lead.correo || ''}`,
+					`Fecha: ${formatLeadDate(lead.createdAt)}`,
+					'',
+					`Entorno: ${lead.espacio || 'No indicado'}`,
+					`Especialidad: ${lead.especialidad || 'No indicada'}`,
+					`Dimensión: ${lead.dimension || 'No indicada'}`,
+					`Origen: ${lead.source || 'Asistente de Diagnóstico Técnico Mizo'}`,
+					'',
+					'Resumen técnico:',
+					lead.resumenTecnico || lead.detalles || 'Sin resumen técnico.',
+					'',
+					'Productos precalificados:',
+					lead.productos || 'Sin productos registrados.',
+				].join('\n');
+			}
+
+			function openLeadModal(lead) {
+				$('lead-modal-title').textContent = `${lead.nombre || 'Lead'} · ${lead.empresa || 'Sin empresa'}`;
+				$('lead-modal-meta').textContent = `${formatLeadDate(lead.createdAt)} · ${lead.correo || ''}`;
+				$('lead-modal-body').textContent = leadSummaryText(lead);
+				$('lead-modal').classList.remove('hidden');
+			}
+
+			function renderAdminLeads() {
+				$('lead-count').textContent = String(adminLeads.length);
+				const list = $('lead-list');
+				if (!adminLeads.length) {
+					list.innerHTML = '<div class="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center text-slate-500">Aún no hay leads guardados.</div>';
+					return;
+				}
+				list.innerHTML = adminLeads.map((lead, index) => `
+					<article class="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[1fr_auto] lg:items-center">
+						<div>
+							<p class="text-xs font-black uppercase text-slate-400">${escapeHtml(formatLeadDate(lead.createdAt))}</p>
+							<h3 class="mt-1 text-xl font-black text-slate-950">${escapeHtml(lead.nombre || 'Sin nombre')}</h3>
+							<div class="mt-2 flex flex-wrap gap-2 text-sm font-semibold text-slate-600">
+								<span>${escapeHtml(lead.empresa || 'Sin empresa')}</span>
+								<span>·</span>
+								<a class="text-accent-main" href="mailto:${escapeHtml(lead.correo || '')}">${escapeHtml(lead.correo || 'Sin correo')}</a>
+								<span>·</span>
+								<span>${escapeHtml(lead.telefono || 'Sin teléfono')}</span>
+							</div>
+							<p class="mt-2 text-sm text-slate-500">${escapeHtml(lead.espacio || 'Sin entorno')} · ${escapeHtml(lead.especialidad || 'Sin especialidad')} · ${escapeHtml(lead.dimension || 'Sin dimensión')}</p>
+						</div>
+						<button type="button" class="view-lead-summary rounded-full bg-accent-main px-5 py-3 text-sm font-black text-white hover:bg-accent-hover" data-index="${index}">
+							Ver resumen técnico
+						</button>
+					</article>
+				`).join('');
+				list.querySelectorAll('.view-lead-summary').forEach((button) => {
+					button.addEventListener('click', () => openLeadModal(adminLeads[Number(button.dataset.index)]));
+				});
+			}
+
+			function showLeadsError(message) {
+				const el = $('leads-status');
+				el.textContent = message;
+				el.classList.remove('hidden');
+			}
+
+			function hideLeadsError() {
+				const el = $('leads-status');
+				el.classList.add('hidden');
+				el.textContent = '';
+			}
+
+			async function loadAdminLeads() {
+				hideLeadsError();
+				const list = $('lead-list');
+				list.innerHTML = '<p class="text-sm text-slate-500">Cargando leads...</p>';
+				try {
+					const response = await fetch('/api/guardar-lead.php', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+						body: JSON.stringify({ action: 'list', password: adminPassword }),
+					});
+					const payload = await response.json().catch(() => null);
+					if (!response.ok || !payload?.success) {
+						throw new Error(payload?.error || 'No se pudieron cargar los leads.');
+					}
+					adminLeads = Array.isArray(payload.leads) ? payload.leads : [];
+					$('lead-source').textContent = payload.source || '-';
+					$('storage-status').textContent = payload.storage?.fileWritable ? 'OK' : (payload.storage?.dirWritable ? 'Directorio OK' : 'Revisar permisos');
+					renderAdminLeads();
+				} catch (error) {
+					showLeadsError(error.message || 'No se pudieron cargar los leads.');
+					list.innerHTML = '';
+				}
+			}
+
 			async function loadPedidos() {
 				const list = $('pedidos-list');
 				list.innerHTML = '<p class="text-sm text-slate-500">Cargando pedidos...</p>';
@@ -896,24 +1068,29 @@ const title = 'Panel central Mizo';
 				}
 			}
 
+			async function openAdminSession(password) {
+				const payload = await decryptData(password);
+				adminPassword = password;
+				sessionStorage.setItem('mizoAdminPassword', password);
+				$('login-card').classList.add('hidden');
+				$('panel').classList.remove('hidden');
+				renderCatalog(payload);
+				renderQuoteItems();
+				await loadShowcaseConfig();
+				await bootstrapQuotes();
+				await loadQualityReview();
+				const initial = (location.hash || '').replace('#', '');
+				setView(views[initial] ? initial : initial === 'cotizaciones' ? 'cotizador' : 'catalogo');
+			}
+
 			$('login-form').addEventListener('submit', async (event) => {
 				event.preventDefault();
 				$('login-error').classList.add('hidden');
 				try {
-					const password = $('password').value;
-					const payload = await decryptData(password);
-					adminPassword = password;
-					$('login-card').classList.add('hidden');
-					$('panel').classList.remove('hidden');
-					renderCatalog(payload);
-					renderQuoteItems();
-					await loadShowcaseConfig();
-					await bootstrapQuotes();
-					await loadQualityReview();
-					const initial = (location.hash || '').replace('#', '');
-					setView(views[initial] ? initial : initial === 'cotizaciones' ? 'cotizador' : 'catalogo');
+					await openAdminSession($('password').value);
 				} catch (error) {
 					console.warn(error);
+					sessionStorage.removeItem('mizoAdminPassword');
 					$('login-error').classList.remove('hidden');
 				}
 			});
@@ -921,13 +1098,21 @@ const title = 'Panel central Mizo';
 			document.querySelectorAll('.admin-nav-btn').forEach((button) => {
 				button.addEventListener('click', () => setView(button.dataset.view));
 			});
-			$('logout').addEventListener('click', () => location.reload());
+			$('logout').addEventListener('click', () => {
+				sessionStorage.removeItem('mizoAdminPassword');
+				location.reload();
+			});
 			$('catalog-search').addEventListener('input', filterCatalog);
 			$('showcase-search')?.addEventListener('input', renderShowcaseManager);
 			$('save-showcase')?.addEventListener('click', saveShowcase);
 			$('publish-all-showcase')?.addEventListener('click', publishAllShowcase);
 			$('refresh-quality-review').addEventListener('click', loadQualityReview);
 			$('refresh-pedidos').addEventListener('click', loadPedidos);
+			$('refresh-leads')?.addEventListener('click', () => loadAdminLeads());
+			$('lead-modal-close')?.addEventListener('click', () => $('lead-modal').classList.add('hidden'));
+			$('lead-modal')?.addEventListener('click', (event) => {
+				if (event.target === $('lead-modal')) $('lead-modal').classList.add('hidden');
+			});
 			$('save-quote-config').addEventListener('click', saveQuoteConfig);
 			$('add-catalog-quote-item').addEventListener('click', addCatalogQuoteItem);
 			$('add-manual-quote-item').addEventListener('click', addManualQuoteItem);
@@ -950,6 +1135,12 @@ const title = 'Panel central Mizo';
 					if (value) event.target.value = clp(value);
 				});
 			});
+
+			const savedPassword = sessionStorage.getItem('mizoAdminPassword');
+			if (savedPassword) {
+				$('password').value = savedPassword;
+				openAdminSession(savedPassword).catch(() => sessionStorage.removeItem('mizoAdminPassword'));
+			}
 		</script>
 	</body>
 </html>
