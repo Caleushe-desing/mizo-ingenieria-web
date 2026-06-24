@@ -473,3 +473,179 @@ function mizo_fetch_public_products(array $filters = []): array
 
 	return ['products' => mizo_seed_trend_products(), 'source' => 'seed-trends'];
 }
+
+function mizo_runtime_storage_root(): string
+{
+    $candidates = [
+        dirname(__DIR__, 2) . '/data',
+        dirname(__DIR__) . '/data',
+        __DIR__ . '/../data',
+    ];
+
+    foreach ($candidates as $candidate) {
+        if (is_dir($candidate) || @mkdir($candidate, 0775, true)) {
+            if (is_writable($candidate)) {
+                return $candidate;
+            }
+        }
+    }
+
+    throw new RuntimeException('No se pudo preparar el almacenamiento local.');
+}
+
+function mizo_showcase_config_path(): string
+{
+    return mizo_runtime_storage_root() . '/showcase.json';
+}
+
+function mizo_default_showcase_items(): array
+{
+    return [
+        ['id' => 'seed-shure-slxd24-sm58', 'sortOrder' => 1, 'note' => 'Captación vocal para auditorios y eventos'],
+        ['id' => 'seed-epson-eb-fh52', 'sortOrder' => 2, 'note' => 'Proyección Full HD para salas iluminadas'],
+        ['id' => 'seed-qsc-cp12', 'sortOrder' => 3, 'note' => 'Cobertura sonora para recintos medianos'],
+        ['id' => 'seed-behringer-x32-compact', 'sortOrder' => 4, 'note' => 'Mezcla digital para salas AV'],
+        ['id' => 'seed-hikvision-ptz-4mp', 'sortOrder' => 5, 'note' => 'Video IP para monitoreo y streaming'],
+        ['id' => 'seed-dbx-driverack-pa2', 'sortOrder' => 6, 'note' => 'Procesamiento y protección de sistema PA'],
+    ];
+}
+
+function mizo_read_showcase_config(): array
+{
+    $path = mizo_showcase_config_path();
+    if (is_file($path)) {
+        $data = json_decode((string) file_get_contents($path), true);
+        if (is_array($data) && isset($data['items']) && is_array($data['items'])) {
+            return $data;
+        }
+    }
+
+    return [
+        'updatedAt' => null,
+        'items' => mizo_default_showcase_items(),
+        'source' => 'default',
+    ];
+}
+
+function mizo_write_showcase_config(array $items): array
+{
+    $normalized = [];
+    $sortOrder = 1;
+    foreach ($items as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $id = trim((string) ($item['id'] ?? ''));
+        $sku = trim((string) ($item['sku'] ?? ''));
+        if ($id === '' && $sku === '') {
+            continue;
+        }
+        $normalized[] = [
+            'id' => $id,
+            'sku' => $sku,
+            'sortOrder' => (int) ($item['sortOrder'] ?? $sortOrder),
+            'note' => trim((string) ($item['note'] ?? '')),
+        ];
+        $sortOrder++;
+    }
+
+    usort($normalized, static function (array $a, array $b): int {
+        return ($a['sortOrder'] <=> $b['sortOrder']) ?: strcmp($a['id'], $b['id']);
+    });
+
+    $payload = [
+        'updatedAt' => gmdate('c'),
+        'items' => $normalized,
+    ];
+
+    $path = mizo_showcase_config_path();
+    $tmp = $path . '.tmp';
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    if ($json === false || file_put_contents($tmp, $json, LOCK_EX) === false || !@rename($tmp, $path)) {
+        @unlink($tmp);
+        throw new RuntimeException('No se pudo guardar la vitrina web.');
+    }
+
+    return $payload;
+}
+
+function mizo_showcase_product(array $product, string $note = ''): array
+{
+    $description = trim((string) ($product['descriptionLong'] ?? $product['description'] ?? ''));
+    if ($description === '') {
+        $description = trim((string) ($product['description'] ?? ''));
+    }
+
+    return [
+        'id' => (string) ($product['id'] ?? ''),
+        'sku' => (string) ($product['sku'] ?? ''),
+        'name' => (string) ($product['name'] ?? ''),
+        'brand' => (string) ($product['brand'] ?? ''),
+        'category' => (string) ($product['category'] ?? ''),
+        'categoryLabel' => (string) ($product['categoryLabel'] ?? mizo_category_label($product['category'] ?? '')),
+        'engineeringCategory' => (string) ($product['engineeringCategory'] ?? ''),
+        'chainStage' => (string) ($product['chainStage'] ?? ''),
+        'description' => $description,
+        'image' => (string) ($product['image'] ?? '/mizo-logo.png'),
+        'note' => $note,
+    ];
+}
+
+function mizo_fetch_showcase_products(): array
+{
+    $config = mizo_read_showcase_config();
+    $items = $config['items'] ?? [];
+    if (!is_array($items) || count($items) === 0) {
+        return [
+            'products' => [],
+            'count' => 0,
+            'updatedAt' => $config['updatedAt'] ?? null,
+            'source' => 'empty',
+        ];
+    }
+
+    $catalog = mizo_fetch_public_products(['limit' => 300])['products'];
+    $byId = [];
+    $bySku = [];
+    foreach ($catalog as $product) {
+        $byId[(string) ($product['id'] ?? '')] = $product;
+        $sku = trim((string) ($product['sku'] ?? ''));
+        if ($sku !== '') {
+            $bySku[$sku] = $product;
+        }
+    }
+
+    $products = [];
+    foreach ($items as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $id = trim((string) ($item['id'] ?? ''));
+        $sku = trim((string) ($item['sku'] ?? ''));
+        $product = null;
+        if ($id !== '' && isset($byId[$id])) {
+            $product = $byId[$id];
+        } elseif ($sku !== '' && isset($bySku[$sku])) {
+            $product = $bySku[$sku];
+        } elseif ($id !== '' && isset($bySku[$id])) {
+            $product = $bySku[$id];
+        }
+        if (!$product) {
+            continue;
+        }
+        $products[] = mizo_showcase_product($product, trim((string) ($item['note'] ?? '')));
+    }
+
+    return [
+        'products' => $products,
+        'count' => count($products),
+        'updatedAt' => $config['updatedAt'] ?? null,
+        'source' => isset($config['source']) ? (string) $config['source'] : 'configured',
+    ];
+}
+
+function mizo_admin_password_ok(?string $password): bool
+{
+    $expected = mizo_env(['ADMIN_PASSWORD', 'MIZO_ADMIN_PASSWORD'], 'mizo2026') ?? 'mizo2026';
+    return is_string($password) && hash_equals($expected, $password);
+}

@@ -44,6 +44,7 @@ const title = 'Panel central Mizo';
 
 				<nav id="admin-nav" class="mt-6 grid grid-cols-2 gap-2 lg:grid-cols-1">
 					<button class="admin-nav-btn nav-active rounded-2xl px-4 py-3 text-left text-sm font-black" data-view="catalogo">Catálogo Maestro</button>
+					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="vitrina">Vitrina web</button>
 					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="cotizador">Cotizador</button>
 					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="auditoria">Auditoría</button>
 					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="pedidos">Pedidos</button>
@@ -90,6 +91,24 @@ const title = 'Panel central Mizo';
 							</div>
 							<p id="catalog-count" class="mt-4 text-sm font-semibold text-slate-500"></p>
 							<div id="catalog-list" class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2"></div>
+						</div>
+					</section>
+
+					<section id="view-vitrina" class="view-panel">
+						<div class="rounded-3xl border border-orange-200 bg-white p-5 shadow-sm">
+							<div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+								<div>
+									<h3 class="text-xl font-black">Vitrina pública /equipamiento</h3>
+									<p class="text-sm text-slate-500">Elige qué productos mostrar en la web sin precios ni stock. El catálogo completo sigue disponible aquí para cotizaciones.</p>
+								</div>
+								<div class="flex flex-wrap gap-2">
+									<button id="save-showcase" type="button" class="rounded-full bg-accent-main px-5 py-2.5 text-xs font-black text-white hover:bg-accent-hover">Guardar vitrina</button>
+									<a href="/equipamiento" target="_blank" rel="noopener noreferrer" class="rounded-full border border-slate-300 px-5 py-2.5 text-xs font-black text-slate-700 hover:bg-slate-50">Ver en sitio</a>
+								</div>
+							</div>
+							<p id="showcase-status" class="mt-4 text-sm font-semibold text-slate-500">Selecciona productos para la vitrina pública.</p>
+							<input id="showcase-search" type="search" placeholder="Buscar en catálogo para activar en vitrina..." class="mt-4 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm lg:max-w-md" />
+							<div id="showcase-list" class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2"></div>
 						</div>
 					</section>
 
@@ -239,12 +258,14 @@ const title = 'Panel central Mizo';
 			const clp = (value) => '$' + fmt.format(Number(value) || 0);
 			const views = {
 				catalogo: 'Catálogo Maestro',
+				vitrina: 'Vitrina web',
 				cotizador: 'Cotizador',
 				auditoria: 'Auditoría',
 				pedidos: 'Pedidos',
 			};
 			let adminPassword = '';
 			let allItems = [];
+			let showcaseMap = new Map();
 			let quoteConfig = null;
 			let quoteItems = [];
 			let currentQuote = null;
@@ -307,6 +328,7 @@ const title = 'Panel central Mizo';
 				$('view-title').textContent = views[view] || views.catalogo;
 				if (view === 'auditoria') loadQualityReview();
 				if (view === 'pedidos') loadPedidos();
+				if (view === 'vitrina') renderShowcaseManager();
 				if (view === 'cotizador' && !quoteConfig) bootstrapQuotes();
 				location.hash = view === 'catalogo' ? '' : view;
 			}
@@ -358,6 +380,120 @@ const title = 'Panel central Mizo';
 				renderCatalogList(allItems.filter((item) => [
 					item.id, item.sku, item.name, item.brand, item.store, item.category,
 				].some((value) => String(value || '').toLowerCase().includes(query))));
+			}
+
+			function showcaseKey(item) {
+				return String(item.id || item.sku || '');
+			}
+
+			async function loadShowcaseConfig() {
+				try {
+					const response = await fetch('/api/showcase.php', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+					const payload = await response.json();
+					showcaseMap = new Map();
+					(Array.isArray(payload?.items) ? payload.items : []).forEach((item, index) => {
+						const key = String(item.id || item.sku || '');
+						if (!key) return;
+						showcaseMap.set(key, {
+							id: item.id || key,
+							sku: item.sku || '',
+							sortOrder: Number(item.sortOrder) || index + 1,
+							note: item.note || '',
+						});
+					});
+				} catch (error) {
+					console.warn('No se pudo cargar vitrina web.', error);
+				}
+			}
+
+			function renderShowcaseManager() {
+				const query = ($('showcase-search')?.value || '').trim().toLowerCase();
+				const items = allItems.filter((item) => {
+					if (!query) return true;
+					return [item.id, item.sku, item.name, item.brand, item.store, item.category]
+						.some((value) => String(value || '').toLowerCase().includes(query));
+				});
+				const selectedCount = showcaseMap.size;
+				$('showcase-status').textContent = `${selectedCount} producto(s) visible(s) en /equipamiento · ${items.length} resultados en catálogo`;
+				$('showcase-list').innerHTML = items.slice(0, 120).map((item) => {
+					const key = showcaseKey(item);
+					const active = showcaseMap.has(key);
+					const entry = showcaseMap.get(key) || { sortOrder: selectedCount + 1, note: '' };
+					return `<article class="rounded-2xl border ${active ? 'border-orange-300 bg-orange-50/40' : 'border-slate-200 bg-white'} p-4">
+						<div class="flex gap-4">
+							<label class="flex shrink-0 items-start pt-1">
+								<input type="checkbox" class="showcase-toggle h-5 w-5 rounded border-slate-300" data-key="${escapeHtml(key)}" ${active ? 'checked' : ''} />
+							</label>
+							<div class="min-w-0 flex-1">
+								<p class="font-mono text-xs font-black text-accent-main">${escapeHtml(item.sku || item.id || 'SKU')}</p>
+								<h4 class="mt-1 line-clamp-2 text-sm font-black">${escapeHtml(item.name)}</h4>
+								<p class="mt-1 text-xs font-bold uppercase tracking-wide text-slate-500">${escapeHtml(item.brand || 'Mizo')}</p>
+								<div class="mt-3 grid gap-2 sm:grid-cols-[90px_minmax(0,1fr)]">
+									<input type="number" min="1" value="${escapeHtml(entry.sortOrder || 1)}" data-showcase-order="${escapeHtml(key)}" class="rounded-xl border border-slate-300 px-3 py-2 text-sm ${active ? '' : 'opacity-50'}" ${active ? '' : 'disabled'} placeholder="Orden" />
+									<input type="text" value="${escapeHtml(entry.note || '')}" data-showcase-note="${escapeHtml(key)}" class="rounded-xl border border-slate-300 px-3 py-2 text-sm ${active ? '' : 'opacity-50'}" ${active ? '' : 'disabled'} placeholder="Nota editorial (opcional)" />
+								</div>
+							</div>
+						</div>
+					</article>`;
+				}).join('');
+
+				document.querySelectorAll('.showcase-toggle').forEach((input) => {
+					input.addEventListener('change', () => {
+						const key = input.getAttribute('data-key') || '';
+						if (!key) return;
+						if (input.checked) {
+							const item = allItems.find((entry) => showcaseKey(entry) === key);
+							showcaseMap.set(key, {
+								id: item?.id || key,
+								sku: item?.sku || '',
+								sortOrder: showcaseMap.size + 1,
+								note: '',
+							});
+						} else {
+							showcaseMap.delete(key);
+						}
+						renderShowcaseManager();
+					});
+				});
+
+				document.querySelectorAll('[data-showcase-order]').forEach((input) => {
+					input.addEventListener('input', () => {
+						const key = input.getAttribute('data-showcase-order') || '';
+						const entry = showcaseMap.get(key);
+						if (!entry) return;
+						entry.sortOrder = Number(input.value) || 1;
+						showcaseMap.set(key, entry);
+					});
+				});
+
+				document.querySelectorAll('[data-showcase-note]').forEach((input) => {
+					input.addEventListener('input', () => {
+						const key = input.getAttribute('data-showcase-note') || '';
+						const entry = showcaseMap.get(key);
+						if (!entry) return;
+						entry.note = input.value.trim();
+						showcaseMap.set(key, entry);
+					});
+				});
+			}
+
+			async function saveShowcase() {
+				const items = Array.from(showcaseMap.values()).sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+				$('showcase-status').textContent = 'Guardando vitrina web...';
+				try {
+					const response = await fetch('/api/showcase.php', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+						body: JSON.stringify({ password: adminPassword, items }),
+					});
+					const payload = await response.json();
+					if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'No se pudo guardar la vitrina.');
+					await loadShowcaseConfig();
+					renderShowcaseManager();
+					$('showcase-status').textContent = `Vitrina guardada: ${payload.count || items.length} producto(s) visibles en /equipamiento.`;
+				} catch (error) {
+					$('showcase-status').textContent = error.message || 'Error al guardar vitrina.';
+				}
 			}
 
 			async function apiQuotes(action, payload = {}) {
@@ -747,6 +883,7 @@ const title = 'Panel central Mizo';
 					$('panel').classList.remove('hidden');
 					renderCatalog(payload);
 					renderQuoteItems();
+					await loadShowcaseConfig();
 					await bootstrapQuotes();
 					await loadQualityReview();
 					const initial = (location.hash || '').replace('#', '');
@@ -762,6 +899,8 @@ const title = 'Panel central Mizo';
 			});
 			$('logout').addEventListener('click', () => location.reload());
 			$('catalog-search').addEventListener('input', filterCatalog);
+			$('showcase-search')?.addEventListener('input', renderShowcaseManager);
+			$('save-showcase')?.addEventListener('click', saveShowcase);
 			$('refresh-quality-review').addEventListener('click', loadQualityReview);
 			$('refresh-pedidos').addEventListener('click', loadPedidos);
 			$('save-quote-config').addEventListener('click', saveQuoteConfig);
