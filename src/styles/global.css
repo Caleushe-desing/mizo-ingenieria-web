@@ -5,16 +5,22 @@
  */
 
 :root {
-	--accent: #0284c7;
-	--accent-dark: #075985;
+	--accent: #1c9bd8;
+	--accent-dark: #0e6491;
+	--brand-orange: #f47b20;
 	--black: 17, 24, 39;
 	--gray: 100, 116, 139;
 	--gray-light: 226, 232, 240;
 	--gray-dark: 30, 41, 59;
 	--gray-gradient: #ffffff, #ffffff;
 	--box-shadow:
-		0 2px 6px rgba(2, 132, 199, 0.08), 0 8px 24px rgba(2, 132, 199, 0.08), 0 16px 32px
-		rgba(2, 132, 199, 0.08);
+		0 2px 6px rgba(28, 155, 216, 0.08), 0 8px 24px rgba(28, 155, 216, 0.08), 0 16px 32px
+		rgba(28, 155, 216, 0.08);
+}
+/* Reduce de forma uniforme el tamaño de todo el sitio: las utilidades
+   de Tailwind (espaciado, tipografía, anchos) usan rem y se escalan desde aquí. */
+html {
+	font-size: 87.5%;
 }
 @font-face {
 	font-family: "Atkinson";
@@ -39,8 +45,8 @@ body {
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: rgb(var(--gray-dark));
-	font-size: 20px;
-	line-height: 1.7;
+	font-size: 1.0625rem;
+	line-height: 1.6;
 }
 main {
 	width: 100%;
@@ -59,19 +65,19 @@ h6 {
 	line-height: 1.2;
 }
 h1 {
-	font-size: 3.052em;
+	font-size: 2.488em;
 }
 h2 {
-	font-size: 2.441em;
+	font-size: 2.074em;
 }
 h3 {
-	font-size: 1.953em;
+	font-size: 1.728em;
 }
 h4 {
-	font-size: 1.563em;
+	font-size: 1.44em;
 }
 h5 {
-	font-size: 1.25em;
+	font-size: 1.2em;
 }
 strong,
 b {
@@ -128,7 +134,7 @@ hr {
 }
 @media (max-width: 720px) {
 	body {
-		font-size: 16px;
+		font-size: 1rem;
 		line-height: 1.5;
 	}
 	main {

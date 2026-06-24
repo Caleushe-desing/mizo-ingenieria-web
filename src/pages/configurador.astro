@@ -51,7 +51,7 @@ const roofTypes = [
 	description="Diagnostica tu espacio con datos reales y recibe un pre-diseño técnico al 90% para soluciones audiovisuales Mizo."
 >
 	<section class="min-h-[calc(100vh-12rem)] bg-slate-950 text-white">
-		<div class="absolute inset-0 -z-10 opacity-20" style="background-image: radial-gradient(#0284c7 1px, transparent 1px); background-size: 26px 26px;"></div>
+		<div class="absolute inset-0 -z-10 opacity-20" style="background-image: radial-gradient(#1c9bd8 1px, transparent 1px); background-size: 26px 26px;"></div>
 		<div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 			<div class="grid gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-end">
 				<div>
@@ -85,19 +85,19 @@ const roofTypes = [
 				<div class="border-b border-slate-200 bg-slate-50 px-5 py-5 sm:px-8">
 					<div class="flex flex-wrap items-center justify-between gap-3">
 						<div>
-							<p id="progress-label" class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 1/4 - Entorno del espacio</p>
+							<p id="progress-label" class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 1/4 - Entorno del espacio</p>
 							<h2 class="mt-2 text-2xl font-black text-slate-950">Asistente de Diagnóstico y Dimensionamiento Técnico</h2>
 						</div>
-						<span id="progress-percent" class="rounded-full bg-[#0284c7] px-4 py-2 text-xs font-black text-white">25%</span>
+						<span id="progress-percent" class="rounded-full bg-[#1c9bd8] px-4 py-2 text-xs font-black text-white">25%</span>
 					</div>
 					<div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-200">
-						<div id="progress-bar" class="h-full w-1/4 rounded-full bg-[#0284c7] transition-all duration-300"></div>
+						<div id="progress-bar" class="h-full w-1/4 rounded-full bg-[#1c9bd8] transition-all duration-300"></div>
 					</div>
 				</div>
 
 				<div class="grid gap-0 lg:grid-cols-[360px_1fr]">
 					<aside class="bg-slate-100 p-5 lg:p-7">
-						<p class="text-xs font-black uppercase tracking-[0.2em] text-[#0284c7]">Datos capturados</p>
+						<p class="text-xs font-black uppercase tracking-[0.2em] text-[#1c9bd8]">Datos capturados</p>
 						<div class="mt-5 space-y-3 text-sm">
 							<div class="rounded-2xl bg-white p-4 shadow-sm">
 								<p class="font-black text-slate-950">Entorno</p>
@@ -121,7 +121,7 @@ const roofTypes = [
 					<div class="p-5 sm:p-8 lg:p-10">
 						<div id="assistant-panel">
 							<section class="step-panel" data-step="0">
-								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 1 · Entorno del espacio</p>
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 1 · Entorno del espacio</p>
 								<h3 class="mt-3 text-3xl font-black text-slate-950">¿Qué tipo de recinto vamos a diagnosticar?</h3>
 								<p class="mt-2 text-sm leading-6 text-slate-500">El entorno define la reverberación esperada, el objetivo de inteligibilidad y la estrategia de cobertura.</p>
 								<div class="mt-6 grid gap-4 md:grid-cols-2">
@@ -135,20 +135,20 @@ const roofTypes = [
 							</section>
 
 							<section class="step-panel hidden" data-step="1">
-								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 2 · Datos reales del recinto</p>
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 2 · Datos reales del recinto</p>
 								<h3 class="mt-3 text-3xl font-black text-slate-950">Ingresa medidas base para calcular volumen y carga de ocupación.</h3>
 								<div class="mt-6 grid gap-4 sm:grid-cols-3">
 									<label class="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 										<span class="text-sm font-black text-slate-700">Superficie aproximada (m²)</span>
-										<input id="area-m2" type="number" min="10" max="2000" inputmode="numeric" placeholder="Ej: 120" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#0284c7] focus:ring-4 focus:ring-sky-100">
+										<input id="area-m2" type="number" min="10" max="2000" inputmode="numeric" placeholder="Ej: 120" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
 									</label>
 									<label class="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 										<span class="text-sm font-black text-slate-700">Altura promedio (m)</span>
-										<input id="altura-m" type="number" min="2" max="20" step="0.1" inputmode="decimal" placeholder="Ej: 4.5" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#0284c7] focus:ring-4 focus:ring-sky-100">
+										<input id="altura-m" type="number" min="2" max="20" step="0.1" inputmode="decimal" placeholder="Ej: 4.5" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
 									</label>
 									<label class="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 										<span class="text-sm font-black text-slate-700">Cantidad de personas</span>
-										<input id="personas" type="number" min="1" max="5000" inputmode="numeric" placeholder="Ej: 90" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#0284c7] focus:ring-4 focus:ring-sky-100">
+										<input id="personas" type="number" min="1" max="5000" inputmode="numeric" placeholder="Ej: 90" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
 									</label>
 								</div>
 								<div class="mt-6">
@@ -165,7 +165,7 @@ const roofTypes = [
 							</section>
 
 							<section class="step-panel hidden" data-step="2">
-								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 3 · Alcance técnico</p>
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 3 · Alcance técnico</p>
 								<h3 class="mt-3 text-3xl font-black text-slate-950">¿Qué sistema necesitas dimensionar?</h3>
 								<p class="mt-2 text-sm leading-6 text-slate-500">El alcance define si el motor prioriza SPL, flujo lumínico, rack de procesamiento o integración completa.</p>
 								<div class="mt-6 grid gap-4 lg:grid-cols-3">
@@ -179,7 +179,7 @@ const roofTypes = [
 							</section>
 
 							<section class="step-panel hidden" data-step="3">
-								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Paso 4 · Captura técnica</p>
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 4 · Captura técnica</p>
 								<div class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
 									<div class="rounded-[2rem] bg-slate-950 p-6 text-white">
 										<p class="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">Tu pre-diseño está al 90%</p>
@@ -193,7 +193,7 @@ const roofTypes = [
 										</div>
 									</div>
 
-									<form id="lead-form" class="rounded-[2rem] border-2 border-[#0284c7] bg-white p-6 shadow-xl shadow-sky-900/10">
+									<form id="lead-form" class="rounded-[2rem] border-2 border-[#1c9bd8] bg-white p-6 shadow-xl shadow-sky-900/10">
 										<input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
 										<input type="hidden" name="pack" value="Asistente de Diagnóstico Técnico Mizo">
 										<input type="hidden" name="espacio" id="lead-espacio">
@@ -204,28 +204,28 @@ const roofTypes = [
 										<input type="hidden" name="detalles" id="lead-detalles">
 										<input type="hidden" name="reporte" id="lead-reporte">
 
-										<p class="text-xs font-black uppercase tracking-[0.2em] text-[#0284c7]">Desbloquear validación</p>
+										<p class="text-xs font-black uppercase tracking-[0.2em] text-[#1c9bd8]">Desbloquear validación</p>
 										<h3 class="mt-2 text-2xl font-black text-slate-950">Recibe el cierre técnico del diagnóstico.</h3>
 										<p class="mt-2 text-sm leading-6 text-slate-500">Un ingeniero de Mizo revisará el caso y te contactará con los siguientes pasos.</p>
 										<div class="mt-5 grid gap-4 sm:grid-cols-2">
 											<label class="block">
 												<span class="text-sm font-black text-slate-700">Nombre</span>
-												<input name="nombre" required type="text" autocomplete="name" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#0284c7] focus:ring-4 focus:ring-sky-100">
+												<input name="nombre" required type="text" autocomplete="name" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
 											</label>
 											<label class="block">
 												<span class="text-sm font-black text-slate-700">Empresa</span>
-												<input name="empresa" required type="text" autocomplete="organization" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#0284c7] focus:ring-4 focus:ring-sky-100">
+												<input name="empresa" required type="text" autocomplete="organization" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
 											</label>
 											<label class="block">
 												<span class="text-sm font-black text-slate-700">Teléfono</span>
-												<input name="telefono" required type="tel" autocomplete="tel" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#0284c7] focus:ring-4 focus:ring-sky-100">
+												<input name="telefono" required type="tel" autocomplete="tel" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
 											</label>
 											<label class="block">
 												<span class="text-sm font-black text-slate-700">Correo</span>
-												<input name="correo" required type="email" autocomplete="email" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#0284c7] focus:ring-4 focus:ring-sky-100">
+												<input name="correo" required type="email" autocomplete="email" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
 											</label>
 										</div>
-										<button id="lead-submit" type="submit" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[#0284c7] px-6 py-4 text-sm font-black text-white shadow-lg transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60">
+										<button id="lead-submit" type="submit" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[#1c9bd8] px-6 py-4 text-sm font-black text-white shadow-lg transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60">
 											Solicitar validación y plano de conectividad
 										</button>
 										<p id="lead-status" class="mt-4 hidden rounded-2xl px-4 py-3 text-sm font-bold"></p>
@@ -234,10 +234,10 @@ const roofTypes = [
 							</section>
 
 							<div class="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5">
-								<button id="back-step" type="button" class="rounded-full border border-slate-300 px-5 py-3 text-sm font-black text-slate-700 transition hover:border-[#0284c7] hover:text-[#0284c7]">
+								<button id="back-step" type="button" class="rounded-full border border-slate-300 px-5 py-3 text-sm font-black text-slate-700 transition hover:border-[#1c9bd8] hover:text-[#1c9bd8]">
 									Volver
 								</button>
-								<button id="next-step" type="button" class="rounded-full bg-[#0284c7] px-6 py-3 text-sm font-black text-white shadow-lg transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+								<button id="next-step" type="button" class="rounded-full bg-[#1c9bd8] px-6 py-3 text-sm font-black text-white shadow-lg transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300">
 									Continuar
 								</button>
 							</div>
@@ -246,13 +246,13 @@ const roofTypes = [
 						<div id="analysis-panel" class="hidden min-h-[34rem] flex-col items-center justify-center text-center">
 							<div class="relative h-28 w-28">
 								<div class="absolute inset-0 rounded-full border-4 border-sky-100"></div>
-								<div class="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-[#0284c7]"></div>
-								<div class="absolute inset-5 rounded-full bg-[#0284c7]/10"></div>
+								<div class="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-[#1c9bd8]"></div>
+								<div class="absolute inset-5 rounded-full bg-[#1c9bd8]/10"></div>
 							</div>
-							<p class="mt-8 text-xs font-black uppercase tracking-[0.22em] text-[#0284c7]">Motor de diagnóstico Mizo</p>
+							<p class="mt-8 text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Motor de diagnóstico Mizo</p>
 							<p id="analysis-text" class="mt-3 max-w-2xl text-3xl font-black text-slate-950">Calculando matriz técnica...</p>
 							<div class="mt-8 h-2 w-full max-w-xl overflow-hidden rounded-full bg-slate-100">
-								<div id="analysis-bar" class="h-full w-0 rounded-full bg-[#0284c7] transition-all duration-500"></div>
+								<div id="analysis-bar" class="h-full w-0 rounded-full bg-[#1c9bd8] transition-all duration-500"></div>
 							</div>
 						</div>
 					</div>
@@ -287,13 +287,13 @@ const roofTypes = [
 	.visual-option.is-selected,
 	.logic-option:hover,
 	.logic-option.is-selected {
-		border-color: #0284c7;
+		border-color: #1c9bd8;
 		box-shadow: 0 18px 46px rgb(2 132 199 / 0.18);
 		transform: translateY(-2px);
 	}
 	.visual-option.is-selected,
 	.logic-option.is-selected {
-		outline: 3px solid #0284c7;
+		outline: 3px solid #1c9bd8;
 		outline-offset: 3px;
 	}
 </style>

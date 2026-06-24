@@ -1,4 +1,4 @@
-// tailwind.config.mjs - Paleta clara: fondo blanco, letras negras y matices azulados
+// tailwind.config.mjs - Paleta basada en el logo Mizo: azul de la onda, naranja del diafragma y negro
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -13,11 +13,17 @@ export default {
         '10xl': '112rem',
       },
       colors: {
-        'accent-main': '#0284c7',
-        'accent-hover': '#0369a1',
-        'accent-dark': '#075985',
-        'accent-light': '#38bdf8',
-        'accent-soft': '#e0f2fe',
+        // Azul del logo (la onda de sonido)
+        'accent-main': '#1c9bd8',
+        'accent-hover': '#1684bc',
+        'accent-dark': '#0e6491',
+        'accent-light': '#54b9e6',
+        'accent-soft': '#e2f3fb',
+        // Naranja del logo (el diafragma)
+        'brand-orange': '#f47b20',
+        'brand-orange-hover': '#e06814',
+        'brand-orange-dark': '#c2560d',
+        'brand-orange-soft': '#fdebd9',
       },
       fontFamily: {
         sans: ['Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
