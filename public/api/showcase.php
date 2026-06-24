@@ -46,6 +46,7 @@ if ($method === 'GET') {
         showcase_response([
             'ok' => true,
             'count' => $result['count'],
+            'mode' => $result['mode'] ?? ($config['mode'] ?? 'all'),
             'updatedAt' => $result['updatedAt'] ?? ($config['updatedAt'] ?? null),
             'source' => $result['source'],
             'items' => $config['items'] ?? [],
@@ -71,6 +72,23 @@ if ($method === 'POST') {
     }
 
     $items = $input['items'] ?? null;
+    $mode = trim((string) ($input['mode'] ?? ''));
+
+    if ($mode === 'all') {
+        try {
+            $saved = mizo_write_showcase_mode('all');
+            showcase_response([
+                'ok' => true,
+                'message' => 'Vitrina configurada para mostrar todo el catálogo.',
+                'mode' => 'all',
+                'count' => mizo_fetch_showcase_products()['count'],
+                'updatedAt' => $saved['updatedAt'],
+            ]);
+        } catch (Throwable $error) {
+            showcase_response(['ok' => false, 'error' => $error->getMessage()], 500);
+        }
+    }
+
     if (!is_array($items)) {
         showcase_response(['ok' => false, 'error' => 'Se requiere un arreglo items.'], 422);
     }
@@ -80,6 +98,7 @@ if ($method === 'POST') {
         showcase_response([
             'ok' => true,
             'message' => 'Vitrina web actualizada.',
+            'mode' => 'curated',
             'count' => count($saved['items']),
             'updatedAt' => $saved['updatedAt'],
             'items' => $saved['items'],

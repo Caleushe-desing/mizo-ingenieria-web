@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const OUT_JSON = path.join(root, 'src/data/products.json');
+const PUBLIC_JSON = path.join(root, 'public/catalogo-productos.json');
 const IMG_DIR = path.join(root, 'public/images/productos');
 const REVIEW_JSON = path.join(root, 'data/productos-en-revision.json');
 const FORCE_IMAGES = process.argv.includes('--force-images');
@@ -499,7 +500,10 @@ async function main() {
 	}
 
 	fs.writeFileSync(OUT_JSON, JSON.stringify(valid, null, '\t') + '\n', 'utf8');
+	fs.mkdirSync(path.dirname(PUBLIC_JSON), { recursive: true });
+	fs.writeFileSync(PUBLIC_JSON, JSON.stringify(valid, null, '\t') + '\n', 'utf8');
 	console.log(`\nEscrito ${path.relative(root, OUT_JSON)} con ${valid.length} productos.`);
+	console.log(`Copia pública -> ${path.relative(root, PUBLIC_JSON)}`);
 	auditWrittenCatalog(providerSnapshot);
 	const count = (c) => valid.filter((p) => p.category === c).length;
 	console.log(`  Parlantes: ${count('sonido')}  |  Proyectores: ${count('proyector')}  |  Cámaras: ${count('camara')}`);

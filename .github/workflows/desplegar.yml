@@ -23,10 +23,13 @@ jobs:
       - name: 3. Instalar dependencias del frontend
         run: npm ci
 
-      - name: 4. Compilar el sitio web (Astro Build)
+      - name: 4. Sincronizar catálogo e imágenes de productos
+        run: npm run sync-catalogo || echo "sync fallo: se usa catalogo existente"
+
+      - name: 5. Compilar el sitio web (Astro Build)
         run: npm run build
 
-      - name: 5. Subir archivos al Hosting por FTP Nativo
+      - name: 6. Subir archivos al Hosting por FTP Nativo
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}

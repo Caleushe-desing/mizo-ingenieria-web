@@ -311,7 +311,7 @@ function mizo_fetch_products_from_mysql(array $filters = []): ?array
         $where[] = 'category IN (' . implode(',', $placeholders) . ')';
     }
 
-    $limit = max(1, min(300, (int) ($filters['limit'] ?? 160)));
+    $limit = max(1, min(1000, (int) ($filters['limit'] ?? 160)));
     $sql = "SELECT * FROM `{$table}` WHERE " . implode(' AND ', $where) . " ORDER BY trend_score DESC, updated_at DESC, name ASC LIMIT {$limit}";
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
@@ -321,6 +321,7 @@ function mizo_fetch_products_from_mysql(array $filters = []): ?array
 function mizo_fetch_products_from_json(): array
 {
     $paths = [
+        __DIR__ . '/../catalogo-productos.json',
         __DIR__ . '/../../src/data/products.json',
         __DIR__ . '/../data/products.json',
         __DIR__ . '/../../data/products.json',
@@ -498,16 +499,46 @@ function mizo_showcase_config_path(): string
     return mizo_runtime_storage_root() . '/showcase.json';
 }
 
+function mizo_public_root(): string
+{
+    return dirname(__DIR__);
+}
+
+function mizo_resolve_product_image(array $product): string
+{
+    $publicRoot = mizo_public_root();
+    $image = trim((string) ($product['image'] ?? ''));
+    $sourceImage = trim((string) ($product['source']['image'] ?? $product['source_image'] ?? $product['sourceImage'] ?? ''));
+    $id = trim((string) ($product['id'] ?? ''));
+
+    $candidates = [];
+    if ($image !== '' && !preg_match('#^https?://#i', $image)) {
+        $candidates[] = $image;
+    }
+    if ($id !== '') {
+        $candidates[] = '/images/productos/' . $id . '.jpg';
+    }
+
+    foreach ($candidates as $candidate) {
+        $localPath = $publicRoot . $candidate;
+        if (is_file($localPath) && (int) filesize($localPath) > 1500) {
+            return $candidate;
+        }
+    }
+
+    if ($image !== '' && preg_match('#^https?://#i', $image)) {
+        return $image;
+    }
+    if ($sourceImage !== '' && preg_match('#^https?://#i', $sourceImage)) {
+        return $sourceImage;
+    }
+
+    return '/mizo-logo.png';
+}
+
 function mizo_default_showcase_items(): array
 {
-    return [
-        ['id' => 'seed-shure-slxd24-sm58', 'sortOrder' => 1, 'note' => 'Captación vocal para auditorios y eventos'],
-        ['id' => 'seed-epson-eb-fh52', 'sortOrder' => 2, 'note' => 'Proyección Full HD para salas iluminadas'],
-        ['id' => 'seed-qsc-cp12', 'sortOrder' => 3, 'note' => 'Cobertura sonora para recintos medianos'],
-        ['id' => 'seed-behringer-x32-compact', 'sortOrder' => 4, 'note' => 'Mezcla digital para salas AV'],
-        ['id' => 'seed-hikvision-ptz-4mp', 'sortOrder' => 5, 'note' => 'Video IP para monitoreo y streaming'],
-        ['id' => 'seed-dbx-driverack-pa2', 'sortOrder' => 6, 'note' => 'Procesamiento y protección de sistema PA'],
-    ];
+    return [];
 }
 
 function mizo_read_showcase_config(): array
@@ -515,15 +546,22 @@ function mizo_read_showcase_config(): array
     $path = mizo_showcase_config_path();
     if (is_file($path)) {
         $data = json_decode((string) file_get_contents($path), true);
-        if (is_array($data) && isset($data['items']) && is_array($data['items'])) {
+        if (is_array($data)) {
+            if (!isset($data['mode'])) {
+                $data['mode'] = 'all';
+            }
+            if (!isset($data['items']) || !is_array($data['items'])) {
+                $data['items'] = [];
+            }
             return $data;
         }
     }
 
     return [
+        'mode' => 'all',
         'updatedAt' => null,
-        'items' => mizo_default_showcase_items(),
-        'source' => 'default',
+        'items' => [],
+        'source' => 'default-all',
     ];
 }
 
@@ -554,8 +592,28 @@ function mizo_write_showcase_config(array $items): array
     });
 
     $payload = [
+        'mode' => 'curated',
         'updatedAt' => gmdate('c'),
         'items' => $normalized,
+    ];
+
+    $path = mizo_showcase_config_path();
+    $tmp = $path . '.tmp';
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    if ($json === false || file_put_contents($tmp, $json, LOCK_EX) === false || !@rename($tmp, $path)) {
+        @unlink($tmp);
+        throw new RuntimeException('No se pudo guardar la vitrina web.');
+    }
+
+    return $payload;
+}
+
+function mizo_write_showcase_mode(string $mode): array
+{
+    $payload = [
+        'mode' => $mode === 'curated' ? 'curated' : 'all',
+        'updatedAt' => gmdate('c'),
+        'items' => $mode === 'curated' ? (mizo_read_showcase_config()['items'] ?? []) : [],
     ];
 
     $path = mizo_showcase_config_path();
@@ -575,6 +633,9 @@ function mizo_showcase_product(array $product, string $note = ''): array
     if ($description === '') {
         $description = trim((string) ($product['description'] ?? ''));
     }
+    if (strlen($description) > 260) {
+        $description = rtrim(substr($description, 0, 257)) . '...';
+    }
 
     return [
         'id' => (string) ($product['id'] ?? ''),
@@ -586,7 +647,7 @@ function mizo_showcase_product(array $product, string $note = ''): array
         'engineeringCategory' => (string) ($product['engineeringCategory'] ?? ''),
         'chainStage' => (string) ($product['chainStage'] ?? ''),
         'description' => $description,
-        'image' => (string) ($product['image'] ?? '/mizo-logo.png'),
+        'image' => mizo_resolve_product_image($product),
         'note' => $note,
     ];
 }
@@ -594,53 +655,90 @@ function mizo_showcase_product(array $product, string $note = ''): array
 function mizo_fetch_showcase_products(): array
 {
     $config = mizo_read_showcase_config();
-    $items = $config['items'] ?? [];
-    if (!is_array($items) || count($items) === 0) {
-        return [
-            'products' => [],
-            'count' => 0,
-            'updatedAt' => $config['updatedAt'] ?? null,
-            'source' => 'empty',
-        ];
-    }
+    $mode = (string) ($config['mode'] ?? 'all');
+    $items = is_array($config['items'] ?? null) ? $config['items'] : [];
+    $catalog = mizo_fetch_public_products(['limit' => 1000])['products'];
 
-    $catalog = mizo_fetch_public_products(['limit' => 300])['products'];
-    $byId = [];
-    $bySku = [];
-    foreach ($catalog as $product) {
-        $byId[(string) ($product['id'] ?? '')] = $product;
-        $sku = trim((string) ($product['sku'] ?? ''));
-        if ($sku !== '') {
-            $bySku[$sku] = $product;
-        }
-    }
-
-    $products = [];
+    $notesByKey = [];
     foreach ($items as $item) {
         if (!is_array($item)) {
             continue;
         }
-        $id = trim((string) ($item['id'] ?? ''));
-        $sku = trim((string) ($item['sku'] ?? ''));
-        $product = null;
-        if ($id !== '' && isset($byId[$id])) {
-            $product = $byId[$id];
-        } elseif ($sku !== '' && isset($bySku[$sku])) {
-            $product = $bySku[$sku];
-        } elseif ($id !== '' && isset($bySku[$id])) {
-            $product = $bySku[$id];
-        }
-        if (!$product) {
+        $key = trim((string) ($item['id'] ?? $item['sku'] ?? ''));
+        if ($key === '') {
             continue;
         }
-        $products[] = mizo_showcase_product($product, trim((string) ($item['note'] ?? '')));
+        $notesByKey[$key] = trim((string) ($item['note'] ?? ''));
     }
+
+    if ($mode === 'curated' && count($items) > 0) {
+        $byId = [];
+        $bySku = [];
+        foreach ($catalog as $product) {
+            $byId[(string) ($product['id'] ?? '')] = $product;
+            $sku = trim((string) ($product['sku'] ?? ''));
+            if ($sku !== '') {
+                $bySku[$sku] = $product;
+            }
+        }
+
+        $products = [];
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $id = trim((string) ($item['id'] ?? ''));
+            $sku = trim((string) ($item['sku'] ?? ''));
+            $product = null;
+            if ($id !== '' && isset($byId[$id])) {
+                $product = $byId[$id];
+            } elseif ($sku !== '' && isset($bySku[$sku])) {
+                $product = $bySku[$sku];
+            } elseif ($id !== '' && isset($bySku[$id])) {
+                $product = $bySku[$id];
+            }
+            if (!$product) {
+                continue;
+            }
+            $shown = mizo_showcase_product($product, trim((string) ($item['note'] ?? '')));
+            if ($shown['image'] === '/mizo-logo.png') {
+                continue;
+            }
+            $products[] = $shown;
+        }
+
+        return [
+            'products' => $products,
+            'count' => count($products),
+            'updatedAt' => $config['updatedAt'] ?? null,
+            'mode' => 'curated',
+            'source' => isset($config['source']) ? (string) $config['source'] : 'configured',
+        ];
+    }
+
+    $products = [];
+    foreach ($catalog as $product) {
+        $shown = mizo_showcase_product($product, $notesByKey[(string) ($product['id'] ?? '')] ?? $notesByKey[(string) ($product['sku'] ?? '')] ?? '');
+        if ($shown['image'] === '/mizo-logo.png') {
+            continue;
+        }
+        $products[] = $shown;
+    }
+
+    usort($products, static function (array $a, array $b): int {
+        $category = strcmp((string) ($a['categoryLabel'] ?? ''), (string) ($b['categoryLabel'] ?? ''));
+        if ($category !== 0) {
+            return $category;
+        }
+        return strcasecmp((string) ($a['name'] ?? ''), (string) ($b['name'] ?? ''));
+    });
 
     return [
         'products' => $products,
         'count' => count($products),
         'updatedAt' => $config['updatedAt'] ?? null,
-        'source' => isset($config['source']) ? (string) $config['source'] : 'configured',
+        'mode' => 'all',
+        'source' => isset($config['source']) ? (string) $config['source'] : 'catalog-all',
     ];
 }
 

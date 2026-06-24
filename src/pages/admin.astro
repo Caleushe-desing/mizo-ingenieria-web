@@ -102,7 +102,8 @@ const title = 'Panel central Mizo';
 									<p class="text-sm text-slate-500">Elige qué productos mostrar en la web sin precios ni stock. El catálogo completo sigue disponible aquí para cotizaciones.</p>
 								</div>
 								<div class="flex flex-wrap gap-2">
-									<button id="save-showcase" type="button" class="rounded-full bg-accent-main px-5 py-2.5 text-xs font-black text-white hover:bg-accent-hover">Guardar vitrina</button>
+									<button id="publish-all-showcase" type="button" class="rounded-full border border-orange-300 bg-orange-50 px-5 py-2.5 text-xs font-black text-orange-800 hover:bg-orange-100">Publicar catálogo completo</button>
+									<button id="save-showcase" type="button" class="rounded-full bg-accent-main px-5 py-2.5 text-xs font-black text-white hover:bg-accent-hover">Guardar selección</button>
 									<a href="/equipamiento" target="_blank" rel="noopener noreferrer" class="rounded-full border border-slate-300 px-5 py-2.5 text-xs font-black text-slate-700 hover:bg-slate-50">Ver en sitio</a>
 								</div>
 							</div>
@@ -266,6 +267,7 @@ const title = 'Panel central Mizo';
 			let adminPassword = '';
 			let allItems = [];
 			let showcaseMap = new Map();
+			let showcaseMode = 'all';
 			let quoteConfig = null;
 			let quoteItems = [];
 			let currentQuote = null;
@@ -391,6 +393,7 @@ const title = 'Panel central Mizo';
 					const response = await fetch('/api/showcase.php', { headers: { Accept: 'application/json' }, cache: 'no-store' });
 					const payload = await response.json();
 					showcaseMap = new Map();
+					showcaseMode = payload?.mode === 'curated' ? 'curated' : 'all';
 					(Array.isArray(payload?.items) ? payload.items : []).forEach((item, index) => {
 						const key = String(item.id || item.sku || '');
 						if (!key) return;
@@ -413,8 +416,8 @@ const title = 'Panel central Mizo';
 					return [item.id, item.sku, item.name, item.brand, item.store, item.category]
 						.some((value) => String(value || '').toLowerCase().includes(query));
 				});
-				const selectedCount = showcaseMap.size;
-				$('showcase-status').textContent = `${selectedCount} producto(s) visible(s) en /equipamiento · ${items.length} resultados en catálogo`;
+				const selectedCount = showcaseMode === 'all' ? 'catálogo completo' : `${showcaseMap.size} seleccionado(s)`;
+				$('showcase-status').textContent = `${selectedCount} visible(s) en /equipamiento · ${items.length} resultados en catálogo`;
 				$('showcase-list').innerHTML = items.slice(0, 120).map((item) => {
 					const key = showcaseKey(item);
 					const active = showcaseMap.has(key);
@@ -484,15 +487,36 @@ const title = 'Panel central Mizo';
 					const response = await fetch('/api/showcase.php', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-						body: JSON.stringify({ password: adminPassword, items }),
+						body: JSON.stringify({ password: adminPassword, mode: 'curated', items }),
 					});
 					const payload = await response.json();
 					if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'No se pudo guardar la vitrina.');
+					showcaseMode = 'curated';
 					await loadShowcaseConfig();
 					renderShowcaseManager();
-					$('showcase-status').textContent = `Vitrina guardada: ${payload.count || items.length} producto(s) visibles en /equipamiento.`;
+					$('showcase-status').textContent = `Selección guardada: ${payload.count || items.length} producto(s) visibles en /equipamiento.`;
 				} catch (error) {
 					$('showcase-status').textContent = error.message || 'Error al guardar vitrina.';
+				}
+			}
+
+			async function publishAllShowcase() {
+				$('showcase-status').textContent = 'Publicando catálogo completo...';
+				try {
+					const response = await fetch('/api/showcase.php', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+						body: JSON.stringify({ password: adminPassword, mode: 'all' }),
+					});
+					const payload = await response.json();
+					if (!response.ok || !payload?.ok) throw new Error(payload?.error || 'No se pudo publicar el catálogo completo.');
+					showcaseMode = 'all';
+					showcaseMap = new Map();
+					await loadShowcaseConfig();
+					renderShowcaseManager();
+					$('showcase-status').textContent = `Catálogo completo publicado: ${payload.count || 0} producto(s) en /equipamiento.`;
+				} catch (error) {
+					$('showcase-status').textContent = error.message || 'Error al publicar catálogo completo.';
 				}
 			}
 
@@ -901,6 +925,7 @@ const title = 'Panel central Mizo';
 			$('catalog-search').addEventListener('input', filterCatalog);
 			$('showcase-search')?.addEventListener('input', renderShowcaseManager);
 			$('save-showcase')?.addEventListener('click', saveShowcase);
+			$('publish-all-showcase')?.addEventListener('click', publishAllShowcase);
 			$('refresh-quality-review').addEventListener('click', loadQualityReview);
 			$('refresh-pedidos').addEventListener('click', loadPedidos);
 			$('save-quote-config').addEventListener('click', saveQuoteConfig);
