@@ -597,7 +597,7 @@ function mizo_showcase_config_paths(): array
     } catch (Throwable $error) {
         // El almacenamiento en disco puede no estar disponible en algunos hosts.
     }
-    $paths[] = dirname(__DIR__) . '/data/showcase.json';
+    $paths[] = dirname(__DIR__) . '/showcase-default.json';
     return array_values(array_unique($paths));
 }
 
