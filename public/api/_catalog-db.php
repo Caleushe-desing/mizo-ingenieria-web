@@ -1,6 +1,54 @@
 <?php
 declare(strict_types=1);
 
+function mizo_sanitize_utf8($value)
+{
+    if (is_array($value)) {
+        foreach ($value as $key => $item) {
+            $value[$key] = mizo_sanitize_utf8($item);
+        }
+        return $value;
+    }
+    if (!is_string($value)) {
+        return $value;
+    }
+    if ($value === '') {
+        return $value;
+    }
+    if (function_exists('mb_check_encoding') && mb_check_encoding($value, 'UTF-8')) {
+        return $value;
+    }
+    if (function_exists('mb_convert_encoding')) {
+        $converted = @mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+        if (is_string($converted) && $converted !== '') {
+            return $converted;
+        }
+    }
+    $stripped = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
+    return is_string($stripped) ? $stripped : $value;
+}
+
+function mizo_json_response(array $payload, int $status = 200): void
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+    if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
+        $flags |= JSON_INVALID_UTF8_SUBSTITUTE;
+    }
+    $json = json_encode(mizo_sanitize_utf8($payload), $flags);
+    if ($json === false) {
+        $json = json_encode([
+            'ok' => false,
+            'error' => 'No se pudo serializar la respuesta JSON.',
+            'detail' => function_exists('json_last_error_msg') ? json_last_error_msg() : 'json_encode failed',
+            'products' => [],
+        ], $flags) ?: '{"ok":false,"error":"JSON encode failed","products":[]}';
+    }
+    echo $json;
+    exit;
+}
+
 function mizo_env(array $keys, ?string $default = null): ?string
 {
     foreach ($keys as $key) {
@@ -541,20 +589,35 @@ function mizo_default_showcase_items(): array
     return [];
 }
 
+function mizo_showcase_config_paths(): array
+{
+    $paths = [];
+    try {
+        $paths[] = mizo_showcase_config_path();
+    } catch (Throwable $error) {
+        // El almacenamiento en disco puede no estar disponible en algunos hosts.
+    }
+    $paths[] = dirname(__DIR__) . '/data/showcase.json';
+    return array_values(array_unique($paths));
+}
+
 function mizo_read_showcase_config(): array
 {
-    $path = mizo_showcase_config_path();
-    if (is_file($path)) {
-        $data = json_decode((string) file_get_contents($path), true);
-        if (is_array($data)) {
-            if (!isset($data['mode'])) {
-                $data['mode'] = 'all';
-            }
-            if (!isset($data['items']) || !is_array($data['items'])) {
-                $data['items'] = [];
-            }
-            return $data;
+    foreach (mizo_showcase_config_paths() as $path) {
+        if (!is_file($path)) {
+            continue;
         }
+        $data = json_decode((string) file_get_contents($path), true);
+        if (!is_array($data)) {
+            continue;
+        }
+        if (!isset($data['mode'])) {
+            $data['mode'] = 'all';
+        }
+        if (!isset($data['items']) || !is_array($data['items'])) {
+            $data['items'] = [];
+        }
+        return $data;
     }
 
     return [
