@@ -69,7 +69,7 @@ const categoryEntries = Object.entries(categories);
 						class="product-item"
 						data-category={product.category}
 						data-brand={product.brand}
-						data-search={`${product.name} ${product.brand} ${product.description} ${product.categoryLabel}`.toLowerCase()}
+						data-search={`${product.name} ${product.sku} ${product.brand} ${product.description} ${product.categoryLabel} ${product.engineeringCategory}`.toLowerCase()}
 					>
 						<ProductCatalogCard product={product} />
 					</div>
@@ -94,62 +94,113 @@ const categoryEntries = Object.entries(categories);
 
 <script is:inline>
 	(function () {
-		const tabs = document.getElementById('product-category-tabs');
-		const search = document.getElementById('product-search');
-		const items = Array.from(document.querySelectorAll('.product-item'));
-		const empty = document.getElementById('product-empty');
-		const meta = document.getElementById('product-meta');
-		if (!tabs || !search || !empty || !meta) return;
+		const state = {
+			category: 'all',
+			brand: '',
+			query: '',
+		};
 
-		let currentCategory = 'all';
-		let currentBrand = '';
-		let currentQuery = '';
+		function isProductosPage() {
+			return Boolean(document.getElementById('product-grid') && document.getElementById('product-category-tabs'));
+		}
 
-		const params = new URLSearchParams(window.location.search);
-		currentBrand = String(params.get('marca') || params.get('brand') || '').trim().toLowerCase();
-		if (currentBrand) {
-			search.value = currentBrand;
-			currentQuery = currentBrand;
+		function getItems() {
+			return Array.from(document.querySelectorAll('#product-grid .product-item'));
+		}
+
+		function normalize(value) {
+			return String(value || '').trim().toLowerCase();
+		}
+
+		function readUrlState() {
+			const search = document.getElementById('product-search');
+			const params = new URLSearchParams(window.location.search);
+			state.category = String(params.get('cat') || 'all');
+			state.brand = normalize(params.get('marca') || params.get('brand') || '');
+			state.query = normalize(params.get('q') || '');
+
+			if (!search) return;
+			if (params.get('q')) {
+				search.value = String(params.get('q') || '');
+			} else if (params.get('marca') || params.get('brand')) {
+				search.value = String(params.get('marca') || params.get('brand') || '');
+				if (!state.query) state.query = state.brand;
+			} else {
+				search.value = '';
+			}
+		}
+
+		function updateTabStyles() {
+			const tabs = document.getElementById('product-category-tabs');
+			if (!tabs) return;
+			tabs.querySelectorAll('.product-tab').forEach((tab) => {
+				const active = (tab.getAttribute('data-category') || 'all') === state.category;
+				tab.classList.toggle('bg-accent-main', active);
+				tab.classList.toggle('text-white', active);
+				tab.classList.toggle('bg-slate-100', !active);
+				tab.classList.toggle('text-slate-600', !active);
+			});
 		}
 
 		function updateView() {
+			if (!isProductosPage()) return;
+
+			const empty = document.getElementById('product-empty');
+			const meta = document.getElementById('product-meta');
+			const grid = document.getElementById('product-grid');
+			const items = getItems();
+			if (!empty || !meta || !grid) return;
+
 			let visible = 0;
 			items.forEach((item) => {
 				const category = item.getAttribute('data-category') || '';
-				const brand = String(item.getAttribute('data-brand') || '').toLowerCase();
-				const haystack = item.getAttribute('data-search') || '';
-				const categoryOk = currentCategory === 'all' || category === currentCategory;
-				const brandOk = !currentBrand || brand === currentBrand || haystack.includes(currentBrand);
-				const queryOk = !currentQuery || haystack.includes(currentQuery);
+				const brand = normalize(item.getAttribute('data-brand'));
+				const haystack = normalize(item.getAttribute('data-search'));
+				const categoryOk = state.category === 'all' || category === state.category;
+				const brandOk = !state.brand || brand === state.brand || haystack.includes(state.brand);
+				const queryOk = !state.query || haystack.includes(state.query);
 				const show = categoryOk && brandOk && queryOk;
 				item.classList.toggle('hidden', !show);
 				if (show) visible += 1;
 			});
 
 			empty.classList.toggle('hidden', visible > 0);
+			grid.classList.toggle('hidden', visible === 0);
 			meta.textContent = visible === 1 ? '1 producto visible' : `${visible} productos visibles`;
+			updateTabStyles();
 		}
 
-		tabs.querySelectorAll('.product-tab').forEach((button) => {
-			button.addEventListener('click', () => {
-				currentCategory = button.getAttribute('data-category') || 'all';
-				tabs.querySelectorAll('.product-tab').forEach((tab) => {
-					const active = (tab.getAttribute('data-category') || 'all') === currentCategory;
-					tab.classList.toggle('bg-accent-main', active);
-					tab.classList.toggle('text-white', active);
-					tab.classList.toggle('bg-slate-100', !active);
-					tab.classList.toggle('text-slate-600', !active);
-				});
+		function bindProductFilters() {
+			if (window.__mizoProductFiltersBound) return;
+			window.__mizoProductFiltersBound = true;
+
+			document.addEventListener('click', (event) => {
+				if (!isProductosPage()) return;
+				const tab = event.target.closest('.product-tab');
+				if (!tab) return;
+				state.category = tab.getAttribute('data-category') || 'all';
+				state.brand = '';
 				updateView();
 			});
-		});
 
-		search.addEventListener('input', () => {
-			currentQuery = search.value.trim().toLowerCase();
-			currentBrand = '';
+			document.addEventListener('input', (event) => {
+				if (!isProductosPage()) return;
+				if (event.target?.id !== 'product-search') return;
+				state.query = normalize(event.target.value);
+				state.brand = '';
+				updateView();
+			});
+		}
+
+		function initProductosFilters() {
+			if (!isProductosPage()) return;
+			readUrlState();
 			updateView();
-		});
+		}
 
-		updateView();
+		bindProductFilters();
+		document.addEventListener('DOMContentLoaded', initProductosFilters);
+		document.addEventListener('astro:page-load', initProductosFilters);
+		initProductosFilters();
 	})();
 </script>
