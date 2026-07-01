@@ -1,19 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
 ---
 
 <Layout title="Términos y Condiciones | Mizo" description="Revisa los Términos y Condiciones de uso y contratación de los servicios y productos de Mizo.">
     
-    <section class="bg-gradient-to-b from-accent-soft to-white py-20 sm:py-28">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-                Términos y <span class="text-accent-main">Condiciones</span>
-            </h1>
-            <p class="mt-4 text-lg text-gray-500">
-                Última actualización: Mayo 2026
-            </p>
-        </div>
-    </section>
+    <PageHero
+        eyebrow="Legal"
+        title="Términos y Condiciones"
+        align="center"
+        size="sm"
+        meta="Última actualización: Mayo 2026"
+    />
 
     <section class="py-16 bg-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

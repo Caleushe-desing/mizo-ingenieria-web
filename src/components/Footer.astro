@@ -3,21 +3,20 @@
 const today = new Date();
 const currentYear = today.getFullYear();
 
-const logoSrc = "/mizo-logo.jpg";
+const logoSrc = "/mizo-logo-footer.png";
 const logoAlt = "Mizo";
 ---
 
-<footer class="bg-accent-dark text-slate-200 mt-auto">
+<footer class="bg-charcoal text-gray-300 mt-auto border-t border-charcoal-muted">
     <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-white/10 pb-8">
             
             <div class="space-y-4 col-span-1 md:col-span-1">
-                <a href="/" class="flex items-center gap-3">
-                    <img src={logoSrc} alt={logoAlt} class="h-12 w-auto rounded-md" />
-                    <span class="text-2xl font-extrabold text-white">Mizo</span>
+                <a href="/" class="flex items-center">
+                    <img src={logoSrc} alt={logoAlt} class="h-14 w-auto object-contain" width="210" height="70" onerror="this.onerror=null; this.src='/mizo-logo.png';" />
                 </a>
-                <p class="text-slate-300 text-sm max-w-xs">
-                    Sonido, audiovisual e instalaciones eléctricas. Instalación profesional y venta de equipos en todo Chile.
+                <p class="text-gray-400 text-sm max-w-xs">
+                    Ingeniería e instalación de sistemas de sonido y videoproyección en Chile. Colegios, iglesias, auditorios, comercio e industria.
                 </p>
                 <a href="https://wa.me/56994390870?text=Hola%20Mizo,%20quiero%20hacer%20una%20consulta" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold text-white bg-green-600 hover:bg-green-700 transition">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.929-1.03z"/></svg>
@@ -26,11 +25,12 @@ const logoAlt = "Mizo";
             </div>
             
             <div class="col-span-1">
-                <h4 class="text-base font-semibold text-white mb-4">Navegación</h4>
+                <h4 class="text-base font-semibold text-white mb-4">Soluciones</h4>
                 <ul class="space-y-2 text-sm">
                     <li><a href="/" class="text-slate-300 hover:text-white transition duration-200">Inicio</a></li>
-                    <li><a href="/servicios" class="text-slate-300 hover:text-white transition duration-200">Instalación</a></li>
-                    <li><a href="/productos" class="text-slate-300 hover:text-white transition duration-200">Tienda</a></li>
+                    <li><a href="/servicios" class="text-gray-400 hover:text-white transition duration-200">Servicios de instalación</a></li>
+                    <li><a href="/#proyectos" class="text-gray-400 hover:text-white transition duration-200">Proyectos</a></li>
+                    <li><a href="/equipamiento" class="text-gray-400 hover:text-white transition duration-200">Equipamiento de referencia</a></li>
                     <li><a href="/nosotros" class="text-slate-300 hover:text-white transition duration-200">Nosotros</a></li>
                     <li><a href="/contacto" class="text-slate-300 hover:text-white transition duration-200">Contacto</a></li>
                 </ul>
@@ -39,7 +39,8 @@ const logoAlt = "Mizo";
             <div class="col-span-1">
                 <h4 class="text-base font-semibold text-white mb-4">Contacto</h4>
                 <ul class="space-y-2 text-sm">
-                    <li class="text-slate-300">📧 ventas@mizo.cl</li>
+                    <li><a href="mailto:ventas@mizo.cl" class="text-slate-300 hover:text-white transition">📧 ventas@mizo.cl</a></li>
+                    <li><a href="tel:+56994390870" class="text-slate-300 hover:text-white transition">☎ +56 9 9439 0870</a></li>
                     <li><a href="https://wa.me/56994390870" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-white transition">📲 WhatsApp +56 9 9439 0870</a></li>
                     <li class="text-slate-300">📍 Frutillar y Santiago</li>
                 </ul>
@@ -59,7 +60,7 @@ const logoAlt = "Mizo";
                 &copy; {currentYear} Mizo. Todos los derechos reservados.
             </p>
             <p class="text-slate-400 text-sm">
-                Sonido · Audiovisual · Electricidad
+                Ingeniería audiovisual · Integración · Soporte técnico
             </p>
         </div>
     </div>

@@ -5,18 +5,22 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout title="¡Mensaje Enviado! | Mizo" description="Confirmación de envío de la solicitud de contacto a Mizo.">
     
-    <section class="bg-gradient-to-b from-accent-soft to-white py-32 sm:py-48 min-h-[80vh] flex items-center justify-center">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <section class="relative isolate flex min-h-[80vh] items-center justify-center overflow-hidden bg-ink py-28 text-white sm:py-40">
+        <img src="https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1600&q=80" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover" loading="eager" width="1600" height="900" />
+        <div class="absolute inset-0 bg-gradient-to-b from-ink/85 via-ink/82 to-ink/95"></div>
+        <div class="absolute inset-0 opacity-[0.12]" style="background-image: radial-gradient(#1c9bd8 1px, transparent 1px); background-size: 26px 26px;"></div>
+        <div class="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-accent-main/20 blur-3xl"></div>
+        <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             
-            <div class="text-7xl mb-8 animate-bounce">
+            <div class="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-white/15 bg-white/10 text-4xl backdrop-blur">
                 ✅
             </div>
 
-            <h1 id="gracias-titulo" class="text-5xl sm:text-6xl font-extrabold text-gray-900 mb-6">
-                ¡Gracias por tu <span class="text-accent-main">solicitud</span>!
+            <h1 id="gracias-titulo" class="text-balance text-4xl font-black leading-[1.1] tracking-tight text-white sm:text-5xl">
+                ¡Gracias por tu <span class="text-accent-light">solicitud</span>!
             </h1>
             
-            <p id="gracias-texto" class="mt-6 text-xl text-gray-600">
+            <p id="gracias-texto" class="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-white/70">
                 Hemos recibido tu mensaje y un miembro de nuestro equipo se pondrá en contacto contigo a la brevedad.
                 Normalmente respondemos en el transcurso de un día hábil.
             </p>

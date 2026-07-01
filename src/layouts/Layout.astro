@@ -72,6 +72,31 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
         <script is:inline>
             (function () {
+                function resolveGeographicSurcharge(surchargeValue, baseInstallationPrice) {
+                    const value = String(surchargeValue ?? '0').trim();
+                    if (value.endsWith('%')) {
+                        return Math.round((Number(baseInstallationPrice) || 0) * ((Number(value.replace('%', '')) || 0) / 100));
+                    }
+                    return Number(value.replace(/[^\d-]/g, '')) || 0;
+                }
+
+                function calculateInstallationTotal(config, quantity, selectedGeographicSurcharge) {
+                    const qty = Math.max(1, Number(quantity) || 1);
+                    const baseInstallationPrice = Number(config?.baseInstallationPrice) || 0;
+                    const additionalUnitSurcharge = Number(config?.additionalUnitSurcharge) || 0;
+                    const geographicSurcharge = resolveGeographicSurcharge(
+                        selectedGeographicSurcharge ?? config?.geographicSurcharge,
+                        baseInstallationPrice
+                    );
+
+                    return baseInstallationPrice + ((qty - 1) * additionalUnitSurcharge) + geographicSurcharge;
+                }
+
+                window.MizoInstallationPricing = {
+                    calculateInstallationTotal,
+                    resolveGeographicSurcharge,
+                };
+
                 const KEY = 'mizo-cart';
                 const read = () => {
                     try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }

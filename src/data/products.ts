@@ -1,13 +1,8 @@
 // products.ts
-// Catálogo público de productos. Los datos viven en products.json (incluye el
-// campo privado "source" con la tienda/URL de referencia del precio).
+// Tipos y helpers compartidos del catálogo.
 //
-// IMPORTANTE: el precio de venta publicado aplica un recargo del 20% sobre el
-// "basePrice" (valor de referencia del mercado chileno). El campo "source" NO se
-// expone en el sitio: se elimina aquí antes de exportar a los componentes.
-
-import rawProducts from './products.json';
-import hiddenProducts from './products-hidden.json';
+// El catálogo público ya no se renderiza desde JSON estático. La tienda consume
+// exclusivamente productos publicados desde MySQL mediante /api-productos-publicados.php.
 
 export const MARKUP = 0.2; // 20%
 
@@ -44,8 +39,9 @@ export interface RawProduct {
 	source: ProductSource;
 }
 
-// Producto público: sin la información de la fuente (source).
-export type Product = Omit<RawProduct, 'source'>;
+export type Product = Omit<RawProduct, 'source'> & {
+	source: Pick<ProductSource, 'store' | 'url'>;
+};
 
 export const categories: { id: Category; label: string; icon: string; blurb: string }[] = [
 	{ id: 'sonido', label: 'Parlantes', icon: '🔊', blurb: 'Cajas activas, line array y parlantes portátiles.' },
@@ -53,14 +49,9 @@ export const categories: { id: Category; label: string; icon: string; blurb: str
 	{ id: 'camara', label: 'Cámaras', icon: '📹', blurb: 'Cámaras de seguridad y videovigilancia WiFi.' },
 ];
 
-// Todos los productos (incluye ocultos de prueba).
-const combined = [...(rawProducts as RawProduct[]), ...(hiddenProducts as RawProduct[])];
-const stripSource = ({ source, ...rest }: RawProduct): Product => rest;
-
-export const allProducts: Product[] = combined.map(stripSource);
-
-// Catálogo público: sin ocultos ni campo source.
-export const products: Product[] = allProducts.filter((p) => !p.hidden);
+// Catálogo estático intencionalmente vacío: los productos vienen desde MySQL.
+export const allProducts: Product[] = [];
+export const products: Product[] = [];
 
 export const productsById: Record<string, Product> = Object.fromEntries(
 	allProducts.map((p) => [p.id, p]),
@@ -91,4 +82,14 @@ export function sellingPrice(basePrice: number): number {
 /** Formatea un número como precio chileno: $1.234.567 */
 export function formatCLP(value: number): string {
 	return '$' + value.toLocaleString('es-CL');
+}
+
+export function providerKeyFromStore(store?: string): string {
+	const normalizedStore = (store ?? '').toLowerCase();
+
+	if (normalizedStore.includes('promusic')) return 'promusic';
+	if (normalizedStore.includes('audio')) return 'audiomusica';
+	if (normalizedStore.includes('casa')) return 'casaroyal';
+
+	return '';
 }
