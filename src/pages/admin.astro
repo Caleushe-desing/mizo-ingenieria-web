@@ -909,15 +909,26 @@ const title = 'Panel central Mizo';
 					const response = await fetch('/api/proyectos.php', { method: 'POST', body: formData });
 					const payload = await response.json();
 					if (!response.ok || !payload?.ok) throw new Error(payload?.error || `No se pudo subir ${file.name}.`);
-					if (!editingProject.images) editingProject.images = [];
-					if (!editingProject.images.includes(payload.image)) {
-						editingProject.images.push(payload.image);
+					if (payload.project) {
+						editingProject = payload.project;
+					} else {
+						if (!editingProject.images) editingProject.images = [];
+						if (!editingProject.images.includes(payload.image)) {
+							editingProject.images.push(payload.image);
+						}
 					}
 				}
 
 				await loadAdminProjects();
-				const refreshed = adminProjects.find((item) => item.id === projectId);
-				if (refreshed) editingProject = refreshed;
+				const currentId = editingProject?.id || projectId;
+				const refreshed = adminProjects.find((item) => item.id === currentId);
+				if (refreshed) {
+					editingProject = {
+						...refreshed,
+						images: Array.from(new Set([...(refreshed.images || []), ...(editingProject?.images || [])])),
+					};
+				}
+				$('proyecto-id').value = editingProject?.id || '';
 				renderProjectImagesEditor();
 				renderProjectsManager(false);
 				$('proyecto-upload-status').textContent = 'Imágenes subidas correctamente.';
@@ -947,6 +958,7 @@ const title = 'Panel central Mizo';
 				editingProject = payload.project || project;
 				$('proyecto-id').value = editingProject.id || '';
 				$('proyecto-delete').classList.remove('hidden');
+				renderProjectImagesEditor();
 				await loadAdminProjects();
 				renderProjectsManager(false);
 				if (!options.silent) {
@@ -994,11 +1006,14 @@ const title = 'Panel central Mizo';
 
 					list.innerHTML = adminProjects.map((project) => {
 						const images = projectImages(project);
-						const cover = images[0] || '/mizo-logo.png';
+						const cover = images[0] || '';
+						const thumb = cover
+							? `<img src="${escapeHtml(cover)}" alt="" class="h-full w-full object-cover" loading="lazy" />`
+							: '<div class="flex h-full w-full items-center justify-center bg-slate-200 text-[0.6rem] font-bold uppercase tracking-wide text-slate-500">Sin foto</div>';
 						return `<article class="rounded-2xl border border-slate-200 bg-white p-4">
 							<div class="flex gap-4">
 								<div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-									<img src="${escapeHtml(cover)}" alt="" class="h-full w-full object-cover" loading="lazy" />
+									${thumb}
 								</div>
 								<div class="min-w-0 flex-1">
 									<div class="flex flex-wrap items-center gap-2">

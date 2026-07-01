@@ -35,10 +35,14 @@
 			const images = Array.isArray(project.images) ? project.images.filter(Boolean) : [];
 			if (images.length) return images;
 			if (project.image) return [project.image];
-			return ['/mizo-logo.png'];
+			return [];
 		}
 
 		function renderImageCarousel(projectId, images, title) {
+			if (!images.length) {
+				return '<div class="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold uppercase tracking-wide text-gray-500">Sin fotografía</div>';
+			}
+
 			if (images.length <= 1) {
 				return `<img src="${esc(images[0])}" alt="${esc(title)}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" width="1200" height="700" />`;
 			}

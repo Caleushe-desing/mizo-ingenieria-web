@@ -883,6 +883,10 @@ function mizo_normalize_proyecto(array $item, int $fallbackOrder = 1): ?array
         array_unshift($images, $legacyImage);
     }
     $images = array_values(array_unique($images));
+    $discovered = mizo_discover_proyecto_images($id);
+    if ($discovered !== []) {
+        $images = array_values(array_unique(array_merge($images, $discovered)));
+    }
 
     return [
         'id' => $id,
@@ -941,6 +945,8 @@ function mizo_read_proyectos_config(bool $publishedOnly = false): array
     usort($projects, static function (array $a, array $b): int {
         return ($a['sortOrder'] <=> $b['sortOrder']) ?: strcmp($a['title'], $b['title']);
     });
+
+    mizo_maybe_reconcile_proyectos_store($projects);
 
     return [
         'updatedAt' => $config['updatedAt'] ?? null,
@@ -1012,6 +1018,89 @@ function mizo_unique_proyecto_id(array $projects, string $baseId): string
     return $candidate;
 }
 
+function mizo_discover_proyecto_images(string $projectId): array
+{
+    $safeId = preg_replace('/[^a-z0-9-]/', '', mizo_slug($projectId)) ?: 'proyecto';
+    $dir = mizo_public_root() . '/images/proyectos';
+    if (!is_dir($dir)) {
+        return [];
+    }
+
+    $paths = [];
+    $patterns = [
+        $dir . '/' . $safeId . '-*.jpg',
+        $dir . '/' . $safeId . '-*.jpeg',
+        $dir . '/' . $safeId . '-*.png',
+        $dir . '/' . $safeId . '-*.webp',
+    ];
+    foreach ($patterns as $pattern) {
+        foreach (glob($pattern) ?: [] as $file) {
+            if (!is_file($file)) {
+                continue;
+            }
+            $paths[] = '/images/proyectos/' . basename($file);
+        }
+    }
+
+    $paths = array_values(array_unique($paths));
+    sort($paths, SORT_NATURAL);
+    return $paths;
+}
+
+function mizo_append_proyecto_image(string $projectId, string $imagePath): array
+{
+    $projectId = trim($projectId);
+    $imagePath = trim($imagePath);
+    if ($projectId === '' || $imagePath === '') {
+        throw new RuntimeException('Proyecto o imagen inválidos.');
+    }
+
+    $config = mizo_read_proyectos_config(false);
+    $projects = $config['projects'];
+    $index = mizo_find_proyecto_index($projects, $projectId);
+
+    if ($index < 0) {
+        $project = mizo_normalize_proyecto([
+            'id' => $projectId,
+            'title' => ucwords(str_replace('-', ' ', mizo_slug($projectId))),
+            'type' => 'Proyecto',
+            'description' => '',
+            'images' => [$imagePath],
+            'sortOrder' => count($projects) + 1,
+            'published' => false,
+        ], count($projects) + 1);
+        if ($project === null) {
+            throw new RuntimeException('No se pudo crear el proyecto para la imagen.');
+        }
+        $projects[] = $project;
+        $saved = mizo_write_proyectos_config($projects);
+        foreach ($saved['projects'] as $project) {
+            if (($project['id'] ?? '') === $projectId) {
+                return $project;
+            }
+        }
+        return $projects[count($projects) - 1];
+    }
+
+    $project = $projects[$index];
+    $images = is_array($project['images'] ?? null) ? $project['images'] : [];
+    if (!in_array($imagePath, $images, true)) {
+        $images[] = $imagePath;
+    }
+    $project['images'] = array_values(array_unique($images));
+    $project['updatedAt'] = gmdate('c');
+    $projects[$index] = $project;
+
+    $saved = mizo_write_proyectos_config($projects);
+    foreach ($saved['projects'] as $savedProject) {
+        if (($savedProject['id'] ?? '') === $projectId) {
+            return $savedProject;
+        }
+    }
+
+    return $project;
+}
+
 function mizo_store_proyecto_image(array $file, string $projectId): string
 {
     if (!isset($file['error']) || (int) $file['error'] !== UPLOAD_ERR_OK) {
@@ -1063,5 +1152,57 @@ function mizo_delete_proyecto_image_file(string $imagePath): void
     $fullPath = mizo_public_root() . $imagePath;
     if (is_file($fullPath)) {
         @unlink($fullPath);
+    }
+}
+
+function mizo_maybe_reconcile_proyectos_store(array $projects): void
+{
+    static $reconciled = false;
+    if ($reconciled) {
+        return;
+    }
+    $reconciled = true;
+
+    try {
+        $path = mizo_proyectos_config_path();
+        if (!is_file($path)) {
+            return;
+        }
+
+        $raw = json_decode((string) file_get_contents($path), true);
+        if (!is_array($raw)) {
+            return;
+        }
+
+        $storedById = [];
+        foreach (($raw['projects'] ?? []) as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $id = trim((string) ($item['id'] ?? ''));
+            if ($id !== '') {
+                $storedById[$id] = $item;
+            }
+        }
+
+        $needsWrite = false;
+        foreach ($projects as $project) {
+            $id = trim((string) ($project['id'] ?? ''));
+            if ($id === '') {
+                continue;
+            }
+            $storedImages = is_array($storedById[$id]['images'] ?? null) ? $storedById[$id]['images'] : [];
+            $resolvedImages = is_array($project['images'] ?? null) ? $project['images'] : [];
+            if (count($resolvedImages) > count($storedImages)) {
+                $needsWrite = true;
+                break;
+            }
+        }
+
+        if ($needsWrite) {
+            mizo_write_proyectos_config($projects);
+        }
+    } catch (Throwable $error) {
+        // Si no se puede reconciliar, igual mostramos las imágenes detectadas.
     }
 }

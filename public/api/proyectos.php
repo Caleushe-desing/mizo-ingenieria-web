@@ -66,11 +66,13 @@ if ($method === 'POST') {
 
             try {
                 $imagePath = mizo_store_proyecto_image($_FILES['image'], $projectId);
+                $project = mizo_append_proyecto_image($projectId, $imagePath);
                 proyectos_response([
                     'ok' => true,
                     'message' => 'Imagen subida correctamente.',
                     'image' => $imagePath,
                     'projectId' => $projectId,
+                    'project' => $project,
                 ]);
             } catch (Throwable $error) {
                 proyectos_response(['ok' => false, 'error' => $error->getMessage()], 500);
@@ -122,7 +124,11 @@ if ($method === 'POST') {
                 $projects[] = $normalized;
             } else {
                 $existing = $projects[$index];
-                $normalized['images'] = $normalized['images'] ?: ($existing['images'] ?? []);
+                $incomingImages = $normalized['images'];
+                $existingImages = is_array($existing['images'] ?? null) ? $existing['images'] : [];
+                if ($incomingImages === [] && $existingImages !== []) {
+                    $normalized['images'] = $existingImages;
+                }
                 $projects[$index] = $normalized;
             }
 
