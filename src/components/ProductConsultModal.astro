@@ -1,0 +1,195 @@
+---
+interface Props {
+	productId: string;
+	productName: string;
+}
+
+const { productId, productName } = Astro.props;
+---
+
+<div
+	id="product-consult-modal"
+	class="fixed inset-0 z-[120] hidden items-center justify-center bg-ink/70 p-4"
+	role="dialog"
+	aria-modal="true"
+	aria-labelledby="product-consult-title"
+>
+	<div class="w-full max-w-md overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-2xl">
+		<div class="border-b border-slate-200 px-6 py-5">
+			<p class="text-xs font-black uppercase tracking-[0.2em] text-brand-orange">Consulta de producto</p>
+			<h2 id="product-consult-title" class="mt-2 text-xl font-black text-ink">Consultar por este producto</h2>
+			<p id="product-consult-name" class="mt-2 text-sm leading-6 text-slate-600">{productName}</p>
+		</div>
+
+		<form id="product-consult-form" class="space-y-4 px-6 py-5">
+			<input type="hidden" name="productoId" value={productId} />
+			<input type="hidden" name="productoNombre" value={productName} />
+			<input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+			<label class="block">
+				<span class="text-sm font-bold text-slate-700">Nombre</span>
+				<input
+					type="text"
+					name="nombre"
+					required
+					autocomplete="name"
+					placeholder="Tu nombre"
+					class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-accent-main focus:ring-2 focus:ring-accent-soft"
+				/>
+			</label>
+
+			<label class="block">
+				<span class="text-sm font-bold text-slate-700">Correo</span>
+				<input
+					type="email"
+					name="correo"
+					required
+					autocomplete="email"
+					placeholder="tu@correo.cl"
+					class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-accent-main focus:ring-2 focus:ring-accent-soft"
+				/>
+			</label>
+
+			<label class="block">
+				<span class="text-sm font-bold text-slate-700">Celular</span>
+				<input
+					type="tel"
+					name="telefono"
+					required
+					autocomplete="tel"
+					placeholder="+56 9 1234 5678"
+					class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-accent-main focus:ring-2 focus:ring-accent-soft"
+				/>
+			</label>
+
+			<p id="product-consult-status" class="hidden text-sm font-semibold"></p>
+
+			<div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+				<button
+					type="button"
+					id="product-consult-close"
+					class="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+				>
+					Cancelar
+				</button>
+				<button
+					type="submit"
+					id="product-consult-submit"
+					class="rounded-full bg-brand-orange px-5 py-2.5 text-sm font-black text-white transition hover:bg-brand-orange-hover"
+				>
+					Enviar consulta
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script is:inline>
+	(function () {
+		function getModalParts() {
+			return {
+				modal: document.getElementById('product-consult-modal'),
+				form: document.getElementById('product-consult-form'),
+				status: document.getElementById('product-consult-status'),
+				submitBtn: document.getElementById('product-consult-submit'),
+			};
+		}
+
+		function setStatus(status, message, type) {
+			if (!status) return;
+			status.textContent = message;
+			status.classList.remove('hidden', 'text-red-600', 'text-green-700');
+			status.classList.add(type === 'error' ? 'text-red-600' : 'text-green-700');
+		}
+
+		function openModal() {
+			const { modal, form } = getModalParts();
+			if (!modal || !form) return;
+			modal.classList.remove('hidden');
+			modal.classList.add('flex');
+			document.body.classList.add('overflow-hidden');
+			const firstInput = form.querySelector('input[name="nombre"]');
+			if (firstInput) firstInput.focus();
+		}
+
+		function closeModal() {
+			const { modal, status } = getModalParts();
+			if (!modal) return;
+			modal.classList.add('hidden');
+			modal.classList.remove('flex');
+			document.body.classList.remove('overflow-hidden');
+			if (status) {
+				status.classList.add('hidden');
+				status.textContent = '';
+			}
+		}
+
+		async function submitConsulta(event) {
+			event.preventDefault();
+			const { form, submitBtn, status } = getModalParts();
+			if (!form) return;
+
+			if (submitBtn) {
+				submitBtn.disabled = true;
+				submitBtn.textContent = 'Enviando...';
+			}
+			setStatus(status, 'Enviando tu consulta...', 'ok');
+
+			const data = Object.fromEntries(new FormData(form).entries());
+			try {
+				const response = await fetch('/api/consulta-producto.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+					body: JSON.stringify(data),
+				});
+				const payload = await response.json().catch(() => null);
+				if (!response.ok || !payload?.ok) {
+					throw new Error(payload?.error || 'No se pudo enviar la consulta.');
+				}
+				form.reset();
+				setStatus(status, payload.message || 'Consulta enviada. Te contactaremos pronto.', 'ok');
+				setTimeout(closeModal, 1800);
+			} catch (error) {
+				setStatus(status, error.message || 'Error al enviar. Intenta nuevamente.', 'error');
+			} finally {
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.textContent = 'Enviar consulta';
+				}
+			}
+		}
+
+		function initProductConsultModal() {
+			if (window.__mizoProductConsultBound) return;
+			window.__mizoProductConsultBound = true;
+
+			document.addEventListener('click', (event) => {
+				if (event.target.closest('#open-product-consult')) {
+					event.preventDefault();
+					openModal();
+					return;
+				}
+				if (event.target.closest('#product-consult-close')) {
+					event.preventDefault();
+					closeModal();
+					return;
+				}
+				const { modal } = getModalParts();
+				if (modal && event.target === modal) closeModal();
+			});
+
+			document.addEventListener('keydown', (event) => {
+				const { modal } = getModalParts();
+				if (event.key === 'Escape' && modal && !modal.classList.contains('hidden')) closeModal();
+			});
+
+			document.addEventListener('submit', (event) => {
+				if (event.target && event.target.id === 'product-consult-form') submitConsulta(event);
+			});
+		}
+
+		document.addEventListener('DOMContentLoaded', initProductConsultModal);
+		document.addEventListener('astro:page-load', initProductConsultModal);
+		initProductConsultModal();
+	})();
+</script>

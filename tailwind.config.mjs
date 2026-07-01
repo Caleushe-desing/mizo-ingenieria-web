@@ -1,4 +1,4 @@
-// tailwind.config.mjs - Paleta clara: fondo blanco, letras negras y matices azulados
+// tailwind.config.mjs - Paleta basada en el logo Mizo: azul de la onda, naranja del diafragma y negro
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -13,15 +13,37 @@ export default {
         '10xl': '112rem',
       },
       colors: {
-        // Acento corporativo: Azul petróleo
-        'accent-main': '#15616d',   // petróleo (botones / enlaces)
-        'accent-hover': '#114e58',  // petróleo oscuro (hover)
-        'accent-dark': '#0b3a42',   // petróleo muy oscuro (banner / footer)
-        'accent-light': '#3e8e99',  // petróleo claro
-        'accent-soft': '#e6f1f2',   // petróleo muy suave (fondos)
+        // Azul del logo (la onda de sonido)
+        'accent-main': '#1c9bd8',
+        'accent-hover': '#1684bc',
+        'accent-dark': '#0e6491',
+        'accent-light': '#54b9e6',
+        'accent-soft': '#e2f3fb',
+        // Naranja del logo (el diafragma)
+        'brand-orange': '#f47b20',
+        'brand-orange-hover': '#e06814',
+        'brand-orange-dark': '#c2560d',
+        'brand-orange-soft': '#fdebd9',
+        // Verde fosforescente (cintillo superior)
+        'brand-neon': '#39ff14',
+        'brand-neon-dark': '#1a8f0a',
+        // Base seria: negro y grises
+        'charcoal': '#0f1114',
+        'charcoal-light': '#1c1f26',
+        'charcoal-muted': '#2a2e36',
+        // Negro suavizado: gris muy oscuro, cercano a negro (reemplaza al negro puro)
+        'ink': '#181b20',
+        // Sustituye los tonos "negros" usados en el sitio por un gris muy oscuro
+        black: '#181b20',
+        slate: {
+          950: '#181b20',
+        },
+        gray: {
+          950: '#181b20',
+        },
       },
       fontFamily: {
-        sans: ['Atkinson', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },
