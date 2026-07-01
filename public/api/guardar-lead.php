@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/_catalog-db.php';
+require_once __DIR__ . '/_admin-push.php';
 require_once __DIR__ . '/generar-pdf.php';
 
 header('Content-Type: application/json; charset=utf-8');
@@ -454,6 +455,16 @@ if ($savedTo === 'mysql') {
     update_mysql_mail_status($lead['id'], $mail['admin'], $mail['client']);
 } else {
     update_json_mail_status($lead['id'], $mail['admin'], $mail['client']);
+}
+
+try {
+    mizo_admin_notify_event(
+        'Nuevo diagnóstico técnico',
+        ($lead['nombre'] ?: 'Cliente') . ' · ' . ($lead['empresa'] ?: 'Sin empresa'),
+        '/admin/#leads'
+    );
+} catch (Throwable $error) {
+    /* ignore push errors */
 }
 
 lead_response([

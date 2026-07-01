@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/_catalog-db.php';
+require_once __DIR__ . '/_admin-push.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -288,6 +289,16 @@ if (!save_consulta_json($consulta)) {
 
 $mailOk = send_consulta_email($consulta);
 update_consulta_mail_status($consulta['id'], $mailOk);
+
+try {
+    mizo_admin_notify_event(
+        'Nueva consulta de producto',
+        ($consulta['nombre'] ?: 'Cliente') . ' · ' . ($consulta['productoNombre'] ?: 'Producto'),
+        '/admin/#leads'
+    );
+} catch (Throwable $error) {
+    /* ignore push errors */
+}
 
 consulta_response([
     'ok' => true,
