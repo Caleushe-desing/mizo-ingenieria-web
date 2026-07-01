@@ -1,192 +1,142 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ProductCard from '../components/ProductCard.astro';
+import PageHero from '../components/PageHero.astro';
+import ProductCatalogCard from '../components/ProductCatalogCard.astro';
 import SectionCTA from '../components/SectionCTA.astro';
-import { products, categories, sellingPrice } from '../data/products';
+import { groupCategories, loadCatalogProducts } from '../lib/catalog';
+
+const products = loadCatalogProducts();
+const categories = groupCategories(products);
+const categoryEntries = Object.entries(categories);
 ---
 
 <Layout
-	title="Tienda | Mizo - Parlantes, Proyectores y Cámaras"
-	description="Compra equipos de audio y video en Chile: parlantes, proyectores y cámaras de las mejores marcas. Con opción de instalación profesional. Precios en CLP."
+	title="Productos | Mizo"
+	description="Catálogo de equipamiento audiovisual profesional integrado por Mizo en Chile. Consulta por cualquier producto sin precios ni stock en línea."
 >
-	<!-- Encabezado tienda -->
-	<section class="bg-gradient-to-b from-accent-soft to-white py-10 sm:py-14">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
-				Tienda de <span class="text-accent-main">audio y video</span>
-			</h1>
-			<p class="mt-3 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-				Parlantes, proyectores y cámaras de las mejores marcas. ¿Lo quieres instalado? Lo hacemos por ti.
-			</p>
+	<PageHero
+		eyebrow="Productos"
+		title="Equipamiento profesional para tus proyectos de audio y video"
+		subtitle="Explora el catálogo completo de productos que integramos en instalaciones reales. Sin precios ni stock en línea: consulta directamente con nuestro equipo de ventas."
+		image="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1600&q=80"
+		align="center"
+		chips={['Audio profesional', 'Proyección AV', 'CCTV y video']}
+	/>
 
-			<!-- Buscador principal de la tienda -->
-			<div class="mt-6 max-w-2xl mx-auto">
-				<div class="relative">
-					<input
-						id="search-input"
-						type="search"
-						placeholder="Busca por nombre o marca: JBL, Wanbo, Reolink..."
-						aria-label="Buscar productos"
-						class="w-full pl-12 pr-4 py-3.5 rounded-full border border-gray-300 bg-white text-base text-gray-900 placeholder-gray-400 shadow-sm focus:border-accent-main focus:ring-2 focus:ring-accent-main/20 focus:outline-none transition"
-					/>
-					<svg class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<!-- Barra de filtros y orden -->
-	<section class="py-4 bg-white sticky top-16 sm:top-20 md:top-[7.75rem] z-30 border-b border-gray-100">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-			<div class="flex flex-wrap gap-2">
-				<button type="button" data-filter="all" class="product-filter px-4 py-2 rounded-full text-sm font-semibold border border-accent-main bg-accent-main text-white transition">
-					Todos
-				</button>
-				{categories.map((cat) => (
+	<section class="border-b border-slate-200 bg-white py-6">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+				<div class="flex flex-wrap gap-2" id="product-category-tabs" aria-label="Filtrar por categoría">
 					<button
 						type="button"
-						data-filter={cat.id}
-						class="product-filter px-4 py-2 rounded-full text-sm font-semibold border border-gray-300 text-gray-700 hover:border-accent-main hover:text-accent-main transition"
+						data-category="all"
+						class="product-tab rounded-full bg-accent-main px-4 py-2 text-xs font-black text-white"
 					>
-						{cat.icon} {cat.label}
+						Todos
 					</button>
-				))}
+					{categoryEntries.map(([value, label]) => (
+						<button
+							type="button"
+							data-category={value}
+							class="product-tab rounded-full bg-slate-100 px-4 py-2 text-xs font-black text-slate-600 transition hover:bg-accent-soft hover:text-accent-main"
+						>
+							{label}
+						</button>
+					))}
+				</div>
+				<label class="relative block w-full max-w-md">
+					<span class="sr-only">Buscar productos</span>
+					<input
+						id="product-search"
+						type="search"
+						placeholder="Buscar por nombre o marca..."
+						class="w-full rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-accent-main focus:bg-white focus:ring-2 focus:ring-accent-soft"
+					/>
+					<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+				</label>
 			</div>
-			<div class="flex items-center gap-2">
-				<label for="sort-select" class="text-sm text-gray-500 whitespace-nowrap">Ordenar:</label>
-				<select id="sort-select" class="rounded-md border border-gray-300 text-sm py-2 pl-3 pr-8 text-gray-700 focus:border-accent-main focus:outline-none">
-					<option value="relevance">Destacados</option>
-					<option value="price-asc">Menor precio</option>
-					<option value="price-desc">Mayor precio</option>
-					<option value="name">Nombre (A-Z)</option>
-				</select>
-			</div>
+			<p id="product-meta" class="mt-4 text-sm font-semibold text-slate-500">
+				{products.length} productos disponibles
+			</p>
 		</div>
 	</section>
 
-	<section class="py-10 bg-white">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<p id="result-count" class="text-sm text-gray-500 mb-6"></p>
-
-			<div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+	<section class="bg-slate-50 py-12 sm:py-16">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div id="product-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
 				{products.map((product) => (
 					<div
 						class="product-item"
 						data-category={product.category}
-						data-name={`${product.name} ${product.brand}`.toLowerCase()}
-						data-price={sellingPrice(product.basePrice)}
+						data-brand={product.brand}
+						data-search={`${product.name} ${product.brand} ${product.description} ${product.categoryLabel}`.toLowerCase()}
 					>
-						<ProductCard product={product} />
+						<ProductCatalogCard product={product} />
 					</div>
 				))}
 			</div>
-
-			<!-- Sin resultados -->
-			<div id="no-results" class="hidden text-center py-20">
-				<div class="text-5xl mb-4">🔍</div>
-				<h2 class="text-xl font-bold text-gray-900">No encontramos productos</h2>
-				<p class="mt-2 text-gray-600">Prueba con otra palabra o escríbenos y lo cotizamos por ti.</p>
-				<a href="/contacto" class="mt-6 inline-block px-6 py-3 rounded-md font-semibold text-white bg-accent-main hover:bg-accent-hover transition">
-					Solicitar cotización
-				</a>
+			<div id="product-empty" class="hidden rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center">
+				<p class="text-lg font-black text-ink">No hay productos que coincidan con tu búsqueda.</p>
+				<p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">
+					Prueba con otro término o revisa otra categoría del catálogo.
+				</p>
 			</div>
-
-			<p class="mt-10 text-center text-sm text-gray-500 max-w-2xl mx-auto">
-				Los valores publicados son referenciales y pueden variar según disponibilidad y tipo de cambio.
-				Todos los equipos cuentan con opción de instalación profesional.
-			</p>
 		</div>
 	</section>
 
 	<SectionCTA
-		title="¿Necesitas equipamiento e instalación?"
-		subtitle="Combinamos la venta de equipos con instalación profesional de proyectores y sistemas de sonido para entregarte una solución completa y garantizada."
-		buttonText="Solicitar Cotización"
+		title="¿Necesitas ayuda para elegir equipamiento?"
+		subtitle="Cuéntanos tu proyecto y te orientamos con la solución integrada."
+		buttonText="Contactar a ventas"
 		buttonLink="/contacto"
 	/>
 </Layout>
 
 <script is:inline>
-	function initStore() {
-		const grid = document.getElementById('product-grid');
+	(function () {
+		const tabs = document.getElementById('product-category-tabs');
+		const search = document.getElementById('product-search');
 		const items = Array.from(document.querySelectorAll('.product-item'));
-		const buttons = document.querySelectorAll('.product-filter');
-		const searchInput = document.getElementById('search-input');
-		const sortSelect = document.getElementById('sort-select');
-		const noResults = document.getElementById('no-results');
-		const resultCount = document.getElementById('result-count');
-		if (!grid || !items.length) return;
-
-		const activeClasses = ['bg-accent-main', 'text-white', 'border-accent-main'];
-		const idleClasses = ['border-gray-300', 'text-gray-700'];
+		const empty = document.getElementById('product-empty');
+		const meta = document.getElementById('product-meta');
+		if (!tabs || !search || !empty || !meta) return;
 
 		let currentCategory = 'all';
 		let currentQuery = '';
 
-		const params = new URLSearchParams(window.location.search);
-		const qParam = params.get('q');
-		const catParam = params.get('cat');
-		if (qParam) { currentQuery = qParam.toLowerCase(); if (searchInput) searchInput.value = qParam; }
-		if (catParam) currentCategory = catParam;
-
-		function setActiveButton() {
-			buttons.forEach((b) => {
-				const isActive = b.getAttribute('data-filter') === currentCategory;
-				b.classList.toggle('bg-accent-main', isActive);
-				b.classList.toggle('text-white', isActive);
-				b.classList.toggle('border-accent-main', isActive);
-				b.classList.toggle('border-gray-300', !isActive);
-				b.classList.toggle('text-gray-700', !isActive);
-			});
-		}
-
-		function apply() {
+		function updateView() {
 			let visible = 0;
 			items.forEach((item) => {
-				const cat = item.getAttribute('data-category');
-				const name = item.getAttribute('data-name') || '';
-				const matchCat = currentCategory === 'all' || cat === currentCategory;
-				const matchText = !currentQuery || name.includes(currentQuery);
-				const show = matchCat && matchText;
+				const category = item.getAttribute('data-category') || '';
+				const haystack = item.getAttribute('data-search') || '';
+				const categoryOk = currentCategory === 'all' || category === currentCategory;
+				const queryOk = !currentQuery || haystack.includes(currentQuery);
+				const show = categoryOk && queryOk;
 				item.classList.toggle('hidden', !show);
-				if (show) visible++;
+				if (show) visible += 1;
 			});
-			if (noResults) noResults.classList.toggle('hidden', visible > 0);
-			if (resultCount) resultCount.textContent = visible + (visible === 1 ? ' producto' : ' productos');
+
+			empty.classList.toggle('hidden', visible > 0);
+			meta.textContent = visible === 1 ? '1 producto visible' : `${visible} productos visibles`;
 		}
 
-		function sort() {
-			const mode = sortSelect ? sortSelect.value : 'relevance';
-			const sorted = [...items];
-			if (mode === 'price-asc') sorted.sort((a, b) => (+a.dataset.price) - (+b.dataset.price));
-			else if (mode === 'price-desc') sorted.sort((a, b) => (+b.dataset.price) - (+a.dataset.price));
-			else if (mode === 'name') sorted.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
-			sorted.forEach((el) => grid.appendChild(el));
-		}
-
-		buttons.forEach((btn) => {
-			btn.addEventListener('click', () => {
-				currentCategory = btn.getAttribute('data-filter');
-				setActiveButton();
-				apply();
+		tabs.querySelectorAll('.product-tab').forEach((button) => {
+			button.addEventListener('click', () => {
+				currentCategory = button.getAttribute('data-category') || 'all';
+				tabs.querySelectorAll('.product-tab').forEach((tab) => {
+					const active = (tab.getAttribute('data-category') || 'all') === currentCategory;
+					tab.classList.toggle('bg-accent-main', active);
+					tab.classList.toggle('text-white', active);
+					tab.classList.toggle('bg-slate-100', !active);
+					tab.classList.toggle('text-slate-600', !active);
+				});
+				updateView();
 			});
 		});
 
-		if (searchInput) {
-			searchInput.addEventListener('input', () => {
-				currentQuery = searchInput.value.trim().toLowerCase();
-				apply();
-			});
-		}
-
-		if (sortSelect) {
-			sortSelect.addEventListener('change', () => { sort(); });
-		}
-
-		setActiveButton();
-		apply();
-	}
-
-	document.addEventListener('DOMContentLoaded', initStore);
-	document.addEventListener('astro:page-load', initStore);
+		search.addEventListener('input', () => {
+			currentQuery = search.value.trim().toLowerCase();
+			updateView();
+		});
+	})();
 </script>

@@ -1,111 +1,183 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SectionCTA from '../components/SectionCTA.astro';
+import PageHero from '../components/PageHero.astro';
 
 const services = [
 	{
-		title: 'Sistemas de Sonido y Audio Profesional',
-		description: 'Diseñamos e instalamos sistemas de audio, megafonía y música ambiental para comercios, oficinas, eventos y hogares. Sonido nítido y controlado en cada rincón.',
-		icon: '🔊',
+		title: 'Sistemas de sonido profesional',
+		description: 'Calculamos cobertura, potencia e inteligibilidad según el uso del recinto. Instalamos, calibramos y dejamos el sistema listo para operar.',
+		kicker: 'Audio',
 		details: [
-			'Diseño acústico y selección de equipos de audio',
-			'Parlantes de cielo, columnas y line array',
-			'Amplificación y zonificación inteligente (multizona)',
-			'Megafonía y sistemas de avisos de emergencia',
+			'Diseño acústico y distribución por zonas',
+			'Parlantes activos, pasivos, columnas y subwoofers',
+			'Consolas, DSP, amplificación y microfonía',
+			'Medición, ecualización y control de feedback',
+			'Capacitación del operador y documentación',
 		],
-		image: '/servicio-audio.jpg',
+		image: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80',
 	},
 	{
-		title: 'Soluciones Audiovisuales',
-		description: 'Proyección, pantallas, salas de reuniones y videovigilancia. Integramos imagen, video y control para que tus espacios comuniquen y se vean increíbles.',
-		icon: '📽️',
+		title: 'Videoproyección y salas audiovisuales',
+		description: 'Proyectores, pantallas, videoconferencia y control integrado. El usuario final enciende, selecciona la fuente y presenta sin complicaciones.',
+		kicker: 'Imagen',
 		details: [
-			'Proyectores y pantallas eléctricas para salas y home cinema',
-			'Salas de reuniones y videoconferencia',
-			'Cámaras de seguridad y CCTV/IP con monitoreo remoto',
-			'Cableado estructurado y conectividad',
+			'Proyectores láser, LED y pantallas interactivas',
+			'Soportes motorizados y ajuste geométrico',
+			'Matrices HDMI, extensores y switchers AV',
+			'Videoconferencia para salas híbridas',
+			'Escenas de control y automatización básica',
 		],
-		image: '/servicio-cctv.jpg',
+		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
 	},
 	{
-		title: 'Instalaciones Eléctricas',
-		description: 'Montaje, ampliación y certificación de instalaciones eléctricas seguras y eficientes para hogares e industria, cumpliendo la normativa eléctrica chilena.',
-		icon: '⚡',
+		title: 'Colegios y salas de clases',
+		description: 'Aulas con proyección nítida, audio claro y equipos que resisten el uso diario. Coordinamos la instalación para no interrumpir las clases más de lo necesario.',
+		kicker: 'Educación',
 		details: [
-			'Diseño de tableros eléctricos y distribución de potencia',
-			'Instalación de iluminación de alta eficiencia',
-			'Protecciones, diferenciales y puesta a tierra',
-			'Mantenimiento preventivo y certificación de instalaciones',
+			'Proyectores y pantallas por aula o auditorio',
+			'Audio para profesor y reproducción multimedia',
+			'Micrófonos inalámbricos y conexión a notebook',
+			'Cableado oculto y protección de equipos',
+			'Soporte post-instalación para el establecimiento',
 		],
-		image: '/servicio-electrico.jpg',
+		image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=80',
 	},
+	{
+		title: 'Iglesias y templos',
+		description: 'Sonido uniforme en naves amplias, voces inteligibles y música con presencia. Pensado para cultos, eventos y operación por voluntarios o técnicos.',
+		kicker: 'Templos',
+		details: [
+			'Columnas, line array o sistemas distribuidos',
+			'Mezcladores digitales con escenas guardadas',
+			'Monitoreo de escenario y grabación básica',
+			'Integración con transmisión en vivo',
+			'Mantención y respuesta ante fallas',
+		],
+		image: 'https://images.unsplash.com/photo-1438232999611-9952fec585c0?auto=format&fit=crop&w=1200&q=80',
+	},
+	{
+		title: 'Auditorios y salas multiuso',
+		description: 'Proyección de gran formato, audio de alta inteligibilidad y cabina técnica ordenada. Para conferencias, obras, conciertos y actos institucionales.',
+		kicker: 'Auditorios',
+		details: [
+			'Proyección láser o LED de alto brillo',
+			'Sistemas de sonido para platea y escenario',
+			'Microfonía de mano, diadema y ambiental',
+			'Control de iluminación básico (si aplica)',
+			'Documentación técnica y planos as-built',
+		],
+		image: 'https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1200&q=80',
+	},
+	{
+		title: 'Restaurantes, bares y retail',
+		description: 'Música por zonas, pantallas de menú o branding y control sencillo para el encargado del local. Instalación fuera de horario cuando es posible.',
+		kicker: 'Comercial',
+		details: [
+			'Audio multizona con control independiente',
+			'Pantallas comerciales y señalética digital',
+			'Integración con streaming o reproductor',
+			'Cableado discreto en salones y terrazas',
+			'Soporte remoto para ajustes menores',
+		],
+		image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
+	},
+	{
+		title: 'Canalización, cableado e infraestructura AV',
+		description: 'La instalación se sostiene en rutas limpias, fijaciones confiables y terminaciones que se pueden mantener. Sin cables colgando ni cajas improvisadas.',
+		kicker: 'Infraestructura',
+		details: [
+			'Canalización técnica y bandejas',
+			'Cableado estructurado y patching ordenado',
+			'Soportería para proyectores, pantallas y parlantes',
+			'Anclajes, pasadas y terminaciones prolijas',
+			'Etiquetado y registro de conexiones',
+		],
+		image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80',
+	},
+];
+
+const process = [
+	'Visita al recinto y evaluación técnica del espacio',
+	'Propuesta con equipos, planos y presupuesto',
+	'Instalación coordinada con obra o operación',
+	'Pruebas, calibración y entrega documentada',
 ];
 ---
 
 <Layout
-	title="Servicios | Mizo - Sonido, Audiovisual y Electricidad"
-	description="Servicios de instalación de sistemas de sonido, soluciones audiovisuales e instalaciones eléctricas profesionales en Chile."
+	title="Servicios | Mizo - Sonido, videoproyección e instalación"
+	description="Instalación de sistemas de sonido, videoproyección y salas audiovisuales para colegios, iglesias, auditorios, restaurantes y empresas en Chile."
 >
-	<section class="bg-gradient-to-b from-accent-soft to-white py-20 sm:py-28">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
-				Servicios de <span class="text-accent-main">instalación profesional</span>
-			</h1>
-			<p class="mt-4 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-				Tres especialidades, un solo equipo. Llevamos sonido, imagen y energía a tu proyecto con trabajo prolijo y garantizado.
-			</p>
+	<PageHero
+		eyebrow="Servicios"
+		title="Instalamos sistemas de audio y videoproyección que funcionan en el día a día."
+		subtitle="Diseño, suministro, montaje, calibración y soporte. Trabajamos el proyecto completo, no piezas sueltas."
+		image="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80"
+		chips={["Audio profesional", "Videoproyección", "Instalación en terreno"]}
+	/>
+
+	<section class="bg-white py-16">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:grid-cols-2 lg:grid-cols-4">
+				{process.map((item, index) => (
+					<div class="rounded-xl bg-white p-5">
+						<p class="text-xs font-bold uppercase tracking-[0.18em] text-brand-orange">Paso {index + 1}</p>
+						<p class="mt-2 text-sm font-semibold leading-relaxed text-gray-700">{item}</p>
+					</div>
+				))}
+			</div>
 		</div>
 	</section>
 
-	<section class="py-20 bg-white">
+	<section class="bg-white pb-20">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
 			{services.map((service, index) => (
 				<div class:list={[
-					"grid grid-cols-1 lg:grid-cols-2 gap-12 items-center",
+					"grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center",
 					{ "lg:grid-flow-col-dense": index % 2 === 1 }
 				]}>
 					<div class:list={[{ "lg:col-start-2": index % 2 === 1 }]}>
-						<div class="text-4xl mb-4 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-accent-soft">
-							{service.icon}
-						</div>
-						<h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+						<span class="inline-flex rounded-md bg-brand-orange/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-brand-orange">
+							{service.kicker}
+						</span>
+						<h2 class="mt-4 text-2xl font-black leading-tight text-ink lg:text-3xl">
 							{service.title}
 						</h2>
-						<p class="text-lg text-gray-600 mb-6">
+						<p class="mt-4 text-base leading-relaxed text-gray-600">
 							{service.description}
 						</p>
 
-						<ul class="space-y-3 text-gray-700">
+						<ul class="mt-6 grid gap-2 text-gray-700">
 							{service.details.map((detail) => (
-								<li class="flex items-start">
-									<svg class="w-6 h-6 text-accent-main mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-									{detail}
+								<li class="flex items-start rounded-lg border border-gray-200 bg-gray-50 p-3">
+									<svg class="mr-2 mt-0.5 h-4 w-4 flex-shrink-0 text-accent-main" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+									<span class="text-sm font-medium leading-relaxed">{detail}</span>
 								</li>
 							))}
 						</ul>
 
-						<div class="mt-8 flex flex-wrap gap-4">
-							<a href="/contacto" class="px-6 py-3 text-base font-semibold rounded-md text-white bg-accent-main hover:bg-accent-hover transition duration-300">
+						<div class="mt-7">
+							<a href="/contacto" class="inline-flex rounded-md bg-charcoal px-6 py-3 text-sm font-bold text-white transition hover:bg-charcoal-light">
 								Cotizar este servicio
-							</a>
-							<a href="/productos" class="px-6 py-3 text-base font-semibold rounded-md text-accent-main border border-accent-main hover:bg-accent-soft transition duration-300">
-								Ver equipos
 							</a>
 						</div>
 					</div>
 
 					<div class:list={[
-						"h-80 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-accent-soft",
+						"relative min-h-[320px] overflow-hidden rounded-2xl border border-gray-200 bg-slate-100 shadow-lg",
 						{ "lg:col-start-1": index % 2 === 1 }
 					]}>
 						<img
 							src={service.image}
-							alt={`Servicio: ${service.title}`}
-							class="w-full h-full object-cover"
+							alt={service.title}
+							class="h-full min-h-[320px] w-full object-cover"
 							loading="lazy"
-							width="800"
-							height="600"
+							width="1200"
+							height="760"
+							onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80';"
 						/>
+						<div class="absolute inset-0 bg-gradient-to-t from-ink/35 via-transparent to-transparent"></div>
 					</div>
 				</div>
 			))}
@@ -113,9 +185,9 @@ const services = [
 	</section>
 
 	<SectionCTA
-		title="¿Buscas una solución a medida?"
-		subtitle="Nuestro equipo está listo para diseñar e instalar exactamente lo que tu proyecto necesita."
-		buttonText="Solicitar Cotización"
+		title="¿Tienes un proyecto en mente?"
+		subtitle="Cuéntanos el recinto, el uso y los plazos. Te respondemos con una propuesta técnica y comercial."
+		buttonText="Solicitar cotización"
 		buttonLink="/contacto"
 	/>
 </Layout>

@@ -1,0 +1,3 @@
+# Redirecciones legacy de tienda online hacia vitrina y diagnóstico
+RedirectMatch 301 ^/productos/?(.*)$ /equipamiento$1
+RedirectMatch 301 ^/carrito/?$ /configurador
