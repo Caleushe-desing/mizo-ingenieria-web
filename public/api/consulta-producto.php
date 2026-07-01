@@ -64,8 +64,64 @@ function ensure_consulta_storage(): array
     ];
 }
 
+function consulta_lookup_product(string $productId, string $productName = ''): ?array
+{
+    static $catalog = null;
+    if ($catalog === null) {
+        $catalog = mizo_fetch_products_from_json();
+    }
+
+    $needle = trim($productId);
+    foreach ($catalog as $product) {
+        if ($needle === '') {
+            continue;
+        }
+        if ((string) ($product['id'] ?? '') === $needle || (string) ($product['sku'] ?? '') === $needle) {
+            return $product;
+        }
+    }
+
+    $name = trim($productName);
+    if ($name === '') {
+        return null;
+    }
+
+    foreach ($catalog as $product) {
+        if (strcasecmp((string) ($product['name'] ?? ''), $name) === 0) {
+            return $product;
+        }
+    }
+
+    return null;
+}
+
+function consulta_product_links(string $productId, string $productName = ''): array
+{
+    $product = consulta_lookup_product($productId, $productName);
+    if (!is_array($product)) {
+        return [
+            'productoUrlProveedor' => '',
+            'productoProveedor' => '',
+            'productoPaginaMizo' => $productId !== '' ? 'https://mizo.cl/productos/' . rawurlencode($productId) . '/' : '',
+        ];
+    }
+
+    $source = is_array($product['source'] ?? null) ? $product['source'] : [];
+    $id = trim((string) ($product['id'] ?? $productId));
+
+    return [
+        'productoUrlProveedor' => trim((string) ($source['url'] ?? $product['source_url'] ?? '')),
+        'productoProveedor' => trim((string) ($source['store'] ?? $product['source_store'] ?? '')),
+        'productoPaginaMizo' => $id !== '' ? 'https://mizo.cl/productos/' . rawurlencode($id) . '/' : '',
+    ];
+}
+
 function normalize_consulta(array $payload): array
 {
+    $productoId = consulta_clean($payload['productoId'] ?? '', 180);
+    $productoNombre = consulta_clean($payload['productoNombre'] ?? '', 260);
+    $links = consulta_product_links($productoId, $productoNombre);
+
     return [
         'id' => 'consulta_' . gmdate('Ymd_His') . '_' . substr(sha1((string) microtime(true)), 0, 10),
         'createdAt' => gmdate('c'),
@@ -75,8 +131,11 @@ function normalize_consulta(array $payload): array
         'nombre' => consulta_clean($payload['nombre'] ?? '', 140),
         'correo' => consulta_clean($payload['correo'] ?? '', 180),
         'telefono' => consulta_clean($payload['telefono'] ?? '', 90),
-        'productoId' => consulta_clean($payload['productoId'] ?? '', 180),
-        'productoNombre' => consulta_clean($payload['productoNombre'] ?? '', 260),
+        'productoId' => $productoId,
+        'productoNombre' => $productoNombre,
+        'productoUrlProveedor' => consulta_clean($links['productoUrlProveedor'] ?? '', 500),
+        'productoProveedor' => consulta_clean($links['productoProveedor'] ?? '', 180),
+        'productoPaginaMizo' => consulta_clean($links['productoPaginaMizo'] ?? '', 500),
         'mailAdminOk' => false,
     ];
 }
@@ -149,6 +208,9 @@ function send_consulta_email(array $consulta): bool
         '',
         'Producto: ' . ($consulta['productoNombre'] ?: 'Sin nombre'),
         'ID producto: ' . ($consulta['productoId'] ?: 'No indicado'),
+        'Página Mizo: ' . ($consulta['productoPaginaMizo'] ?: 'No indicada'),
+        'Proveedor: ' . ($consulta['productoProveedor'] ?: 'No indicado'),
+        'URL proveedor: ' . ($consulta['productoUrlProveedor'] ?: 'No indicada'),
         'Origen: ' . $consulta['source'],
         'Fecha: ' . $consulta['createdAt'],
     ];
