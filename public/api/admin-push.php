@@ -37,6 +37,24 @@ if ($action === 'config' || $action === 'vapid-public') {
     ]);
 }
 
+if ($action === 'peek') {
+    $token = trim((string) ($input['token'] ?? $_GET['token'] ?? ''));
+    if ($token === '') {
+        admin_push_response(['ok' => false, 'error' => 'Token requerido.'], 422);
+    }
+    $result = mizo_admin_push_peek_device($token);
+    admin_push_response($result, ($result['ok'] ?? false) ? 200 : 404);
+}
+
+if ($action === 'status') {
+    $token = trim((string) ($input['token'] ?? $_GET['token'] ?? ''));
+    if ($token === '') {
+        admin_push_response(['ok' => false, 'error' => 'Token requerido.'], 422);
+    }
+    $result = mizo_admin_push_device_status($token);
+    admin_push_response($result, ($result['ok'] ?? false) ? 200 : 404);
+}
+
 if ($action === 'check') {
     $token = trim((string) ($input['token'] ?? $_GET['token'] ?? ''));
     if ($token === '') {
@@ -69,6 +87,7 @@ if (!mizo_admin_password_ok($input['password'] ?? null)) {
 
 if ($action === 'register') {
     $device = mizo_admin_push_register_device([
+        'existingToken' => trim((string) ($input['deviceToken'] ?? '')),
         'subscription' => $input['subscription'] ?? null,
         'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
     ]);
@@ -102,6 +121,15 @@ if ($action === 'unregister') {
     ));
     mizo_admin_push_write_json(mizo_admin_push_devices_file(), $devices);
     admin_push_response(['ok' => true, 'message' => 'Dispositivo eliminado.']);
+}
+
+if ($action === 'test') {
+    mizo_admin_notify_event(
+        'Prueba Mizo Admin',
+        'Si ves esta alerta, las notificaciones funcionan correctamente.',
+        '/admin/#leads'
+    );
+    admin_push_response(['ok' => true, 'message' => 'Notificación de prueba enviada.']);
 }
 
 admin_push_response(['ok' => false, 'error' => 'Acción no reconocida.'], 400);

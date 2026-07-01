@@ -80,14 +80,32 @@ function mizo_admin_push_new_token(): string
 function mizo_admin_push_register_device(array $payload): array
 {
     $devices = mizo_admin_push_read_json(mizo_admin_push_devices_file());
-    $token = mizo_admin_push_new_token();
+    $existingToken = trim((string) ($payload['existingToken'] ?? ''));
     $subscription = $payload['subscription'] ?? null;
+    $stateSequence = (int) (mizo_admin_push_read_json(mizo_admin_push_state_file())['sequence'] ?? 0);
 
+    if ($existingToken !== '') {
+        foreach ($devices as &$device) {
+            if (($device['token'] ?? '') !== $existingToken) {
+                continue;
+            }
+            $device['lastSeenAt'] = gmdate('c');
+            $device['userAgent'] = substr((string) ($payload['userAgent'] ?? $device['userAgent'] ?? ''), 0, 240);
+            if (is_array($subscription)) {
+                $device['pushSubscription'] = $subscription;
+            }
+            mizo_admin_push_write_json(mizo_admin_push_devices_file(), $devices);
+            return $device;
+        }
+        unset($device);
+    }
+
+    $token = mizo_admin_push_new_token();
     $device = [
         'token' => $token,
         'createdAt' => gmdate('c'),
         'lastSeenAt' => gmdate('c'),
-        'lastAckSequence' => (int) (mizo_admin_push_read_json(mizo_admin_push_state_file())['sequence'] ?? 0),
+        'lastAckSequence' => $stateSequence,
         'userAgent' => substr((string) ($payload['userAgent'] ?? ''), 0, 240),
         'pushSubscription' => is_array($subscription) ? $subscription : null,
     ];
@@ -146,7 +164,7 @@ function mizo_admin_push_ack_device(string $token, int $sequence): void
     mizo_admin_push_write_json(mizo_admin_push_devices_file(), $devices);
 }
 
-function mizo_admin_push_check_device(string $token): array
+function mizo_admin_push_peek_device(string $token): array
 {
     $device = mizo_admin_push_find_device($token);
     if (!$device) {
@@ -158,11 +176,8 @@ function mizo_admin_push_check_device(string $token): array
     $lastAck = (int) ($device['lastAckSequence'] ?? 0);
 
     if ($sequence <= $lastAck) {
-        mizo_admin_push_ack_device($token, $lastAck);
         return ['ok' => true, 'notify' => false, 'sequence' => $sequence];
     }
-
-    mizo_admin_push_ack_device($token, $sequence);
 
     return [
         'ok' => true,
@@ -172,6 +187,50 @@ function mizo_admin_push_check_device(string $token): array
         'body' => (string) ($state['body'] ?? 'Hay una nueva solicitud en el panel.'),
         'url' => (string) ($state['url'] ?? '/admin/#leads'),
         'latestAt' => (string) ($state['latestAt'] ?? ''),
+    ];
+}
+
+function mizo_admin_push_check_device(string $token): array
+{
+    $result = mizo_admin_push_peek_device($token);
+    if (!($result['ok'] ?? false) || !($result['notify'] ?? false)) {
+        if (($result['ok'] ?? false) && isset($result['sequence'])) {
+            mizo_admin_push_touch_device($token);
+        }
+        return $result;
+    }
+
+    mizo_admin_push_ack_device($token, (int) ($result['sequence'] ?? 0));
+    return $result;
+}
+
+function mizo_admin_push_touch_device(string $token): void
+{
+    $devices = mizo_admin_push_read_json(mizo_admin_push_devices_file());
+    foreach ($devices as &$device) {
+        if (($device['token'] ?? '') !== $token) {
+            continue;
+        }
+        $device['lastSeenAt'] = gmdate('c');
+        break;
+    }
+    unset($device);
+    mizo_admin_push_write_json(mizo_admin_push_devices_file(), $devices);
+}
+
+function mizo_admin_push_device_status(string $token): array
+{
+    $device = mizo_admin_push_find_device($token);
+    if (!$device) {
+        return ['ok' => false, 'registered' => false];
+    }
+
+    return [
+        'ok' => true,
+        'registered' => true,
+        'hasPushSubscription' => is_array($device['pushSubscription'] ?? null),
+        'lastSeenAt' => (string) ($device['lastSeenAt'] ?? ''),
+        'lastAckSequence' => (int) ($device['lastAckSequence'] ?? 0),
     ];
 }
 
