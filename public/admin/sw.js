@@ -1,5 +1,6 @@
-/* Mizo Admin PWA - notificaciones en segundo plano */
-const POLL_MS = 45000;
+/* Mizo Admin PWA v2 - notificaciones en segundo plano */
+const SW_VERSION = 'mizo-admin-sw-v2';
+const POLL_MS = 15000;
 const TOKEN_KEY = 'mizo-admin-device-token';
 
 let deviceToken = null;
@@ -26,6 +27,36 @@ async function storeToken(token) {
 	}
 }
 
+async function ackSequence(sequence) {
+	if (!deviceToken || !sequence) return;
+	try {
+		await fetch(
+			`/api/admin-push.php?action=ack&token=${encodeURIComponent(deviceToken)}&sequence=${encodeURIComponent(sequence)}`,
+			{ cache: 'no-store', headers: { Accept: 'application/json' } },
+		);
+	} catch (error) {
+		/* ignore */
+	}
+}
+
+async function showLeadNotification(payload) {
+	await self.registration.showNotification(payload.title || 'Nuevo formulario Mizo', {
+		body: payload.body || 'Hay una nueva solicitud en el panel.',
+		icon: '/favicon.png',
+		badge: '/favicon.png',
+		data: {
+			url: payload.url || '/admin/#leads',
+			sequence: payload.sequence || null,
+		},
+		tag: 'mizo-admin-form',
+		renotify: true,
+		vibrate: [180, 90, 180],
+	});
+	if (payload.sequence) {
+		await ackSequence(payload.sequence);
+	}
+}
+
 async function pollNotifications() {
 	if (!deviceToken) {
 		deviceToken = await readStoredToken();
@@ -39,15 +70,7 @@ async function pollNotifications() {
 		);
 		const payload = await response.json().catch(() => null);
 		if (!response.ok || !payload?.notify) return;
-
-		await self.registration.showNotification(payload.title || 'Nuevo formulario Mizo', {
-			body: payload.body || 'Hay una nueva solicitud en el panel.',
-			icon: '/favicon.png',
-			badge: '/favicon.png',
-			data: { url: payload.url || '/admin/#leads' },
-			tag: 'mizo-admin-form',
-			renotify: true,
-		});
+		await showLeadNotification(payload);
 	} catch (error) {
 		/* ignore transient network errors */
 	}
@@ -85,6 +108,21 @@ self.addEventListener('message', (event) => {
 			pollTimer = null;
 		}
 	}
+	if (data.type === 'mizo-poll-now') {
+		event.waitUntil(pollNotifications());
+	}
+});
+
+self.addEventListener('sync', (event) => {
+	if (event.tag === 'mizo-check-leads') {
+		event.waitUntil(pollNotifications());
+	}
+});
+
+self.addEventListener('periodicsync', (event) => {
+	if (event.tag === 'mizo-check-leads') {
+		event.waitUntil(pollNotifications());
+	}
 });
 
 self.addEventListener('push', (event) => {
@@ -95,16 +133,7 @@ self.addEventListener('push', (event) => {
 		payload = {};
 	}
 
-	event.waitUntil(
-		self.registration.showNotification(payload.title || 'Nuevo formulario Mizo', {
-			body: payload.body || 'Hay una nueva solicitud en el panel.',
-			icon: '/favicon.png',
-			badge: '/favicon.png',
-			data: { url: payload.url || '/admin/#leads' },
-			tag: 'mizo-admin-form',
-			renotify: true,
-		}),
-	);
+	event.waitUntil(showLeadNotification(payload));
 });
 
 self.addEventListener('notificationclick', (event) => {
