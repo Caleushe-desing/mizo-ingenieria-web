@@ -1,20 +1,21 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
 ---
 
 <Layout title="Encuesta de Satisfacción | Mizo" description="Formulario exclusivo para clientes Mizo para evaluar el servicio y dejar un testimonio.">
     
-    <section class="bg-gradient-to-b from-accent-soft to-white py-20 sm:py-28">
+    <PageHero
+        eyebrow="Clientes Mizo"
+        title="Tu opinión, nuestro impulso"
+        subtitle="Gracias por confiar en Mizo. Te pedimos unos minutos para evaluar tu experiencia y, si lo deseas, dejar un testimonio."
+        image="https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1600&q=80"
+        align="center"
+        size="sm"
+    />
+
+    <section class="bg-white py-16 sm:py-20">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <header class="text-center mb-12">
-                <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4">
-                    Tu opinión, nuestro <span class="text-accent-main">impulso</span>
-                </h1>
-                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-                    Gracias por confiar en Mizo. Te pedimos unos minutos para evaluar tu experiencia y, si lo deseas, dejar un testimonio.
-                </p>
-            </header>
 
             <div class="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gray-200">
                 

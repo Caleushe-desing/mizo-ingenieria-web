@@ -1,27 +1,18 @@
-// astro.config.mjs
 // @ts-check
 
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import tailwind from '@astrojs/tailwind';
 import { defineConfig } from 'astro/config';
 
-// ELIMINA: import tailwindcss from '@tailwindcss/vite'; 
-import tailwind from "@astrojs/tailwind"; // <--- NUEVA IMPORTACIÓN
-
-// https://astro.build/config
 export default defineConfig({
-  site: 'https://example.com',
-  integrations: [
-      mdx(), 
-      sitemap({
-        // No incluir el panel privado en el sitemap
-        filter: (page) => !page.includes('/admin'),
-      }),
-      tailwind(), // <--- NUEVA INTEGRACIÓN
-  ],
-
-  // ELIMINA COMPLETAMENTE ESTE BLOQUE:
-  // vite: {
-  //   plugins: [tailwindcss()],
-  // },
+	site: 'https://mizo.cl',
+	output: 'static',
+	integrations: [
+		mdx(),
+		sitemap({
+			filter: (page) => !page.includes('/admin'),
+		}),
+		tailwind(),
+	],
 });

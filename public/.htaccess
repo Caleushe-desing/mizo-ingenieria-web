@@ -1,0 +1,2 @@
+# Redirecciones legacy de tienda online hacia diagnóstico
+RedirectMatch 301 ^/carrito/?$ /configurador

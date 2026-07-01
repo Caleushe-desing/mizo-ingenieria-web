@@ -1,180 +1,132 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import ProductCard from '../../components/ProductCard.astro';
+import ProductCatalogCard from '../../components/ProductCatalogCard.astro';
+import ProductConsultModal from '../../components/ProductConsultModal.astro';
 import SectionCTA from '../../components/SectionCTA.astro';
-import { products, allProducts, sellingPrice, formatCLP, categories, type Product } from '../../data/products';
+import {
+	getProductById,
+	getRelatedProducts,
+	loadCatalogProducts,
+	type CatalogProduct,
+} from '../../lib/catalog';
 
 export function getStaticPaths() {
-	return allProducts.map((product) => ({
+	const catalog = loadCatalogProducts();
+	return catalog.map((product) => ({
 		params: { id: product.id },
-		props: { product },
+		props: {
+			product,
+			related: getRelatedProducts(product, catalog),
+		},
 	}));
 }
 
 interface Props {
-	product: Product;
+	product: CatalogProduct;
+	related: CatalogProduct[];
 }
 
-const { product } = Astro.props;
-const price = sellingPrice(product.basePrice);
-const cat = categories.find((c) => c.id === product.category);
-const catLabel = cat?.label ?? 'Producto';
-const catIcon = cat?.icon ?? '📦';
-
-const lowStock = typeof product.stock === 'number' && product.stock > 0 && product.stock <= 5;
-
-// Productos relacionados de la misma categoría (excluyendo el actual).
-const related = products
-	.filter((p) => p.category === product.category && p.id !== product.id)
-	.slice(0, 4);
-
-const waNumber = '56994390870';
-const waText = encodeURIComponent(
-	`Hola Mizo, me interesa: ${product.name} (${formatCLP(price)}). ¿Está disponible?`,
-);
-const waLink = `https://wa.me/${waNumber}?text=${waText}`;
+const { product, related } = Astro.props;
+const brand = product.brand && product.brand.toLowerCase() !== 'mizo' ? product.brand : '';
+const imgSrc = product.image || product.sourceImage || '/mizo-logo.png';
+const imgFallback =
+	product.sourceImage && product.sourceImage !== imgSrc ? product.sourceImage : '/mizo-logo.png';
+const description = product.descriptionLong || product.description;
 ---
 
 <Layout
-	title={`${product.name} | Mizo`}
-	description={`${product.name} — ${product.brand}. ${product.description}`}
-	ogImage={product.image}
-	noindex={product.hidden}
+	title={`${product.name} | Productos Mizo`}
+	description={product.description || `Consulta por ${product.name} con el equipo de ventas de Mizo Ingeniería.`}
 >
-	<section class="bg-white py-8 sm:py-12">
-		<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-			<nav class="text-sm text-gray-500 mb-6 flex flex-wrap items-center gap-1">
-				<a href="/" class="hover:text-accent-main">Inicio</a>
-				<span>/</span>
-				<a href="/productos" class="hover:text-accent-main">Productos</a>
-				<span>/</span>
-				<span class="text-gray-700">{catLabel}</span>
+	<section class="border-b border-slate-200 bg-white py-10 sm:py-14">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<nav class="text-sm font-semibold text-slate-500" aria-label="Ruta de navegación">
+				<a href="/productos" class="text-accent-main hover:underline">Productos</a>
+				<span class="mx-2">/</span>
+				<span class="text-slate-700">{product.name}</span>
 			</nav>
 
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-				<div class="relative flex items-center justify-center bg-white rounded-2xl border border-gray-200 p-8 min-h-[20rem]">
-					<img
-						src={product.image}
-						alt={product.name}
-						class="max-h-[26rem] w-auto object-contain mix-blend-multiply"
-						width="600"
-						height="600"
-						onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-					/>
-					<span class="hidden absolute inset-0 items-center justify-center text-8xl bg-accent-soft rounded-2xl" aria-hidden="true">{catIcon}</span>
+			<div class="mt-8 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+				<div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50 p-6 sm:p-10">
+					<div class="flex min-h-[280px] items-center justify-center sm:min-h-[360px]">
+						<img
+							src={imgSrc}
+							alt={product.name}
+							class="max-h-[420px] w-auto max-w-full object-contain"
+							loading="eager"
+							width="640"
+							height="640"
+							referrerpolicy="no-referrer"
+							data-fallback={imgFallback}
+							onerror="if(this.dataset.fallback&&!this.dataset.tried){this.dataset.tried='1';this.src=this.dataset.fallback}else{this.onerror=null;this.src='/mizo-logo.png';}"
+						/>
+					</div>
 				</div>
 
-				<div class="flex flex-col">
-					<span class="text-sm font-semibold uppercase tracking-wide text-accent-main mb-2">{product.brand} · {catLabel}</span>
-					<h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 leading-tight">{product.name}</h1>
+				<div>
+					{product.categoryLabel && (
+						<p class="text-xs font-black uppercase tracking-[0.2em] text-brand-orange">{product.categoryLabel}</p>
+					)}
+					{brand && (
+						<p class="mt-2 text-sm font-black uppercase tracking-[0.18em] text-accent-main">{brand}</p>
+					)}
+					<h1 class="mt-3 text-3xl font-black leading-tight text-ink sm:text-4xl">{product.name}</h1>
 					{product.sku && (
-						<p class="mt-2">
-							<span class="inline-block text-xs font-mono font-semibold text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">SKU: {product.sku}</span>
+						<p class="mt-3 text-sm font-semibold text-slate-500">Referencia: {product.sku}</p>
+					)}
+					{description && (
+						<p class="mt-6 text-base leading-7 text-slate-600">{description}</p>
+					)}
+					{product.engineeringCategory && (
+						<p class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-400">
+							{product.engineeringCategory}
 						</p>
 					)}
 
-					<p class="mt-4 text-gray-600 leading-relaxed">{product.description}</p>
-
-					<div class="mt-6 flex items-end gap-3">
-						<p class="text-4xl font-extrabold text-gray-900">{formatCLP(price)}</p>
-						<span class="text-sm text-gray-400 mb-1">IVA incluido</span>
-					</div>
-
-					<p class="mt-2 text-sm text-green-600 font-medium flex items-center gap-1.5">
-						<span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span>
-						{lowStock ? `Disponible — ¡últimas ${product.stock} unidades!` : 'Disponible para entrega'}
-					</p>
-
-					<div class="mt-8 flex flex-col sm:flex-row gap-3">
+					<div class="mt-8 flex flex-col gap-3 sm:flex-row">
 						<button
 							type="button"
-							data-add-to-cart
-							data-id={product.id}
-							data-name={product.name}
-							data-price={price}
-							data-image={product.image}
-							data-weight={product.weightKg ?? 0}
-							class="flex-grow text-center px-6 py-3.5 rounded-md text-base font-semibold text-white bg-accent-main hover:bg-accent-hover transition duration-200"
+							id="open-product-consult"
+							class="inline-flex items-center justify-center rounded-full bg-brand-orange px-7 py-3.5 text-sm font-black text-white transition hover:bg-brand-orange-hover"
 						>
-							Agregar al carrito
+							Consultar por este producto
 						</button>
 						<a
-							href="/carrito"
-							class="flex-grow text-center px-6 py-3.5 rounded-md text-base font-semibold text-accent-main border border-accent-main hover:bg-accent-soft transition"
+							href="/configurador?ref={encodeURIComponent(product.sku || product.id)}"
+							class="inline-flex items-center justify-center rounded-full border border-slate-200 px-7 py-3.5 text-sm font-black text-slate-700 transition hover:border-accent-main hover:text-accent-main"
 						>
-							Ir al carrito
+							Dimensionar proyecto
 						</a>
 					</div>
 
-					<a
-						href={waLink}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="mt-3 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-md text-base font-semibold text-white bg-green-600 hover:bg-green-700 transition"
-					>
-						<svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.929-1.03z"/></svg>
-						Consultar por WhatsApp
-					</a>
-					<p class="mt-2 text-sm text-gray-500 text-center sm:text-left">¿Dudas sobre este equipo o su instalación? Escríbenos y te asesoramos.</p>
-
-					<div class="mt-8 grid grid-cols-3 gap-3 text-center text-xs text-gray-500 border-t border-gray-100 pt-6">
-						<div>
-							<p class="text-accent-main font-bold text-lg">✓</p>
-							Equipos originales
-						</div>
-						<div>
-							<p class="text-accent-main font-bold text-lg">⚡</p>
-							Instalación opcional
-						</div>
-						<div>
-							<p class="text-accent-main font-bold text-lg">🇨🇱</p>
-							Despacho en Chile
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8 border-t border-gray-100 pt-10">
-				<div class="lg:col-span-2">
-					<h2 class="text-xl font-bold text-gray-900 mb-3">Descripción</h2>
-					<div class="prose prose-sm max-w-none text-gray-600 leading-relaxed whitespace-pre-line">
-						{product.descriptionLong || product.description}
-					</div>
-					<p class="mt-4 text-xs text-gray-400">
-						Datos referenciales del fabricante/distribuidor. Ante cualquier duda, confírmanos por WhatsApp con el código SKU.
+					<p class="mt-4 text-sm text-slate-500">
+						Sin precios ni stock en línea. Envía tu consulta y un asesor de Mizo te contactará.
 					</p>
 				</div>
-
-				{product.specs && product.specs.length > 0 && (
-					<div class="lg:col-span-1">
-						<h2 class="text-xl font-bold text-gray-900 mb-3">Ficha técnica</h2>
-						<dl class="rounded-lg border border-gray-200 overflow-hidden divide-y divide-gray-100">
-							{product.specs.map((s, i) => (
-								<div class={`flex gap-3 px-4 py-2.5 text-sm ${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-									<dt class="w-2/5 shrink-0 font-semibold text-gray-700">{s.label}</dt>
-									<dd class="w-3/5 text-gray-600">{s.value}</dd>
-								</div>
-							))}
-						</dl>
-					</div>
-				)}
 			</div>
-
-			{related.length > 0 && (
-				<div class="mt-20">
-					<h2 class="text-2xl font-bold text-gray-900 mb-6">También te puede interesar</h2>
-					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-						{related.map((p) => <ProductCard product={p} />)}
-					</div>
-				</div>
-			)}
 		</div>
 	</section>
 
+	{related.length > 0 && (
+		<section class="bg-slate-50 py-14">
+			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+				<p class="text-xs font-black uppercase tracking-[0.22em] text-brand-orange">Relacionados</p>
+				<h2 class="mt-2 text-2xl font-black text-ink sm:text-3xl">Productos relacionados</h2>
+				<div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+					{related.map((item) => (
+						<ProductCatalogCard product={item} compact={true} />
+					))}
+				</div>
+			</div>
+		</section>
+	)}
+
 	<SectionCTA
-		title="¿Buscas equipamiento e instalación profesional?"
-		subtitle="Combinamos la venta de equipos con instalación garantizada de sonido, audio y video."
-		buttonText="Solicitar Cotización"
+		title="¿Quieres una propuesta con instalación incluida?"
+		subtitle="Mizo diseña, suministra e instala la solución completa para tu espacio."
+		buttonText="Solicitar cotización"
 		buttonLink="/contacto"
 	/>
+
+	<ProductConsultModal productId={product.id} productName={product.name} />
 </Layout>

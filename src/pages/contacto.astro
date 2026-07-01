@@ -1,105 +1,168 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const contactInfo = [
-	{
-		title: "Correo Electrónico",
-		description: "Envíanos tu consulta o solicitud de cotización.",
-		detail: "ventas@mizo.cl",
-		icon: "📧",
-	},
-	{
-		title: "Teléfono / WhatsApp",
-		description: "Llámanos o escríbenos en horario de oficina.",
-		detail: "+56 9 9439 0870",
-		icon: "📞",
-	},
-	{
-		title: "Cobertura Nacional",
-		description: "Atendemos a lo largo de todo Chile.",
-		detail: "Oficinas en Frutillar y Santiago",
-		icon: "📍",
-	},
-];
+const spaces = ['Sala de Clases', 'Auditorio', 'Sala de Reuniones', 'Cine en Casa', 'Otro'];
+const badges = ['Ingeniería Certificada', 'Garantía de Satisfacción', 'Soporte Local'];
 ---
 
 <Layout
 	title="Contacto | Mizo"
 	description="Contáctanos para cotizaciones de instalación de sonido, audiovisual, electricidad o venta de equipos en Chile."
 >
-	<section class="bg-gradient-to-b from-accent-soft to-white py-20 sm:py-28">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
-				Hablemos de tu <span class="text-accent-main">proyecto</span>
-			</h1>
-			<p class="mt-4 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-				Cuéntanos qué necesitas instalar o comprar y te enviamos una propuesta a la medida.
-			</p>
-		</div>
-	</section>
-
-	<section class="py-20 bg-white">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
-			<div class="lg:col-span-1 space-y-6">
-				<h2 class="text-2xl font-extrabold text-gray-900 mb-2">Datos de Contacto</h2>
-
-				{contactInfo.map((item) => (
-					<div class="p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
-						<div class="text-3xl mb-3">{item.icon}</div>
-						<h3 class="text-lg font-bold text-gray-900 mb-1">{item.title}</h3>
-						<p class="text-gray-500 text-sm mb-2">{item.description}</p>
-						<p class="text-accent-main font-semibold">{item.detail}</p>
+	<section class="relative isolate overflow-hidden bg-ink py-20 text-white sm:py-28">
+		<img src="https://images.unsplash.com/photo-1581093458791-9d09cc08742a?auto=format&fit=crop&w=1600&q=80" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover" loading="eager" width="1600" height="900" />
+		<div class="absolute inset-0 bg-gradient-to-r from-ink/60 via-ink/45 to-ink/25"></div>
+		<div class="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent"></div>
+		<div class="absolute inset-0 opacity-[0.12]" style="background-image: radial-gradient(#1c9bd8 1px, transparent 1px); background-size: 24px 24px;"></div>
+		<div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent-main/20 blur-3xl"></div>
+		<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+				<div>
+					<span class="inline-flex items-center gap-2 rounded-full border border-brand-orange/40 bg-brand-orange/10 px-4 py-1.5 text-[0.7rem] font-black uppercase tracking-[0.22em] text-brand-orange backdrop-blur">
+						<span class="h-1.5 w-1.5 rounded-full bg-brand-orange"></span>
+						Cotizador guiado de proyectos
+					</span>
+					<h1 class="mt-6 text-balance text-3xl font-black leading-[1.1] tracking-tight text-white sm:text-4xl lg:text-5xl">
+						Cuéntanos tu espacio y un ingeniero de Mizo arma la solución.
+					</h1>
+					<p class="mt-5 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
+						Recibimos tu requerimiento, revisamos dimensiones, uso del espacio y equipamiento esperado para coordinar una visita técnica o propuesta inicial.
+					</p>
+					<div class="mt-7 grid gap-3 sm:grid-cols-3">
+						{badges.map((badge) => (
+							<div class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-center text-sm font-black text-white backdrop-blur">
+								{badge}
+							</div>
+						))}
 					</div>
-				))}
-
-				<div class="p-6 bg-accent-soft rounded-xl">
-					<h3 class="text-lg font-bold text-gray-900 mb-2">Horario de Atención</h3>
-					<p class="text-gray-600">Lunes a Viernes: 9:00 - 18:00 hrs</p>
+					<div class="mt-8 rounded-3xl border border-white/10 bg-white/10 p-5 text-slate-200">
+						<p class="font-black text-white">Contacto directo</p>
+						<p class="mt-2 text-sm">ventas@mizo.cl · +56 9 9439 0870</p>
+						<p class="mt-1 text-sm">Atención de lunes a viernes, 9:00 a 18:00 hrs.</p>
+					</div>
 				</div>
-			</div>
 
-			<div class="lg:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-				<h2 class="text-2xl font-extrabold text-gray-900 mb-8">Formulario de Solicitud</h2>
-
-				<form name="contact" method="POST" action="/gracias" data-netlify="true" class="space-y-6">
-					<input type="hidden" name="form-name" value="contact" />
-
-					<div>
-						<label for="name" class="block text-sm font-medium text-gray-700">Nombre Completo</label>
-						<input type="text" id="name" name="name" required class="mt-1 block w-full bg-white border border-gray-300 text-gray-900 rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200">
+				<div class="rounded-3xl border border-white/10 bg-white p-5 shadow-2xl sm:p-8">
+					<div class="mb-6">
+						<p class="text-xs font-black uppercase tracking-[0.22em] text-accent-main">Solicitud técnica</p>
+						<h2 class="mt-2 text-2xl font-black text-gray-950">Cotiza tu proyecto</h2>
+						<p class="mt-1 text-sm text-gray-500">Tus datos viajan directo a ventas@mizo.cl.</p>
 					</div>
 
-					<div>
-						<label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-						<input type="email" id="email" name="email" required class="mt-1 block w-full bg-white border border-gray-300 text-gray-900 rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200">
-					</div>
+					<form id="project-quote-form" class="space-y-5">
+						<input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+						<input id="selected-space" type="hidden" name="espacio" value="Sala de Reuniones">
+						<input id="selected-pack" type="hidden" name="pack" value="">
 
-					<div>
-						<label for="service" class="block text-sm font-medium text-gray-700">¿Qué necesitas?</label>
-						<select id="service" name="service" required class="mt-1 block w-full bg-white border border-gray-300 text-gray-900 rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200">
-							<option value="">Selecciona una opción</option>
-							<option value="sonido">Instalación de Sistemas de Sonido</option>
-							<option value="audiovisual">Soluciones Audiovisuales</option>
-							<option value="electrico">Instalaciones Eléctricas</option>
-							<option value="productos">Compra de Productos / Equipos</option>
-							<option value="otro">Otro / Consultoría</option>
-						</select>
-					</div>
+						<div class="grid gap-4 sm:grid-cols-2">
+							<label class="block">
+								<span class="text-sm font-bold text-gray-700">Nombre</span>
+								<input name="nombre" type="text" required class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-accent-main focus:ring-2 focus:ring-accent-main/15">
+							</label>
+							<label class="block">
+								<span class="text-sm font-bold text-gray-700">Teléfono</span>
+								<input name="telefono" type="tel" required class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-accent-main focus:ring-2 focus:ring-accent-main/15">
+							</label>
+							<label class="block">
+								<span class="text-sm font-bold text-gray-700">Empresa / Institución</span>
+								<input name="empresa" type="text" class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-accent-main focus:ring-2 focus:ring-accent-main/15">
+							</label>
+							<label class="block">
+								<span class="text-sm font-bold text-gray-700">Correo</span>
+								<input name="correo" type="email" required class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-accent-main focus:ring-2 focus:ring-accent-main/15">
+							</label>
+						</div>
 
-					<div>
-						<label for="message" class="block text-sm font-medium text-gray-700">Describe tu proyecto o consulta</label>
-						<textarea id="message" name="message" rows="4" required class="mt-1 block w-full bg-white border border-gray-300 text-gray-900 rounded-md shadow-sm p-3 focus:ring-accent-main focus:border-accent-main transition duration-200"></textarea>
-					</div>
+						<div>
+							<p class="text-sm font-bold text-gray-700">¿Qué espacio necesitas equipar?</p>
+							<div class="mt-2 grid gap-2 sm:grid-cols-3" data-space-options>
+								{spaces.map((space, index) => (
+									<button type="button" data-space={space} class={`rounded-xl border px-3 py-2.5 text-sm font-black transition ${index === 2 ? 'border-accent-main bg-accent-main text-white shadow-sm' : 'border-gray-200 bg-white text-gray-700 hover:border-accent-main hover:bg-accent-soft'}`}>
+										{space}
+									</button>
+								))}
+							</div>
+						</div>
 
-					<button type="submit" class="w-full inline-flex justify-center py-3 px-4 rounded-md shadow-sm text-lg font-bold text-white bg-accent-main hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-main transition duration-300">
-						Enviar Solicitud
-					</button>
-				</form>
+						<div class="grid gap-4 sm:grid-cols-[12rem_1fr]">
+							<label class="block">
+								<span class="text-sm font-bold text-gray-700">Tamaño aprox. en m²</span>
+								<input name="metros" type="number" min="1" step="1" placeholder="Ej: 45" class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-accent-main focus:ring-2 focus:ring-accent-main/15">
+							</label>
+							<label class="block">
+								<span class="text-sm font-bold text-gray-700">Cuéntanos los detalles de tu requerimiento</span>
+								<textarea name="detalles" rows="4" required placeholder="Ej: queremos audio para sala de clases, proyector, micrófono y conexión HDMI..." class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-accent-main focus:ring-2 focus:ring-accent-main/15"></textarea>
+							</label>
+						</div>
 
-				<p class="mt-4 text-center text-sm text-gray-400">
-					Tus datos están seguros. No compartiremos tu información con terceros.
-				</p>
+						<button id="quote-submit" type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-accent-main px-6 py-4 text-base font-black text-white shadow-lg transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60">
+							Enviar solicitud técnica
+						</button>
+						<p id="quote-status" class="hidden rounded-xl px-4 py-3 text-sm font-bold"></p>
+						<p class="text-center text-xs font-semibold text-gray-400">Tus datos se usan únicamente para responder esta solicitud.</p>
+					</form>
+				</div>
 			</div>
 		</div>
 	</section>
 </Layout>
+
+<script is:inline>
+	(function () {
+		const form = document.getElementById('project-quote-form');
+		if (!form) return;
+		const status = document.getElementById('quote-status');
+		const submit = document.getElementById('quote-submit');
+		const selectedSpace = document.getElementById('selected-space');
+		const selectedPack = document.getElementById('selected-pack');
+		const params = new URLSearchParams(window.location.search);
+		const pack = params.get('pack') || params.get('tipo') || '';
+		if (selectedPack) selectedPack.value = pack;
+
+		const showStatus = (message, error = false) => {
+			status.textContent = message;
+			status.className = `rounded-xl px-4 py-3 text-sm font-bold ${error ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
+		};
+
+		document.querySelectorAll('[data-space]').forEach((button) => {
+			button.addEventListener('click', () => {
+				selectedSpace.value = button.dataset.space || '';
+				document.querySelectorAll('[data-space]').forEach((item) => {
+					const active = item === button;
+					item.classList.toggle('border-accent-main', active);
+					item.classList.toggle('bg-accent-main', active);
+					item.classList.toggle('text-white', active);
+					item.classList.toggle('shadow-sm', active);
+					item.classList.toggle('border-gray-200', !active);
+					item.classList.toggle('bg-white', !active);
+					item.classList.toggle('text-gray-700', !active);
+				});
+			});
+		});
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			submit.disabled = true;
+			submit.textContent = 'Enviando solicitud...';
+			try {
+				const data = Object.fromEntries(new FormData(form).entries());
+				const response = await fetch('/api/guardar-lead.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(data),
+				});
+				const payload = await response.json().catch(() => null);
+				if (!response.ok || !(payload?.success || payload?.ok)) throw new Error(payload?.error || 'No se pudo guardar la solicitud.');
+				form.reset();
+				selectedSpace.value = 'Sala de Reuniones';
+				selectedPack.value = pack;
+				showStatus(payload.message || '¡Solicitud recibida con éxito! Un ingeniero de Mizo se pondrá en contacto para coordinar la visita técnica.');
+			} catch (error) {
+				showStatus(error.message || 'No se pudo enviar la solicitud.', true);
+			} finally {
+				submit.disabled = false;
+				submit.textContent = 'Enviar solicitud técnica';
+			}
+		});
+	})();
+</script>

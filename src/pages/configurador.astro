@@ -1,0 +1,732 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const environments = [
+	{
+		id: 'auditorio',
+		title: 'Auditorio / Teatro',
+		label: 'Auditorio',
+		desc: 'Alta inteligibilidad, control de reflexiones y cobertura homogénea para público sentado.',
+		image: 'https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1400&q=80',
+	},
+	{
+		id: 'gimnasio',
+		title: 'Gimnasio / Espacio Deportivo',
+		label: 'Gimnasio',
+		desc: 'Recintos reverberantes donde el SPL, la directividad y la resistencia del sistema son críticos.',
+		image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1400&q=80',
+	},
+	{
+		id: 'sala',
+		title: 'Sala Corporativa',
+		label: 'Sala Corporativa',
+		desc: 'Videoconferencia, voz clara, proyección eficiente y operación simple para reuniones.',
+		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1400&q=80',
+	},
+	{
+		id: 'planta',
+		title: 'Planta Industrial / Logística',
+		label: 'Planta Industrial',
+		desc: 'Voceo, seguridad operativa, zonas de audio y continuidad para espacios de alta exigencia.',
+		image: 'https://images.unsplash.com/photo-1581093458791-9d09cc08742a?auto=format&fit=crop&w=1400&q=80',
+	},
+];
+
+const specialties = [
+	{ id: 'audio', title: 'Audio', desc: 'SPL, inteligibilidad, microfonía, mezcla, DSP, potencia y parlantes.' },
+	{ id: 'video', title: 'Video', desc: 'Lúmenes, tiro de proyección, cámaras, visualización, matrices y conectividad.' },
+	{ id: 'ambos', title: 'Audio + Video', desc: 'Dimensionamiento integrado de cadena electroacústica y sistemas de imagen.' },
+];
+
+const roofTypes = [
+	{ id: 'losa', title: 'Losa / cielo rígido', desc: 'Mayor reflexión temprana; requiere control acústico y cobertura precisa.' },
+	{ id: 'metalico', title: 'Estructura metálica', desc: 'Alta reverberación; conviene priorizar directividad y presión sonora útil.' },
+	{ id: 'acustico', title: 'Cielo acústico', desc: 'Mejor absorción; permite diseños más controlados en voz y videoconferencia.' },
+	{ id: 'abierto', title: 'Altura abierta', desc: 'Mayor volumen de aire; impacta potencia, rack y ubicación de parlantes.' },
+];
+---
+
+<Layout
+	title="Asistente de Diagnóstico Técnico Mizo | Dimensionamiento Audiovisual"
+	description="Diagnostica tu espacio con datos reales y recibe un pre-diseño técnico al 90% para soluciones audiovisuales Mizo."
+>
+	<section class="min-h-[calc(100vh-12rem)] bg-slate-950 text-white">
+		<div class="absolute inset-0 -z-10 opacity-20" style="background-image: radial-gradient(#1c9bd8 1px, transparent 1px); background-size: 26px 26px;"></div>
+		<div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+			<div class="grid gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-end">
+				<div>
+					<span class="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-cyan-100 backdrop-blur">
+						Asistente de Diagnóstico Técnico Mizo
+					</span>
+					<h1 class="mt-5 max-w-4xl text-4xl font-black leading-tight text-white md:text-6xl">
+						Dimensiona tu sistema audiovisual con datos reales del recinto.
+					</h1>
+					<p class="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
+						Ingresa entorno, m², altura, tipo de techo, aforo y alcance técnico. El motor calcula volumen, SPL, lúmenes y rack antes de cruzarlo con el radar de tendencias Mizo.
+					</p>
+				</div>
+				<div class="grid gap-3 rounded-[2rem] border border-white/10 bg-white/10 p-5 backdrop-blur md:grid-cols-3">
+					<div>
+						<p class="text-3xl font-black text-cyan-200">90%</p>
+						<p class="mt-1 text-sm text-slate-300">Pre-diagnóstico desbloqueado</p>
+					</div>
+					<div>
+						<p class="text-3xl font-black text-cyan-200">SPL</p>
+						<p class="mt-1 text-sm text-slate-300">Presión sonora objetivo</p>
+					</div>
+					<div>
+						<p class="text-3xl font-black text-cyan-200">24h</p>
+						<p class="mt-1 text-sm text-slate-300">Validación de ingeniería</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="mt-8 overflow-hidden rounded-[2rem] border border-white/10 bg-white text-slate-950 shadow-2xl">
+				<div class="border-b border-slate-200 bg-slate-50 px-5 py-5 sm:px-8">
+					<div class="flex flex-wrap items-center justify-between gap-3">
+						<div>
+							<p id="progress-label" class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 1/4 - Entorno del espacio</p>
+							<h2 class="mt-2 text-2xl font-black text-slate-950">Asistente de Diagnóstico y Dimensionamiento Técnico</h2>
+						</div>
+						<span id="progress-percent" class="rounded-full bg-[#1c9bd8] px-4 py-2 text-xs font-black text-white">25%</span>
+					</div>
+					<div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-200">
+						<div id="progress-bar" class="h-full w-1/4 rounded-full bg-[#1c9bd8] transition-all duration-300"></div>
+					</div>
+				</div>
+
+				<div class="grid gap-0 lg:grid-cols-[340px_1fr]">
+					<aside class="order-2 bg-slate-100 p-5 lg:order-1 lg:p-7">
+						<p class="text-xs font-black uppercase tracking-[0.2em] text-[#1c9bd8]">Datos capturados</p>
+						<div class="mt-5 space-y-3 text-sm">
+							<div class="rounded-2xl bg-white p-4 shadow-sm">
+								<p class="font-black text-slate-950">Entorno</p>
+								<p data-current="entorno" class="mt-1 text-slate-500">Pendiente</p>
+							</div>
+							<div class="rounded-2xl bg-white p-4 shadow-sm">
+								<p class="font-black text-slate-950">Dimensiones</p>
+								<p data-current="dimension" class="mt-1 text-slate-500">m², altura y aforo pendientes</p>
+							</div>
+							<div class="rounded-2xl bg-white p-4 shadow-sm">
+								<p class="font-black text-slate-950">Alcance</p>
+								<p data-current="especialidad" class="mt-1 text-slate-500">Pendiente</p>
+							</div>
+						</div>
+						<div id="feedback-box" class="mt-5 rounded-2xl border border-sky-100 bg-sky-50 p-4 text-sm font-semibold leading-6 text-sky-900">
+							Responde las preguntas técnicas para que el motor calcule una base de dimensionamiento real.
+						</div>
+						<p id="engine-status" class="mt-4 hidden rounded-2xl px-4 py-3 text-sm font-bold"></p>
+					</aside>
+
+					<div class="order-1 p-5 sm:p-7 lg:order-2 lg:p-10">
+						<div id="assistant-panel">
+							<section class="step-panel" data-step="0">
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 1 · Entorno del espacio</p>
+								<h3 class="mt-3 text-3xl font-black text-slate-950">¿Qué tipo de recinto vamos a diagnosticar?</h3>
+								<p class="mt-2 text-sm leading-6 text-slate-500">El entorno define la reverberación esperada, el objetivo de inteligibilidad y la estrategia de cobertura.</p>
+								<div class="mt-6 grid gap-4 md:grid-cols-2">
+									{environments.map((item) => (
+										<button type="button" class="visual-option text-left" data-select="entorno" data-id={item.id} data-label={item.label} style={`background-image: linear-gradient(135deg, rgba(24,27,32,.9), rgba(28,155,216,.32)), url('${item.image}');`}>
+											<span class="option-check" aria-hidden="true"></span>
+											<span class="block pr-9 text-xl font-black text-white">{item.title}</span>
+											<span class="mt-2 block text-sm leading-6 text-white/80">{item.desc}</span>
+										</button>
+									))}
+								</div>
+							</section>
+
+							<section class="step-panel hidden" data-step="1">
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 2 · Datos reales del recinto</p>
+								<h3 class="mt-3 text-3xl font-black text-slate-950">Ingresa medidas base para calcular volumen y carga de ocupación.</h3>
+								<div class="mt-6 grid gap-4 sm:grid-cols-3">
+									<label class="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+										<span class="text-sm font-black text-slate-700">Superficie aproximada (m²)</span>
+										<input id="area-m2" type="number" min="10" max="2000" inputmode="numeric" placeholder="Ej: 120" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
+									</label>
+									<label class="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+										<span class="text-sm font-black text-slate-700">Altura promedio (m)</span>
+										<input id="altura-m" type="number" min="2" max="20" step="0.1" inputmode="decimal" placeholder="Ej: 4.5" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
+									</label>
+									<label class="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+										<span class="text-sm font-black text-slate-700">Cantidad de personas</span>
+										<input id="personas" type="number" min="1" max="5000" inputmode="numeric" placeholder="Ej: 90" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
+									</label>
+								</div>
+								<div class="mt-6">
+									<p class="text-sm font-black text-slate-700">Tipo de techo o cielo predominante</p>
+									<div class="mt-3 grid gap-3 md:grid-cols-2">
+										{roofTypes.map((item) => (
+											<button type="button" class="logic-option text-left" data-select="techo" data-id={item.id} data-label={item.title}>
+												<span class="option-check" aria-hidden="true"></span>
+												<span class="block pr-9 text-lg font-black text-slate-950">{item.title}</span>
+												<span class="mt-1 block text-sm leading-6 text-slate-500">{item.desc}</span>
+											</button>
+										))}
+									</div>
+								</div>
+							</section>
+
+							<section class="step-panel hidden" data-step="2">
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 3 · Alcance técnico</p>
+								<h3 class="mt-3 text-3xl font-black text-slate-950">¿Qué sistema necesitas dimensionar?</h3>
+								<p class="mt-2 text-sm leading-6 text-slate-500">El alcance define si el motor prioriza SPL, flujo lumínico, rack de procesamiento o integración completa.</p>
+								<div class="mt-6 grid gap-4 lg:grid-cols-3">
+									{specialties.map((item) => (
+										<button type="button" class="logic-option text-left" data-select="especialidad" data-id={item.id} data-label={item.title}>
+											<span class="option-check" aria-hidden="true"></span>
+											<span class="block pr-9 text-xl font-black text-slate-950">{item.title}</span>
+											<span class="mt-1 block text-sm leading-6 text-slate-500">{item.desc}</span>
+										</button>
+									))}
+								</div>
+							</section>
+
+							<section class="step-panel hidden" data-step="3">
+								<p class="text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Paso 4 · Captura técnica</p>
+								<div class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+									<div class="rounded-[2rem] bg-slate-950 p-6 text-white">
+										<p class="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">Tu pre-diseño está al 90%</p>
+										<h3 class="mt-3 text-2xl font-black text-white">Diagnóstico preliminar listo para revisión de ingeniería.</h3>
+										<p class="mt-4 text-sm leading-7 text-slate-300">
+											Para desbloquear el plano de conectividad y el listado de productos finales, necesitamos validar la acústica real del espacio, puntos de montaje, rutas de cableado y condiciones eléctricas.
+										</p>
+										<div id="locked-summary" class="mt-5 grid gap-3"></div>
+										<div class="mt-5 rounded-2xl border border-white/10 bg-white/10 p-4 text-sm leading-6 text-slate-200">
+											El motor ya precalificó productos desde el catálogo MySQL/radar Mizo. El listado final queda reservado para la validación técnica.
+										</div>
+									</div>
+
+									<form id="lead-form" class="rounded-[2rem] border-2 border-[#1c9bd8] bg-white p-6 shadow-xl shadow-sky-900/10">
+										<input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+										<input type="hidden" name="pack" value="Asistente de Diagnóstico Técnico Mizo">
+										<input type="hidden" name="espacio" id="lead-espacio">
+										<input type="hidden" name="especialidad" id="lead-especialidad">
+										<input type="hidden" name="dimension" id="lead-dimension">
+										<input type="hidden" name="proposito" id="lead-proposito">
+										<input type="hidden" name="productos" id="lead-productos">
+										<input type="hidden" name="detalles" id="lead-detalles">
+										<input type="hidden" name="reporte" id="lead-reporte">
+
+										<p class="text-xs font-black uppercase tracking-[0.2em] text-[#1c9bd8]">Desbloquear validación</p>
+										<h3 class="mt-2 text-2xl font-black text-slate-950">Recibe el cierre técnico del diagnóstico.</h3>
+										<p class="mt-2 text-sm leading-6 text-slate-500">Un ingeniero de Mizo revisará el caso y te contactará con los siguientes pasos.</p>
+										<div class="mt-5 grid gap-4 sm:grid-cols-2">
+											<label class="block">
+												<span class="text-sm font-black text-slate-700">Nombre</span>
+												<input name="nombre" required type="text" autocomplete="name" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
+											</label>
+											<label class="block">
+												<span class="text-sm font-black text-slate-700">Empresa</span>
+												<input name="empresa" required type="text" autocomplete="organization" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
+											</label>
+											<label class="block">
+												<span class="text-sm font-black text-slate-700">Teléfono</span>
+												<input name="telefono" required type="tel" autocomplete="tel" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
+											</label>
+											<label class="block">
+												<span class="text-sm font-black text-slate-700">Correo</span>
+												<input name="correo" required type="email" autocomplete="email" class="mt-1 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-[#1c9bd8] focus:ring-4 focus:ring-sky-100">
+											</label>
+										</div>
+										<button id="lead-submit" type="submit" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[#1c9bd8] px-6 py-4 text-sm font-black text-white shadow-lg transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60">
+											Solicitar validación y plano de conectividad
+										</button>
+										<p id="lead-status" class="mt-4 hidden rounded-2xl px-4 py-3 text-sm font-bold"></p>
+									</form>
+								</div>
+							</section>
+
+							<div class="mt-8 flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+								<button id="back-step" type="button" class="w-full rounded-full border border-slate-300 px-5 py-3 text-sm font-black text-slate-700 transition hover:border-[#1c9bd8] hover:text-[#1c9bd8] sm:w-auto">
+									Volver
+								</button>
+								<button id="next-step" type="button" class="w-full rounded-full bg-[#1c9bd8] px-6 py-3 text-sm font-black text-white shadow-lg transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:bg-slate-300 sm:w-auto">
+									Continuar
+								</button>
+							</div>
+						</div>
+
+						<div id="analysis-panel" class="hidden min-h-[34rem] flex-col items-center justify-center text-center">
+							<div class="relative h-28 w-28">
+								<div class="absolute inset-0 rounded-full border-4 border-sky-100"></div>
+								<div class="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-[#1c9bd8]"></div>
+								<div class="absolute inset-5 rounded-full bg-[#1c9bd8]/10"></div>
+							</div>
+							<p class="mt-8 text-xs font-black uppercase tracking-[0.22em] text-[#1c9bd8]">Motor de diagnóstico Mizo</p>
+							<p id="analysis-text" class="mt-3 max-w-2xl text-3xl font-black text-slate-950">Calculando matriz técnica...</p>
+							<div class="mt-8 h-2 w-full max-w-xl overflow-hidden rounded-full bg-slate-100">
+								<div id="analysis-bar" class="h-full w-0 rounded-full bg-[#1c9bd8] transition-all duration-500"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.visual-option,
+	.logic-option {
+		position: relative;
+		border: 1px solid #e2e8f0;
+		border-radius: 1.25rem;
+		box-shadow: 0 10px 28px rgb(24 27 32 / 0.06);
+		transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+	}
+	.visual-option {
+		min-height: 11.5rem;
+		background-position: center;
+		background-size: cover;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		padding: 1.25rem;
+	}
+	.logic-option {
+		background: #ffffff;
+		padding: 1.1rem 1.15rem;
+	}
+	.visual-option:hover,
+	.visual-option.is-selected,
+	.logic-option:hover,
+	.logic-option.is-selected {
+		border-color: #1c9bd8;
+		box-shadow: 0 16px 40px rgb(28 155 216 / 0.18);
+		transform: translateY(-2px);
+	}
+	.visual-option.is-selected,
+	.logic-option.is-selected {
+		outline: 3px solid #1c9bd8;
+		outline-offset: 2px;
+	}
+
+	/* Indicador de selección (check) para responder y marcar más fácil */
+	.option-check {
+		position: absolute;
+		top: 0.75rem;
+		right: 0.75rem;
+		display: flex;
+		height: 1.6rem;
+		width: 1.6rem;
+		align-items: center;
+		justify-content: center;
+		border-radius: 9999px;
+		border: 2px solid #cbd5e1;
+		background: #ffffff;
+		transition: border-color 160ms ease, background 160ms ease;
+	}
+	.visual-option .option-check {
+		border-color: rgba(255, 255, 255, 0.85);
+		background: rgba(255, 255, 255, 0.18);
+	}
+	.option-check::after {
+		content: "";
+		width: 0.55rem;
+		height: 0.3rem;
+		margin-top: -0.12rem;
+		border-left: 2.5px solid #ffffff;
+		border-bottom: 2.5px solid #ffffff;
+		transform: rotate(-45deg);
+		opacity: 0;
+		transition: opacity 160ms ease;
+	}
+	.is-selected .option-check {
+		border-color: #1c9bd8;
+		background: #1c9bd8;
+	}
+	.is-selected .option-check::after {
+		opacity: 1;
+	}
+</style>
+
+<script is:inline>
+	(function () {
+		const steps = [
+			{ title: 'Paso 1/4 - Entorno del espacio', percent: 25 },
+			{ title: 'Paso 2/4 - Dimensiones reales', percent: 50 },
+			{ title: 'Paso 3/4 - Alcance técnico', percent: 75 },
+			{ title: 'Paso 4/4 - Captura de lead técnico', percent: 90 },
+		];
+
+		const feedback = {
+			entorno: {
+				auditorio: 'Excelente. En auditorios la inteligibilidad y el control de reflexiones definen la experiencia.',
+				gimnasio: 'Perfecto. En gimnasios la cobertura acústica es crítica por volumen de aire y superficies reflectantes.',
+				sala: 'Bien. En salas corporativas conviene equilibrar claridad de voz, imagen y operación simple.',
+				planta: 'Correcto. En plantas industriales se prioriza cobertura, seguridad operativa y continuidad del sistema.',
+			},
+			techo: {
+				losa: 'Buen dato. Un cielo rígido eleva las reflexiones tempranas y exige mayor precisión en la directividad.',
+				metalico: 'Importante. La estructura metálica suele aumentar la reverberación y la demanda de SPL útil.',
+				acustico: 'Excelente. Un cielo acústico ayuda a mejorar la inteligibilidad y reduce energía reflejada.',
+				abierto: 'Clave. La altura abierta incrementa el volumen de aire y puede exigir más potencia o zonas.',
+			},
+			especialidad: {
+				audio: 'Excelente. El motor priorizará SPL, cobertura, mezcla, DSP, potencia y transducción final.',
+				video: 'Perfecto. El motor priorizará flujo lumínico, proyección, cámaras y conectividad de video.',
+				ambos: 'Muy bien. Para audio + video la integración de rack, señal y control será determinante.',
+			},
+			dimension: 'Excelente, con m², altura y aforo ya podemos estimar volumen, carga de ocupación y presión sonora objetivo.',
+		};
+
+		const state = {
+			step: 0,
+			entorno: null,
+			especialidad: null,
+			techo: null,
+			areaM2: '',
+			alturaM: '',
+			personas: '',
+			report: null,
+		};
+
+		const assistantPanel = document.getElementById('assistant-panel');
+		const analysisPanel = document.getElementById('analysis-panel');
+		const analysisText = document.getElementById('analysis-text');
+		const analysisBar = document.getElementById('analysis-bar');
+		const backButton = document.getElementById('back-step');
+		const nextButton = document.getElementById('next-step');
+		const progressLabel = document.getElementById('progress-label');
+		const progressPercent = document.getElementById('progress-percent');
+		const progressBar = document.getElementById('progress-bar');
+		const feedbackBox = document.getElementById('feedback-box');
+		const engineStatus = document.getElementById('engine-status');
+		const lockedSummary = document.getElementById('locked-summary');
+		const form = document.getElementById('lead-form');
+		const submit = document.getElementById('lead-submit');
+		const status = document.getElementById('lead-status');
+		const areaInput = document.getElementById('area-m2');
+		const alturaInput = document.getElementById('altura-m');
+		const personasInput = document.getElementById('personas');
+
+		function escapeHtml(value) {
+			return String(value ?? '')
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;');
+		}
+
+		function tamanoFromArea(area) {
+			const value = Number(area) || 0;
+			if (value <= 50) return { id: 'pequeno', label: 'Pequeño' };
+			if (value <= 150) return { id: 'mediano', label: 'Mediano' };
+			return { id: 'grande', label: 'Grande' };
+		}
+
+		function isDimensionReady() {
+			return Number(state.areaM2) >= 10 && Number(state.alturaM) >= 2 && Number(state.personas) >= 1 && Boolean(state.techo);
+		}
+
+		function canContinue() {
+			if (state.step === 0) return Boolean(state.entorno);
+			if (state.step === 1) return isDimensionReady();
+			if (state.step === 2) return Boolean(state.especialidad);
+			return false;
+		}
+
+		function setFeedback(message) {
+			feedbackBox.textContent = message;
+		}
+
+		function updateProgress() {
+			const step = steps[state.step];
+			progressLabel.textContent = step.title;
+			progressPercent.textContent = `${step.percent}%`;
+			progressBar.style.width = `${step.percent}%`;
+		}
+
+		function updateCurrentLabels() {
+			const size = tamanoFromArea(state.areaM2);
+			document.querySelector('[data-current="entorno"]').textContent = state.entorno?.label || 'Pendiente';
+			document.querySelector('[data-current="especialidad"]').textContent = state.especialidad?.label || 'Pendiente';
+			document.querySelector('[data-current="dimension"]').textContent = state.areaM2
+				? `${state.areaM2} m² · ${state.alturaM || '?'} m alto · ${state.personas || '?'} personas · ${size.label}`
+				: 'm², altura y aforo pendientes';
+		}
+
+		function showStep(stepIndex) {
+			state.step = Math.max(0, Math.min(3, stepIndex));
+			document.querySelectorAll('.step-panel').forEach((panel) => {
+				panel.classList.toggle('hidden', Number(panel.dataset.step) !== state.step);
+			});
+			backButton.classList.toggle('invisible', state.step === 0);
+			nextButton.classList.toggle('hidden', state.step === 3);
+			nextButton.disabled = !canContinue();
+			nextButton.textContent = state.step === 2 ? 'Generar diagnóstico al 90%' : 'Continuar';
+			updateProgress();
+			updateCurrentLabels();
+		}
+
+		function showEngineStatus(message, error, hide) {
+			if (hide || !message) {
+				engineStatus.className = 'mt-4 hidden rounded-2xl px-4 py-3 text-sm font-bold';
+				engineStatus.textContent = '';
+				return;
+			}
+			engineStatus.textContent = message;
+			engineStatus.className = `mt-4 rounded-2xl px-4 py-3 text-sm font-bold ${error ? 'bg-red-50 text-red-700' : 'bg-sky-50 text-sky-800'}`;
+		}
+
+		function showStatus(message, error) {
+			status.textContent = message;
+			status.className = `mt-4 rounded-2xl px-4 py-3 text-sm font-bold ${error ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
+		}
+
+		function saveLocalLead(data) {
+			try {
+				const key = 'mizoPendingDiagnosticLeads';
+				const current = JSON.parse(localStorage.getItem(key) || '[]');
+				current.unshift({
+					...data,
+					localSavedAt: new Date().toISOString(),
+				});
+				localStorage.setItem(key, JSON.stringify(current.slice(0, 20)));
+				return true;
+			} catch (error) {
+				return false;
+			}
+		}
+
+		function metricText(report) {
+			const metrics = report.metricas || {};
+			return [
+				metrics.volumen_estimado_m3 ? `Volumen estimado: ${metrics.volumen_estimado_m3.value} ${metrics.volumen_estimado_m3.unit}` : '',
+				metrics.presion_sonora_objetivo_db_spl ? `SPL objetivo: ${metrics.presion_sonora_objetivo_db_spl.value} ${metrics.presion_sonora_objetivo_db_spl.unit}` : '',
+				metrics.flujo_luminico_ansi_lumenes ? `Flujo lumínico: ${metrics.flujo_luminico_ansi_lumenes.value} ${metrics.flujo_luminico_ansi_lumenes.unit}` : '',
+				metrics.rack_requerido ? `Rack requerido: ${metrics.rack_requerido.value}` : '',
+			].filter(Boolean).join('\n');
+		}
+
+		function productText(report) {
+			const groups = Object.values(report.groups || {});
+			const products = groups.length
+				? groups.flatMap((group) => (group.products || []).map((item) => ({ ...item, groupTitle: group.title })))
+				: report.equipment;
+			return products.map((item) => [
+				item.groupTitle ? `[${item.groupTitle}]` : '',
+				`${item.qty} ${String(item.unit || 'unidad').toUpperCase()} - ${item.name}`,
+				item.sku ? `SKU: ${item.sku}` : '',
+				item.brand ? `Marca: ${item.brand}` : '',
+				item.category ? `Categoría: ${item.category}` : '',
+				item.stock != null ? `Stock: ${item.stock}` : '',
+			].filter(Boolean).join(' | ')).join('\n');
+		}
+
+		function fillLeadFields(report) {
+			const size = tamanoFromArea(state.areaM2);
+			document.getElementById('lead-espacio').value = state.entorno?.label || '';
+			document.getElementById('lead-especialidad').value = state.especialidad?.label || '';
+			document.getElementById('lead-dimension').value = `${state.areaM2} m² · ${state.alturaM} m altura · ${state.personas} personas · ${state.techo?.label || ''}`;
+			document.getElementById('lead-proposito').value = 'Asistente de Diagnóstico Técnico Mizo';
+			document.getElementById('lead-productos').value = productText(report);
+			document.getElementById('lead-detalles').value = [
+				`Informe: ${report.title}`,
+				`Entorno: ${state.entorno?.label || ''}`,
+				`Especialidad: ${state.especialidad?.label || ''}`,
+				`Superficie: ${state.areaM2} m²`,
+				`Altura: ${state.alturaM} m`,
+				`Personas: ${state.personas}`,
+				`Techo: ${state.techo?.label || ''}`,
+				`Tamaño derivado: ${size.label}`,
+				'Métricas:',
+				metricText(report),
+				'Productos precalificados:',
+				productText(report),
+			].join('\n');
+			try {
+				document.getElementById('lead-reporte').value = JSON.stringify({
+					title: report.title || 'Informe de Diagnóstico Técnico Mizo',
+					summary: report.summary || '',
+					source: report.source || '',
+					criteria: {
+						entorno: state.entorno?.label || '',
+						especialidad: state.especialidad?.label || '',
+						tamano: size.label,
+						areaM2: state.areaM2,
+						alturaM: state.alturaM,
+						personas: state.personas,
+						techo: state.techo?.label || '',
+					},
+					metricas: report.metricas || {},
+					grupos: report.groups || {},
+				});
+			} catch (error) {
+				document.getElementById('lead-reporte').value = '';
+			}
+		}
+
+		function renderLockedSummary(report) {
+			const metrics = report.metricas || {};
+			const groups = Object.values(report.groups || {});
+			const productCount = groups.reduce((total, group) => total + ((group.products || []).length), 0);
+			const cards = [
+				metrics.volumen_estimado_m3,
+				metrics.presion_sonora_objetivo_db_spl,
+				metrics.flujo_luminico_ansi_lumenes,
+				metrics.rack_requerido,
+			].filter(Boolean);
+			lockedSummary.innerHTML = cards.map((metric) => `
+				<div class="rounded-2xl border border-white/10 bg-white/10 p-4">
+					<p class="text-xs font-black uppercase text-cyan-200">${escapeHtml(metric.label)}</p>
+					<p class="mt-1 text-2xl font-black text-white">${escapeHtml(metric.value)} <span class="text-sm text-cyan-100">${escapeHtml(metric.unit || '')}</span></p>
+				</div>
+			`).join('') + `
+				<div class="rounded-2xl border border-cyan-300/30 bg-cyan-300/10 p-4">
+					<p class="text-xs font-black uppercase text-cyan-200">Productos precalificados</p>
+					<p class="mt-1 text-2xl font-black text-white">${productCount}</p>
+					<p class="mt-1 text-xs text-cyan-100">Listado final bloqueado hasta validación técnica.</p>
+				</div>
+			`;
+			fillLeadFields(report);
+		}
+
+		async function calculateDesign() {
+			const size = tamanoFromArea(state.areaM2);
+			const response = await fetch('/api/recomendar-equipamiento.php', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+				body: JSON.stringify({
+					entorno: state.entorno.id,
+					especialidad: state.especialidad.id,
+					tamano: size.id,
+					area_m2: Number(state.areaM2),
+					altura_m: Number(state.alturaM),
+					personas: Number(state.personas),
+					tipo_techo: state.techo.id,
+				}),
+			});
+			const responseText = await response.text();
+			const payload = (() => {
+				try {
+					return JSON.parse(responseText);
+				} catch (error) {
+					return null;
+				}
+			})();
+			if (!response.ok || !payload?.ok) {
+				throw new Error(payload?.error || 'El motor no respondió JSON válido. Revisa que la API esté publicada correctamente.');
+			}
+			return {
+				title: payload.title || 'Diagnóstico Técnico Mizo',
+				summary: payload.summary || 'El motor cruzó variables del recinto con productos reales publicados.',
+				source: payload.source || 'Catálogo maestro Mizo',
+				metricas: payload.metricas_proyecto || {},
+				groups: payload.grupos || {},
+				equipment: Array.isArray(payload.products) ? payload.products : [],
+			};
+		}
+
+		function runAnalysis() {
+			assistantPanel.classList.add('hidden');
+			analysisPanel.classList.remove('hidden');
+			analysisPanel.classList.add('flex');
+			showEngineStatus('', false, true);
+			analysisBar.style.width = '0%';
+			const messages = [
+				'Calculando volumen acústico con tus m² y altura...',
+				'Estimando SPL objetivo y carga de ocupación...',
+				'Cruzando alcance técnico con catálogo MySQL...',
+				'Preparando diagnóstico al 90%...',
+			];
+			let index = 0;
+			analysisText.textContent = messages[0];
+			const timer = window.setInterval(() => {
+				index += 1;
+				analysisBar.style.width = `${Math.min(100, (index / messages.length) * 100)}%`;
+				if (index < messages.length) {
+					analysisText.textContent = messages[index];
+					return;
+				}
+				window.clearInterval(timer);
+				calculateDesign()
+					.then((report) => {
+						state.report = report;
+						renderLockedSummary(report);
+						analysisPanel.classList.add('hidden');
+						analysisPanel.classList.remove('flex');
+						assistantPanel.classList.remove('hidden');
+						showStep(3);
+					})
+					.catch((error) => {
+						analysisPanel.classList.add('hidden');
+						analysisPanel.classList.remove('flex');
+						assistantPanel.classList.remove('hidden');
+						showEngineStatus(error.message || 'No se pudo generar el diagnóstico.', true);
+						showStep(2);
+					});
+			}, 750);
+		}
+
+		function syncDimensionState() {
+			state.areaM2 = areaInput.value;
+			state.alturaM = alturaInput.value;
+			state.personas = personasInput.value;
+			if (Number(state.areaM2) > 0 || Number(state.alturaM) > 0 || Number(state.personas) > 0) {
+				setFeedback(feedback.dimension);
+			}
+			showStep(state.step);
+		}
+
+		document.querySelectorAll('[data-select]').forEach((button) => {
+			button.addEventListener('click', () => {
+				const group = button.dataset.select;
+				const value = { id: button.dataset.id, label: button.dataset.label };
+				state[group] = value;
+				document.querySelectorAll(`[data-select="${group}"]`).forEach((item) => item.classList.toggle('is-selected', item === button));
+				setFeedback(feedback[group]?.[value.id] || 'Dato registrado para el diagnóstico técnico.');
+				showStep(state.step);
+			});
+		});
+
+		[areaInput, alturaInput, personasInput].forEach((input) => {
+			input.addEventListener('input', syncDimensionState);
+		});
+
+		backButton.addEventListener('click', () => {
+			if (state.step > 0) showStep(state.step - 1);
+		});
+
+		nextButton.addEventListener('click', () => {
+			if (!canContinue()) return;
+			if (state.step === 2) {
+				runAnalysis();
+				return;
+			}
+			showStep(state.step + 1);
+		});
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			if (state.report) fillLeadFields(state.report);
+			submit.disabled = true;
+			submit.textContent = 'Enviando diagnóstico a ingeniería...';
+			try {
+				const data = Object.fromEntries(new FormData(form).entries());
+				const response = await fetch('/api/guardar-lead.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(data),
+				});
+				const payload = await response.json().catch(() => null);
+				if (!response.ok || !(payload?.success || payload?.ok)) {
+					throw new Error(payload?.error || 'Tu diagnóstico se guardó localmente, un ingeniero te contactará en breve.');
+				}
+				form.reset();
+				if (state.report) fillLeadFields(state.report);
+				showStatus(payload.message || 'Diagnóstico guardado. Un ingeniero de Mizo te contactará para validar el espacio.', false);
+			} catch (error) {
+				const data = Object.fromEntries(new FormData(form).entries());
+				saveLocalLead(data);
+				showStatus(error.message || 'Tu diagnóstico se guardó localmente, un ingeniero te contactará en breve.', false);
+			} finally {
+				submit.disabled = false;
+				submit.textContent = 'Solicitar validación y plano de conectividad';
+			}
+		});
+
+		showStep(0);
+	})();
+</script>
