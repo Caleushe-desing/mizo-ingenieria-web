@@ -824,3 +824,244 @@ function mizo_admin_password_ok(?string $password): bool
     $expected = mizo_env(['ADMIN_PASSWORD', 'MIZO_ADMIN_PASSWORD'], 'mizo2026') ?? 'mizo2026';
     return is_string($password) && hash_equals($expected, $password);
 }
+
+function mizo_proyectos_config_path(): string
+{
+    return mizo_runtime_storage_root() . '/proyectos.json';
+}
+
+function mizo_proyectos_config_paths(): array
+{
+    $paths = [];
+    try {
+        $paths[] = mizo_proyectos_config_path();
+    } catch (Throwable $error) {
+        // El almacenamiento en disco puede no estar disponible en algunos hosts.
+    }
+    $paths[] = dirname(__DIR__) . '/proyectos-default.json';
+    return array_values(array_unique($paths));
+}
+
+function mizo_proyectos_images_dir(): string
+{
+    $dir = mizo_public_root() . '/images/proyectos';
+    if (!is_dir($dir) && !@mkdir($dir, 0775, true)) {
+        throw new RuntimeException('No se pudo crear la carpeta de imágenes de proyectos.');
+    }
+    if (!is_writable($dir)) {
+        throw new RuntimeException('La carpeta de imágenes de proyectos no es escribible.');
+    }
+    return $dir;
+}
+
+function mizo_normalize_proyecto(array $item, int $fallbackOrder = 1): ?array
+{
+    $id = trim((string) ($item['id'] ?? ''));
+    $title = trim((string) ($item['title'] ?? ''));
+    if ($title === '') {
+        return null;
+    }
+    if ($id === '') {
+        $id = mizo_slug($title);
+    }
+
+    $images = [];
+    $rawImages = $item['images'] ?? [];
+    if (is_string($rawImages) && $rawImages !== '') {
+        $rawImages = [$rawImages];
+    }
+    if (is_array($rawImages)) {
+        foreach ($rawImages as $image) {
+            $path = trim((string) $image);
+            if ($path !== '') {
+                $images[] = $path;
+            }
+        }
+    }
+    $legacyImage = trim((string) ($item['image'] ?? ''));
+    if ($legacyImage !== '' && !in_array($legacyImage, $images, true)) {
+        array_unshift($images, $legacyImage);
+    }
+    $images = array_values(array_unique($images));
+
+    return [
+        'id' => $id,
+        'title' => $title,
+        'type' => trim((string) ($item['type'] ?? 'Proyecto')),
+        'description' => trim((string) ($item['description'] ?? $item['scope'] ?? '')),
+        'images' => $images,
+        'sortOrder' => max(1, (int) ($item['sortOrder'] ?? $fallbackOrder)),
+        'published' => array_key_exists('published', $item) ? (bool) $item['published'] : true,
+        'updatedAt' => trim((string) ($item['updatedAt'] ?? '')),
+    ];
+}
+
+function mizo_read_proyectos_config(bool $publishedOnly = false): array
+{
+    $config = [
+        'updatedAt' => null,
+        'projects' => [],
+        'source' => 'default-empty',
+    ];
+
+    foreach (mizo_proyectos_config_paths() as $path) {
+        if (!is_file($path)) {
+            continue;
+        }
+        $raw = file_get_contents($path);
+        if ($raw === false || trim($raw) === '') {
+            continue;
+        }
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            continue;
+        }
+        $config = $data;
+        $config['source'] = basename($path);
+        break;
+    }
+
+    $projects = [];
+    $order = 1;
+    foreach (($config['projects'] ?? []) as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $normalized = mizo_normalize_proyecto($item, $order);
+        if ($normalized === null) {
+            continue;
+        }
+        if ($publishedOnly && !$normalized['published']) {
+            continue;
+        }
+        $projects[] = $normalized;
+        $order++;
+    }
+
+    usort($projects, static function (array $a, array $b): int {
+        return ($a['sortOrder'] <=> $b['sortOrder']) ?: strcmp($a['title'], $b['title']);
+    });
+
+    return [
+        'updatedAt' => $config['updatedAt'] ?? null,
+        'projects' => $projects,
+        'source' => (string) ($config['source'] ?? 'runtime'),
+    ];
+}
+
+function mizo_write_proyectos_config(array $projects): array
+{
+    $normalized = [];
+    $order = 1;
+    foreach ($projects as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $project = mizo_normalize_proyecto($item, $order);
+        if ($project === null) {
+            continue;
+        }
+        $project['updatedAt'] = gmdate('c');
+        $normalized[] = $project;
+        $order++;
+    }
+
+    usort($normalized, static function (array $a, array $b): int {
+        return ($a['sortOrder'] <=> $b['sortOrder']) ?: strcmp($a['title'], $b['title']);
+    });
+
+    $payload = [
+        'updatedAt' => gmdate('c'),
+        'projects' => $normalized,
+    ];
+
+    $path = mizo_proyectos_config_path();
+    $tmp = $path . '.tmp';
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    if ($json === false || file_put_contents($tmp, $json, LOCK_EX) === false || !@rename($tmp, $path)) {
+        @unlink($tmp);
+        throw new RuntimeException('No se pudo guardar la configuración de proyectos.');
+    }
+
+    return $payload;
+}
+
+function mizo_find_proyecto_index(array $projects, string $id): int
+{
+    foreach ($projects as $index => $project) {
+        if (($project['id'] ?? '') === $id) {
+            return $index;
+        }
+    }
+    return -1;
+}
+
+function mizo_unique_proyecto_id(array $projects, string $baseId): string
+{
+    $id = mizo_slug($baseId);
+    if ($id === '') {
+        $id = 'proyecto';
+    }
+    $candidate = $id;
+    $suffix = 2;
+    $existing = array_map(static fn(array $project): string => (string) ($project['id'] ?? ''), $projects);
+    while (in_array($candidate, $existing, true)) {
+        $candidate = $id . '-' . $suffix;
+        $suffix++;
+    }
+    return $candidate;
+}
+
+function mizo_store_proyecto_image(array $file, string $projectId): string
+{
+    if (!isset($file['error']) || (int) $file['error'] !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('No se recibió una imagen válida.');
+    }
+    $size = (int) ($file['size'] ?? 0);
+    if ($size <= 0 || $size > 8 * 1024 * 1024) {
+        throw new RuntimeException('La imagen debe pesar menos de 8 MB.');
+    }
+
+    $tmpPath = (string) ($file['tmp_name'] ?? '');
+    if ($tmpPath === '' || !is_uploaded_file($tmpPath)) {
+        throw new RuntimeException('Archivo de imagen inválido.');
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = (string) $finfo->file($tmpPath);
+    $allowed = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
+    if (!isset($allowed[$mime])) {
+        throw new RuntimeException('Formato no permitido. Usa JPG, PNG o WEBP.');
+    }
+
+    $safeId = preg_replace('/[^a-z0-9-]/', '', mizo_slug($projectId)) ?: 'proyecto';
+    $filename = $safeId . '-' . gmdate('Ymd-His') . '-' . substr(bin2hex(random_bytes(4)), 0, 8) . '.' . $allowed[$mime];
+    $targetDir = mizo_proyectos_images_dir();
+    $targetPath = $targetDir . '/' . $filename;
+
+    if (!move_uploaded_file($tmpPath, $targetPath)) {
+        throw new RuntimeException('No se pudo guardar la imagen en el servidor.');
+    }
+
+    @chmod($targetPath, 0644);
+    return '/images/proyectos/' . $filename;
+}
+
+function mizo_delete_proyecto_image_file(string $imagePath): void
+{
+    $imagePath = trim($imagePath);
+    if ($imagePath === '' || preg_match('#^https?://#i', $imagePath)) {
+        return;
+    }
+    if (strpos($imagePath, '/images/proyectos/') !== 0) {
+        return;
+    }
+    $fullPath = mizo_public_root() . $imagePath;
+    if (is_file($fullPath)) {
+        @unlink($fullPath);
+    }
+}
