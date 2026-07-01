@@ -9,7 +9,7 @@ const { productId, productName } = Astro.props;
 
 <div
 	id="product-consult-modal"
-	class="fixed inset-0 z-[80] hidden items-center justify-center bg-ink/70 p-4"
+	class="fixed inset-0 z-[120] hidden items-center justify-center bg-ink/70 p-4"
 	role="dialog"
 	aria-modal="true"
 	aria-labelledby="product-consult-title"
@@ -18,7 +18,7 @@ const { productId, productName } = Astro.props;
 		<div class="border-b border-slate-200 px-6 py-5">
 			<p class="text-xs font-black uppercase tracking-[0.2em] text-brand-orange">Consulta de producto</p>
 			<h2 id="product-consult-title" class="mt-2 text-xl font-black text-ink">Consultar por este producto</h2>
-			<p class="mt-2 text-sm leading-6 text-slate-600">{productName}</p>
+			<p id="product-consult-name" class="mt-2 text-sm leading-6 text-slate-600">{productName}</p>
 		</div>
 
 		<form id="product-consult-form" class="space-y-4 px-6 py-5">
@@ -74,21 +74,25 @@ const { productId, productName } = Astro.props;
 
 <script is:inline>
 	(function () {
-		const modal = document.getElementById('product-consult-modal');
-		const form = document.getElementById('product-consult-form');
-		const closeBtn = document.getElementById('product-consult-close');
-		const status = document.getElementById('product-consult-status');
-		const openBtn = document.getElementById('open-product-consult');
-		const submitBtn = document.getElementById('product-consult-submit');
-		if (!modal || !form || !closeBtn || !status) return;
+		function getModalParts() {
+			return {
+				modal: document.getElementById('product-consult-modal'),
+				form: document.getElementById('product-consult-form'),
+				status: document.getElementById('product-consult-status'),
+				submitBtn: document.getElementById('product-consult-submit'),
+			};
+		}
 
-		function setStatus(message, type) {
+		function setStatus(status, message, type) {
+			if (!status) return;
 			status.textContent = message;
 			status.classList.remove('hidden', 'text-red-600', 'text-green-700');
 			status.classList.add(type === 'error' ? 'text-red-600' : 'text-green-700');
 		}
 
 		function openModal() {
+			const { modal, form } = getModalParts();
+			if (!modal || !form) return;
 			modal.classList.remove('hidden');
 			modal.classList.add('flex');
 			document.body.classList.add('overflow-hidden');
@@ -97,29 +101,27 @@ const { productId, productName } = Astro.props;
 		}
 
 		function closeModal() {
+			const { modal, status } = getModalParts();
+			if (!modal) return;
 			modal.classList.add('hidden');
 			modal.classList.remove('flex');
 			document.body.classList.remove('overflow-hidden');
-			status.classList.add('hidden');
-			status.textContent = '';
+			if (status) {
+				status.classList.add('hidden');
+				status.textContent = '';
+			}
 		}
 
-		openBtn?.addEventListener('click', openModal);
-		closeBtn.addEventListener('click', closeModal);
-		modal.addEventListener('click', (event) => {
-			if (event.target === modal) closeModal();
-		});
-		document.addEventListener('keydown', (event) => {
-			if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
-		});
-
-		form.addEventListener('submit', async (event) => {
+		async function submitConsulta(event) {
 			event.preventDefault();
+			const { form, submitBtn, status } = getModalParts();
+			if (!form) return;
+
 			if (submitBtn) {
 				submitBtn.disabled = true;
 				submitBtn.textContent = 'Enviando...';
 			}
-			setStatus('Enviando tu consulta...', 'ok');
+			setStatus(status, 'Enviando tu consulta...', 'ok');
 
 			const data = Object.fromEntries(new FormData(form).entries());
 			try {
@@ -133,16 +135,49 @@ const { productId, productName } = Astro.props;
 					throw new Error(payload?.error || 'No se pudo enviar la consulta.');
 				}
 				form.reset();
-				setStatus(payload.message || 'Consulta enviada. Te contactaremos pronto.', 'ok');
+				setStatus(status, payload.message || 'Consulta enviada. Te contactaremos pronto.', 'ok');
 				setTimeout(closeModal, 1800);
 			} catch (error) {
-				setStatus(error.message || 'Error al enviar. Intenta nuevamente.', 'error');
+				setStatus(status, error.message || 'Error al enviar. Intenta nuevamente.', 'error');
 			} finally {
 				if (submitBtn) {
 					submitBtn.disabled = false;
 					submitBtn.textContent = 'Enviar consulta';
 				}
 			}
-		});
+		}
+
+		function initProductConsultModal() {
+			if (window.__mizoProductConsultBound) return;
+			window.__mizoProductConsultBound = true;
+
+			document.addEventListener('click', (event) => {
+				if (event.target.closest('#open-product-consult')) {
+					event.preventDefault();
+					openModal();
+					return;
+				}
+				if (event.target.closest('#product-consult-close')) {
+					event.preventDefault();
+					closeModal();
+					return;
+				}
+				const { modal } = getModalParts();
+				if (modal && event.target === modal) closeModal();
+			});
+
+			document.addEventListener('keydown', (event) => {
+				const { modal } = getModalParts();
+				if (event.key === 'Escape' && modal && !modal.classList.contains('hidden')) closeModal();
+			});
+
+			document.addEventListener('submit', (event) => {
+				if (event.target && event.target.id === 'product-consult-form') submitConsulta(event);
+			});
+		}
+
+		document.addEventListener('DOMContentLoaded', initProductConsultModal);
+		document.addEventListener('astro:page-load', initProductConsultModal);
+		initProductConsultModal();
 	})();
 </script>

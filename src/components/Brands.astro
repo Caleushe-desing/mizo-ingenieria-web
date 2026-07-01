@@ -1,32 +1,36 @@
 ---
-// Brands.astro - Marcas líderes de la industria audiovisual y tecnológica.
-const brands = ['Sony', 'Sennheiser', 'JBL', 'Bose', 'Shure', 'Epson', 'BenQ'].map((name) => ({
-	name,
-	slug: name.toLowerCase().replace(/\s+/g, '-'),
-}));
+const brands = [
+	{ name: 'Sony', slug: 'sony' },
+	{ name: 'Sennheiser', slug: 'sennheiser' },
+	{ name: 'JBL', slug: 'jbl' },
+	{ name: 'Bose', slug: 'bose' },
+	{ name: 'Shure', slug: 'shure' },
+	{ name: 'Epson', slug: 'epson' },
+	{ name: 'BenQ', slug: 'benq' },
+];
 ---
 
-<section class="bg-white py-16 border-t border-gray-100">
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-		<div class="text-center mb-8">
-			<h2 class="text-2xl lg:text-3xl font-black text-gray-900">Trabajamos con las mejores marcas</h2>
+<section class="border-t border-gray-100 bg-white py-16">
+	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+		<div class="mb-8 text-center">
+			<h2 class="text-2xl font-black text-gray-900 lg:text-3xl">Trabajamos con las mejores marcas</h2>
 			<p class="mt-2 text-gray-600">Referentes globales en audio, video, proyección e integración tecnológica.</p>
 		</div>
 		<div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
-			{brands.map((b) => (
+			{brands.map((brand) => (
 				<a
-					href={`/equipamiento?marca=${encodeURIComponent(b.name)}`}
-					class="group flex h-24 items-center justify-center rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-slate-50 px-4 transition hover:-translate-y-0.5 hover:border-accent-light hover:shadow-md"
-					title={`Ver equipamiento ${b.name}`}
+					href={`/productos?marca=${encodeURIComponent(brand.name)}`}
+					class="group flex h-24 items-center justify-center rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-slate-50 px-4 transition hover:-translate-y-0.5 hover:border-accent-main/30 hover:shadow-md"
+					title={`Ver productos ${brand.name}`}
 				>
 					<img
-						src={`/images/marcas/${b.slug}.svg`}
-						alt={b.name}
-						class="max-h-10 max-w-full object-contain opacity-80 grayscale transition group-hover:opacity-100 group-hover:grayscale-0"
+						src={`/images/marcas/${brand.slug}.svg`}
+						alt={`Logo ${brand.name}`}
+						class="max-h-10 max-w-[88%] object-contain opacity-90 grayscale transition group-hover:opacity-100 group-hover:grayscale-0"
 						loading="lazy"
-						onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+						width="120"
+						height="40"
 					/>
-					<span class="hidden text-sm font-black text-gray-500 group-hover:text-accent-main text-center uppercase tracking-[0.16em]">{b.name}</span>
 				</a>
 			))}
 		</div>

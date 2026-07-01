@@ -102,16 +102,26 @@ const categoryEntries = Object.entries(categories);
 		if (!tabs || !search || !empty || !meta) return;
 
 		let currentCategory = 'all';
+		let currentBrand = '';
 		let currentQuery = '';
+
+		const params = new URLSearchParams(window.location.search);
+		currentBrand = String(params.get('marca') || params.get('brand') || '').trim().toLowerCase();
+		if (currentBrand) {
+			search.value = currentBrand;
+			currentQuery = currentBrand;
+		}
 
 		function updateView() {
 			let visible = 0;
 			items.forEach((item) => {
 				const category = item.getAttribute('data-category') || '';
+				const brand = String(item.getAttribute('data-brand') || '').toLowerCase();
 				const haystack = item.getAttribute('data-search') || '';
 				const categoryOk = currentCategory === 'all' || category === currentCategory;
+				const brandOk = !currentBrand || brand === currentBrand || haystack.includes(currentBrand);
 				const queryOk = !currentQuery || haystack.includes(currentQuery);
-				const show = categoryOk && queryOk;
+				const show = categoryOk && brandOk && queryOk;
 				item.classList.toggle('hidden', !show);
 				if (show) visible += 1;
 			});
@@ -136,7 +146,10 @@ const categoryEntries = Object.entries(categories);
 
 		search.addEventListener('input', () => {
 			currentQuery = search.value.trim().toLowerCase();
+			currentBrand = '';
 			updateView();
 		});
+
+		updateView();
 	})();
 </script>
