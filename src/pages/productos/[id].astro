@@ -1,0 +1,132 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProductCatalogCard from '../../components/ProductCatalogCard.astro';
+import ProductConsultModal from '../../components/ProductConsultModal.astro';
+import SectionCTA from '../../components/SectionCTA.astro';
+import {
+	getProductById,
+	getRelatedProducts,
+	loadCatalogProducts,
+	type CatalogProduct,
+} from '../../lib/catalog';
+
+export function getStaticPaths() {
+	const catalog = loadCatalogProducts();
+	return catalog.map((product) => ({
+		params: { id: product.id },
+		props: {
+			product,
+			related: getRelatedProducts(product, catalog),
+		},
+	}));
+}
+
+interface Props {
+	product: CatalogProduct;
+	related: CatalogProduct[];
+}
+
+const { product, related } = Astro.props;
+const brand = product.brand && product.brand.toLowerCase() !== 'mizo' ? product.brand : '';
+const imgSrc = product.image || product.sourceImage || '/mizo-logo.png';
+const imgFallback =
+	product.sourceImage && product.sourceImage !== imgSrc ? product.sourceImage : '/mizo-logo.png';
+const description = product.descriptionLong || product.description;
+---
+
+<Layout
+	title={`${product.name} | Productos Mizo`}
+	description={product.description || `Consulta por ${product.name} con el equipo de ventas de Mizo Ingeniería.`}
+>
+	<section class="border-b border-slate-200 bg-white py-10 sm:py-14">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<nav class="text-sm font-semibold text-slate-500" aria-label="Ruta de navegación">
+				<a href="/productos" class="text-accent-main hover:underline">Productos</a>
+				<span class="mx-2">/</span>
+				<span class="text-slate-700">{product.name}</span>
+			</nav>
+
+			<div class="mt-8 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+				<div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50 p-6 sm:p-10">
+					<div class="flex min-h-[280px] items-center justify-center sm:min-h-[360px]">
+						<img
+							src={imgSrc}
+							alt={product.name}
+							class="max-h-[420px] w-auto max-w-full object-contain"
+							loading="eager"
+							width="640"
+							height="640"
+							referrerpolicy="no-referrer"
+							data-fallback={imgFallback}
+							onerror="if(this.dataset.fallback&&!this.dataset.tried){this.dataset.tried='1';this.src=this.dataset.fallback}else{this.onerror=null;this.src='/mizo-logo.png';}"
+						/>
+					</div>
+				</div>
+
+				<div>
+					{product.categoryLabel && (
+						<p class="text-xs font-black uppercase tracking-[0.2em] text-brand-orange">{product.categoryLabel}</p>
+					)}
+					{brand && (
+						<p class="mt-2 text-sm font-black uppercase tracking-[0.18em] text-accent-main">{brand}</p>
+					)}
+					<h1 class="mt-3 text-3xl font-black leading-tight text-ink sm:text-4xl">{product.name}</h1>
+					{product.sku && (
+						<p class="mt-3 text-sm font-semibold text-slate-500">Referencia: {product.sku}</p>
+					)}
+					{description && (
+						<p class="mt-6 text-base leading-7 text-slate-600">{description}</p>
+					)}
+					{product.engineeringCategory && (
+						<p class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-400">
+							{product.engineeringCategory}
+						</p>
+					)}
+
+					<div class="mt-8 flex flex-col gap-3 sm:flex-row">
+						<button
+							type="button"
+							id="open-product-consult"
+							class="inline-flex items-center justify-center rounded-full bg-brand-orange px-7 py-3.5 text-sm font-black text-white transition hover:bg-brand-orange-hover"
+						>
+							Consultar por este producto
+						</button>
+						<a
+							href="/configurador?ref={encodeURIComponent(product.sku || product.id)}"
+							class="inline-flex items-center justify-center rounded-full border border-slate-200 px-7 py-3.5 text-sm font-black text-slate-700 transition hover:border-accent-main hover:text-accent-main"
+						>
+							Dimensionar proyecto
+						</a>
+					</div>
+
+					<p class="mt-4 text-sm text-slate-500">
+						Sin precios ni stock en línea. Envía tu consulta y un asesor de Mizo te contactará.
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	{related.length > 0 && (
+		<section class="bg-slate-50 py-14">
+			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+				<p class="text-xs font-black uppercase tracking-[0.22em] text-brand-orange">Relacionados</p>
+				<h2 class="mt-2 text-2xl font-black text-ink sm:text-3xl">Productos relacionados</h2>
+				<div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+					{related.map((item) => (
+						<ProductCatalogCard product={item} compact={true} />
+					))}
+				</div>
+			</div>
+		</section>
+	)}
+
+	<SectionCTA
+		title="¿Quieres una propuesta con instalación incluida?"
+		subtitle="Mizo diseña, suministra e instala la solución completa para tu espacio."
+		buttonText="Solicitar cotización"
+		buttonLink="/contacto"
+	/>
+
+	<ProductConsultModal productId={product.id} productName={product.name} />
+</Layout>

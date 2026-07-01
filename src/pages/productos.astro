@@ -1,12 +1,142 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
+import ProductCatalogCard from '../components/ProductCatalogCard.astro';
+import SectionCTA from '../components/SectionCTA.astro';
+import { groupCategories, loadCatalogProducts } from '../lib/catalog';
+
+const products = loadCatalogProducts();
+const categories = groupCategories(products);
+const categoryEntries = Object.entries(categories);
 ---
-<Layout title="Redirigiendo… | Mizo" description="La tienda online fue reemplazada por la vitrina de equipamiento de referencia Mizo." noindex={true}>
-	<section class="flex min-h-[50vh] items-center justify-center bg-white px-4 py-20 text-center">
-		<div>
-			<p class="text-sm font-semibold text-slate-500">Redirigiendo a equipamiento de referencia…</p>
-			<a href="/equipamiento" class="mt-4 inline-flex text-sm font-black text-accent-main hover:underline">Ir ahora</a>
+
+<Layout
+	title="Productos | Mizo"
+	description="Catálogo de equipamiento audiovisual profesional integrado por Mizo en Chile. Consulta por cualquier producto sin precios ni stock en línea."
+>
+	<PageHero
+		eyebrow="Productos"
+		title="Equipamiento profesional para tus proyectos de audio y video"
+		subtitle="Explora el catálogo completo de productos que integramos en instalaciones reales. Sin precios ni stock en línea: consulta directamente con nuestro equipo de ventas."
+		image="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1600&q=80"
+		align="center"
+		chips={['Audio profesional', 'Proyección AV', 'CCTV y video']}
+	/>
+
+	<section class="border-b border-slate-200 bg-white py-6">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+				<div class="flex flex-wrap gap-2" id="product-category-tabs" aria-label="Filtrar por categoría">
+					<button
+						type="button"
+						data-category="all"
+						class="product-tab rounded-full bg-accent-main px-4 py-2 text-xs font-black text-white"
+					>
+						Todos
+					</button>
+					{categoryEntries.map(([value, label]) => (
+						<button
+							type="button"
+							data-category={value}
+							class="product-tab rounded-full bg-slate-100 px-4 py-2 text-xs font-black text-slate-600 transition hover:bg-accent-soft hover:text-accent-main"
+						>
+							{label}
+						</button>
+					))}
+				</div>
+				<label class="relative block w-full max-w-md">
+					<span class="sr-only">Buscar productos</span>
+					<input
+						id="product-search"
+						type="search"
+						placeholder="Buscar por nombre o marca..."
+						class="w-full rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-accent-main focus:bg-white focus:ring-2 focus:ring-accent-soft"
+					/>
+					<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+				</label>
+			</div>
+			<p id="product-meta" class="mt-4 text-sm font-semibold text-slate-500">
+				{products.length} productos disponibles
+			</p>
 		</div>
 	</section>
-	<script is:inline>location.replace('/equipamiento' + (location.search || ''));</script>
+
+	<section class="bg-slate-50 py-12 sm:py-16">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div id="product-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+				{products.map((product) => (
+					<div
+						class="product-item"
+						data-category={product.category}
+						data-brand={product.brand}
+						data-search={`${product.name} ${product.brand} ${product.description} ${product.categoryLabel}`.toLowerCase()}
+					>
+						<ProductCatalogCard product={product} />
+					</div>
+				))}
+			</div>
+			<div id="product-empty" class="hidden rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center">
+				<p class="text-lg font-black text-ink">No hay productos que coincidan con tu búsqueda.</p>
+				<p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">
+					Prueba con otro término o revisa otra categoría del catálogo.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<SectionCTA
+		title="¿Necesitas ayuda para elegir equipamiento?"
+		subtitle="Cuéntanos tu proyecto y te orientamos con la solución integrada."
+		buttonText="Contactar a ventas"
+		buttonLink="/contacto"
+	/>
 </Layout>
+
+<script is:inline>
+	(function () {
+		const tabs = document.getElementById('product-category-tabs');
+		const search = document.getElementById('product-search');
+		const items = Array.from(document.querySelectorAll('.product-item'));
+		const empty = document.getElementById('product-empty');
+		const meta = document.getElementById('product-meta');
+		if (!tabs || !search || !empty || !meta) return;
+
+		let currentCategory = 'all';
+		let currentQuery = '';
+
+		function updateView() {
+			let visible = 0;
+			items.forEach((item) => {
+				const category = item.getAttribute('data-category') || '';
+				const haystack = item.getAttribute('data-search') || '';
+				const categoryOk = currentCategory === 'all' || category === currentCategory;
+				const queryOk = !currentQuery || haystack.includes(currentQuery);
+				const show = categoryOk && queryOk;
+				item.classList.toggle('hidden', !show);
+				if (show) visible += 1;
+			});
+
+			empty.classList.toggle('hidden', visible > 0);
+			meta.textContent = visible === 1 ? '1 producto visible' : `${visible} productos visibles`;
+		}
+
+		tabs.querySelectorAll('.product-tab').forEach((button) => {
+			button.addEventListener('click', () => {
+				currentCategory = button.getAttribute('data-category') || 'all';
+				tabs.querySelectorAll('.product-tab').forEach((tab) => {
+					const active = (tab.getAttribute('data-category') || 'all') === currentCategory;
+					tab.classList.toggle('bg-accent-main', active);
+					tab.classList.toggle('text-white', active);
+					tab.classList.toggle('bg-slate-100', !active);
+					tab.classList.toggle('text-slate-600', !active);
+				});
+				updateView();
+			});
+		});
+
+		search.addEventListener('input', () => {
+			currentQuery = search.value.trim().toLowerCase();
+			updateView();
+		});
+	})();
+</script>

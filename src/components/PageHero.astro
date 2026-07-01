@@ -35,8 +35,8 @@ const wrapper = isCenter
 	? 'mx-auto max-w-3xl items-center text-center'
 	: 'max-w-3xl items-start text-left';
 const overlay = isCenter
-	? 'bg-gradient-to-b from-ink/85 via-ink/82 to-ink/95'
-	: 'bg-gradient-to-r from-ink via-ink/90 to-ink/55';
+	? 'bg-gradient-to-b from-ink/55 via-ink/40 to-ink/70'
+	: 'bg-gradient-to-r from-ink/60 via-ink/45 to-ink/25';
 ---
 
 <section class="relative isolate overflow-hidden bg-ink text-white">
@@ -50,7 +50,7 @@ const overlay = isCenter
 		height="900"
 	/>
 	<div class={`absolute inset-0 ${overlay}`}></div>
-	<div class="absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-transparent"></div>
+	<div class="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent"></div>
 	<div
 		class="absolute inset-0 opacity-[0.12]"
 		style="background-image: radial-gradient(#1c9bd8 1px, transparent 1px); background-size: 26px 26px;"

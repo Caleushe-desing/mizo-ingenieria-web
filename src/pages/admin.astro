@@ -55,7 +55,7 @@ const title = 'Panel central Mizo';
 					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="cotizador">Cotizador</button>
 					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="auditoria">Auditoría</button>
 					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="pedidos">Pedidos</button>
-					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="leads">Leads diagnóstico</button>
+					<button class="admin-nav-btn rounded-2xl px-4 py-3 text-left text-sm font-black text-slate-600 hover:bg-accent-soft" data-view="leads">Formularios web</button>
 				</nav>
 
 				<div class="mt-6 rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-950">
@@ -372,14 +372,18 @@ const title = 'Panel central Mizo';
 					</section>
 
 					<section id="view-leads" class="view-panel">
-						<div class="mb-5 grid gap-3 sm:grid-cols-3">
+						<div class="mb-5 grid gap-3 sm:grid-cols-4">
 							<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-								<p class="text-xs font-black uppercase text-slate-400">Total leads</p>
+								<p class="text-xs font-black uppercase text-slate-400">Total formularios</p>
 								<p id="lead-count" class="mt-2 text-3xl font-black text-slate-950">0</p>
 							</div>
 							<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-								<p class="text-xs font-black uppercase text-slate-400">Fuente</p>
-								<p id="lead-source" class="mt-2 text-3xl font-black text-slate-950">-</p>
+								<p class="text-xs font-black uppercase text-slate-400">Diagnóstico</p>
+								<p id="lead-count-diagnostico" class="mt-2 text-3xl font-black text-slate-950">0</p>
+							</div>
+							<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+								<p class="text-xs font-black uppercase text-slate-400">Consultas producto</p>
+								<p id="lead-count-consulta" class="mt-2 text-3xl font-black text-slate-950">0</p>
 							</div>
 							<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
 								<p class="text-xs font-black uppercase text-slate-400">Escritura JSON</p>
@@ -389,11 +393,12 @@ const title = 'Panel central Mizo';
 						<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
 							<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 								<div>
-									<h3 class="text-2xl font-black">Leads de Diagnóstico Técnico</h3>
-									<p class="text-sm text-slate-500">Clientes capturados por el asistente. Datos desde MySQL o <code>leads.json</code>.</p>
+									<h3 class="text-2xl font-black">Formularios enviados desde la web</h3>
+									<p class="text-sm text-slate-500">Diagnóstico técnico, consultas de producto y otros envíos capturados en el sitio.</p>
 								</div>
 								<div class="flex flex-wrap gap-2">
 									<a href="/configurador" class="rounded-full border border-slate-300 px-5 py-2.5 text-xs font-black text-slate-700 hover:bg-slate-50">Abrir asistente</a>
+									<a href="/productos" target="_blank" rel="noopener" class="rounded-full border border-slate-300 px-5 py-2.5 text-xs font-black text-slate-700 hover:bg-slate-50">Ver productos</a>
 									<button id="refresh-leads" type="button" class="rounded-full bg-accent-main px-5 py-2.5 text-xs font-black text-white hover:bg-accent-hover">Actualizar</button>
 								</div>
 							</div>
@@ -428,12 +433,14 @@ const title = 'Panel central Mizo';
 				cotizador: 'Cotizador',
 				auditoria: 'Auditoría',
 				pedidos: 'Pedidos',
-				leads: 'Leads diagnóstico',
+				leads: 'Formularios web',
 			};
 			const IMG_FALLBACK_ONERROR = "if(this.dataset.fallback&&!this.dataset.tried){this.dataset.tried='1';this.referrerPolicy='no-referrer';this.src=this.dataset.fallback}else{this.onerror=null;this.src='/mizo-logo.png';}";
 			let adminPassword = '';
 			let allItems = [];
 			let adminLeads = [];
+			let adminConsultas = [];
+			let adminFormularios = [];
 			let showcaseMap = new Map();
 			let showcaseMode = 'all';
 			let adminProjects = [];
@@ -1404,7 +1411,29 @@ const title = 'Panel central Mizo';
 				return date.toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' });
 			}
 
+			function formTypeLabel(entry) {
+				return entry?.formType === 'consulta-producto' ? 'Consulta producto' : 'Diagnóstico técnico';
+			}
+
+			function formTypeBadgeClass(entry) {
+				return entry?.formType === 'consulta-producto'
+					? 'bg-orange-100 text-orange-800'
+					: 'bg-blue-100 text-blue-800';
+			}
+
 			function leadSummaryText(lead) {
+				if (lead.formType === 'consulta-producto') {
+					return [
+						'Consulta de producto',
+						'',
+						'Nombre: ' + (lead.nombre || 'Sin nombre'),
+						'Celular: ' + (lead.telefono || 'Sin teléfono'),
+						'',
+						'Producto: ' + (lead.productoNombre || 'Sin nombre'),
+						'ID producto: ' + (lead.productoId || 'No indicado'),
+						'Origen: ' + (lead.source || 'Consulta de producto'),
+					].join('\n');
+				}
 				return [
 					`Nombre: ${lead.nombre || ''}`,
 					`Empresa: ${lead.empresa || ''}`,
@@ -1426,40 +1455,59 @@ const title = 'Panel central Mizo';
 			}
 
 			function openLeadModal(lead) {
-				$('lead-modal-title').textContent = `${lead.nombre || 'Lead'} · ${lead.empresa || 'Sin empresa'}`;
-				$('lead-modal-meta').textContent = `${formatLeadDate(lead.createdAt)} · ${lead.correo || ''}`;
+				const titleSuffix = lead.formType === 'consulta-producto'
+					? (lead.productoNombre || 'Producto')
+					: (lead.empresa || 'Sin empresa');
+				$('lead-modal-title').textContent = `${lead.nombre || 'Formulario'} · ${titleSuffix}`;
+				$('lead-modal-meta').textContent = `${formatLeadDate(lead.createdAt)} · ${formTypeLabel(lead)}`;
 				$('lead-modal-body').textContent = leadSummaryText(lead);
 				$('lead-modal').classList.remove('hidden');
 			}
 
+			function mergeAdminFormularios() {
+				const diagnosticos = adminLeads.map((lead) => ({ ...lead, formType: 'diagnostico' }));
+				const consultas = adminConsultas.map((consulta) => ({ ...consulta, formType: 'consulta-producto' }));
+				adminFormularios = [...diagnosticos, ...consultas].sort((a, b) => {
+					const aTime = Date.parse(a.createdAt || '') || 0;
+					const bTime = Date.parse(b.createdAt || '') || 0;
+					return bTime - aTime;
+				});
+			}
+
 			function renderAdminLeads() {
-				$('lead-count').textContent = String(adminLeads.length);
+				mergeAdminFormularios();
+				$('lead-count').textContent = String(adminFormularios.length);
+				$('lead-count-diagnostico').textContent = String(adminLeads.length);
+				$('lead-count-consulta').textContent = String(adminConsultas.length);
 				const list = $('lead-list');
-				if (!adminLeads.length) {
-					list.innerHTML = '<div class="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center text-slate-500">Aún no hay leads guardados.</div>';
+				if (!adminFormularios.length) {
+					list.innerHTML = '<div class="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center text-slate-500">Aún no hay formularios guardados.</div>';
 					return;
 				}
-				list.innerHTML = adminLeads.map((lead, index) => `
+				list.innerHTML = adminFormularios.map((lead, index) => `
 					<article class="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[1fr_auto] lg:items-center">
 						<div>
-							<p class="text-xs font-black uppercase text-slate-400">${escapeHtml(formatLeadDate(lead.createdAt))}</p>
+							<div class="flex flex-wrap items-center gap-2">
+								<p class="text-xs font-black uppercase text-slate-400">${escapeHtml(formatLeadDate(lead.createdAt))}</p>
+								<span class="rounded-full px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-wide ${formTypeBadgeClass(lead)}">${escapeHtml(formTypeLabel(lead))}</span>
+							</div>
 							<h3 class="mt-1 text-xl font-black text-slate-950">${escapeHtml(lead.nombre || 'Sin nombre')}</h3>
 							<div class="mt-2 flex flex-wrap gap-2 text-sm font-semibold text-slate-600">
-								<span>${escapeHtml(lead.empresa || 'Sin empresa')}</span>
-								<span>·</span>
-								<a class="text-accent-main" href="mailto:${escapeHtml(lead.correo || '')}">${escapeHtml(lead.correo || 'Sin correo')}</a>
-								<span>·</span>
-								<span>${escapeHtml(lead.telefono || 'Sin teléfono')}</span>
+								${lead.formType === 'consulta-producto'
+									? `<span>${escapeHtml(lead.productoNombre || 'Producto sin nombre')}</span><span>·</span><span>${escapeHtml(lead.telefono || 'Sin teléfono')}</span>`
+									: `<span>${escapeHtml(lead.empresa || 'Sin empresa')}</span><span>·</span><a class="text-accent-main" href="mailto:${escapeHtml(lead.correo || '')}">${escapeHtml(lead.correo || 'Sin correo')}</a><span>·</span><span>${escapeHtml(lead.telefono || 'Sin teléfono')}</span>`}
 							</div>
-							<p class="mt-2 text-sm text-slate-500">${escapeHtml(lead.espacio || 'Sin entorno')} · ${escapeHtml(lead.especialidad || 'Sin especialidad')} · ${escapeHtml(lead.dimension || 'Sin dimensión')}</p>
+							<p class="mt-2 text-sm text-slate-500">${lead.formType === 'consulta-producto'
+								? `Consulta por producto · ${escapeHtml(lead.productoId || 'Sin ID')}`
+								: `${escapeHtml(lead.espacio || 'Sin entorno')} · ${escapeHtml(lead.especialidad || 'Sin especialidad')} · ${escapeHtml(lead.dimension || 'Sin dimensión')}`}</p>
 						</div>
 						<button type="button" class="view-lead-summary rounded-full bg-accent-main px-5 py-3 text-sm font-black text-white hover:bg-accent-hover" data-index="${index}">
-							Ver resumen técnico
+							Ver detalle
 						</button>
 					</article>
 				`).join('');
 				list.querySelectorAll('.view-lead-summary').forEach((button) => {
-					button.addEventListener('click', () => openLeadModal(adminLeads[Number(button.dataset.index)]));
+					button.addEventListener('click', () => openLeadModal(adminFormularios[Number(button.dataset.index)]));
 				});
 			}
 
@@ -1478,23 +1526,35 @@ const title = 'Panel central Mizo';
 			async function loadAdminLeads() {
 				hideLeadsError();
 				const list = $('lead-list');
-				list.innerHTML = '<p class="text-sm text-slate-500">Cargando leads...</p>';
+				list.innerHTML = '<p class="text-sm text-slate-500">Cargando formularios...</p>';
 				try {
-					const response = await fetch('/api/guardar-lead.php', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-						body: JSON.stringify({ action: 'list', password: adminPassword }),
-					});
-					const payload = await response.json().catch(() => null);
-					if (!response.ok || !payload?.success) {
-						throw new Error(payload?.error || 'No se pudieron cargar los leads.');
+					const [leadsResponse, consultasResponse] = await Promise.all([
+						fetch('/api/guardar-lead.php', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+							body: JSON.stringify({ action: 'list', password: adminPassword }),
+						}),
+						fetch('/api/consulta-producto.php', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+							body: JSON.stringify({ action: 'list', password: adminPassword }),
+						}),
+					]);
+					const leadsPayload = await leadsResponse.json().catch(() => null);
+					const consultasPayload = await consultasResponse.json().catch(() => null);
+					if (!leadsResponse.ok || !leadsPayload?.success) {
+						throw new Error(leadsPayload?.error || 'No se pudieron cargar los formularios de diagnóstico.');
 					}
-					adminLeads = Array.isArray(payload.leads) ? payload.leads : [];
-					$('lead-source').textContent = payload.source || '-';
-					$('storage-status').textContent = payload.storage?.fileWritable ? 'OK' : (payload.storage?.dirWritable ? 'Directorio OK' : 'Revisar permisos');
+					adminLeads = Array.isArray(leadsPayload.leads) ? leadsPayload.leads : [];
+					adminConsultas = consultasResponse.ok && consultasPayload?.ok && Array.isArray(consultasPayload.consultas)
+						? consultasPayload.consultas
+						: [];
+					const leadsWritable = leadsPayload.storage?.fileWritable || leadsPayload.storage?.dirWritable;
+					const consultasWritable = consultasPayload?.storage?.fileWritable || consultasPayload?.storage?.dirWritable;
+					$('storage-status').textContent = leadsWritable && consultasWritable ? 'OK' : (leadsWritable ? 'Parcial' : 'Revisar permisos');
 					renderAdminLeads();
 				} catch (error) {
-					showLeadsError(error.message || 'No se pudieron cargar los leads.');
+					showLeadsError(error.message || 'No se pudieron cargar los formularios.');
 					list.innerHTML = '';
 				}
 			}

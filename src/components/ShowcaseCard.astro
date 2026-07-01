@@ -17,12 +17,12 @@ interface Props {
 
 const { product, compact = false } = Astro.props;
 const brand = product.brand && product.brand.toLowerCase() !== 'mizo' ? product.brand : '';
-const consultUrl = `/contacto?equipo=${encodeURIComponent(product.name)}`;
+const detailUrl = `/productos/${product.id}`;
 const configUrl = `/configurador?ref=${encodeURIComponent(product.sku || product.id)}`;
 ---
 
 <article class="showcase-card group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-accent-main/40 hover:shadow-lg">
-	<div class="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white">
+	<a href={detailUrl} class="relative block overflow-hidden bg-gradient-to-b from-slate-50 to-white">
 		<div class:list={['flex items-center justify-center bg-slate-50 p-5', compact ? 'h-40' : 'h-48 sm:h-52']}>
 			<img
 				src={product.image || product.sourceImage || '/mizo-logo.png'}
@@ -41,14 +41,14 @@ const configUrl = `/configurador?ref=${encodeURIComponent(product.sku || product
 				{product.categoryLabel}
 			</span>
 		)}
-	</div>
+	</a>
 
 	<div class="flex flex-1 flex-col p-5">
 		{brand && (
 			<p class="text-[0.68rem] font-black uppercase tracking-[0.18em] text-brand-orange">{brand}</p>
 		)}
 		<h3 class="mt-1 text-base font-black leading-snug text-ink transition group-hover:text-accent-main line-clamp-2">
-			{product.name}
+			<a href={detailUrl}>{product.name}</a>
 		</h3>
 		{product.note && (
 			<p class="mt-2 rounded-xl border border-brand-orange/20 bg-brand-orange-soft/60 px-3 py-2 text-xs font-semibold leading-5 text-brand-orange-dark">
@@ -70,10 +70,10 @@ const configUrl = `/configurador?ref=${encodeURIComponent(product.sku || product
 				Dimensionar proyecto
 			</a>
 			<a
-				href={consultUrl}
+				href={detailUrl}
 				class="inline-flex items-center justify-center rounded-full border border-slate-200 px-4 py-2.5 text-xs font-black text-slate-700 transition hover:border-accent-main hover:text-accent-main"
 			>
-				Consultar
+				Ver producto
 			</a>
 		</div>
 	</div>

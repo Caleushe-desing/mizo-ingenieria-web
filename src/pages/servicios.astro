@@ -98,7 +98,7 @@ const services = [
 ];
 
 const process = [
-	'Visita al recinto y levantamiento técnico',
+	'Visita al recinto y evaluación técnica del espacio',
 	'Propuesta con equipos, planos y presupuesto',
 	'Instalación coordinada con obra o operación',
 	'Pruebas, calibración y entrega documentada',
@@ -165,7 +165,7 @@ const process = [
 					</div>
 
 					<div class:list={[
-						"relative min-h-[320px] overflow-hidden rounded-2xl border border-gray-200 bg-charcoal shadow-lg",
+						"relative min-h-[320px] overflow-hidden rounded-2xl border border-gray-200 bg-slate-100 shadow-lg",
 						{ "lg:col-start-1": index % 2 === 1 }
 					]}>
 						<img
@@ -175,8 +175,9 @@ const process = [
 							loading="lazy"
 							width="1200"
 							height="760"
+							onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80';"
 						/>
-						<div class="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-transparent to-transparent"></div>
+						<div class="absolute inset-0 bg-gradient-to-t from-ink/35 via-transparent to-transparent"></div>
 					</div>
 				</div>
 			))}

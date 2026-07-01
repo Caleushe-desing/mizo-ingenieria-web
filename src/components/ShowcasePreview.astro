@@ -12,8 +12,8 @@ const FEATURED_COUNT = 9;
 					Equipos que usamos habitualmente en proyectos de sonido y videoproyección.
 				</p>
 			</div>
-			<a href="/equipamiento" class="inline-flex self-start rounded-full border border-accent-main px-5 py-2.5 text-sm font-black text-accent-main transition hover:bg-accent-soft">
-				Ver vitrina completa
+			<a href="/productos" class="inline-flex self-start rounded-full border border-accent-main px-5 py-2.5 text-sm font-black text-accent-main transition hover:bg-accent-soft">
+				Ver catálogo de productos
 			</a>
 		</div>
 		<div id="showcase-preview-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
@@ -85,17 +85,20 @@ const FEATURED_COUNT = 9;
 
 		function card(product) {
 			const brand = product.brand && product.brand.toLowerCase() !== 'mizo' ? product.brand : '';
+			const detailUrl = '/productos/' + encodeURIComponent(product.id || '');
 			const imgSrc = product.image || product.sourceImage || '/mizo-logo.png';
 			const imgFallback = product.sourceImage && product.sourceImage !== imgSrc ? product.sourceImage : '/mizo-logo.png';
 			return `<article class="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+				<a href="${detailUrl}" class="block">
 				<div class="flex h-40 items-center justify-center bg-slate-50 p-4">
 					<img src="${esc(imgSrc)}" data-fallback="${esc(imgFallback)}" alt="${esc(product.name)}" class="max-h-full w-auto max-w-full object-contain" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.fallback&&!this.dataset.tried){this.dataset.tried='1';this.src=this.dataset.fallback}else{this.onerror=null;this.src='/mizo-logo.png';}" />
 				</div>
+				</a>
 				<div class="p-5">
 					${brand ? `<p class="text-[0.65rem] font-black uppercase tracking-[0.18em] text-brand-orange">${esc(brand)}</p>` : ''}
-					<h3 class="mt-1 text-sm font-black leading-snug text-ink line-clamp-2">${esc(product.name)}</h3>
+					<h3 class="mt-1 text-sm font-black leading-snug text-ink line-clamp-2"><a href="${detailUrl}">${esc(product.name)}</a></h3>
 					${product.description ? `<p class="mt-2 text-xs leading-5 text-slate-600 line-clamp-2">${esc(product.description)}</p>` : ''}
-					<a href="/configurador?ref=${encodeURIComponent(product.sku || product.id || '')}" class="mt-4 inline-flex rounded-full bg-accent-main px-4 py-2 text-[0.68rem] font-black text-white transition hover:bg-accent-hover">Dimensionar proyecto</a>
+					<a href="${detailUrl}" class="mt-4 inline-flex rounded-full bg-accent-main px-4 py-2 text-[0.68rem] font-black text-white transition hover:bg-accent-hover">Ver producto</a>
 				</div>
 			</article>`;
 		}
