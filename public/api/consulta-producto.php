@@ -73,6 +73,7 @@ function normalize_consulta(array $payload): array
         'type' => 'consulta-producto',
         'source' => 'Consulta de producto · mizo.cl',
         'nombre' => consulta_clean($payload['nombre'] ?? '', 140),
+        'correo' => consulta_clean($payload['correo'] ?? '', 180),
         'telefono' => consulta_clean($payload['telefono'] ?? '', 90),
         'productoId' => consulta_clean($payload['productoId'] ?? '', 180),
         'productoNombre' => consulta_clean($payload['productoNombre'] ?? '', 260),
@@ -82,8 +83,11 @@ function normalize_consulta(array $payload): array
 
 function validate_consulta(array $consulta): ?string
 {
-    if ($consulta['nombre'] === '' || $consulta['telefono'] === '') {
-        return 'Completa nombre y celular.';
+    if ($consulta['nombre'] === '' || $consulta['telefono'] === '' || $consulta['correo'] === '') {
+        return 'Completa nombre, correo y celular.';
+    }
+    if (!filter_var($consulta['correo'], FILTER_VALIDATE_EMAIL)) {
+        return 'Ingresa un correo válido.';
     }
     if ($consulta['productoId'] === '' && $consulta['productoNombre'] === '') {
         return 'Falta identificar el producto consultado.';
@@ -140,6 +144,7 @@ function send_consulta_email(array $consulta): bool
         'Nueva consulta de producto recibida desde mizo.cl',
         '',
         'Nombre: ' . $consulta['nombre'],
+        'Correo: ' . $consulta['correo'],
         'Celular: ' . $consulta['telefono'],
         '',
         'Producto: ' . ($consulta['productoNombre'] ?: 'Sin nombre'),
@@ -151,6 +156,7 @@ function send_consulta_email(array $consulta): bool
     $headers = [
         'MIME-Version: 1.0',
         'From: Mizo Web <' . MIZO_CONSULTAS_EMAIL . '>',
+        'Reply-To: ' . $consulta['nombre'] . ' <' . $consulta['correo'] . '>',
         'Content-Type: text/plain; charset=UTF-8',
         'Content-Transfer-Encoding: 8bit',
     ];

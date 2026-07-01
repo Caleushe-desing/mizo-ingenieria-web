@@ -39,6 +39,18 @@ const { productId, productName } = Astro.props;
 			</label>
 
 			<label class="block">
+				<span class="text-sm font-bold text-slate-700">Correo</span>
+				<input
+					type="email"
+					name="correo"
+					required
+					autocomplete="email"
+					placeholder="tu@correo.cl"
+					class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-accent-main focus:ring-2 focus:ring-accent-soft"
+				/>
+			</label>
+
+			<label class="block">
 				<span class="text-sm font-bold text-slate-700">Celular</span>
 				<input
 					type="tel"
