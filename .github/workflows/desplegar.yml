@@ -42,6 +42,30 @@ jobs:
       - name: 6. Compilar el sitio web (Astro Build)
         run: npm run build
 
+      - name: 6.1 Generar secrets PHP (Web Push VAPID)
+        env:
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          public_key = (os.environ.get("VAPID_PUBLIC_KEY") or "BOaGZcEpD7fPLO90M7XHzBBDRVZosq4U5rR5Jifg_x6q4aWQ_dGsTNd9CCbagWYFmyI-6y_nOb78SpkXRFeMLc8").strip()
+          private_key = (os.environ.get("VAPID_PRIVATE_KEY") or "ViDKdNzJBU_CXjABPtM-oOLD-dafrPchekd3suyzP84").strip()
+          if not public_key or not private_key:
+              print("No hay claves VAPID; se omiten notificaciones push instantáneas.")
+              raise SystemExit(0)
+
+          content = "<?php\nreturn [\n"
+          content += f"    'VAPID_PUBLIC_KEY' => {public_key!r},\n"
+          content += f"    'VAPID_PRIVATE_KEY' => {private_key!r},\n"
+          content += "    'VAPID_SUBJECT' => 'mailto:ventas@mizo.cl',\n"
+          content += "];\n"
+          Path("dist/api/mizo-secrets.php").write_text(content, encoding="utf-8")
+          print("mizo-secrets.php generado para Web Push.")
+          PY
+
       - name: 7. Subir archivos al Hosting por FTP Nativo
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}

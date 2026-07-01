@@ -33,7 +33,7 @@ if ($action === 'config' || $action === 'vapid-public') {
         'ok' => true,
         'vapidPublicKey' => $vapid['public'],
         'pushEnabled' => $vapid['configured'],
-        'pollIntervalMs' => 45000,
+        'pollIntervalMs' => 15000,
     ]);
 }
 
@@ -44,6 +44,19 @@ if ($action === 'check') {
     }
     $result = mizo_admin_push_check_device($token);
     admin_push_response($result, ($result['ok'] ?? false) ? 200 : 404);
+}
+
+if ($action === 'ack') {
+    $token = trim((string) ($input['token'] ?? $_GET['token'] ?? ''));
+    $sequence = (int) ($input['sequence'] ?? $_GET['sequence'] ?? 0);
+    if ($token === '' || $sequence <= 0) {
+        admin_push_response(['ok' => false, 'error' => 'Token o secuencia inválidos.'], 422);
+    }
+    if (!mizo_admin_push_find_device($token)) {
+        admin_push_response(['ok' => false, 'error' => 'Dispositivo no registrado.'], 404);
+    }
+    mizo_admin_push_ack_device($token, $sequence);
+    admin_push_response(['ok' => true, 'sequence' => $sequence]);
 }
 
 if ($method !== 'POST') {

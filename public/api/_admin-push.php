@@ -171,6 +171,7 @@ function mizo_admin_push_check_device(string $token): array
         'title' => (string) ($state['title'] ?? 'Nuevo formulario Mizo'),
         'body' => (string) ($state['body'] ?? 'Hay una nueva solicitud en el panel.'),
         'url' => (string) ($state['url'] ?? '/admin/#leads'),
+        'latestAt' => (string) ($state['latestAt'] ?? ''),
     ];
 }
 
@@ -218,10 +219,13 @@ function mizo_admin_push_send_web_push(string $title, string $body, string $url)
             ],
         ];
         $webPush = new Minishlink\WebPush\WebPush($auth);
+        $state = mizo_admin_push_read_json(mizo_admin_push_state_file());
+        $sequence = (int) ($state['sequence'] ?? 0);
         $payload = json_encode([
             'title' => $title,
             'body' => $body,
             'url' => $url,
+            'sequence' => $sequence,
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         foreach (mizo_admin_push_read_json(mizo_admin_push_devices_file()) as $device) {

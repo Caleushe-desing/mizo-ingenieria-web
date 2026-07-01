@@ -49,9 +49,32 @@ function mizo_json_response(array $payload, int $status = 200): void
     exit;
 }
 
+function mizo_secrets(): array
+{
+    static $secrets = null;
+    if ($secrets !== null) {
+        return $secrets;
+    }
+
+    $file = __DIR__ . '/mizo-secrets.php';
+    if (!is_file($file)) {
+        $secrets = [];
+        return $secrets;
+    }
+
+    $loaded = include $file;
+    $secrets = is_array($loaded) ? $loaded : [];
+
+    return $secrets;
+}
+
 function mizo_env(array $keys, ?string $default = null): ?string
 {
+    $secrets = mizo_secrets();
     foreach ($keys as $key) {
+        if (isset($secrets[$key]) && trim((string) $secrets[$key]) !== '') {
+            return trim((string) $secrets[$key]);
+        }
         $value = getenv($key);
         if ($value !== false && trim((string) $value) !== '') {
             return trim((string) $value);
