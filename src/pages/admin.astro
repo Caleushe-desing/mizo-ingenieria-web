@@ -83,8 +83,12 @@ const title = 'Panel central Mizo';
 						<button id="admin-keep-awake" type="button" class="hidden rounded-full border border-green-300 bg-white px-4 py-2 text-xs font-black text-green-900 hover:bg-green-100">
 							Mantener pantalla activa
 						</button>
+						<button id="admin-test-push" type="button" class="hidden rounded-full border border-blue-200 bg-white px-4 py-2 text-xs font-black text-blue-900 hover:bg-blue-50">
+							Probar notificación
+						</button>
 					</div>
 					<p id="admin-push-status" class="mt-2 text-xs font-semibold text-green-800"></p>
+					<p id="admin-push-debug" class="mt-1 hidden text-[0.65rem] leading-5 text-green-900"></p>
 				</div>
 
 				<div class="mt-6 rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-950">
@@ -98,6 +102,11 @@ const title = 'Panel central Mizo';
 			</aside>
 
 			<section class="flex-1 p-4 sm:p-6 lg:p-8">
+				<div id="admin-restoring" class="mx-auto mt-16 hidden max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+					<p class="text-sm font-black text-slate-700">Restaurando sesión...</p>
+					<p class="mt-2 text-xs text-slate-500">Mizo Admin se está reconectando.</p>
+				</div>
+
 				<div id="login-card" class="mx-auto mt-10 max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
 					<p class="text-xs font-black uppercase tracking-[0.2em] text-accent-main">Acceso privado</p>
 					<h2 class="mt-2 text-2xl font-black">Administrador Central Mizo</h2>
@@ -1667,10 +1676,18 @@ const title = 'Panel central Mizo';
 				}
 			}
 
-			async function openAdminSession(password) {
-				const payload = await decryptData(password);
+			async function openAdminSession(password, options = {}) {
+				let payload = null;
+				if (!options.forceDecrypt) {
+					payload = await loadAdminCatalogCache(password);
+				}
+				if (!payload) {
+					payload = await decryptData(password);
+					await saveAdminCatalogCache(password, payload);
+				}
 				adminPassword = password;
-				persistAdminSession(password);
+				await persistAdminSession(password);
+				$('admin-restoring')?.classList.add('hidden');
 				$('login-card').classList.add('hidden');
 				$('panel').classList.remove('hidden');
 				renderCatalog(payload);
@@ -1678,39 +1695,90 @@ const title = 'Panel central Mizo';
 				await loadShowcaseConfig();
 				await bootstrapQuotes();
 				await loadQualityReview();
-				const initial = (location.hash || '').replace('#', '');
-				setView(views[initial] ? initial : initial === 'cotizaciones' ? 'cotizador' : 'catalogo');
+				const hashView = (location.hash || '').replace('#', '');
+				const appMode = new URLSearchParams(location.search).get('app') === '1' || isAdminStandalone();
+				const initial = views[hashView] ? hashView : hashView === 'cotizaciones' ? 'cotizador' : appMode ? 'leads' : 'catalogo';
+				setView(initial);
 				await ensureAdminMobileReady();
 				startAdminRealtimeWatcher();
+				await refreshAdminPushDebug();
 			}
 
 			const ADMIN_SESSION_KEY = 'mizoAdminSession';
+			const ADMIN_IDB_NAME = 'mizo-admin-app';
+			const ADMIN_IDB_STORE = 'cache';
 			let adminInstallPrompt = null;
 			let adminDeviceToken = localStorage.getItem('mizoAdminDeviceToken') || '';
 			let adminLastLeadSequence = Number(localStorage.getItem('mizoAdminLeadSequence') || 0);
 			let adminRealtimeTimer = null;
 			let adminWakeLock = null;
+			let adminDbPromise = null;
 
-			function isAdminStandalone() {
-				return (
-					window.matchMedia('(display-mode: standalone)').matches ||
-					window.navigator.standalone === true ||
-					document.referrer.includes('android-app://')
-				);
+			function openAdminIdb() {
+				if (!adminDbPromise) {
+					adminDbPromise = new Promise((resolve, reject) => {
+						const request = indexedDB.open(ADMIN_IDB_NAME, 1);
+						request.onupgradeneeded = () => {
+							const db = request.result;
+							if (!db.objectStoreNames.contains(ADMIN_IDB_STORE)) {
+								db.createObjectStore(ADMIN_IDB_STORE);
+							}
+						};
+						request.onsuccess = () => resolve(request.result);
+						request.onerror = () => reject(request.error);
+					});
+				}
+				return adminDbPromise;
 			}
 
-			function persistAdminSession(password) {
-				localStorage.setItem(
-					ADMIN_SESSION_KEY,
-					JSON.stringify({
-						password,
-						savedAt: Date.now(),
-					}),
-				);
+			async function adminIdbGet(key) {
+				const db = await openAdminIdb();
+				return new Promise((resolve, reject) => {
+					const tx = db.transaction(ADMIN_IDB_STORE, 'readonly');
+					const request = tx.objectStore(ADMIN_IDB_STORE).get(key);
+					request.onsuccess = () => resolve(request.result ?? null);
+					request.onerror = () => reject(request.error);
+				});
+			}
+
+			async function adminIdbSet(key, value) {
+				const db = await openAdminIdb();
+				return new Promise((resolve, reject) => {
+					const tx = db.transaction(ADMIN_IDB_STORE, 'readwrite');
+					tx.objectStore(ADMIN_IDB_STORE).put(value, key);
+					tx.oncomplete = () => resolve();
+					tx.onerror = () => reject(tx.error);
+				});
+			}
+
+			async function saveAdminCatalogCache(password, catalog) {
+				await adminIdbSet('session', { password, savedAt: Date.now() });
+				await adminIdbSet('catalog', catalog);
+			}
+
+			async function loadAdminCatalogCache(password) {
+				try {
+					const session = await adminIdbGet('session');
+					if (!session?.password || session.password !== password) return null;
+					return await adminIdbGet('catalog');
+				} catch (error) {
+					return null;
+				}
+			}
+
+			async function persistAdminSession(password) {
+				await adminIdbSet('session', { password, savedAt: Date.now() });
+				localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ password, savedAt: Date.now() }));
 				sessionStorage.setItem('mizoAdminPassword', password);
 			}
 
-			function loadPersistedAdminSession() {
+			async function loadPersistedAdminSession() {
+				try {
+					const idbSession = await adminIdbGet('session');
+					if (idbSession?.password) return idbSession.password;
+				} catch (error) {
+					/* ignore */
+				}
 				try {
 					const raw = localStorage.getItem(ADMIN_SESSION_KEY);
 					if (raw) {
@@ -1723,9 +1791,31 @@ const title = 'Panel central Mizo';
 				return sessionStorage.getItem('mizoAdminPassword') || '';
 			}
 
-			function clearPersistedAdminSession() {
+			async function clearPersistedAdminSession() {
+				try {
+					const db = await openAdminIdb();
+					const tx = db.transaction(ADMIN_IDB_STORE, 'readwrite');
+					tx.objectStore(ADMIN_IDB_STORE).delete('session');
+					tx.objectStore(ADMIN_IDB_STORE).delete('catalog');
+				} catch (error) {
+					/* ignore */
+				}
 				localStorage.removeItem(ADMIN_SESSION_KEY);
 				sessionStorage.removeItem('mizoAdminPassword');
+			}
+
+			function showAdminRestoring() {
+				$('admin-restoring')?.classList.remove('hidden');
+				$('login-card')?.classList.add('hidden');
+				$('panel')?.classList.add('hidden');
+			}
+
+			function isAdminStandalone() {
+				return (
+					window.matchMedia('(display-mode: standalone)').matches ||
+					window.navigator.standalone === true ||
+					document.referrer.includes('android-app://')
+				);
 			}
 
 			function setLeadsNavBadge(visible) {
@@ -1738,7 +1828,7 @@ const title = 'Panel central Mizo';
 				if (!adminDeviceToken) return null;
 				try {
 					const response = await fetch(
-						`/api/admin-push.php?action=check&token=${encodeURIComponent(adminDeviceToken)}`,
+						`/api/admin-push.php?action=peek&token=${encodeURIComponent(adminDeviceToken)}`,
 						{ cache: 'no-store', headers: { Accept: 'application/json' } },
 					);
 					return await response.json().catch(() => null);
@@ -1747,34 +1837,52 @@ const title = 'Panel central Mizo';
 				}
 			}
 
+			async function ackAdminNotification(sequence) {
+				if (!adminDeviceToken || !sequence) return;
+				try {
+					await fetch(
+						`/api/admin-push.php?action=ack&token=${encodeURIComponent(adminDeviceToken)}&sequence=${encodeURIComponent(sequence)}`,
+						{ cache: 'no-store', headers: { Accept: 'application/json' } },
+					);
+				} catch (error) {
+					/* ignore */
+				}
+			}
+
 			async function handleLeadPulse(payload) {
 				if (!payload?.notify) return;
 				const sequence = Number(payload.sequence || 0);
+				if (sequence > 0 && sequence <= adminLastLeadSequence) return;
+
 				if (sequence > 0) {
 					adminLastLeadSequence = sequence;
 					localStorage.setItem('mizoAdminLeadSequence', String(sequence));
 				}
-				setLeadsNavBadge(true);
-				if (document.visibilityState === 'visible' && activeAdminView !== 'leads') {
-					setAdminPushStatus('Nuevo formulario recibido. Abre Formularios web.');
+
+				if (document.visibilityState === 'visible') {
+					setLeadsNavBadge(true);
+					if (activeAdminView !== 'leads') {
+						setAdminPushStatus('Nuevo formulario recibido. Abre Formularios web.');
+					}
+					if (activeAdminView === 'leads') {
+						await loadAdminLeads();
+						setLeadsNavBadge(false);
+					}
+					await ackAdminNotification(sequence);
+					return;
 				}
-				if (document.visibilityState === 'visible' && activeAdminView === 'leads') {
-					await loadAdminLeads();
-					setLeadsNavBadge(false);
-				}
-				if (
-					document.visibilityState === 'hidden' &&
-					'Notification' in window &&
-					Notification.permission === 'granted' &&
-					'serviceWorker' in navigator
-				) {
+
+				if ('serviceWorker' in navigator) {
 					const registration = await navigator.serviceWorker.ready.catch(() => null);
 					registration?.active?.postMessage({ type: 'mizo-poll-now' });
 				}
 			}
 
 			function startAdminRealtimeWatcher() {
-				if (adminRealtimeTimer) return;
+				if (adminRealtimeTimer) {
+					clearInterval(adminRealtimeTimer);
+					adminRealtimeTimer = null;
+				}
 				const tick = async () => {
 					if (!adminPassword || !adminDeviceToken) return;
 					const payload = await pulseAdminNotifications();
@@ -1833,7 +1941,19 @@ const title = 'Panel central Mizo';
 			async function registerAdminServiceWorker() {
 				if (!('serviceWorker' in navigator)) return null;
 				try {
-					return await navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' });
+					const registrations = await navigator.serviceWorker.getRegistrations();
+					for (const registration of registrations) {
+						const script = registration.active?.scriptURL || registration.installing?.scriptURL || '';
+						if (script.includes('/admin/sw.js')) {
+							await registration.unregister();
+						}
+					}
+					const registration = await navigator.serviceWorker.register('/admin-notify-sw.js', {
+						scope: '/',
+						updateViaCache: 'none',
+					});
+					await registration.update();
+					return registration;
 				} catch (error) {
 					console.warn('SW register failed', error);
 					return null;
@@ -1907,10 +2027,38 @@ const title = 'Panel central Mizo';
 					return;
 				}
 
+				const configResponse = await fetch('/api/admin-push.php?action=config', {
+					headers: { Accept: 'application/json' },
+					cache: 'no-store',
+				});
+				const config = await configResponse.json().catch(() => null);
+				const vapidPublicKey = config?.vapidPublicKey || '';
+
+				let subscription = null;
+				if (vapidPublicKey && 'PushManager' in window) {
+					try {
+						let existing = await registration.pushManager.getSubscription();
+						if (!existing) {
+							existing = await registration.pushManager.subscribe({
+								userVisibleOnly: true,
+								applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+							});
+						}
+						subscription = existing.toJSON();
+					} catch (error) {
+						console.warn('Push subscribe failed', error);
+					}
+				}
+
 				const response = await fetch('/api/admin-push.php', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-					body: JSON.stringify({ action: 'register', password: adminPassword }),
+					body: JSON.stringify({
+						action: 'register',
+						password: adminPassword,
+						deviceToken: adminDeviceToken || '',
+						subscription,
+					}),
 				});
 				const payload = await response.json().catch(() => null);
 				if (!response.ok || !payload?.ok) {
@@ -1922,31 +2070,66 @@ const title = 'Panel central Mizo';
 				await sendTokenToServiceWorker(adminDeviceToken);
 				await registerAdminBackgroundSync(registration);
 
-				const pushReady = await subscribeAdminPush(registration);
-				if (pushReady) {
-					setAdminPushStatus('Notificaciones instantáneas activas. Puedes minimizar la app.');
+				if (subscription) {
+					setAdminPushStatus('Notificaciones instantáneas activas. Minimiza la app y prueba con el botón de prueba.');
 				} else {
-					setAdminPushStatus('Avisos activos. Instala la app en la pantalla de inicio del celular.');
+					setAdminPushStatus('Avisos activos por sondeo. Instala la app en la pantalla de inicio.');
 				}
+				await refreshAdminPushDebug();
+			}
+
+			async function refreshAdminPushDebug() {
+				const debug = $('admin-push-debug');
+				if (!debug) return;
+				const parts = [];
+				parts.push(`Permiso: ${Notification.permission || 'n/d'}`);
+				parts.push(`Token: ${adminDeviceToken ? 'sí' : 'no'}`);
+				if ('serviceWorker' in navigator) {
+					const registration = await navigator.serviceWorker.getRegistration('/').catch(() => null);
+					parts.push(`SW: ${registration?.active ? 'activo' : 'no'}`);
+					if (registration?.pushManager) {
+						const sub = await registration.pushManager.getSubscription().catch(() => null);
+						parts.push(`Push: ${sub ? 'suscrito' : 'no'}`);
+					}
+				}
+				if (adminDeviceToken) {
+					const status = await fetch(`/api/admin-push.php?action=status&token=${encodeURIComponent(adminDeviceToken)}`)
+						.then((res) => res.json())
+						.catch(() => null);
+					if (status?.registered) {
+						parts.push(`Servidor: ${status.hasPushSubscription ? 'push OK' : 'sin push'}`);
+					}
+				}
+				debug.textContent = parts.join(' · ');
+				debug.classList.remove('hidden');
+			}
+
+			async function testAdminNotification() {
+				if (!adminPassword) return;
+				const response = await fetch('/api/admin-push.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+					body: JSON.stringify({ action: 'test', password: adminPassword }),
+				});
+				const payload = await response.json().catch(() => null);
+				if (!response.ok || !payload?.ok) {
+					setAdminPushStatus(payload?.error || 'No se pudo enviar la prueba.', true);
+					return;
+				}
+				setAdminPushStatus('Prueba enviada. Deberías ver una notificación en unos segundos.');
 			}
 
 			async function ensureAdminMobileReady() {
 				if (!adminPassword) return;
-				const registration = await registerAdminServiceWorker();
-				if (adminDeviceToken) {
-					await sendTokenToServiceWorker(adminDeviceToken);
-					await registerAdminBackgroundSync(registration);
-				}
-				if (Notification.permission === 'granted') {
-					if (!adminDeviceToken) {
+				await registerAdminServiceWorker();
+				if (Notification.permission === 'granted' || (isAdminStandalone() && Notification.permission !== 'denied')) {
+					try {
 						await enableAdminNotifications();
-					} else if (registration) {
-						await subscribeAdminPush(registration);
+					} catch (error) {
+						console.warn('Push setup failed', error);
 					}
-					return;
-				}
-				if (isAdminStandalone() && Notification.permission === 'default') {
-					await enableAdminNotifications();
+				} else if (adminDeviceToken) {
+					await sendTokenToServiceWorker(adminDeviceToken);
 				}
 			}
 
@@ -2006,19 +2189,25 @@ const title = 'Panel central Mizo';
 					toggleAdminWakeLock();
 				});
 
+				$('admin-test-push')?.addEventListener('click', () => {
+					testAdminNotification();
+				});
+
 				if (isAdminStandalone()) {
 					$('admin-keep-awake')?.classList.remove('hidden');
-					setAdminPushStatus('App instalada. Las notificaciones se activan al iniciar sesión.');
-				}
-				if (adminDeviceToken && Notification.permission === 'granted') {
-					registerAdminServiceWorker().then(async (registration) => {
-						await sendTokenToServiceWorker(adminDeviceToken);
-						await registerAdminBackgroundSync(registration);
-					});
+					$('admin-test-push')?.classList.remove('hidden');
+					setAdminPushStatus('App instalada. Inicia sesión y activa notificaciones.');
 				}
 			}
 
 			setupAdminMobileApp();
+
+			window.addEventListener('pageshow', () => {
+				if (adminPassword) {
+					ensureAdminMobileReady();
+					startAdminRealtimeWatcher();
+				}
+			});
 
 			$('login-form').addEventListener('submit', async (event) => {
 				event.preventDefault();
@@ -2027,7 +2216,7 @@ const title = 'Panel central Mizo';
 					await openAdminSession($('password').value);
 				} catch (error) {
 					console.warn(error);
-					clearPersistedAdminSession();
+					await clearPersistedAdminSession();
 					$('login-error').classList.remove('hidden');
 				}
 			});
@@ -2064,8 +2253,8 @@ const title = 'Panel central Mizo';
 				showcaseMap = new Map();
 				renderShowcaseManager();
 			});
-			$('logout').addEventListener('click', () => {
-				clearPersistedAdminSession();
+			$('logout').addEventListener('click', async () => {
+				await clearPersistedAdminSession();
 				if (adminWakeLock) {
 					adminWakeLock.release().catch(() => null);
 					adminWakeLock = null;
@@ -2136,11 +2325,23 @@ const title = 'Panel central Mizo';
 				});
 			});
 
-			const savedPassword = loadPersistedAdminSession();
-			if (savedPassword) {
+			(async () => {
+				const savedPassword = await loadPersistedAdminSession();
+				if (!savedPassword) return;
 				$('password').value = savedPassword;
-				openAdminSession(savedPassword).catch(() => clearPersistedAdminSession());
-			}
+				showAdminRestoring();
+				try {
+					await openAdminSession(savedPassword);
+				} catch (error) {
+					try {
+						await openAdminSession(savedPassword, { forceDecrypt: true });
+					} catch (retryError) {
+						await clearPersistedAdminSession();
+						$('admin-restoring')?.classList.add('hidden');
+						$('login-card')?.classList.remove('hidden');
+					}
+				}
+			})();
 		</script>
 	</body>
 </html>
