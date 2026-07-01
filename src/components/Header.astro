@@ -4,8 +4,8 @@ const currentPath = Astro.url.pathname;
 
 const navLinks = [
     { title: 'Inicio', url: '/' },
-    { title: 'Diagnóstico Técnico', url: '/configurador' },
-    { title: 'Soluciones', url: '/servicios' },
+    { title: 'Servicios', url: '/servicios' },
+    { title: 'Proyectos', url: '/#proyectos' },
     { title: 'Nosotros', url: '/nosotros' },
     { title: 'Contacto', url: '/contacto' },
 ];
@@ -22,17 +22,17 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
 
 <header class="sticky top-0 z-50 shadow-sm">
     <!-- CINTILLO DE POSICIONAMIENTO -->
-    <div class="bg-brand-neon text-gray-900">
+    <div class="bg-charcoal text-white border-b border-charcoal-muted">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div class="flex min-h-9 items-center justify-center gap-3 text-center text-xs sm:text-sm font-black uppercase tracking-wide">
-                <span class="hidden sm:inline-flex rounded-full bg-white px-2.5 py-0.5 text-[0.65rem] text-brand-neon-dark">Mizo Pro</span>
-                <span>Soluciones de Ingeniería Audiovisual Corporativa en todo Chile</span>
+            <div class="flex min-h-9 items-center justify-center gap-3 text-center text-xs sm:text-sm font-bold uppercase tracking-wide">
+                <span class="hidden sm:inline-flex rounded-full bg-charcoal-light px-2.5 py-0.5 text-[0.65rem] text-brand-orange">Mizo</span>
+                <span class="text-gray-300">Ingeniería e instalación de <span class="text-accent-main">audio</span> y <span class="text-brand-orange">videoproyección</span> en Chile</span>
             </div>
         </div>
     </div>
 
-    <!-- BANNER PRINCIPAL (fondo blanco) -->
-    <div class="bg-white text-gray-900 border-b border-gray-100">
+    <!-- BANNER PRINCIPAL -->
+    <div class="bg-white text-gray-900 border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center gap-3 sm:gap-6 h-16 sm:h-20">
                 <a href="/" class="flex-shrink-0 flex items-center">
@@ -57,10 +57,10 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                     </a>
 
                     <a
-                        href="/configurador"
-                        class="hidden rounded-full bg-accent-main px-4 py-2 text-sm font-black text-white transition hover:bg-accent-hover sm:inline-flex"
+                        href="/contacto"
+                        class="hidden rounded-full bg-brand-orange px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-orange-hover sm:inline-flex"
                     >
-                        Diagnóstico
+                        Cotizar
                     </a>
 
                     <button
@@ -88,7 +88,7 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
     </div>
 
     <!-- SUB-BARRA: navegación principal -->
-    <div class="hidden md:block bg-accent-dark border-b border-accent-hover">
+    <div class="hidden md:block bg-charcoal border-b border-charcoal-muted">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center h-11">
                 <nav class="flex items-center gap-1">
@@ -113,7 +113,7 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
     </div>
 
     <!-- MENÚ MÓVIL -->
-    <div class="md:hidden hidden bg-accent-dark border-t border-accent-hover" id="mobile-menu">
+    <div class="md:hidden hidden bg-charcoal border-t border-charcoal-muted" id="mobile-menu">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks.map((link) => (
                 <a
@@ -140,10 +140,10 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                 Consultar por WhatsApp
             </a>
             <a
-                href="/configurador"
-                class="block w-full rounded-md bg-white px-4 py-2.5 text-center text-base font-black text-accent-main transition hover:bg-accent-soft"
+                href="/contacto"
+                class="block w-full rounded-md bg-brand-orange px-4 py-2.5 text-center text-base font-bold text-white transition hover:bg-brand-orange-hover"
             >
-                Abrir diagnóstico técnico
+                Solicitar cotización
             </a>
         </div>
     </div>
