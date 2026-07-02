@@ -17,7 +17,8 @@ const isActive = (url: string) => {
 };
 
 const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20quiero%20cotizar%20un%20proyecto%20de%20audio%20o%20videoproyecci%C3%B3n';
-const logoSrc = '/mizo-logo.png';
+const logoSrc = '/mizo-logo-dark.png';
+const logoFallback = '/mizo-logo-dark.svg';
 const logoAlt = 'Mizo Ingeniería - Instalación de sonido y videoproyección en Chile';
 ---
 
@@ -35,7 +36,7 @@ const logoAlt = 'Mizo Ingeniería - Instalación de sonido y videoproyección en
 						class="h-10 w-auto object-contain transition group-hover:brightness-110 sm:h-11"
 						width="180"
 						height="60"
-						onerror="this.onerror=null; this.src='/mizo-logo.svg';"
+						onerror={`this.onerror=null; this.src='${logoFallback}';`}
 					/>
 					<div class="hidden min-w-0 border-l border-white/15 pl-3 sm:block lg:pl-4">
 						<p class="truncate text-[0.7rem] font-black uppercase tracking-[0.18em] text-brand-orange sm:text-xs">Mizo Ingeniería</p>

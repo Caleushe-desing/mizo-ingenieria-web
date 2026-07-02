@@ -39,6 +39,9 @@ jobs:
         env:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
+      - name: 5.1 Generar variantes del logo (claro y oscuro)
+        run: npm run make-logos
+
       - name: 6. Compilar el sitio web (Astro Build)
         run: npm run build
 

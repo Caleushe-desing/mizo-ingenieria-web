@@ -3,7 +3,8 @@
 const today = new Date();
 const currentYear = today.getFullYear();
 
-const logoSrc = "/mizo-logo-footer.png";
+const logoSrc = "/mizo-logo-dark.png";
+const logoFallback = "/mizo-logo-dark.svg";
 const logoAlt = "Mizo";
 ---
 
@@ -13,7 +14,7 @@ const logoAlt = "Mizo";
             
             <div class="space-y-4 col-span-1 md:col-span-1">
                 <a href="/" class="flex items-center">
-                    <img src={logoSrc} alt={logoAlt} class="h-14 w-auto object-contain" width="210" height="70" onerror="this.onerror=null; this.src='/mizo-logo.png';" />
+                    <img src={logoSrc} alt={logoAlt} class="h-14 w-auto object-contain" width="210" height="70" onerror={`this.onerror=null; this.src='${logoFallback}';`} />
                 </a>
                 <p class="text-gray-400 text-sm max-w-xs">
                     Ingeniería e instalación de sonido, videoproyección e instalaciones eléctricas en Chile. Colegios, iglesias, auditorios, comercio e industria.
