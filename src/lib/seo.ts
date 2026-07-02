@@ -3,7 +3,7 @@ export const SITE = {
 	legalName: 'Mizo',
 	url: 'https://mizo.cl',
 	description:
-		'Diseño e instalación de sistemas de sonido, videoproyección y salas audiovisuales para colegios, iglesias, auditorios, restaurantes y empresas en Chile.',
+		'Diseño e instalación de sistemas de sonido, videoproyección, instalaciones eléctricas y salas audiovisuales para colegios, iglesias, auditorios, restaurantes y empresas en Chile.',
 	email: 'ventas@mizo.cl',
 	phone: '+56994390870',
 	phoneDisplay: '+56 9 9439 0870',
@@ -218,11 +218,27 @@ export function homePageSchema(site = SITE.url): JsonLd[] {
 		localBusinessSchema(site),
 		websiteSchema(site),
 		webPageSchema({
-			name: 'Mizo | Ingeniería e instalación de audio y videoproyección',
+			name: 'Mizo | Sonido, videoproyección e instalaciones eléctricas en Chile',
 			description: SITE.description,
 			url: site,
 		}),
 	];
+}
+
+export function faqPageSchema(
+	items: Array<{ question?: string; answer?: string; q?: string; a?: string }>,
+): JsonLd {
+	return {
+		'@type': 'FAQPage',
+		mainEntity: items.map((item) => ({
+			'@type': 'Question',
+			name: item.question ?? item.q ?? '',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: item.answer ?? item.a ?? '',
+			},
+		})),
+	};
 }
 
 export function contactPageSchema(site = SITE.url): JsonLd[] {
