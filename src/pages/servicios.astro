@@ -34,6 +34,20 @@ const services = [
 		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
 	},
 	{
+		id: 'electricas',
+		title: 'Instalaciones eléctricas',
+		description: 'Alimentación segura y normada para salas audiovisuales, tableros, circuitos dedicados e iluminación. La base eléctrica correcta evita ruidos, cortes y riesgos en tu instalación.',
+		kicker: 'Electricidad',
+		details: [
+			'Tableros, protecciones y circuitos dedicados para equipos AV',
+			'Tendido, canalización y puntos de enchufe según proyecto',
+			'Iluminación escénica, perimetral y de emergencia',
+			'UPS y estabilización para equipos críticos',
+			'Pruebas, certificación y documentación de la instalación',
+		],
+		image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80',
+	},
+	{
 		id: 'colegios',
 		title: 'Colegios y salas de clases',
 		description: 'Aulas con proyección nítida, audio claro y equipos que resisten el uso diario. Coordinamos la instalación para no interrumpir las clases más de lo necesario.',
@@ -116,7 +130,7 @@ const pageUrl = absoluteUrl('/servicios');
 const jsonLd = [
 	webPageSchema({
 		name: 'Servicios | Mizo',
-		description: 'Instalación de sistemas de sonido, videoproyección y salas audiovisuales en Chile.',
+		description: 'Instalación de sistemas de sonido, videoproyección, instalaciones eléctricas y salas audiovisuales en Chile.',
 		url: pageUrl,
 	}),
 	...services.map((service) =>
@@ -130,17 +144,17 @@ const jsonLd = [
 ---
 
 <Layout
-	title="Servicios de Sonido y Videoproyección en Chile | Mizo Ingeniería"
-	description="Instalación profesional de sistemas de sonido, videoproyección, streaming y control AV para iglesias, colegios, auditorios, empresas y retail en Santiago, Frutillar y regiones."
-	keywords="instalación sonido profesional chile, videoproyección iglesias, audio auditorios, salas audiovisuales santiago, sistemas PA, instalación parlantes"
+	title="Servicios de Sonido, Videoproyección e Instalaciones Eléctricas | Mizo"
+	description="Instalación profesional de sistemas de sonido, videoproyección, instalaciones eléctricas, streaming y control AV para iglesias, colegios, auditorios, empresas y retail en Santiago, Frutillar y regiones."
+	keywords="instalación sonido profesional chile, videoproyección iglesias, instalaciones eléctricas santiago, audio auditorios, salas audiovisuales, electricista salas técnicas"
 	jsonLd={jsonLd}
 >
 	<PageHero
 		eyebrow="Servicios"
-		title="Instalamos sistemas de audio y videoproyección que funcionan en el día a día."
-		subtitle="Diseño, suministro, montaje, calibración y soporte en Chile. Trabajamos el proyecto completo para iglesias, colegios, auditorios, empresas y locales comerciales."
+		title="Audio, videoproyección e instalaciones eléctricas que funcionan en el día a día."
+		subtitle="Diseño, suministro, montaje, calibración y soporte en Chile. Trabajamos el proyecto completo — sonido, imagen y electricidad — para iglesias, colegios, auditorios, empresas y locales comerciales."
 		image="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80"
-		chips={["Audio profesional", "Videoproyección", "Instalación en terreno"]}
+		chips={["Audio profesional", "Videoproyección", "Instalaciones eléctricas", "Instalación en terreno"]}
 	/>
 
 	<section class="bg-white py-16">

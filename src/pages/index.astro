@@ -11,9 +11,9 @@ const heroSlides = [
 		image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1600&q=80',
 		alt: 'Instalación de sonido profesional y videoproyección en sala de clases en Chile',
 		tag: 'Mizo Ingeniería · Chile',
-		title: 'Sonido profesional e instalación audiovisual en Chile',
-		desc: 'Diseñamos, instalamos y damos soporte a iglesias, colegios, auditorios y empresas. Cotización sin compromiso.',
-		detail: 'Audio PA, proyección, streaming en vivo y control integrado.',
+		title: 'Sonido, video e instalaciones eléctricas en Chile',
+		desc: 'Diseñamos, instalamos y damos soporte a iglesias, colegios, auditorios y empresas. Audio, videoproyección y electricidad en un solo proyecto.',
+		detail: 'Audio PA, proyección, instalaciones eléctricas y control integrado.',
 	},
 	{
 		image: 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1600&q=80',
@@ -44,7 +44,7 @@ const heroSlides = [
 const faqItems = [
 	{
 		q: '¿Qué servicios ofrece Mizo Ingeniería?',
-		a: 'Diseño e instalación de sistemas de sonido profesional, videoproyección, streaming en vivo, control y automatización, y soporte técnico. Atendemos iglesias, colegios, auditorios, empresas y locales comerciales en Chile.',
+		a: 'Diseño e instalación de sistemas de sonido profesional, videoproyección, instalaciones eléctricas, streaming en vivo, control y automatización, y soporte técnico. Atendemos iglesias, colegios, auditorios, empresas y locales comerciales en Chile.',
 	},
 	{
 		q: '¿En qué zonas trabajan?',
@@ -94,9 +94,9 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 ---
 
 <Layout
-	title="Mizo Ingeniería | Sonido Profesional, Video e Instalación Audiovisual en Chile"
-	description="Empresa chilena de ingeniería en sonido y videoproyección. Instalación de sistemas de audio profesional, proyección, streaming y automatización para iglesias, colegios, auditorios y empresas. Cotización en Santiago, Frutillar y regiones."
-	keywords="sonido profesional chile, instalación audio iglesias, videoproyección santiago, sistemas audiovisuales, ingeniería en sonido, streaming iglesias, cotizar sonido profesional, Mizo ingeniería"
+	title="Mizo Ingeniería | Sonido, Video, Instalaciones Eléctricas en Chile"
+	description="Empresa chilena de ingeniería en sonido, videoproyección e instalaciones eléctricas. Sistemas de audio profesional, proyección, tableros y circuitos para iglesias, colegios, auditorios y empresas. Cotización en Santiago, Frutillar y regiones."
+	keywords="sonido profesional chile, instalación audio iglesias, videoproyección santiago, instalaciones eléctricas chile, sistemas audiovisuales, electricista salas técnicas, Mizo ingeniería"
 	jsonLd={[...homePageSchema(), faqPageSchema(faqItems)]}
 >
 	<HeroCarousel slides={heroSlides} />
@@ -105,11 +105,11 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 		<div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
 			<p class="mb-3 text-sm font-semibold uppercase tracking-wider text-brand-orange">Ingeniería audiovisual en Chile</p>
 			<h2 class="mb-6 text-2xl font-black leading-tight text-ink md:text-4xl">
-				Sonido, video e instalación con respaldo técnico real
+				Sonido, video, electricidad e instalación con respaldo técnico real
 			</h2>
 			<p class="mb-4 text-lg leading-relaxed text-gray-600">
 				<strong>Mizo Ingeniería</strong> diseña e instala <strong>sistemas de sonido profesional</strong>,
-				videoproyección y control para espacios que necesitan calidad y operación simple.
+				videoproyección, <strong>instalaciones eléctricas</strong> y control para espacios que necesitan calidad y operación simple.
 				No solo vendemos equipos: dimensionamos cada proyecto, instalamos con estándares profesionales
 				y acompañamos con soporte postventa.
 			</p>
@@ -155,10 +155,10 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 			<div class="mb-12 text-center">
 				<h2 id="servicios-home-heading" class="mb-3 text-2xl font-black text-ink md:text-3xl">Nuestros servicios</h2>
 				<p class="mx-auto max-w-2xl text-gray-600">
-					Desde el diseño acústico hasta la puesta en marcha y el mantenimiento de tu sistema audiovisual.
+					Desde el diseño acústico y la electricidad de la sala hasta la puesta en marcha y el mantenimiento de tu sistema.
 				</p>
 			</div>
-			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
 				<a href="/servicios#sonido" class="group block rounded-xl border border-gray-200 p-6 transition-all hover:border-brand-orange hover:shadow-lg">
 					<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-orange/10 transition-colors group-hover:bg-brand-orange/20">
 						<svg class="h-6 w-6 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
@@ -172,6 +172,13 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 					</div>
 					<h3 class="mb-2 font-bold text-ink transition-colors group-hover:text-brand-orange">Videoproyección</h3>
 					<p class="text-sm text-gray-600">Proyectores láser, pantallas, videowalls y señalización para salas y auditorios.</p>
+				</a>
+				<a href="/servicios#electricas" class="group block rounded-xl border border-gray-200 p-6 transition-all hover:border-brand-orange hover:shadow-lg">
+					<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-orange/10 transition-colors group-hover:bg-brand-orange/20">
+						<svg class="h-6 w-6 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+					</div>
+					<h3 class="mb-2 font-bold text-ink transition-colors group-hover:text-brand-orange">Instalaciones eléctricas</h3>
+					<p class="text-sm text-gray-600">Tableros, circuitos dedicados, iluminación y alimentación segura para salas técnicas.</p>
 				</a>
 				<a href="/servicios#streaming" class="group block rounded-xl border border-gray-200 p-6 transition-all hover:border-brand-orange hover:shadow-lg">
 					<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-orange/10 transition-colors group-hover:bg-brand-orange/20">
@@ -239,6 +246,10 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 				<div>
 					<h3 class="mb-2 font-bold text-brand-orange">Cotización clara</h3>
 					<p class="text-sm leading-relaxed text-gray-300">Presupuesto detallado antes de comenzar. Sin sorpresas en equipos ni mano de obra.</p>
+				</div>
+				<div>
+					<h3 class="mb-2 font-bold text-brand-orange">Proyecto integral</h3>
+					<p class="text-sm leading-relaxed text-gray-300">Sonido, video e instalaciones eléctricas coordinadas en un solo equipo. Sin contratistas sueltos ni incompatibilidades.</p>
 				</div>
 				<div>
 					<h3 class="mb-2 font-bold text-brand-orange">Chile, de norte a sur</h3>
