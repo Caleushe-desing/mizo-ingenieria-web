@@ -21,7 +21,9 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const OUT_JSON = path.join(root, 'src/data/products.json');
+const PUBLIC_JSON = path.join(root, 'public/catalogo-productos.json');
 const IMG_DIR = path.join(root, 'public/images/productos');
+const REVIEW_JSON = path.join(root, 'data/productos-en-revision.json');
 const FORCE_IMAGES = process.argv.includes('--force-images');
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
@@ -53,12 +55,46 @@ const SOURCES = [
 		store: 'Casa Royal',
 		type: 'vtex',
 		host: 'https://www.casaroyal.cl',
-		category: 'video', // se divide en 'proyector' o 'camara' según el producto
-		target: 60,
+		category: 'video',
+		target: 50,
 		terms: [
-			'proyector', 'proyector wanbo', 'proyector philco', 'proyector epson',
-			'proyector full hd', 'proyector 4k', 'mini proyector', 'home theater proyector',
 			'camara seguridad', 'camara wifi', 'camara vigilancia', 'camara ip',
+		],
+	},
+	{
+		store: 'Casa Royal',
+		type: 'vtex',
+		host: 'https://www.casaroyal.cl',
+		category: 'proyector',
+		target: 28,
+		terms: [
+			'proyector', 'proyector wanbo', 'wanbo proyector', 'proyector philco',
+			'proyector full hd', 'proyector 4k', 'mini proyector', 'proyector portatil',
+			'proyector android', 'proyector laser',
+		],
+	},
+	{
+		store: 'Epson Chile',
+		type: 'magento',
+		host: 'https://www.tiendaepson.cl',
+		category: 'proyector',
+		target: 12,
+		paths: ['/proyectores'],
+	},
+	{
+		store: 'BIP',
+		type: 'bip',
+		host: 'https://bip.cl',
+		category: 'proyector',
+		target: 30,
+		terms: [
+			'proyector benq', 'proyector epson', 'proyector viewsonic', 'proyector optoma',
+			'proyector sony', 'proyector',
+		],
+		seeds: [
+			'https://bip.cl/proyector-dlp-benq-mw560c-xga-4000-lumenes-hdmi-usb-lan-9hjtd771nl_37649',
+			'https://bip.cl/proyector-pa503s-svga-3800lum-hdmivgaparlantes-pa503s-pn-PA503S_23435',
+			'https://bip.cl/proyector-pa503x-xga-3800l-1024x768-blancohdmivgax2p-ag025-pn-PA503X_23436',
 		],
 	},
 ];
@@ -128,6 +164,19 @@ function weightFor(category, specs, desc, fallbackGrams) {
 	return fromSpec || fromDesc || fromGrams || DEFAULT_WEIGHT[category] || 5;
 }
 
+function stockFromCasaRoyalStores(raw) {
+	const stockText = Array.isArray(raw?.StockTiendas) ? raw.StockTiendas[0] : '';
+	if (!stockText) return null;
+
+	let total = 0;
+	for (const match of String(stockText).matchAll(/\b(R\d+)=(\d+)\b/g)) {
+		const quantity = Number(match[2]) || 0;
+		total += quantity;
+	}
+
+	return total > 0 ? total : null;
+}
+
 // Intenta extraer "Etiqueta: valor" desde el HTML de descripción (Shopify) usando
 // los bloques naturales (<li>, <tr>, <p>, <br>).
 function specsFromHtml(html = '') {
@@ -177,7 +226,8 @@ const BLOCKLIST = new RegExp(
 		'interlight',
 		// accesorios
 		'soporte', '\\bbolso\\b', 'tripode', 'trípode', '\\bbase para\\b', '\\bcable\\b',
-		'maleta', 'funda', 'pantalla de proyec', 'mochila',
+		'maleta', 'funda', 'pantalla de proyec', 'mochila', 'tel[oó]n mural', 'soporte mural',
+		'soporte para proyector', 'soporte-mural',
 		// equipos de audio que NO son parlantes
 		'audifono', 'audífono', '\\bin[- ]ear\\b', 'monitoreo', 'micr[oó]fono',
 		'grabadora', 'preamplificad', '\\bpreamp\\b', 'tornamesa', 'controlador',
@@ -202,6 +252,188 @@ async function fetchJson(url) {
 	const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
 	if (!res.ok) throw new Error(`HTTP ${res.status} en ${url}`);
 	return res.json();
+}
+
+async function fetchHtml(url) {
+	const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'text/html' }, redirect: 'follow' });
+	if (!res.ok) throw new Error(`HTTP ${res.status} en ${url}`);
+	return res.text();
+}
+
+function resolveCategory(srcCategory, name) {
+	if (srcCategory === 'proyector' || srcCategory === 'camara') {
+		return srcCategory === 'proyector' && !/proyector/i.test(name) ? null : srcCategory;
+	}
+	return finalCategory(srcCategory, name);
+}
+
+function buildProductRecord({
+	id,
+	name,
+	brand,
+	category,
+	description = '',
+	descriptionLong = '',
+	specs = [],
+	weightKg,
+	basePrice,
+	stock = null,
+	store,
+	url,
+	imageUrl,
+}) {
+	if (!id || !name || !imageUrl || Number(basePrice) <= 0) return null;
+	const nameForFilter = `${brand || ''} ${name}`;
+	if (BLOCKLIST.test(nameForFilter)) return null;
+	const finalCat = category === 'proyector' || category === 'camara' ? category : resolveCategory(category, name);
+	if (!finalCat) return null;
+
+	const cleanName = clean(name);
+	const cleanBrand = titleCase(clean(brand) || 'Genérico');
+	const desc = clean(description);
+	const descLong = clean(descriptionLong);
+
+	return {
+		id,
+		sku: skuFor(id, finalCat),
+		name: cleanName,
+		brand: cleanBrand,
+		category: finalCat,
+		description: desc ? desc.slice(0, 200).replace(/\s+\S*$/, '') : `${cleanBrand} — ${cleanName}.`,
+		descriptionLong: descLong ? descLong.slice(0, 1200) : (desc ? desc.slice(0, 1200) : ''),
+		specs,
+		weightKg: weightKg ?? weightFor(finalCat, specs, descLong || desc),
+		basePrice: Math.round(Number(basePrice)),
+		stock,
+		available: true,
+		image: `/images/productos/${id}.jpg`,
+		source: {
+			store,
+			url,
+			image: imageUrl,
+			capturedAt: new Date().toISOString().slice(0, 10),
+		},
+	};
+}
+
+function parseMagentoCategory(html, store, host, category) {
+	const products = [];
+	const chunks = html.split(/id=\"product-item-info_/).slice(1);
+	for (const chunk of chunks) {
+		const href = chunk.match(/class=\"product-item-link\"\s+href=\"([^\"]+)\"/)?.[1];
+		const imageRaw = chunk.match(/product-image-photo[^>]*src=\"([^\"]+)\"/)?.[1];
+		const price = chunk.match(/data-price-amount=\"(\d+)\"/)?.[1];
+		const nameRaw = chunk.match(/class=\"product-item-link\"[^>]*>\s*([^<]+)/)?.[1];
+		if (!href || !imageRaw || !price || !nameRaw) continue;
+		const hrefPath = href.startsWith('http') ? href : `${host}${href.startsWith('/') ? '' : '/'}${href}`;
+		const id = slugify(hrefPath.replace(/^https?:\/\/[^/]+\//, '').replace(/\/p$/, '').split('/').filter(Boolean).pop() || nameRaw);
+		const imageUrl = decodeEntities(imageRaw).replace(/&amp;/g, '&').split('?')[0];
+		const product = buildProductRecord({
+			id,
+			name: nameRaw,
+			brand: nameRaw.match(/\bEpson\b/i)?.[0] || store.split(' ')[0],
+			category,
+			basePrice: price,
+			store,
+			url: hrefPath,
+			imageUrl,
+		});
+		if (product) products.push(product);
+	}
+	return products;
+}
+
+function extractBipProjectorLinks(html, host) {
+	const escapedHost = host.replace(/\./g, '\\.');
+	const re = new RegExp(`href=\"(${escapedHost}/proyector[^\"#]+)\"`, 'gi');
+	return [...new Set([...html.matchAll(re)].map((m) => m[1]).filter((u) => !/soporte-mural|telon-mural|soporte-para-proyector/i.test(u)))];
+}
+
+function parseBipProduct(html, url, store) {
+	if (!/proyector/i.test(html)) return null;
+	const name = clean(
+		html.match(/<div class=\"cloth-details-size\">[\s\S]*?<h2>([\s\S]*?)<\/h2>/i)?.[1]?.replace(/<[^>]+>/g, '')
+		|| html.match(/<title>([^<|]+)/i)?.[1]
+		|| '',
+	);
+	if (!name || !/proyector/i.test(name)) return null;
+	const brand = clean(html.match(/label-text[^>]*><b>([^<]+)/i)?.[1] || name.match(/\b(BenQ|Epson|ViewSonic|Optoma|Sony|Philco|Wanbo)\b/i)?.[1] || 'Genérico');
+	const priceTxt = html.match(/Precio Efectivo[\s\S]{0,400}?price-detail[^>]*>\$?\s*([\d\.]+)/i)?.[1]
+		|| html.match(/class=\"theme-color\">\$\s*([\d\.]+)/i)?.[1];
+	const price = Math.round(Number(String(priceTxt || '').replace(/\./g, '')) || 0);
+	const imageUrl = (
+		html.match(/https:\/\/s3\.amazonaws\.com\/w3\.assets\/fotos\/\d+\/[^\"'\s>]+\.webp[^\"'\s>]*/i)?.[0]
+		|| html.match(/https:\/\/s3\.amazonaws\.com\/w3\.assets\/fotos\/\d+\/[^\"'\s>]+\.webp/i)?.[0]
+		|| ''
+	).replace(/&amp;/g, '&');
+	const id = slugify(url.replace(/^https?:\/\/[^/]+\//, '').replace(/_\d+$/, ''));
+	const description = clean(html.match(/<meta name=\"description\" content=\"([^\"]+)/i)?.[1] || '');
+
+	return buildProductRecord({
+		id,
+		name,
+		brand,
+		category: 'proyector',
+		description,
+		descriptionLong: description,
+		basePrice: price,
+		store,
+		url,
+		imageUrl,
+	});
+}
+
+async function searchMagento(src) {
+	const products = new Map();
+	for (const pagePath of src.paths || []) {
+		try {
+			const html = await fetchHtml(`${src.host}${pagePath}`);
+			for (const product of parseMagentoCategory(html, src.store, src.host, src.category)) {
+				if (products.size >= src.target) break;
+				if (!products.has(product.id)) products.set(product.id, product);
+			}
+			console.log(`  ${pagePath}: ${products.size} producto(s)`);
+		} catch (err) {
+			console.warn(`  (aviso) ${pagePath}: ${err.message}`);
+		}
+	}
+	return [...products.values()];
+}
+
+async function searchBip(src) {
+	const queue = [...new Set([...(src.seeds || []), ...(src.seedUrls || [])])];
+	const visited = new Set();
+	const products = new Map();
+
+	for (const term of src.terms || []) {
+		try {
+			const html = await fetchHtml(`${src.host}/index.php?controller=search&search_query=${encodeURIComponent(term)}`);
+			for (const link of extractBipProjectorLinks(html, src.host)) queue.push(link);
+		} catch (err) {
+			console.warn(`  (aviso) búsqueda "${term}": ${err.message}`);
+		}
+	}
+
+	while (queue.length && products.size < src.target) {
+		const url = queue.shift();
+		if (!url || visited.has(url)) continue;
+		visited.add(url);
+		try {
+			const html = await fetchHtml(url);
+			for (const link of extractBipProjectorLinks(html, src.host)) {
+				if (!visited.has(link)) queue.push(link);
+			}
+			const product = parseBipProduct(html, url, src.store);
+			if (product && !products.has(product.id)) {
+				products.set(product.id, product);
+				console.log(`  + ${product.brand} · ${product.name.slice(0, 55)}`);
+			}
+		} catch (err) {
+			console.warn(`  (aviso) ${url}: ${err.message}`);
+		}
+	}
+
+	return [...products.values()];
 }
 
 async function searchTerm(host, term) {
@@ -242,12 +474,13 @@ function normalize(raw, store, host, category) {
 	if (BLOCKLIST.test(nameForFilter)) return null;
 
 	const name = clean(raw.productName);
-	const finalCat = finalCategory(category, name);
+	const finalCat = resolveCategory(category, name);
 	if (!finalCat) return null;
 
 	const rawQty = Number(offer.AvailableQuantity) || 0;
+	const visibleStoreStock = store === 'Casa Royal' ? stockFromCasaRoyalStores(raw) : null;
 	// VTEX usa valores enormes (10000+) para "stock infinito": lo tratamos como disponible sin número.
-	const stock = rawQty >= 1 && rawQty < 1000 ? rawQty : null;
+	const stock = visibleStoreStock ?? (rawQty >= 1 && rawQty < 1000 ? rawQty : null);
 
 	const productUrl = `${host}/${id}/p`;
 	const brand = clean(raw.brand) || 'Genérico';
@@ -363,6 +596,55 @@ async function downloadImage(product) {
 	}
 }
 
+function sameInventoryValue(a, b) {
+	return (a ?? null) === (b ?? null);
+}
+
+function samePriceValue(a, b) {
+	return Number(a ?? 0) === Number(b ?? 0);
+}
+
+function auditWrittenCatalog(providerProducts) {
+	const written = JSON.parse(fs.readFileSync(OUT_JSON, 'utf8'));
+	const writtenBySku = new Map(written.map((product) => [product.sku, product]));
+	const productsInReview = [];
+
+	for (const providerProduct of providerProducts) {
+		const mizoProduct = writtenBySku.get(providerProduct.sku);
+		const stockProveedor = providerProduct.stock ?? null;
+		const stockMizo = mizoProduct?.stock ?? null;
+		const precioProveedor = Number(providerProduct.basePrice ?? 0);
+		const precioMizo = mizoProduct ? Number(mizoProduct.basePrice ?? 0) : null;
+
+		if (!mizoProduct || !sameInventoryValue(stockProveedor, stockMizo) || !samePriceValue(precioProveedor, precioMizo)) {
+			productsInReview.push({
+				sku: providerProduct.sku,
+				stock_proveedor: stockProveedor,
+				stock_mizo: stockMizo,
+				precio_proveedor: precioProveedor,
+				precio_mizo: precioMizo,
+			});
+		}
+	}
+
+	fs.mkdirSync(path.dirname(REVIEW_JSON), { recursive: true });
+	fs.writeFileSync(REVIEW_JSON, JSON.stringify(productsInReview, null, '\t') + '\n', 'utf8');
+
+	if (productsInReview.length) {
+		console.log('\n⚠️ PRODUCTOS BAJO REVISIÓN MANUAL (DETECTADAS DISCREPANCIAS)');
+		for (const product of productsInReview) {
+			console.log(
+				`  ${product.sku} | stock proveedor=${product.stock_proveedor} stock Mizo=${product.stock_mizo} | precio proveedor=${product.precio_proveedor} precio Mizo=${product.precio_mizo}`,
+			);
+		}
+		console.log(`Reporte escrito en ${path.relative(root, REVIEW_JSON)}`);
+	} else {
+		console.log('\n✅ Sincronización 100% idéntica');
+	}
+
+	return productsInReview;
+}
+
 async function main() {
 	fs.mkdirSync(IMG_DIR, { recursive: true });
 	const byId = new Map();
@@ -379,6 +661,22 @@ async function main() {
 				collected.set(p.id, p);
 			}
 			console.log(`  Shopify: ${collected.size} productos`);
+		} else if (src.type === 'magento') {
+			const results = await searchMagento(src);
+			for (const p of results) {
+				if (collected.size >= src.target) break;
+				if (collected.has(p.id) || byId.has(p.id)) continue;
+				collected.set(p.id, p);
+			}
+			console.log(`  Magento: ${collected.size} productos`);
+		} else if (src.type === 'bip') {
+			const results = await searchBip(src);
+			for (const p of results) {
+				if (collected.size >= src.target) break;
+				if (collected.has(p.id) || byId.has(p.id)) continue;
+				collected.set(p.id, p);
+			}
+			console.log(`  BIP: ${collected.size} productos`);
 		} else {
 			for (const term of src.terms) {
 				if (collected.size >= src.target) break;
@@ -421,6 +719,7 @@ async function main() {
 	console.log(`Imágenes -> nuevas: ${ok}, reutilizadas: ${skip}, fallidas: ${fail}`);
 
 	valid.sort((a, b) => (a.category === b.category ? a.name.localeCompare(b.name) : a.category.localeCompare(b.category)));
+	const providerSnapshot = valid.map((product) => ({ ...product }));
 
 	// Productos ocultos (prueba interna) se conservan entre sincronizaciones.
 	const hiddenPath = path.join(root, 'src/data/products-hidden.json');
@@ -434,7 +733,11 @@ async function main() {
 	}
 
 	fs.writeFileSync(OUT_JSON, JSON.stringify(valid, null, '\t') + '\n', 'utf8');
+	fs.mkdirSync(path.dirname(PUBLIC_JSON), { recursive: true });
+	fs.writeFileSync(PUBLIC_JSON, JSON.stringify(valid, null, '\t') + '\n', 'utf8');
 	console.log(`\nEscrito ${path.relative(root, OUT_JSON)} con ${valid.length} productos.`);
+	console.log(`Copia pública -> ${path.relative(root, PUBLIC_JSON)}`);
+	auditWrittenCatalog(providerSnapshot);
 	const count = (c) => valid.filter((p) => p.category === c).length;
 	console.log(`  Parlantes: ${count('sonido')}  |  Proyectores: ${count('proyector')}  |  Cámaras: ${count('camara')}`);
 }

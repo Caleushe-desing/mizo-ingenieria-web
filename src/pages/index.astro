@@ -1,231 +1,301 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ProductCard from '../components/ProductCard.astro';
-import ClientLogos from '../components/ClientLogos.astro';
+import HeroCarousel from '../components/HeroCarousel.astro';
+import ProjectsSection from '../components/ProjectsSection.astro';
 import Brands from '../components/Brands.astro';
-import { products, featuredProducts } from '../data/products';
+import ShowcasePreview from '../components/ShowcasePreview.astro';
+import { faqPageSchema, homePageSchema } from '../lib/seo';
 
-const destacados = featuredProducts(8);
-
-const audioCount = products.filter((p) => p.category === 'sonido').length;
-const proyectorCount = products.filter((p) => p.category === 'proyector').length;
-const camaraCount = products.filter((p) => p.category === 'camara').length;
-
-const categoryTiles = [
-	{ title: 'Parlantes y Audio', count: audioCount, icon: '🔊', url: '/productos?cat=sonido', desc: 'Cajas activas, line array y portátiles' },
-	{ title: 'Proyectores', count: proyectorCount, icon: '📽️', url: '/productos?cat=proyector', desc: 'Para salas, eventos y home cinema' },
-	{ title: 'Cámaras', count: camaraCount, icon: '📹', url: '/productos?cat=camara', desc: 'Seguridad y videovigilancia WiFi' },
+const heroSlides = [
+	{
+		image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1600&q=80',
+		alt: 'Instalación de sonido profesional y videoproyección en sala de clases en Chile',
+		tag: 'Mizo Ingeniería · Chile',
+		title: 'Sonido, video e instalaciones eléctricas en Chile',
+		desc: 'Diseñamos, instalamos y damos soporte a iglesias, colegios, auditorios y empresas. Audio, videoproyección y electricidad en un solo proyecto.',
+		detail: 'Audio PA, proyección, instalaciones eléctricas y control integrado.',
+	},
+	{
+		image: 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1600&q=80',
+		alt: 'Sistema de sonido profesional instalado en iglesia',
+		tag: 'Iglesias y templos',
+		title: 'Instalación de audio para iglesias y cultos en vivo',
+		desc: 'Cobertura uniforme en naves amplias: voces inteligibles, música equilibrada y operación sencilla para el equipo técnico.',
+		detail: 'Parlantes de columna, mezcladores digitales, monitoreo y transmisión.',
+	},
+	{
+		image: 'https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1600&q=80',
+		alt: 'Auditorio con proyección láser y sistema de sonido profesional',
+		tag: 'Auditorios',
+		title: 'Auditorios con proyección láser y audio distribuido',
+		desc: 'Acústica del recinto, proyección de gran formato y microfonía para presentaciones, conciertos y conferencias.',
+		detail: 'Proyección 4K/láser, line array, consola digital y cabina técnica.',
+	},
+	{
+		image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80',
+		alt: 'Sistema de audio y pantallas para restaurante o local comercial',
+		tag: 'Empresas y retail',
+		title: 'Audio y video para salas de reuniones y locales comerciales',
+		desc: 'Videoconferencia, pantallas, música por zonas y control centralizado para operar el espacio día a día.',
+		detail: 'Audio multizona, señalización digital y soporte remoto.',
+	},
 ];
 
-const trust = [
-	{ icon: '🚚', title: 'Despacho a todo Chile', desc: 'Coordinamos la entrega' },
-	{ icon: '🛠️', title: 'Instalación profesional', desc: 'Sonido y proyección' },
-	{ icon: '✅', title: 'Equipos originales', desc: 'Marcas reconocidas' },
-	{ icon: '🔒', title: 'Pago seguro', desc: 'Mercado Pago' },
+const faqItems = [
+	{
+		q: '¿Qué servicios ofrece Mizo Ingeniería?',
+		a: 'Diseño e instalación de sistemas de sonido profesional, videoproyección, instalaciones eléctricas, streaming en vivo, control y automatización, y soporte técnico. Atendemos iglesias, colegios, auditorios, empresas y locales comerciales en Chile.',
+	},
+	{
+		q: '¿En qué zonas trabajan?',
+		a: 'Nuestra base operativa está en Frutillar y Santiago. Realizamos proyectos en la Región Metropolitana, Los Lagos y coordinamos instalaciones en otras regiones según el alcance del proyecto.',
+	},
+	{
+		q: '¿Puedo cotizar sin compromiso?',
+		a: 'Sí. Puedes solicitar una cotización por el formulario de contacto, WhatsApp o teléfono. Te respondemos con una propuesta adaptada a tu espacio y presupuesto.',
+	},
+	{
+		q: '¿Venden equipos además de instalar?',
+		a: 'Sí. Tenemos catálogo de productos de audio, video y accesorios. Puedes consultar disponibilidad y precios en nuestra sección de productos.',
+	},
 ];
+
+const sectors = [
+	{
+		title: 'Iglesias y cultos',
+		desc: 'Sonido claro para voz e instrumentos, monitoreo, transmisión en vivo y proyección para congregaciones de todos los tamaños.',
+		icon: '⛪',
+	},
+	{
+		title: 'Colegios y universidades',
+		desc: 'Auditorios, salas de clases y espacios multipropósito con audio, video y micrófonos inalámbricos.',
+		icon: '🎓',
+	},
+	{
+		title: 'Empresas y salas',
+		desc: 'Videoconferencia, presentaciones y control de salas de reuniones con equipos confiables y fáciles de usar.',
+		icon: '🏢',
+	},
+	{
+		title: 'Retail y eventos',
+		desc: 'Ambientación sonora, pantallas y sistemas portátiles o fijos para tiendas, ferias y eventos corporativos.',
+		icon: '🎪',
+	},
+];
+
+const processSteps = [
+	'Visita al recinto: medidas, uso del espacio y restricciones técnicas.',
+	'Propuesta técnica con equipos, planos de instalación y presupuesto.',
+	'Ejecución en terreno con cableado oculto y montaje certificado.',
+	'Pruebas, calibración, capacitación y entrega documentada.',
+];
+
+const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar%20un%20proyecto%20de%20audio%20o%20videoproyecci%C3%B3n';
 ---
 
 <Layout
-	title="Mizo | Tienda de Audio y Video + Instalación Profesional"
-	description="Compra parlantes, proyectores y cámaras en Chile, con instalación profesional de sistemas de sonido y proyección. Equipos originales, despacho y pago seguro."
+	title="Mizo Ingeniería | Sonido, Video, Instalaciones Eléctricas en Chile"
+	description="Empresa chilena de ingeniería en sonido, videoproyección e instalaciones eléctricas. Sistemas de audio profesional, proyección, tableros y circuitos para iglesias, colegios, auditorios y empresas. Cotización en Santiago, Frutillar y regiones."
+	keywords="sonido profesional chile, instalación audio iglesias, videoproyección santiago, instalaciones eléctricas chile, sistemas audiovisuales, electricista salas técnicas, Mizo ingeniería"
+	jsonLd={[...homePageSchema(), faqPageSchema(faqItems)]}
 >
-	<!-- HERO TIENDA -->
-	<section class="relative bg-gradient-to-b from-accent-soft to-white py-16 sm:py-24 overflow-hidden">
-		<div class="absolute inset-0 -z-10 opacity-[0.05]" style="background-image: radial-gradient(#15616d 1.2px, transparent 1.2px); background-size: 22px 22px;"></div>
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<span class="inline-block px-4 py-1.5 mb-5 text-sm font-semibold rounded-full bg-accent-main/10 text-accent-main">
-				Tienda + Instalación profesional
-			</span>
-			<h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight max-w-4xl mx-auto">
-				Equipos de <span class="text-accent-main">audio y video</span>, instalados como corresponde
-			</h1>
-			<p class="mt-5 text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-				Compra parlantes, proyectores y cámaras de las mejores marcas. Y si quieres, nosotros los instalamos: sistemas de sonido y proyección listos para funcionar.
+	<HeroCarousel slides={heroSlides} />
+
+	<section class="border-b border-gray-200 bg-white py-14 md:py-20">
+		<div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+			<p class="mb-3 text-sm font-semibold uppercase tracking-wider text-brand-orange">Ingeniería audiovisual en Chile</p>
+			<h2 class="mb-6 text-2xl font-black leading-tight text-ink md:text-4xl">
+				Sonido, video, electricidad e instalación con respaldo técnico real
+			</h2>
+			<p class="mb-4 text-lg leading-relaxed text-gray-600">
+				<strong>Mizo Ingeniería</strong> diseña e instala <strong>sistemas de sonido profesional</strong>,
+				videoproyección, <strong>instalaciones eléctricas</strong> y control para espacios que necesitan calidad y operación simple.
+				No solo vendemos equipos: dimensionamos cada proyecto, instalamos con estándares profesionales
+				y acompañamos con soporte postventa.
 			</p>
-
-			<!-- Buscador hero -->
-			<form action="/productos" method="get" role="search" class="mt-8 max-w-2xl mx-auto">
-				<div class="relative">
-					<input
-						type="search"
-						name="q"
-						placeholder="¿Qué estás buscando? Ej: parlante JBL, proyector Wanbo..."
-						aria-label="Buscar productos"
-						class="w-full pl-12 pr-28 py-4 rounded-full border border-gray-300 bg-white text-base text-gray-900 placeholder-gray-400 shadow-md focus:border-accent-main focus:ring-2 focus:ring-accent-main/20 focus:outline-none transition"
-					/>
-					<svg class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-					<button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-accent-main hover:bg-accent-hover transition">
-						Buscar
-					</button>
-				</div>
-			</form>
-
-			<div class="mt-5 flex flex-wrap justify-center gap-2 text-sm">
-				<span class="text-gray-500">Populares:</span>
-				<a href="/productos?q=jbl" class="text-accent-main hover:underline">JBL</a>
-				<a href="/productos?q=proyector" class="text-accent-main hover:underline">Proyectores</a>
-				<a href="/productos?q=reolink" class="text-accent-main hover:underline">Cámaras Reolink</a>
-				<a href="/productos?cat=sonido" class="text-accent-main hover:underline">Parlantes</a>
+			<p class="leading-relaxed text-gray-600">
+				Si buscas <strong>instalación de audio para iglesia</strong>, auditorio escolar, sala de reuniones
+				o local comercial en <strong>Santiago, Frutillar o regiones</strong>, cotiza con nosotros sin compromiso.
+			</p>
+			<div class="mt-8 flex flex-wrap justify-center gap-4">
+				<a href="/servicios" class="inline-flex items-center gap-2 rounded-lg bg-brand-orange px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-orange-hover">
+					Ver todos los servicios
+				</a>
+				<a href="/productos" class="inline-flex items-center gap-2 rounded-lg border-2 border-ink px-6 py-3 font-semibold text-ink transition-colors hover:bg-ink hover:text-white">
+					Catálogo de productos
+				</a>
 			</div>
 		</div>
 	</section>
 
-	<!-- BARRA DE CONFIANZA -->
-	<section class="bg-white border-y border-gray-100">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-6">
-			{trust.map((t) => (
-				<div class="flex items-center gap-3">
-					<span class="text-2xl">{t.icon}</span>
-					<div>
-						<p class="text-sm font-bold text-gray-900 leading-tight">{t.title}</p>
-						<p class="text-xs text-gray-500">{t.desc}</p>
-					</div>
-				</div>
-			))}
-		</div>
-	</section>
-
-	<!-- CATEGORÍAS -->
-	<section class="bg-white py-16">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="text-center mb-10">
-				<h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Explora por categoría</h2>
-				<p class="mt-2 text-gray-600">Encuentra el equipo ideal para tu proyecto.</p>
+	<section class="bg-gray-50 py-14 md:py-18" aria-labelledby="sectores-heading">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<div class="mb-12 text-center">
+				<h2 id="sectores-heading" class="mb-3 text-2xl font-black text-ink md:text-3xl">
+					Soluciones por tipo de espacio
+				</h2>
+				<p class="mx-auto max-w-2xl text-gray-600">
+					Cada proyecto es distinto. Estos son los sectores donde más experiencia tenemos en Chile.
+				</p>
 			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-				{categoryTiles.map((c) => (
-					<a href={c.url} class="group relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent-soft to-white p-8 hover:shadow-lg hover:border-accent-light transition duration-300">
-						<div class="text-5xl mb-4">{c.icon}</div>
-						<h3 class="text-xl font-bold text-gray-900 group-hover:text-accent-main transition">{c.title}</h3>
-						<p class="mt-1 text-sm text-gray-600">{c.desc}</p>
-						<p class="mt-4 inline-flex items-center text-sm font-semibold text-accent-main">
-							Ver {c.count} productos
-							<svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-						</p>
-					</a>
+			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+				{sectors.map((s) => (
+					<article class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-brand-orange/30 hover:shadow-md">
+						<span class="mb-3 block text-3xl" aria-hidden="true">{s.icon}</span>
+						<h3 class="mb-2 text-lg font-bold text-ink">{s.title}</h3>
+						<p class="text-sm leading-relaxed text-gray-600">{s.desc}</p>
+					</article>
 				))}
 			</div>
 		</div>
 	</section>
 
-	<!-- PRODUCTOS DESTACADOS -->
-	<section class="bg-accent-soft py-16">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 gap-4">
-				<div>
-					<h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Más vendidos</h2>
-					<p class="mt-2 text-gray-600">Equipos profesionales con opción de instalación.</p>
-				</div>
-				<a href="/productos" class="inline-flex items-center font-semibold text-accent-main hover:text-accent-hover">
-					Ver toda la tienda
-					<svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-				</a>
-			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-				{destacados.map((product) => <ProductCard product={product} />)}
-			</div>
-		</div>
-	</section>
-
-	<!-- INSTALACIÓN (DIFERENCIADOR) -->
-	<section class="bg-white py-20">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="text-center max-w-3xl mx-auto mb-12">
-				<span class="inline-block px-4 py-1.5 mb-4 text-sm font-semibold rounded-full bg-accent-main/10 text-accent-main">
-					Nuestro corazón: la instalación
-				</span>
-				<h2 class="text-3xl lg:text-4xl font-bold text-gray-900">No solo te vendemos el equipo. Lo dejamos funcionando.</h2>
-				<p class="mt-4 text-lg text-gray-600">
-					La verdadera diferencia está en una instalación bien hecha. Diseñamos, montamos y configuramos sistemas de sonido y proyección profesionales para que todo suene y se vea perfecto.
+	<section class="bg-white py-14 md:py-20" aria-labelledby="servicios-home-heading">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<div class="mb-12 text-center">
+				<h2 id="servicios-home-heading" class="mb-3 text-2xl font-black text-ink md:text-3xl">Nuestros servicios</h2>
+				<p class="mx-auto max-w-2xl text-gray-600">
+					Desde el diseño acústico y la electricidad de la sala hasta la puesta en marcha y el mantenimiento de tu sistema.
 				</p>
 			</div>
-
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-				<div class="rounded-2xl border border-gray-200 p-8 hover:shadow-lg transition duration-300">
-					<div class="text-4xl mb-4">🔊</div>
-					<h3 class="text-xl font-bold text-gray-900 mb-2">Sistemas de sonido</h3>
-					<p class="text-gray-600">Audio profesional, megafonía y música ambiental con zonificación para comercios, eventos, iglesias y hogares.</p>
-				</div>
-				<div class="rounded-2xl border border-gray-200 p-8 hover:shadow-lg transition duration-300">
-					<div class="text-4xl mb-4">📽️</div>
-					<h3 class="text-xl font-bold text-gray-900 mb-2">Proyección y audiovisual</h3>
-					<p class="text-gray-600">Proyectores, pantallas y salas de reuniones. Imagen nítida y configuración óptima para cada espacio.</p>
-				</div>
-				<div class="rounded-2xl border border-gray-200 p-8 hover:shadow-lg transition duration-300">
-					<div class="text-4xl mb-4">📹</div>
-					<h3 class="text-xl font-bold text-gray-900 mb-2">Videovigilancia</h3>
-					<p class="text-gray-600">Instalación de cámaras de seguridad WiFi y cableadas, con acceso remoto desde tu celular.</p>
-				</div>
-			</div>
-
-			<div class="mt-10 text-center">
-				<a href="/servicios" class="inline-block px-8 py-3.5 text-lg font-semibold rounded-md text-white bg-accent-main hover:bg-accent-hover transition duration-300 shadow-lg">
-					Conoce nuestros servicios de instalación
+			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+				<a href="/servicios#sonido" class="group block rounded-xl border border-gray-200 p-6 transition-all hover:border-brand-orange hover:shadow-lg">
+					<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-orange/10 transition-colors group-hover:bg-brand-orange/20">
+						<svg class="h-6 w-6 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+					</div>
+					<h3 class="mb-2 font-bold text-ink transition-colors group-hover:text-brand-orange">Sonido profesional</h3>
+					<p class="text-sm text-gray-600">Diseño, instalación y calibración de sistemas PA, monitoreo y refuerzo sonoro.</p>
+				</a>
+				<a href="/servicios#video" class="group block rounded-xl border border-gray-200 p-6 transition-all hover:border-brand-orange hover:shadow-lg">
+					<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-orange/10 transition-colors group-hover:bg-brand-orange/20">
+						<svg class="h-6 w-6 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+					</div>
+					<h3 class="mb-2 font-bold text-ink transition-colors group-hover:text-brand-orange">Videoproyección</h3>
+					<p class="text-sm text-gray-600">Proyectores láser, pantallas, videowalls y señalización para salas y auditorios.</p>
+				</a>
+				<a href="/servicios#electricas" class="group block rounded-xl border border-gray-200 p-6 transition-all hover:border-brand-orange hover:shadow-lg">
+					<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-orange/10 transition-colors group-hover:bg-brand-orange/20">
+						<svg class="h-6 w-6 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+					</div>
+					<h3 class="mb-2 font-bold text-ink transition-colors group-hover:text-brand-orange">Instalaciones eléctricas</h3>
+					<p class="text-sm text-gray-600">Tableros, circuitos dedicados, iluminación y alimentación segura para salas técnicas.</p>
+				</a>
+				<a href="/servicios#streaming" class="group block rounded-xl border border-gray-200 p-6 transition-all hover:border-brand-orange hover:shadow-lg">
+					<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-orange/10 transition-colors group-hover:bg-brand-orange/20">
+						<svg class="h-6 w-6 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+					</div>
+					<h3 class="mb-2 font-bold text-ink transition-colors group-hover:text-brand-orange">Streaming en vivo</h3>
+					<p class="text-sm text-gray-600">Transmisión para cultos, eventos y conferencias con audio y video de calidad.</p>
+				</a>
+				<a href="/servicios#control" class="group block rounded-xl border border-gray-200 p-6 transition-all hover:border-brand-orange hover:shadow-lg">
+					<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-orange/10 transition-colors group-hover:bg-brand-orange/20">
+						<svg class="h-6 w-6 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+					</div>
+					<h3 class="mb-2 font-bold text-ink transition-colors group-hover:text-brand-orange">Control y automatización</h3>
+					<p class="text-sm text-gray-600">Paneles táctiles y escenas para operar sonido, luces y video con un solo toque.</p>
 				</a>
 			</div>
 		</div>
 	</section>
 
-	<!-- POR QUÉ MIZO -->
-	<section class="bg-accent-soft py-20">
-		<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+	<ProjectsSection />
+
+	<section class="border-y border-gray-200 bg-gray-50 py-16">
+		<div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
 			<div>
-				<h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Un solo proveedor, de principio a fin</h2>
-				<p class="text-lg text-gray-600 mb-6">
-					Compra el equipo y déjanos la instalación. Mizo combina venta e ingeniería para entregarte una solución completa, prolija y garantizada.
+				<p class="text-xs font-bold uppercase tracking-[0.2em] text-brand-orange">Cómo trabajamos</p>
+				<h2 class="mt-3 text-3xl font-black text-ink md:text-4xl">De la visita técnica a la entrega</h2>
+				<p class="mt-4 text-base leading-relaxed text-gray-600">
+					Sin pasos innecesarios. Un ingeniero revisa cada propuesta antes de comprometer equipos y fechas.
 				</p>
-				<ul class="space-y-3">
-					{[
-						'Equipos de marcas reconocidas y originales',
-						'Instalación según normativa chilena',
-						'Cobertura en Frutillar, Santiago y todo Chile',
-						'Asesoría técnica antes, durante y después',
-					].map((item) => (
-						<li class="flex items-start text-gray-700">
-							<svg class="w-6 h-6 text-accent-main mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-							{item}
-						</li>
-					))}
-				</ul>
-				<div class="mt-8">
-					<a href="/nosotros" class="px-6 py-3 border border-accent-main text-base font-semibold rounded-md text-accent-main hover:bg-accent-main hover:text-white transition duration-300">
-						Conoce a Mizo
-					</a>
-				</div>
+				<a href="/contacto" class="mt-7 inline-flex rounded-md bg-accent-main px-6 py-3 text-sm font-bold text-white transition hover:bg-accent-hover">
+					Agendar visita técnica
+				</a>
 			</div>
-
-			<div class="h-72 lg:h-80 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-white flex items-center justify-center">
-				<img
-					src="/mizo-confianza.jpg"
-					alt="Equipo de Mizo trabajando en una instalación"
-					class="w-full h-full object-cover"
-					loading="lazy"
-					width="800"
-					height="600"
-				/>
+			<div class="grid gap-3">
+				{processSteps.map((step, index) => (
+					<div class="flex gap-4 rounded-xl border border-gray-200 bg-white p-5">
+						<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-charcoal text-sm font-black text-brand-orange">{index + 1}</span>
+						<p class="self-center text-sm font-semibold leading-relaxed text-gray-800">{step}</p>
+					</div>
+				))}
 			</div>
 		</div>
 	</section>
 
-	<!-- CTA FINAL -->
-	<section class="bg-accent-main py-16">
-		<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">¿Compras el equipo o lo quieres instalado?</h2>
-			<p class="text-lg sm:text-xl text-white/80 mb-8">
-				Escríbenos y te asesoramos para elegir el equipo correcto y, si lo necesitas, lo instalamos por ti.
-			</p>
-			<div class="flex flex-col sm:flex-row justify-center gap-4">
-				<a href="/productos" class="inline-block px-10 py-4 text-lg font-bold rounded-md text-accent-main bg-white hover:bg-accent-soft transition duration-300 shadow-lg">
-					Ir a la tienda
-				</a>
-				<a href="/contacto" class="inline-block px-10 py-4 text-lg font-bold rounded-md text-white border-2 border-white hover:bg-white hover:text-accent-main transition duration-300">
-					Solicitar Cotización
-				</a>
+	<section class="bg-ink py-14 text-white">
+		<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+			<h2 class="mb-10 text-center text-2xl font-black md:text-3xl">¿Por qué elegir Mizo Ingeniería?</h2>
+			<div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+				<div>
+					<h3 class="mb-2 font-bold text-brand-orange">Experiencia en terreno</h3>
+					<p class="text-sm leading-relaxed text-gray-300">Proyectos reales en iglesias, colegios y empresas. Conocemos los problemas típicos y cómo resolverlos.</p>
+				</div>
+				<div>
+					<h3 class="mb-2 font-bold text-brand-orange">Marcas de confianza</h3>
+					<p class="text-sm leading-relaxed text-gray-300">Trabajamos con fabricantes reconocidos en audio y video profesional, con garantía y repuestos.</p>
+				</div>
+				<div>
+					<h3 class="mb-2 font-bold text-brand-orange">Soporte continuo</h3>
+					<p class="text-sm leading-relaxed text-gray-300">No desaparecemos después de la instalación. Capacitación, mantenimiento y asistencia técnica.</p>
+				</div>
+				<div>
+					<h3 class="mb-2 font-bold text-brand-orange">Proyecto a medida</h3>
+					<p class="text-sm leading-relaxed text-gray-300">Cada espacio tiene acústica y uso distintos. Diseñamos la solución correcta, no la más cara.</p>
+				</div>
+				<div>
+					<h3 class="mb-2 font-bold text-brand-orange">Cotización clara</h3>
+					<p class="text-sm leading-relaxed text-gray-300">Presupuesto detallado antes de comenzar. Sin sorpresas en equipos ni mano de obra.</p>
+				</div>
+				<div>
+					<h3 class="mb-2 font-bold text-brand-orange">Proyecto integral</h3>
+					<p class="text-sm leading-relaxed text-gray-300">Sonido, video e instalaciones eléctricas coordinadas en un solo equipo. Sin contratistas sueltos ni incompatibilidades.</p>
+				</div>
+				<div>
+					<h3 class="mb-2 font-bold text-brand-orange">Chile, de norte a sur</h3>
+					<p class="text-sm leading-relaxed text-gray-300">Bases en Frutillar y Santiago con capacidad de coordinar instalaciones en regiones.</p>
+				</div>
 			</div>
 		</div>
 	</section>
 
 	<Brands />
 
-	<ClientLogos />
+	<ShowcasePreview />
+
+	<section class="bg-gray-50 py-14 md:py-18" aria-labelledby="faq-heading">
+		<div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+			<h2 id="faq-heading" class="mb-10 text-center text-2xl font-black text-ink md:text-3xl">
+				Preguntas frecuentes
+			</h2>
+			<div class="space-y-4">
+				{faqItems.map((item) => (
+					<details class="group overflow-hidden rounded-xl border border-gray-200 bg-white">
+						<summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 font-semibold text-ink hover:bg-gray-50">
+							<span>{item.q}</span>
+							<svg class="h-5 w-5 shrink-0 text-brand-orange transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+						</summary>
+						<div class="border-t border-gray-100 px-6 pb-4 pt-4 text-sm leading-relaxed text-gray-600">
+							{item.a}
+						</div>
+					</details>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="bg-charcoal py-16 text-white">
+		<div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+			<p class="text-xs font-bold uppercase tracking-[0.2em] text-accent-main">Contacto</p>
+			<h2 class="mt-3 text-3xl font-black md:text-4xl">¿Listo para mejorar el sonido o video de tu espacio?</h2>
+			<p class="mx-auto mt-4 max-w-xl text-base text-gray-400">
+				Cuéntanos tu proyecto por teléfono, WhatsApp o formulario. Te respondemos con una propuesta a tu medida.
+			</p>
+			<div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+				<a href="tel:+56994390870" class="rounded-md bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-gray-100">+56 9 9439 0870</a>
+				<a href="mailto:ventas@mizo.cl" class="rounded-md border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:border-accent-main">ventas@mizo.cl</a>
+				<a href={waLink} target="_blank" rel="noopener noreferrer" class="rounded-md bg-brand-orange px-6 py-3 text-sm font-bold text-white transition hover:bg-brand-orange-hover">WhatsApp</a>
+			</div>
+		</div>
+	</section>
 </Layout>

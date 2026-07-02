@@ -1,0 +1,12 @@
+{
+  "name": "mizo/api",
+  "description": "Dependencias PHP del backend Mizo",
+  "require": {
+    "php": ">=8.1",
+    "minishlink/web-push": "^9.0"
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true
+  }
+}
