@@ -1242,8 +1242,41 @@ function mizo_site_content_config_paths(): array
     return array_values(array_unique($paths));
 }
 
+function mizo_is_assoc_array(array $value): bool
+{
+    if ($value === []) {
+        return false;
+    }
+    return array_keys($value) !== range(0, count($value) - 1);
+}
+
+function mizo_merge_site_content_defaults(array $defaults, array $saved): array
+{
+    $result = $defaults;
+    foreach ($saved as $key => $value) {
+        if ($key === 'source') {
+            continue;
+        }
+        if (
+            is_array($value)
+            && isset($result[$key])
+            && is_array($result[$key])
+            && mizo_is_assoc_array($value)
+            && mizo_is_assoc_array($result[$key])
+        ) {
+            $result[$key] = mizo_merge_site_content_defaults($result[$key], $value);
+            continue;
+        }
+        $result[$key] = $value;
+    }
+    return $result;
+}
+
 function mizo_read_site_content(): array
 {
+    $saved = null;
+    $source = 'default';
+
     foreach (mizo_site_content_config_paths() as $path) {
         if (!is_file($path)) {
             continue;
@@ -1253,18 +1286,39 @@ function mizo_read_site_content(): array
             continue;
         }
         $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            continue;
+        }
+        $saved = $decoded;
+        $source = basename($path);
+        break;
+    }
+
+    $defaultPath = mizo_public_root() . '/site-content-default.json';
+    $defaults = [];
+    if (is_file($defaultPath)) {
+        $raw = file_get_contents($defaultPath);
+        $decoded = is_string($raw) ? json_decode($raw, true) : null;
         if (is_array($decoded)) {
-            $decoded['source'] = basename($path);
-            return $decoded;
+            $defaults = $decoded;
         }
     }
 
-    return [
-        'updatedAt' => gmdate('c'),
-        'global' => [],
-        'pages' => [],
-        'source' => 'empty',
-    ];
+    if ($saved === null) {
+        return array_merge($defaults, [
+            'updatedAt' => gmdate('c'),
+            'global' => $defaults['global'] ?? [],
+            'pages' => $defaults['pages'] ?? [],
+            'source' => 'default',
+        ]);
+    }
+
+    if ($defaults !== []) {
+        $saved = mizo_merge_site_content_defaults($defaults, $saved);
+    }
+
+    $saved['source'] = $source;
+    return $saved;
 }
 
 function mizo_write_site_content(array $content): array

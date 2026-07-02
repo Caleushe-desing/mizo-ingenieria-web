@@ -264,6 +264,45 @@
 					},
 				],
 			},
+			{
+				title: 'Experiencia móvil (celulares)',
+				open: true,
+				fields: [
+					{
+						path: 'global.mobile.navPrimary',
+						label: 'Menú principal en celular',
+						type: 'list',
+						itemLabel: 'Enlace',
+						itemTemplate: { title: '', url: '' },
+						itemFields: [
+							{ path: 'title', label: 'Texto', type: 'text' },
+							{ path: 'url', label: 'URL', type: 'text' },
+						],
+					},
+					{
+						path: 'global.mobile.navMore',
+						label: 'Enlaces en “Más secciones”',
+						type: 'list',
+						itemLabel: 'Enlace',
+						itemTemplate: { title: '', url: '' },
+						itemFields: [
+							{ path: 'title', label: 'Texto', type: 'text' },
+							{ path: 'url', label: 'URL', type: 'text' },
+						],
+					},
+					{ path: 'global.mobile.navMoreLabel', label: 'Texto “Más secciones”', type: 'text' },
+					{ path: 'global.mobile.menuWhatsapp', label: 'Botón WhatsApp en menú', type: 'text' },
+					{ path: 'global.mobile.menuQuote', label: 'Botón cotizar en menú (tablet)', type: 'text' },
+					{ path: 'global.mobile.menuQuoteUrl', label: 'Enlace cotizar en menú', type: 'text' },
+					{ path: 'global.mobile.headerWhatsapp', label: 'Texto WhatsApp en header (tablet+)', type: 'text' },
+					{ path: 'global.mobile.headerQuote', label: 'Texto Cotizar en header (tablet+)', type: 'text' },
+					{ path: 'global.mobile.headerQuoteUrl', label: 'Enlace Cotizar en header', type: 'text' },
+					{ path: 'global.mobile.contactBar.call', label: 'Barra inferior — Llamar', type: 'text' },
+					{ path: 'global.mobile.contactBar.whatsapp', label: 'Barra inferior — WhatsApp', type: 'text' },
+					{ path: 'global.mobile.contactBar.quote', label: 'Barra inferior — Cotizar', type: 'text' },
+					{ path: 'global.mobile.contactBar.quoteUrl', label: 'Barra inferior — Enlace cotizar', type: 'text' },
+				],
+			},
 		],
 		inicio: [
 			{
@@ -306,6 +345,30 @@
 					{ path: 'pages.home.intro.cta1.href', label: 'CTA 1 — Enlace', type: 'text' },
 					{ path: 'pages.home.intro.cta2.text', label: 'CTA 2 — Texto', type: 'text' },
 					{ path: 'pages.home.intro.cta2.href', label: 'CTA 2 — Enlace', type: 'text' },
+					{ path: 'pages.home.intro.ctaMobile.text', label: 'CTA móvil — Texto (solo celular)', type: 'text' },
+					{ path: 'pages.home.intro.ctaMobile.href', label: 'CTA móvil — Enlace', type: 'text' },
+				],
+			},
+			{
+				title: 'Hero — Botones de acción',
+				fields: [
+					{ path: 'pages.home.heroCtas.services.text', label: 'Servicios — Texto', type: 'text' },
+					{ path: 'pages.home.heroCtas.services.href', label: 'Servicios — Enlace', type: 'text' },
+					{ path: 'pages.home.heroCtas.whatsapp.text', label: 'WhatsApp — Texto', type: 'text' },
+					{ path: 'pages.home.heroCtas.quote.text', label: 'Cotizar — Texto', type: 'text' },
+					{ path: 'pages.home.heroCtas.quote.href', label: 'Cotizar — Enlace', type: 'text' },
+				],
+			},
+			{
+				title: 'Inicio en celular — Secciones colapsables',
+				fields: [
+					{ path: 'pages.home.mobileCollapse.sectors', label: 'Sectores', type: 'text' },
+					{ path: 'pages.home.mobileCollapse.services', label: 'Servicios', type: 'text' },
+					{ path: 'pages.home.mobileCollapse.projects', label: 'Proyectos', type: 'text' },
+					{ path: 'pages.home.mobileCollapse.process', label: 'Proceso', type: 'text' },
+					{ path: 'pages.home.mobileCollapse.whyChoose', label: 'Por qué elegirnos', type: 'text' },
+					{ path: 'pages.home.mobileCollapse.brands', label: 'Marcas', type: 'text' },
+					{ path: 'pages.home.mobileCollapse.showcase', label: 'Productos destacados', type: 'text' },
 				],
 			},
 			{

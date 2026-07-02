@@ -11,6 +11,48 @@
 		return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
 	}
 
+	function phoneDigits(phone) {
+		return String(phone || '').replace(/\D/g, '');
+	}
+
+	function buildWhatsappUrl(phone, message) {
+		const digits = phoneDigits(phone);
+		if (!digits) return '';
+		return message
+			? `https://wa.me/${digits}?text=${encodeURIComponent(message)}`
+			: `https://wa.me/${digits}`;
+	}
+
+	function currentPathname() {
+		return window.location.pathname.replace(/\/$/, '') || '/';
+	}
+
+	function linkIsActive(url) {
+		const path = currentPathname();
+		const base = String(url || '').split('?')[0];
+		return path === base || (base !== '/' && path.startsWith(base));
+	}
+
+	function applyCta(attr, cta) {
+		if (!cta) return;
+		document.querySelectorAll(`[data-cms-cta="${attr}"]`).forEach((el) => {
+			if (cta.text !== undefined && cta.text !== null) el.textContent = cta.text;
+			if (cta.href) el.setAttribute('href', cta.href);
+		});
+	}
+
+	function renderNavLinks(containerId, links, classForLink) {
+		const el = document.getElementById(containerId);
+		if (!el || !Array.isArray(links)) return;
+		el.innerHTML = links
+			.map((link) => {
+				const active = linkIsActive(link.url);
+				const cls = typeof classForLink === 'function' ? classForLink(active) : classForLink;
+				return `<a href="${esc(link.url)}" class="${cls}"${active ? ' aria-current="page"' : ''}>${esc(link.title)}</a>`;
+			})
+			.join('');
+	}
+
 	function setPath(obj, path, value) {
 		const keys = path.split('.');
 		let cur = obj;
@@ -60,6 +102,7 @@
 
 	function applyGlobal(g) {
 		if (!g) return;
+		const wa = buildWhatsappUrl(g.phone, g.whatsappMessage);
 		applyText('[data-cms="global.phoneDisplay"]', g.phoneDisplay);
 		applyHref('[data-cms-href="global.phone"]', g.phone ? `tel:${g.phone}` : '');
 		applyHref('[data-cms-href="global.email"]', g.email ? `mailto:${g.email}` : '');
@@ -76,39 +119,76 @@
 			applyText('[data-cms="global.footer.description"]', g.footer.description);
 			applyText('[data-cms="global.footer.tagline"]', g.footer.tagline);
 		}
-		const wa = g.whatsappMessage
-			? `https://wa.me/56994390870?text=${encodeURIComponent(g.whatsappMessage)}`
-			: '';
 		applyHref('[data-cms-href="global.whatsapp"]', wa);
+
+		const m = g.mobile || {};
+		const bar = m.contactBar || {};
+		applyText('[data-cms="global.mobile.navMoreLabel"]', m.navMoreLabel);
+		applyText('[data-cms="global.mobile.menuWhatsapp"]', m.menuWhatsapp);
+		applyText('[data-cms="global.mobile.menuQuote"]', m.menuQuote);
+		applyHref('[data-cms-href="global.mobile.menuQuoteUrl"]', m.menuQuoteUrl);
+		applyText('[data-cms="global.mobile.headerWhatsapp"]', m.headerWhatsapp);
+		applyText('[data-cms="global.mobile.headerQuote"]', m.headerQuote);
+		applyHref('[data-cms-href="global.mobile.headerQuoteUrl"]', m.headerQuoteUrl);
+		applyText('[data-cms="global.mobile.contactBar.call"]', bar.call);
+		applyText('[data-cms="global.mobile.contactBar.whatsapp"]', bar.whatsapp);
+		applyText('[data-cms="global.mobile.contactBar.quote"]', bar.quote);
+		applyHref('[data-cms-href="global.mobile.contactBar.quoteUrl"]', bar.quoteUrl);
+
+		const desktopLinkClass = (active) =>
+			`px-3 py-1.5 rounded-md text-sm font-semibold transition duration-200 ${active ? 'bg-white/15 text-white' : 'text-white/90 hover:bg-white/10 hover:text-white'}`;
+		const mobileBlockClass = (active) =>
+			`block px-3 py-2.5 rounded-md text-base font-semibold transition duration-200 ${active ? 'bg-white/15 text-white' : 'text-white/90 hover:text-white hover:bg-white/10'}`;
+		const mobileMoreClass = (active) =>
+			`block px-3 py-2 rounded-md text-sm font-semibold transition duration-200 ${active ? 'bg-white/15 text-white' : 'text-white/80 hover:text-white hover:bg-white/10'}`;
+		const tabletBlockClass = (active) =>
+			`block px-3 py-2 rounded-md text-base font-semibold transition duration-200 ${active ? 'bg-white/15 text-white' : 'text-white/90 hover:text-white hover:bg-white/10'}`;
+
+		if (Array.isArray(g.nav)) {
+			renderNavLinks('cms-header-nav-desktop', g.nav, desktopLinkClass);
+			renderNavLinks('cms-header-nav-tablet', g.nav, tabletBlockClass);
+		}
+		if (Array.isArray(m.navPrimary)) {
+			renderNavLinks('cms-header-nav-phone-primary', m.navPrimary, mobileBlockClass);
+		}
+		if (Array.isArray(m.navMore)) {
+			renderNavLinks('cms-header-nav-phone-more', m.navMore, mobileMoreClass);
+		}
 	}
 
-	function renderHeroSlides(slides) {
+	function renderHeroSlides(slides, heroCtas, waUrl) {
 		const root = document.getElementById('hero-carousel');
 		if (!root || !Array.isArray(slides) || !slides.length) return;
 
+		const ctas = heroCtas || {};
+		const services = ctas.services || { text: 'Nuestros servicios', href: '/servicios' };
+		const whatsapp = ctas.whatsapp || { text: 'WhatsApp' };
+		const quote = ctas.quote || { text: 'Cotizar proyecto', href: '/contacto' };
+
 		root.innerHTML = slides.map((slide, index) => `
-			<article class="hero-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}" data-slide-index="${index}" aria-hidden="${index !== 0}">
+			<article class="hero-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}${index > 0 ? ' hidden sm:block' : ''}" data-slide-index="${index}" aria-hidden="${index !== 0}">
 				<img src="${esc(slide.image)}" alt="${esc(slide.alt)}" class="absolute inset-0 h-full w-full object-cover" loading="${index === 0 ? 'eager' : 'lazy'}" width="1600" height="900" />
 				<div class="absolute inset-0 bg-gradient-to-r from-ink/55 via-ink/35 to-ink/20"></div>
 				<div class="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent"></div>
-				<div class="relative z-10 mx-auto flex h-full max-w-7xl items-end px-4 pb-16 pt-28 sm:px-6 sm:pb-20 lg:px-8 lg:pb-24">
+				<div class="relative z-10 mx-auto flex h-full max-w-7xl items-end px-4 pb-24 pt-20 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8 lg:pb-24">
 					<div class="max-w-2xl">
 						<p class="text-xs font-bold uppercase tracking-[0.2em] text-brand-orange">${esc(slide.tag)}</p>
-						<h1 class="mt-3 text-3xl font-black leading-tight text-white sm:text-4xl lg:text-5xl">${esc(slide.title)}</h1>
-						<p class="mt-4 text-base leading-relaxed text-white/80 sm:text-lg">${esc(slide.desc)}</p>
-						<p class="mt-3 text-sm font-semibold text-accent-light">${esc(slide.detail)}</p>
+						<h1 class="mt-2 text-2xl font-black leading-tight text-white sm:mt-3 sm:text-4xl lg:text-5xl">${esc(slide.title)}</h1>
+						<p class="mt-3 text-sm leading-relaxed text-white/80 sm:mt-4 sm:text-lg">${esc(slide.desc)}</p>
+						<p class="mt-2 hidden text-sm font-semibold text-accent-light sm:mt-3 sm:block">${esc(slide.detail)}</p>
 					</div>
 				</div>
 			</article>
 		`).join('') + `
 			<div class="absolute bottom-6 left-0 right-0 z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<div class="flex items-center gap-2" role="tablist" aria-label="Seleccionar proyecto">
+				<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+					<div class="hidden items-center gap-2 sm:flex" role="tablist" aria-label="Seleccionar proyecto">
 						${slides.map((slide, index) => `<button type="button" class="hero-dot h-2 rounded-full transition-all duration-300 ${index === 0 ? 'w-8 bg-brand-orange' : 'w-2 bg-white/35 hover:bg-white/60'}" data-dot-index="${index}" aria-label="Ver proyecto: ${esc(slide.title)}" aria-selected="${index === 0}"></button>`).join('')}
 					</div>
-					<div class="flex flex-wrap gap-3">
-						<a href="/servicios" class="inline-flex items-center justify-center rounded-md bg-white px-5 py-2.5 text-sm font-bold text-ink transition hover:bg-gray-100">Nuestros servicios</a>
-						<a href="/contacto" class="inline-flex items-center justify-center rounded-md border border-white/25 px-5 py-2.5 text-sm font-bold text-white transition hover:border-accent-main hover:text-accent-light">Cotizar proyecto</a>
+					<div class="flex flex-wrap gap-2 sm:gap-3" id="cms-hero-ctas">
+						<a href="${esc(services.href || '/servicios')}" data-cms-cta="pages.home.heroCtas.services" class="hidden items-center justify-center rounded-md bg-white px-5 py-2.5 text-sm font-bold text-ink transition hover:bg-gray-100 sm:inline-flex">${esc(services.text)}</a>
+						<a href="${esc(waUrl || '#')}" target="_blank" rel="noopener noreferrer" data-cms-cta="pages.home.heroCtas.whatsapp" data-cms-href="global.whatsapp" class="inline-flex flex-1 items-center justify-center rounded-md bg-green-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-green-700 sm:flex-none sm:px-5">${esc(whatsapp.text)}</a>
+						<a href="${esc(quote.href || '/contacto')}" data-cms-cta="pages.home.heroCtas.quote" class="inline-flex flex-1 items-center justify-center rounded-md border border-white/25 px-4 py-2.5 text-sm font-bold text-white transition hover:border-accent-main hover:text-accent-light sm:flex-none sm:rounded-md sm:px-5">${esc(quote.text)}</a>
 					</div>
 				</div>
 			</div>`;
@@ -122,18 +202,32 @@
 		el.innerHTML = items.map(cardHtml).join('');
 	}
 
-	function applyHome(h) {
+	function applyHome(h, global) {
 		if (!h) return;
+		const waUrl = buildWhatsappUrl(global?.phone, global?.whatsappMessage);
 		if (h.meta) {
 			if (h.meta.title) document.title = h.meta.title;
 		}
-		if (h.heroSlides) renderHeroSlides(h.heroSlides);
+		if (h.heroSlides) renderHeroSlides(h.heroSlides, h.heroCtas, waUrl);
+		if (h.heroCtas) {
+			applyCta('pages.home.heroCtas.services', h.heroCtas.services);
+			applyCta('pages.home.heroCtas.whatsapp', h.heroCtas.whatsapp);
+			applyCta('pages.home.heroCtas.quote', h.heroCtas.quote);
+		}
 		if (h.intro) {
 			applyText('[data-cms="pages.home.intro.eyebrow"]', h.intro.eyebrow);
 			applyText('[data-cms="pages.home.intro.title"]', h.intro.title);
 			applyText('[data-cms="pages.home.intro.paragraph1"]', h.intro.paragraph1);
 			applyText('[data-cms="pages.home.intro.paragraph2"]', h.intro.paragraph2);
 			applySrc('[data-cms-src="pages.home.intro.image"]', h.intro.image);
+			applyCta('pages.home.intro.cta1', h.intro.cta1);
+			applyCta('pages.home.intro.cta2', h.intro.cta2);
+			applyCta('pages.home.intro.ctaMobile', h.intro.ctaMobile);
+		}
+		if (h.mobileCollapse) {
+			Object.entries(h.mobileCollapse).forEach(([key, value]) => {
+				applyText(`[data-cms="pages.home.mobileCollapse.${key}"]`, value);
+			});
 		}
 		if (h.sectors) {
 			applyText('[data-cms="pages.home.sectors.title"]', h.sectors.title);
@@ -254,7 +348,7 @@
 		window.MIZO_SITE_CONTENT = content;
 		applyGlobal(content.global);
 		const path = window.location.pathname.replace(/\/$/, '') || '/';
-		if (path === '/' || path === '/index.html') applyHome(content.pages?.home);
+		if (path === '/' || path === '/index.html') applyHome(content.pages?.home, content.global);
 		if (path === '/servicios') applyServicios(content.pages?.servicios);
 		document.dispatchEvent(new CustomEvent('mizo:content-ready', { detail: content }));
 	}

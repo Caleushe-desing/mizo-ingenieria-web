@@ -63,6 +63,31 @@ function buildSiteContent() {
 				{ title: 'Nosotros', url: '/nosotros' },
 				{ title: 'Contacto', url: '/contacto' },
 			],
+			mobile: {
+				navPrimary: [
+					{ title: 'Servicios', url: '/servicios' },
+					{ title: 'Contacto', url: '/contacto' },
+				],
+				navMore: [
+					{ title: 'Inicio', url: '/' },
+					{ title: 'Productos', url: '/productos' },
+					{ title: 'Proyectos', url: '/#proyectos' },
+					{ title: 'Nosotros', url: '/nosotros' },
+				],
+				navMoreLabel: 'Más secciones',
+				menuWhatsapp: 'Consultar por WhatsApp',
+				menuQuote: 'Solicitar cotización',
+				menuQuoteUrl: '/contacto',
+				headerWhatsapp: 'WhatsApp',
+				headerQuote: 'Cotizar',
+				headerQuoteUrl: '/contacto',
+				contactBar: {
+					call: 'Llamar',
+					whatsapp: 'WhatsApp',
+					quote: 'Cotizar',
+					quoteUrl: '/contacto',
+				},
+			},
 		},
 		pages: {
 			home: {
@@ -118,6 +143,21 @@ function buildSiteContent() {
 					image: IMG.heroServices,
 					cta1: { text: 'Ver todos los servicios', href: '/servicios' },
 					cta2: { text: 'Catálogo de productos', href: '/productos' },
+					ctaMobile: { text: 'Cotizar ahora', href: '/contacto' },
+				},
+				heroCtas: {
+					services: { text: 'Nuestros servicios', href: '/servicios' },
+					whatsapp: { text: 'WhatsApp' },
+					quote: { text: 'Cotizar proyecto', href: '/contacto' },
+				},
+				mobileCollapse: {
+					sectors: 'Ver sectores que atendemos',
+					services: 'Ver nuestros servicios',
+					projects: 'Ver proyectos realizados',
+					process: 'Ver cómo trabajamos',
+					whyChoose: 'Ver por qué elegir Mizo',
+					brands: 'Ver marcas con las que trabajamos',
+					showcase: 'Ver productos destacados',
 				},
 				sectors: {
 					title: 'Soluciones por tipo de espacio',

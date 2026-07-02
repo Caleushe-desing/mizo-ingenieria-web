@@ -119,13 +119,13 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 				o local comercial en <strong>Santiago, Frutillar o regiones</strong>, cotiza con nosotros sin compromiso.
 			</p>
 			<div class="mt-8 flex flex-wrap justify-center gap-4">
-				<a href="/servicios" class="inline-flex items-center gap-2 rounded-lg bg-brand-orange px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-orange-hover">
+				<a href="/servicios" data-cms-cta="pages.home.intro.cta1" class="inline-flex items-center gap-2 rounded-lg bg-brand-orange px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-orange-hover">
 					Ver todos los servicios
 				</a>
-				<a href="/contacto" class="inline-flex items-center gap-2 rounded-lg border-2 border-ink px-6 py-3 font-semibold text-ink transition-colors hover:bg-ink hover:text-white sm:hidden">
+				<a href="/contacto" data-cms-cta="pages.home.intro.ctaMobile" class="inline-flex items-center gap-2 rounded-lg border-2 border-ink px-6 py-3 font-semibold text-ink transition-colors hover:bg-ink hover:text-white sm:hidden">
 					Cotizar ahora
 				</a>
-				<a href="/productos" class="hidden items-center gap-2 rounded-lg border-2 border-ink px-6 py-3 font-semibold text-ink transition-colors hover:bg-ink hover:text-white sm:inline-flex">
+				<a href="/productos" data-cms-cta="pages.home.intro.cta2" class="hidden items-center gap-2 rounded-lg border-2 border-ink px-6 py-3 font-semibold text-ink transition-colors hover:bg-ink hover:text-white sm:inline-flex">
 					Catálogo de productos
 				</a>
 			</div>
@@ -134,7 +134,7 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 
 	<section class="bg-gray-50 py-10 sm:py-14 md:py-18" aria-labelledby="sectores-heading">
 		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<PhoneCollapse summary="Ver sectores que atendemos">
+			<PhoneCollapse summary="Ver sectores que atendemos" cmsPath="pages.home.mobileCollapse.sectors">
 			<div class="mb-8 text-center sm:mb-12">
 				<h2 id="sectores-heading" class="mb-3 text-2xl font-black text-ink md:text-3xl" data-cms="pages.home.sectors.title">
 					Soluciones por tipo de espacio
@@ -158,7 +158,7 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 
 	<section class="bg-white py-10 sm:py-14 md:py-20" aria-labelledby="servicios-home-heading">
 		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<PhoneCollapse summary="Ver nuestros servicios">
+			<PhoneCollapse summary="Ver nuestros servicios" cmsPath="pages.home.mobileCollapse.services">
 			<div class="mb-8 text-center sm:mb-12">
 				<h2 id="servicios-home-heading" class="mb-3 text-2xl font-black text-ink md:text-3xl" data-cms="pages.home.services.title">Nuestros servicios</h2>
 				<p class="mx-auto max-w-2xl text-gray-600" data-cms="pages.home.services.subtitle">
@@ -206,11 +206,11 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 		</div>
 	</section>
 
-	<PhoneCollapse summary="Ver proyectos realizados">
+	<PhoneCollapse summary="Ver proyectos realizados" cmsPath="pages.home.mobileCollapse.projects">
 	<ProjectsSection />
 	</PhoneCollapse>
 
-	<PhoneCollapse summary="Ver cómo trabajamos">
+	<PhoneCollapse summary="Ver cómo trabajamos" cmsPath="pages.home.mobileCollapse.process">
 	<section class="border-y border-gray-200 bg-gray-50 py-10 sm:py-16">
 		<div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
 			<div>
@@ -235,7 +235,7 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 	</section>
 	</PhoneCollapse>
 
-	<PhoneCollapse summary="Ver por qué elegir Mizo">
+	<PhoneCollapse summary="Ver por qué elegir Mizo" cmsPath="pages.home.mobileCollapse.whyChoose">
 	<section class="bg-ink py-10 text-white sm:py-14">
 		<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
 			<h2 class="mb-10 text-center text-2xl font-black md:text-3xl" data-cms="pages.home.whyChoose.title">¿Por qué elegir Mizo Ingeniería?</h2>
@@ -273,11 +273,11 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 	</section>
 	</PhoneCollapse>
 
-	<PhoneCollapse summary="Ver marcas con las que trabajamos">
+	<PhoneCollapse summary="Ver marcas con las que trabajamos" cmsPath="pages.home.mobileCollapse.brands">
 	<Brands />
 	</PhoneCollapse>
 
-	<PhoneCollapse summary="Ver productos destacados">
+	<PhoneCollapse summary="Ver productos destacados" cmsPath="pages.home.mobileCollapse.showcase">
 	<ShowcasePreview />
 	</PhoneCollapse>
 
@@ -310,9 +310,9 @@ const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20necesito%20cotizar
 				Cuéntanos tu proyecto por teléfono, WhatsApp o formulario. Te respondemos con una propuesta a tu medida.
 			</p>
 			<div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-				<a href="tel:+56994390870" class="rounded-md bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-gray-100">+56 9 9439 0870</a>
-				<a href="mailto:ventas@mizo.cl" class="rounded-md border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:border-accent-main">ventas@mizo.cl</a>
-				<a href={waLink} target="_blank" rel="noopener noreferrer" class="rounded-md bg-brand-orange px-6 py-3 text-sm font-bold text-white transition hover:bg-brand-orange-hover">WhatsApp</a>
+				<a href="tel:+56994390870" class="rounded-md bg-white px-6 py-3 text-sm font-bold text-ink transition hover:bg-gray-100" data-cms="global.phoneDisplay" data-cms-href="global.phone">+56 9 9439 0870</a>
+				<a href="mailto:ventas@mizo.cl" class="rounded-md border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:border-accent-main" data-cms="global.email" data-cms-href="global.email">ventas@mizo.cl</a>
+				<a href={waLink} target="_blank" rel="noopener noreferrer" class="rounded-md bg-brand-orange px-6 py-3 text-sm font-bold text-white transition hover:bg-brand-orange-hover" data-cms-href="global.whatsapp">WhatsApp</a>
 			</div>
 		</div>
 	</section>
