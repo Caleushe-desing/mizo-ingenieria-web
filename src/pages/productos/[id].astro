@@ -9,6 +9,11 @@ import {
 	loadCatalogProducts,
 	type CatalogProduct,
 } from '../../lib/catalog';
+import {
+	absoluteUrl,
+	breadcrumbSchema,
+	productSchema,
+} from '../../lib/seo';
 
 export function getStaticPaths() {
 	const catalog = loadCatalogProducts();
@@ -32,11 +37,32 @@ const imgSrc = product.image || product.sourceImage || '/mizo-logo.png';
 const imgFallback =
 	product.sourceImage && product.sourceImage !== imgSrc ? product.sourceImage : '/mizo-logo.png';
 const description = product.descriptionLong || product.description;
+const canonicalPath = `/productos/${product.id}`;
+const canonicalUrl = absoluteUrl(canonicalPath);
+const ogImage = imgSrc.startsWith('http') ? imgSrc : absoluteUrl(imgSrc);
+const jsonLd = [
+	breadcrumbSchema([
+		{ name: 'Inicio', url: absoluteUrl('/') },
+		{ name: 'Productos', url: absoluteUrl('/productos') },
+		{ name: product.name, url: canonicalUrl },
+	]),
+	productSchema({
+		name: product.name,
+		description,
+		url: canonicalUrl,
+		image: ogImage,
+		brand: brand || undefined,
+		sku: product.sku || undefined,
+		category: product.categoryLabel || product.category || undefined,
+	}),
+];
 ---
 
 <Layout
 	title={`${product.name} | Productos Mizo`}
 	description={product.description || `Consulta por ${product.name} con el equipo de ventas de Mizo Ingeniería.`}
+	ogImage={ogImage}
+	jsonLd={jsonLd}
 >
 	<section class="border-b border-slate-200 bg-white py-10 sm:py-14">
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

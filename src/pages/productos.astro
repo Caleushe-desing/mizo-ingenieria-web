@@ -4,15 +4,35 @@ import PageHero from '../components/PageHero.astro';
 import ProductCatalogCard from '../components/ProductCatalogCard.astro';
 import SectionCTA from '../components/SectionCTA.astro';
 import { groupCategories, loadCatalogProducts } from '../lib/catalog';
+import { absoluteUrl, itemListSchema, webPageSchema } from '../lib/seo';
 
 const products = loadCatalogProducts();
 const categories = groupCategories(products);
 const categoryEntries = Object.entries(categories);
+const pageUrl = absoluteUrl('/productos');
+const jsonLd = [
+	webPageSchema({
+		name: 'Productos | Mizo',
+		description: 'Catálogo de equipamiento audiovisual profesional integrado por Mizo en Chile.',
+		url: pageUrl,
+	}),
+	itemListSchema({
+		name: 'Catálogo de productos Mizo',
+		description: 'Equipos audiovisuales profesionales disponibles para consulta con Mizo.',
+		url: pageUrl,
+		items: products.slice(0, 50).map((product) => ({
+			name: product.name,
+			url: absoluteUrl(`/productos/${product.id}`),
+		})),
+	}),
+];
 ---
 
 <Layout
-	title="Productos | Mizo"
-	description="Catálogo de equipamiento audiovisual profesional integrado por Mizo en Chile. Consulta por cualquier producto sin precios ni stock en línea."
+	title="Productos audiovisuales profesionales | Mizo Chile"
+	description="Catálogo de equipamiento audiovisual profesional integrado por Mizo en Chile. Consulta por parlantes, proyectores, consolas, microfonía y más."
+	keywords="productos audiovisuales Chile, equipos sonido profesional, proyectores, consolas audio, microfonía, catálogo Mizo"
+	jsonLd={jsonLd}
 >
 	<PageHero
 		eyebrow="Productos"

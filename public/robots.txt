@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+Disallow: /mizo-data/
+Disallow: /datos-privados.json
+Disallow: /carrito
+Disallow: /gracias
+Disallow: /gracias-encuesta
+Disallow: /encuesta-satisfaccion
+Disallow: /blog
+Disallow: /about
+
+Sitemap: https://mizo.cl/sitemap-index.xml
