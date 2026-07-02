@@ -142,6 +142,62 @@ hr {
 	}
 }
 
+/* Solo celulares (<640px): espacio para barra de contacto inferior */
+@media (max-width: 639px) {
+	body.has-mobile-contact-bar {
+		padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+	}
+}
+
+/* Secciones colapsables en celular; abiertas siempre en tablet/desktop */
+.phone-collapse {
+	border: none;
+}
+
+.phone-collapse__summary {
+	display: flex;
+	cursor: pointer;
+	list-style: none;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	border-radius: 0.75rem;
+	border: 1px solid rgb(229 231 235);
+	background: white;
+	padding: 1rem 1.25rem;
+	font-weight: 700;
+	color: rgb(24 27 32);
+}
+
+.phone-collapse__summary::-webkit-details-marker {
+	display: none;
+}
+
+.phone-collapse__summary::after {
+	content: '+';
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #f47b20;
+}
+
+.phone-collapse[open] .phone-collapse__summary::after {
+	content: '−';
+}
+
+.phone-collapse__content {
+	padding-top: 1rem;
+}
+
+@media (min-width: 640px) {
+	.phone-collapse__summary {
+		display: none;
+	}
+
+	.phone-collapse__content {
+		padding-top: 0;
+	}
+}
+
 .sr-only {
 	border: 0;
 	padding: 0;
