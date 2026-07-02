@@ -3,6 +3,7 @@ import { ViewTransitions } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import WhatsAppButton from '../components/WhatsAppButton.astro';
+import MobileContactBar from '../components/MobileContactBar.astro';
 import SeoJsonLd from '../components/SeoJsonLd.astro';
 import { SITE } from '../lib/seo';
 import '../styles/global.css';
@@ -75,13 +76,14 @@ const ogImageURL = new URL(ogImage, Astro.site).href;
 
 		<ViewTransitions />
 	</head>
-	<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+	<body class="has-mobile-contact-bar bg-white text-gray-900 min-h-screen flex flex-col">
 		<Header />
 		<main class="flex-grow w-full">
 			<slot />
 		</main>
 
 		<Footer />
+		<MobileContactBar />
 		<WhatsAppButton />
 
 		<script is:inline>

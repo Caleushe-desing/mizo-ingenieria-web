@@ -1,0 +1,55 @@
+---
+const phoneTel = '+56994390870';
+const waLink =
+	'https://wa.me/56994390870?text=Hola%20Mizo,%20quiero%20dise%C3%B1ar%20una%20soluci%C3%B3n%20audiovisual';
+---
+
+<nav
+	class="mobile-contact-bar fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/95 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur-sm sm:hidden"
+	aria-label="Contacto rápido"
+>
+	<div class="grid grid-cols-3 divide-x divide-gray-200">
+		<a
+			href={`tel:${phoneTel}`}
+			class="flex min-h-[52px] flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-accent-main transition active:bg-accent-soft"
+			data-cms-href="global.phone"
+		>
+			<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+				></path>
+			</svg>
+			<span class="text-[0.65rem] font-bold uppercase tracking-wide">Llamar</span>
+		</a>
+		<a
+			href={waLink}
+			target="_blank"
+			rel="noopener noreferrer"
+			class="flex min-h-[52px] flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-green-600 transition active:bg-green-50"
+		>
+			<svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+				<path
+					d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.929-1.03z"
+				></path>
+			</svg>
+			<span class="text-[0.65rem] font-bold uppercase tracking-wide">WhatsApp</span>
+		</a>
+		<a
+			href="/contacto"
+			class="flex min-h-[52px] flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-brand-orange transition active:bg-brand-orange-soft"
+		>
+			<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+				></path>
+			</svg>
+			<span class="text-[0.65rem] font-bold uppercase tracking-wide">Cotizar</span>
+		</a>
+	</div>
+</nav>
