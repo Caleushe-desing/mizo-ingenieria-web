@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import SectionCTA from '../components/SectionCTA.astro';
 import PageHero from '../components/PageHero.astro';
+import { absoluteUrl, organizationSchema, webPageSchema } from '../lib/seo';
 
 const values = [
 	{
@@ -32,8 +33,17 @@ const capabilities = [
 ---
 
 <Layout
-	title="Nosotros | Mizo"
+	title="Nosotros | Mizo - Ingeniería audiovisual en Chile"
 	description="Conoce a Mizo: especialistas en instalación de sistemas de sonido, audiovisual e instalaciones eléctricas en Chile, y venta de equipos profesionales."
+	keywords="Mizo ingeniería, empresa audiovisual Chile, instaladores sonido, integradores AV"
+	jsonLd={[
+		organizationSchema(),
+		webPageSchema({
+			name: 'Nosotros | Mizo',
+			description: 'Especialistas en instalación audiovisual y equipos profesionales en Chile.',
+			url: absoluteUrl('/nosotros'),
+		}),
+	]}
 >
 	<PageHero
 		eyebrow="Nosotros"

@@ -4,6 +4,7 @@ import HeroCarousel from '../components/HeroCarousel.astro';
 import ProjectsSection from '../components/ProjectsSection.astro';
 import Brands from '../components/Brands.astro';
 import ShowcasePreview from '../components/ShowcasePreview.astro';
+import { homePageSchema } from '../lib/seo';
 
 const heroSlides = [
 	{
@@ -72,8 +73,10 @@ const processSteps = [
 ---
 
 <Layout
-	title="Mizo | Ingeniería e instalación de audio y videoproyección"
+	title="Mizo | Ingeniería e instalación de audio y videoproyección en Chile"
 	description="Diseñamos e instalamos sistemas de sonido, videoproyección y salas audiovisuales para colegios, iglesias, auditorios, restaurantes y empresas en Chile."
+	keywords="instalación sonido Chile, videoproyección profesional, audio iglesias, sistemas audiovisuales, Mizo ingeniería, instalación parlantes, proyectores auditorios"
+	jsonLd={homePageSchema()}
 >
 	<HeroCarousel slides={heroSlides} />
 

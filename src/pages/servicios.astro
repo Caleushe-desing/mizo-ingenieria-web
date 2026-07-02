@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import SectionCTA from '../components/SectionCTA.astro';
 import PageHero from '../components/PageHero.astro';
+import { absoluteUrl, serviceSchema, webPageSchema } from '../lib/seo';
 
 const services = [
 	{
@@ -103,11 +104,29 @@ const process = [
 	'Instalación coordinada con obra o operación',
 	'Pruebas, calibración y entrega documentada',
 ];
+
+const pageUrl = absoluteUrl('/servicios');
+const jsonLd = [
+	webPageSchema({
+		name: 'Servicios | Mizo',
+		description: 'Instalación de sistemas de sonido, videoproyección y salas audiovisuales en Chile.',
+		url: pageUrl,
+	}),
+	...services.map((service) =>
+		serviceSchema({
+			name: service.title,
+			description: service.description,
+			url: pageUrl,
+		}),
+	),
+];
 ---
 
 <Layout
-	title="Servicios | Mizo - Sonido, videoproyección e instalación"
+	title="Servicios | Mizo - Sonido, videoproyección e instalación en Chile"
 	description="Instalación de sistemas de sonido, videoproyección y salas audiovisuales para colegios, iglesias, auditorios, restaurantes y empresas en Chile."
+	keywords="instalación sonido profesional, videoproyección Chile, salas audiovisuales, audio iglesias, sistemas auditorio"
+	jsonLd={jsonLd}
 >
 	<PageHero
 		eyebrow="Servicios"

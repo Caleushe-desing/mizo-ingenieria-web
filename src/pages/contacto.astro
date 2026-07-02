@@ -1,13 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { contactPageSchema } from '../lib/seo';
 
 const spaces = ['Sala de Clases', 'Auditorio', 'Sala de Reuniones', 'Cine en Casa', 'Otro'];
 const badges = ['Ingeniería Certificada', 'Garantía de Satisfacción', 'Soporte Local'];
 ---
 
 <Layout
-	title="Contacto | Mizo"
-	description="Contáctanos para cotizaciones de instalación de sonido, audiovisual, electricidad o venta de equipos en Chile."
+	title="Contacto | Mizo - Cotiza instalación de audio y video en Chile"
+	description="Contáctanos para cotizaciones de instalación de sonido, audiovisual, electricidad o venta de equipos profesionales en Chile."
+	keywords="contacto Mizo, cotizar instalación sonido, cotización audiovisual Chile, ventas equipos profesionales"
+	jsonLd={contactPageSchema()}
 >
 	<section class="relative isolate overflow-hidden bg-ink py-20 text-white sm:py-28">
 		<img src="https://images.unsplash.com/photo-1581093458791-9d09cc08742a?auto=format&fit=crop&w=1600&q=80" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover" loading="eager" width="1600" height="900" />

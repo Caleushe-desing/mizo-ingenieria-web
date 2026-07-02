@@ -1,176 +1,189 @@
 ---
-// Layout.astro (INTEGRACIÓN MINIMALISTA Y FINAL)
 import { ViewTransitions } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import WhatsAppButton from '../components/WhatsAppButton.astro'; // <--- 1. IMPORTACIÓN AÑADIDA
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import SeoJsonLd from '../components/SeoJsonLd.astro';
+import { SITE } from '../lib/seo';
 import '../styles/global.css';
 
 interface Props {
-    title: string;
-    description: string;
-    noindex?: boolean;
-    // Propiedades para SEO avanzado
-    ogTitle?: string;
-    ogDescription?: string;
-    ogImage?: string;
+	title: string;
+	description: string;
+	noindex?: boolean;
+	ogTitle?: string;
+	ogDescription?: string;
+	ogImage?: string;
+	ogType?: string;
+	keywords?: string;
+	jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
-const { 
-    title, 
-    description,
+const {
+	title,
+	description,
 	noindex = false,
-    ogTitle = title, 
-    ogDescription = description, 
-    ogImage = '/mizo-social-preview.jpg' // Imagen social por defecto
+	ogTitle = title,
+	ogDescription = description,
+	ogImage = SITE.defaultOgImage,
+	ogType = 'website',
+	keywords,
+	jsonLd,
 } = Astro.props;
 
-// URL base para Open Graph
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(ogImage, Astro.site).href;
 ---
 
 <!doctype html>
 <html lang="es" class="scroll-smooth">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width" />
-        
-        <link rel="icon" type="image/png" href="/favicon.png" />
-        
-        <meta name="generator" content={Astro.generator} />
-        
-        <link rel="canonical" href={canonicalURL} />
-        
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="theme-color" content="#1877f2" />
 
-        <meta property="og:title" content={ogTitle} />
-        <meta property="og:description" content={ogDescription} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={canonicalURL} />
-        <meta property="og:image" content={new URL(ogImage, Astro.site).href} />
-        <meta property="og:site_name" content="Mizo Ingeniería" />
+		<link rel="icon" href="/mizo-logo.svg" type="image/svg+xml" />
+		<link rel="apple-touch-icon" href="/mizo-logo.svg" />
+		<link rel="canonical" href={canonicalURL} />
+		<link rel="sitemap" href="/sitemap-index.xml" />
+		<link rel="alternate" hreflang="es-cl" href={canonicalURL} />
+		<link rel="alternate" hreflang="x-default" href={canonicalURL} />
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@mizo-ing" /> 
- <meta name="twitter:creator" content="@mizo-ing" />
- <meta name="twitter:title" content={ogTitle} />
- <meta name="twitter:description" content={ogDescription} />
- <meta name="twitter:image" content={new URL(ogImage, Astro.site).href} />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		{keywords ? <meta name="keywords" content={keywords} /> : null}
+		<meta name="author" content={SITE.name} />
+		<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+		<meta name="googlebot" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
 
- <ViewTransitions />
- </head>
- <body class="bg-white text-gray-900 min-h-screen flex flex-col">
-<Header />
- <main class="flex-grow w-full"> 
- <slot />
- </main>
- 
-<Footer />
-        <WhatsAppButton />
+		<meta property="og:title" content={ogTitle} />
+		<meta property="og:description" content={ogDescription} />
+		<meta property="og:type" content={ogType} />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:image" content={ogImageURL} />
+		<meta property="og:image:alt" content={ogTitle} />
+		<meta property="og:site_name" content={SITE.name} />
+		<meta property="og:locale" content={SITE.locale} />
 
-        <script is:inline>
-            (function () {
-                function resolveGeographicSurcharge(surchargeValue, baseInstallationPrice) {
-                    const value = String(surchargeValue ?? '0').trim();
-                    if (value.endsWith('%')) {
-                        return Math.round((Number(baseInstallationPrice) || 0) * ((Number(value.replace('%', '')) || 0) / 100));
-                    }
-                    return Number(value.replace(/[^\d-]/g, '')) || 0;
-                }
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={ogTitle} />
+		<meta name="twitter:description" content={ogDescription} />
+		<meta name="twitter:image" content={ogImageURL} />
 
-                function calculateInstallationTotal(config, quantity, selectedGeographicSurcharge) {
-                    const qty = Math.max(1, Number(quantity) || 1);
-                    const baseInstallationPrice = Number(config?.baseInstallationPrice) || 0;
-                    const additionalUnitSurcharge = Number(config?.additionalUnitSurcharge) || 0;
-                    const geographicSurcharge = resolveGeographicSurcharge(
-                        selectedGeographicSurcharge ?? config?.geographicSurcharge,
-                        baseInstallationPrice
-                    );
+		{jsonLd ? <SeoJsonLd data={jsonLd} /> : null}
 
-                    return baseInstallationPrice + ((qty - 1) * additionalUnitSurcharge) + geographicSurcharge;
-                }
+		<ViewTransitions />
+	</head>
+	<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+		<Header />
+		<main class="flex-grow w-full">
+			<slot />
+		</main>
 
-                window.MizoInstallationPricing = {
-                    calculateInstallationTotal,
-                    resolveGeographicSurcharge,
-                };
+		<Footer />
+		<WhatsAppButton />
 
-                const KEY = 'mizo-cart';
-                const read = () => {
-                    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
-                };
-                const write = (items) => {
-                    localStorage.setItem(KEY, JSON.stringify(items));
-                    // Solo invalida la cotización; los datos de despacho del cliente se conservan.
-                    localStorage.removeItem('mizo-ship-quote');
-                    updateBadge();
-                    document.dispatchEvent(new CustomEvent('cart:updated'));
-                };
-                const Cart = {
-                    items: read,
-                    count: () => read().reduce((n, i) => n + i.qty, 0),
-                    subtotal: () => read().reduce((n, i) => n + i.price * i.qty, 0),
-                    weight: () => read().reduce((n, i) => n + (Number(i.weight) || 0) * i.qty, 0),
-                    add(p, qty) {
-                        qty = qty || 1;
-                        const items = read();
-                        const e = items.find((i) => i.id === p.id);
-                        if (e) e.qty += qty;
-                        else items.push({ id: p.id, name: p.name, price: Number(p.price), image: p.image, weight: Number(p.weight) || 0, qty });
-                        write(items);
-                    },
-                    setQty(id, qty) {
-                        let items = read();
-                        if (qty <= 0) items = items.filter((i) => i.id !== id);
-                        else { const e = items.find((i) => i.id === id); if (e) e.qty = qty; }
-                        write(items);
-                    },
-                    remove: (id) => write(read().filter((i) => i.id !== id)),
-                    clear: () => write([]),
-                };
-                window.MizoCart = Cart;
+		<script is:inline>
+			(function () {
+				function resolveGeographicSurcharge(surchargeValue, baseInstallationPrice) {
+					const value = String(surchargeValue ?? '0').trim();
+					if (value.endsWith('%')) {
+						return Math.round((Number(baseInstallationPrice) || 0) * ((Number(value.replace('%', '')) || 0) / 100));
+					}
+					return Number(value.replace(/[^\d-]/g, '')) || 0;
+				}
 
-                function updateBadge() {
-                    const n = Cart.count();
-                    document.querySelectorAll('[data-cart-count]').forEach((el) => {
-                        el.textContent = n;
-                        el.classList.toggle('hidden', n === 0);
-                    });
-                }
-                window.__mizoUpdateCartBadge = updateBadge;
+				function calculateInstallationTotal(config, quantity, selectedGeographicSurcharge) {
+					const qty = Math.max(1, Number(quantity) || 1);
+					const baseInstallationPrice = Number(config?.baseInstallationPrice) || 0;
+					const additionalUnitSurcharge = Number(config?.additionalUnitSurcharge) || 0;
+					const geographicSurcharge = resolveGeographicSurcharge(
+						selectedGeographicSurcharge ?? config?.geographicSurcharge,
+						baseInstallationPrice
+					);
 
-                if (!window.__mizoCartBound) {
-                    window.__mizoCartBound = true;
-                    document.addEventListener('click', function (ev) {
-                        const btn = ev.target.closest('[data-add-to-cart]');
-                        if (!btn) return;
-                        ev.preventDefault();
-                        Cart.add({
-                            id: btn.dataset.id,
-                            name: btn.dataset.name,
-                            price: Number(btn.dataset.price),
-                            image: btn.dataset.image,
-                            weight: Number(btn.dataset.weight) || 0,
-                        }, Number(btn.dataset.qty) || 1);
-                        const original = btn.getAttribute('data-label') || btn.textContent;
-                        btn.setAttribute('data-label', original);
-                        btn.textContent = '✓ Agregado';
-                        btn.classList.add('opacity-80');
-                        setTimeout(() => {
-                            btn.textContent = btn.getAttribute('data-label');
-                            btn.classList.remove('opacity-80');
-                        }, 1200);
-                    });
-                }
+					return baseInstallationPrice + ((qty - 1) * additionalUnitSurcharge) + geographicSurcharge;
+				}
 
-                document.addEventListener('astro:page-load', updateBadge);
-                updateBadge();
-            })();
-        </script>
-    </body>
+				window.MizoInstallationPricing = {
+					calculateInstallationTotal,
+					resolveGeographicSurcharge,
+				};
+
+				const KEY = 'mizo-cart';
+				const read = () => {
+					try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
+				};
+				const write = (items) => {
+					localStorage.setItem(KEY, JSON.stringify(items));
+					localStorage.removeItem('mizo-ship-quote');
+					updateBadge();
+					document.dispatchEvent(new CustomEvent('cart:updated'));
+				};
+				const Cart = {
+					items: read,
+					count: () => read().reduce((n, i) => n + i.qty, 0),
+					subtotal: () => read().reduce((n, i) => n + i.price * i.qty, 0),
+					weight: () => read().reduce((n, i) => n + (Number(i.weight) || 0) * i.qty, 0),
+					add(p, qty) {
+						qty = qty || 1;
+						const items = read();
+						const e = items.find((i) => i.id === p.id);
+						if (e) e.qty += qty;
+						else items.push({ id: p.id, name: p.name, price: Number(p.price), image: p.image, weight: Number(p.weight) || 0, qty });
+						write(items);
+					},
+					setQty(id, qty) {
+						let items = read();
+						if (qty <= 0) items = items.filter((i) => i.id !== id);
+						else { const e = items.find((i) => i.id === id); if (e) e.qty = qty; }
+						write(items);
+					},
+					remove: (id) => write(read().filter((i) => i.id !== id)),
+					clear: () => write([]),
+				};
+				window.MizoCart = Cart;
+
+				function updateBadge() {
+					const n = Cart.count();
+					document.querySelectorAll('[data-cart-count]').forEach((el) => {
+						el.textContent = n;
+						el.classList.toggle('hidden', n === 0);
+					});
+				}
+				window.__mizoUpdateCartBadge = updateBadge;
+
+				if (!window.__mizoCartBound) {
+					window.__mizoCartBound = true;
+					document.addEventListener('click', function (ev) {
+						const btn = ev.target.closest('[data-add-to-cart]');
+						if (!btn) return;
+						ev.preventDefault();
+						Cart.add({
+							id: btn.dataset.id,
+							name: btn.dataset.name,
+							price: Number(btn.dataset.price),
+							image: btn.dataset.image,
+							weight: Number(btn.dataset.weight) || 0,
+						}, Number(btn.dataset.qty) || 1);
+						const original = btn.getAttribute('data-label') || btn.textContent;
+						btn.setAttribute('data-label', original);
+						btn.textContent = '✓ Agregado';
+						btn.classList.add('opacity-80');
+						setTimeout(() => {
+							btn.textContent = btn.getAttribute('data-label');
+							btn.classList.remove('opacity-80');
+						}, 1200);
+					});
+				}
+
+				document.addEventListener('astro:page-load', updateBadge);
+				updateBadge();
+			})();
+		</script>
+	</body>
 </html>
+
 <style is:global>
-/* El bloque de estilo se deja tal como estaba en tu versión estable */
 </style>
