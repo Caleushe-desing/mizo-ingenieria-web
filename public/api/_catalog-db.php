@@ -1229,3 +1229,95 @@ function mizo_maybe_reconcile_proyectos_store(array $projects): void
         // Si no se puede reconciliar, igual mostramos las imágenes detectadas.
     }
 }
+
+function mizo_site_content_config_paths(): array
+{
+    $paths = [];
+    try {
+        $paths[] = mizo_runtime_storage_root() . '/site-content.json';
+    } catch (Throwable $error) {
+        // ignore
+    }
+    $paths[] = mizo_public_root() . '/site-content-default.json';
+    return array_values(array_unique($paths));
+}
+
+function mizo_read_site_content(): array
+{
+    foreach (mizo_site_content_config_paths() as $path) {
+        if (!is_file($path)) {
+            continue;
+        }
+        $raw = file_get_contents($path);
+        if ($raw === false || trim($raw) === '') {
+            continue;
+        }
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            $decoded['source'] = basename($path);
+            return $decoded;
+        }
+    }
+
+    return [
+        'updatedAt' => gmdate('c'),
+        'global' => [],
+        'pages' => [],
+        'source' => 'empty',
+    ];
+}
+
+function mizo_write_site_content(array $content): array
+{
+    $content['updatedAt'] = gmdate('c');
+    $path = mizo_runtime_storage_root() . '/site-content.json';
+    $tmp = $path . '.tmp';
+    $json = json_encode($content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    if ($json === false || file_put_contents($tmp, $json, LOCK_EX) === false || !@rename($tmp, $path)) {
+        @unlink($tmp);
+        throw new RuntimeException('No se pudo guardar el contenido del sitio.');
+    }
+    return $content;
+}
+
+function mizo_site_media_dir(): string
+{
+    $dir = mizo_public_root() . '/images/cms';
+    if (!is_dir($dir) && !@mkdir($dir, 0775, true)) {
+        throw new RuntimeException('No se pudo crear la carpeta de imágenes del sitio.');
+    }
+    if (!is_writable($dir)) {
+        throw new RuntimeException('La carpeta de imágenes del sitio no es escribible.');
+    }
+    return $dir;
+}
+
+function mizo_store_site_media(array $file, string $prefix = 'cms'): string
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('Error al subir la imagen.');
+    }
+    $tmp = (string) ($file['tmp_name'] ?? '');
+    if ($tmp === '' || !is_uploaded_file($tmp)) {
+        throw new RuntimeException('Archivo de imagen inválido.');
+    }
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $finfo->file($tmp) ?: '';
+    $allowed = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+        'image/gif' => 'gif',
+        'image/svg+xml' => 'svg',
+    ];
+    if (!isset($allowed[$mime])) {
+        throw new RuntimeException('Formato de imagen no permitido. Usa JPG, PNG, WEBP, GIF o SVG.');
+    }
+    $ext = $allowed[$mime];
+    $name = $prefix . '-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
+    $dest = mizo_site_media_dir() . '/' . $name;
+    if (!move_uploaded_file($tmp, $dest)) {
+        throw new RuntimeException('No se pudo guardar la imagen en el servidor.');
+    }
+    return '/images/cms/' . $name;
+}

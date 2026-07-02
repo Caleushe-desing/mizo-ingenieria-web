@@ -13,10 +13,10 @@ const brands = [
 <section class="border-t border-gray-100 bg-white py-16">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="mb-8 text-center">
-			<h2 class="text-2xl font-black text-gray-900 lg:text-3xl">Trabajamos con las mejores marcas</h2>
-			<p class="mt-2 text-gray-600">Referentes globales en audio, video, proyección e integración tecnológica.</p>
+			<h2 class="text-2xl font-black text-gray-900 lg:text-3xl" data-cms="pages.home.brands.title">Trabajamos con las mejores marcas</h2>
+			<p class="mt-2 text-gray-600" data-cms="pages.home.brands.subtitle">Referentes globales en audio, video, proyección e integración tecnológica.</p>
 		</div>
-		<div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
+		<div id="cms-brands-grid" class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
 			{brands.map((brand) => (
 				<a
 					href={`/productos?marca=${encodeURIComponent(brand.name)}`}

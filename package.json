@@ -15,7 +15,7 @@
     "fuentes": "node scripts/make-fuentes.mjs",
     "build-admin": "node scripts/build-admin.mjs",
     "make-pdf-logo": "node scripts/make-pdf-logo.mjs",
-    "make-logos": "node scripts/make-logo-variants.mjs"
+    "generate-site-content": "node scripts/generate-site-content.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",

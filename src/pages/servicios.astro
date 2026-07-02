@@ -155,6 +155,7 @@ const jsonLd = [
 		subtitle="Diseño, suministro, montaje, calibración y soporte en Chile. Trabajamos el proyecto completo — sonido, imagen y electricidad — para iglesias, colegios, auditorios, empresas y locales comerciales."
 		image="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80"
 		chips={["Audio profesional", "Videoproyección", "Instalaciones eléctricas", "Instalación en terreno"]}
+		cmsPrefix="pages.servicios.hero"
 	/>
 
 	<section class="bg-white py-16">
@@ -171,7 +172,7 @@ const jsonLd = [
 	</section>
 
 	<section class="bg-white pb-20">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20" id="cms-servicios-list">
 			{services.map((service, index) => (
 				<div
 					id={service.id}

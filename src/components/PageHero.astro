@@ -10,6 +10,7 @@ interface Props {
 	size?: 'sm' | 'md' | 'lg';
 	chips?: string[];
 	meta?: string;
+	cmsPrefix?: string;
 }
 
 const {
@@ -21,6 +22,7 @@ const {
 	size = 'md',
 	chips = [],
 	meta,
+	cmsPrefix,
 } = Astro.props;
 
 const padding =
@@ -48,6 +50,7 @@ const overlay = isCenter
 		loading="eager"
 		width="1600"
 		height="900"
+		data-cms-src={cmsPrefix ? `${cmsPrefix}.image` : undefined}
 	/>
 	<div class={`absolute inset-0 ${overlay}`}></div>
 	<div class="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent"></div>
@@ -64,16 +67,16 @@ const overlay = isCenter
 			{eyebrow && (
 				<span class="inline-flex items-center gap-2 rounded-full border border-brand-orange/40 bg-brand-orange/10 px-4 py-1.5 text-[0.7rem] font-black uppercase tracking-[0.22em] text-brand-orange backdrop-blur">
 					<span class="h-1.5 w-1.5 rounded-full bg-brand-orange"></span>
-					{eyebrow}
+					<span data-cms={cmsPrefix ? `${cmsPrefix}.eyebrow` : undefined}>{eyebrow}</span>
 				</span>
 			)}
 
-			<h1 class="text-balance text-3xl font-black leading-[1.1] tracking-tight text-white sm:text-4xl lg:text-5xl">
+			<h1 class="text-balance text-3xl font-black leading-[1.1] tracking-tight text-white sm:text-4xl lg:text-5xl" data-cms={cmsPrefix ? `${cmsPrefix}.title` : undefined}>
 				{title}
 			</h1>
 
 			{subtitle && (
-				<p class="max-w-2xl text-pretty text-base leading-relaxed text-white/70 sm:text-lg">
+				<p class="max-w-2xl text-pretty text-base leading-relaxed text-white/70 sm:text-lg" data-cms={cmsPrefix ? `${cmsPrefix}.subtitle` : undefined}>
 					{subtitle}
 				</p>
 			)}
