@@ -6,6 +6,7 @@ import { absoluteUrl, serviceSchema, webPageSchema } from '../lib/seo';
 
 const services = [
 	{
+		id: 'sonido',
 		title: 'Sistemas de sonido profesional',
 		description: 'Calculamos cobertura, potencia e inteligibilidad según el uso del recinto. Instalamos, calibramos y dejamos el sistema listo para operar.',
 		kicker: 'Audio',
@@ -19,6 +20,7 @@ const services = [
 		image: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80',
 	},
 	{
+		id: 'video',
 		title: 'Videoproyección y salas audiovisuales',
 		description: 'Proyectores, pantallas, videoconferencia y control integrado. El usuario final enciende, selecciona la fuente y presenta sin complicaciones.',
 		kicker: 'Imagen',
@@ -32,6 +34,7 @@ const services = [
 		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
 	},
 	{
+		id: 'colegios',
 		title: 'Colegios y salas de clases',
 		description: 'Aulas con proyección nítida, audio claro y equipos que resisten el uso diario. Coordinamos la instalación para no interrumpir las clases más de lo necesario.',
 		kicker: 'Educación',
@@ -45,6 +48,7 @@ const services = [
 		image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=80',
 	},
 	{
+		id: 'streaming',
 		title: 'Iglesias y templos',
 		description: 'Sonido uniforme en naves amplias, voces inteligibles y música con presencia. Pensado para cultos, eventos y operación por voluntarios o técnicos.',
 		kicker: 'Templos',
@@ -58,6 +62,7 @@ const services = [
 		image: 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1200&q=80',
 	},
 	{
+		id: 'auditorios',
 		title: 'Auditorios y salas multiuso',
 		description: 'Proyección de gran formato, audio de alta inteligibilidad y cabina técnica ordenada. Para conferencias, obras, conciertos y actos institucionales.',
 		kicker: 'Auditorios',
@@ -71,6 +76,7 @@ const services = [
 		image: 'https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1200&q=80',
 	},
 	{
+		id: 'retail',
 		title: 'Restaurantes, bares y retail',
 		description: 'Música por zonas, pantallas de menú o branding y control sencillo para el encargado del local. Instalación fuera de horario cuando es posible.',
 		kicker: 'Comercial',
@@ -84,6 +90,7 @@ const services = [
 		image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
 	},
 	{
+		id: 'control',
 		title: 'Canalización, cableado e infraestructura AV',
 		description: 'La instalación se sostiene en rutas limpias, fijaciones confiables y terminaciones que se pueden mantener. Sin cables colgando ni cajas improvisadas.',
 		kicker: 'Infraestructura',
@@ -123,15 +130,15 @@ const jsonLd = [
 ---
 
 <Layout
-	title="Servicios | Mizo - Sonido, videoproyección e instalación en Chile"
-	description="Instalación de sistemas de sonido, videoproyección y salas audiovisuales para colegios, iglesias, auditorios, restaurantes y empresas en Chile."
-	keywords="instalación sonido profesional, videoproyección Chile, salas audiovisuales, audio iglesias, sistemas auditorio"
+	title="Servicios de Sonido y Videoproyección en Chile | Mizo Ingeniería"
+	description="Instalación profesional de sistemas de sonido, videoproyección, streaming y control AV para iglesias, colegios, auditorios, empresas y retail en Santiago, Frutillar y regiones."
+	keywords="instalación sonido profesional chile, videoproyección iglesias, audio auditorios, salas audiovisuales santiago, sistemas PA, instalación parlantes"
 	jsonLd={jsonLd}
 >
 	<PageHero
 		eyebrow="Servicios"
 		title="Instalamos sistemas de audio y videoproyección que funcionan en el día a día."
-		subtitle="Diseño, suministro, montaje, calibración y soporte. Trabajamos el proyecto completo, no piezas sueltas."
+		subtitle="Diseño, suministro, montaje, calibración y soporte en Chile. Trabajamos el proyecto completo para iglesias, colegios, auditorios, empresas y locales comerciales."
 		image="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80"
 		chips={["Audio profesional", "Videoproyección", "Instalación en terreno"]}
 	/>
@@ -152,7 +159,9 @@ const jsonLd = [
 	<section class="bg-white pb-20">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
 			{services.map((service, index) => (
-				<div class:list={[
+				<div
+					id={service.id}
+					class:list={[
 					"grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center",
 					{ "lg:grid-flow-col-dense": index % 2 === 1 }
 				]}>

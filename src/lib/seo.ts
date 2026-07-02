@@ -225,6 +225,22 @@ export function homePageSchema(site = SITE.url): JsonLd[] {
 	];
 }
 
+export function faqPageSchema(
+	items: Array<{ question?: string; answer?: string; q?: string; a?: string }>,
+): JsonLd {
+	return {
+		'@type': 'FAQPage',
+		mainEntity: items.map((item) => ({
+			'@type': 'Question',
+			name: item.question ?? item.q ?? '',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: item.answer ?? item.a ?? '',
+			},
+		})),
+	};
+}
+
 export function contactPageSchema(site = SITE.url): JsonLd[] {
 	const url = absoluteUrl('/contacto', site);
 	return [
