@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-02T05:44:21.718Z",
+  "updatedAt": "2026-07-02T14:32:08.856Z",
   "global": {
     "phone": "+56994390870",
     "phoneDisplay": "+56 9 9439 0870",
@@ -45,7 +45,50 @@
         "title": "Contacto",
         "url": "/contacto"
       }
-    ]
+    ],
+    "mobile": {
+      "navPrimary": [
+        {
+          "title": "Servicios",
+          "url": "/servicios"
+        },
+        {
+          "title": "Contacto",
+          "url": "/contacto"
+        }
+      ],
+      "navMore": [
+        {
+          "title": "Inicio",
+          "url": "/"
+        },
+        {
+          "title": "Productos",
+          "url": "/productos"
+        },
+        {
+          "title": "Proyectos",
+          "url": "/#proyectos"
+        },
+        {
+          "title": "Nosotros",
+          "url": "/nosotros"
+        }
+      ],
+      "navMoreLabel": "Más secciones",
+      "menuWhatsapp": "Consultar por WhatsApp",
+      "menuQuote": "Solicitar cotización",
+      "menuQuoteUrl": "/contacto",
+      "headerWhatsapp": "WhatsApp",
+      "headerQuote": "Cotizar",
+      "headerQuoteUrl": "/contacto",
+      "contactBar": {
+        "call": "Llamar",
+        "whatsapp": "WhatsApp",
+        "quote": "Cotizar",
+        "quoteUrl": "/contacto"
+      }
+    }
   },
   "pages": {
     "home": {

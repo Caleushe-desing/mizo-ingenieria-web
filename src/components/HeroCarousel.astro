@@ -68,9 +68,10 @@ const slideJson = JSON.stringify(slides);
 						></button>
 					))}
 				</div>
-				<div class="flex flex-wrap gap-2 sm:gap-3">
+				<div class="flex flex-wrap gap-2 sm:gap-3" id="cms-hero-ctas">
 					<a
 						href="/servicios"
+						data-cms-cta="pages.home.heroCtas.services"
 						class="hidden items-center justify-center rounded-md bg-white px-5 py-2.5 text-sm font-bold text-ink transition hover:bg-gray-100 sm:inline-flex"
 					>
 						Nuestros servicios
@@ -79,12 +80,15 @@ const slideJson = JSON.stringify(slides);
 						href="https://wa.me/56994390870?text=Hola%20Mizo,%20quiero%20cotizar%20un%20proyecto"
 						target="_blank"
 						rel="noopener noreferrer"
+						data-cms-cta="pages.home.heroCtas.whatsapp"
+						data-cms-href="global.whatsapp"
 						class="inline-flex flex-1 items-center justify-center rounded-md bg-green-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-green-700 sm:flex-none sm:px-5"
 					>
 						WhatsApp
 					</a>
 					<a
 						href="/contacto"
+						data-cms-cta="pages.home.heroCtas.quote"
 						class="inline-flex flex-1 items-center justify-center rounded-md border border-white/25 px-4 py-2.5 text-sm font-bold text-white transition hover:border-accent-main hover:text-accent-light sm:flex-none sm:rounded-md sm:px-5"
 					>
 						Cotizar proyecto

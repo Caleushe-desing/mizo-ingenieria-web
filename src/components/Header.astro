@@ -31,10 +31,21 @@ const isActive = (url: string) => {
 const waLink = 'https://wa.me/56994390870?text=Hola%20Mizo,%20quiero%20dise%C3%B1ar%20una%20soluci%C3%B3n%20audiovisual';
 const logoSrc = "/mizo-logo.png";
 const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
+
+const desktopLinkClass = (active: boolean) =>
+    `px-3 py-1.5 rounded-md text-sm font-semibold transition duration-200 ${active ? 'bg-white/15 text-white' : 'text-white/90 hover:bg-white/10 hover:text-white'}`;
+
+const mobileBlockClass = (active: boolean) =>
+    `block px-3 py-2.5 rounded-md text-base font-semibold transition duration-200 ${active ? 'bg-white/15 text-white' : 'text-white/90 hover:text-white hover:bg-white/10'}`;
+
+const mobileMoreClass = (active: boolean) =>
+    `block px-3 py-2 rounded-md text-sm font-semibold transition duration-200 ${active ? 'bg-white/15 text-white' : 'text-white/80 hover:text-white hover:bg-white/10'}`;
+
+const tabletBlockClass = (active: boolean) =>
+    `block px-3 py-2 rounded-md text-base font-semibold transition duration-200 ${active ? 'bg-white/15 text-white' : 'text-white/90 hover:text-white hover:bg-white/10'}`;
 ---
 
 <header class="sticky top-0 z-50 shadow-sm">
-    <!-- CINTILLO DE POSICIONAMIENTO (oculto en celulares) -->
     <div class="hidden bg-charcoal text-white border-b border-charcoal-muted sm:block">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex min-h-9 items-center justify-center gap-3 text-center text-xs sm:text-sm font-bold uppercase tracking-wide">
@@ -44,7 +55,6 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
         </div>
     </div>
 
-    <!-- BANNER PRINCIPAL -->
     <div class="bg-white text-gray-900 border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center gap-2 sm:gap-6 h-14 sm:h-20">
@@ -63,6 +73,7 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                         href={waLink}
                         target="_blank"
                         rel="noopener noreferrer"
+                        data-cms-href="global.whatsapp"
                         class="inline-flex sm:hidden items-center justify-center p-2.5 rounded-full text-white bg-green-600 hover:bg-green-700 transition"
                         aria-label="WhatsApp"
                     >
@@ -73,17 +84,19 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                         href={waLink}
                         target="_blank"
                         rel="noopener noreferrer"
+                        data-cms-href="global.whatsapp"
                         class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white bg-green-600 hover:bg-green-700 transition"
                     >
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.929-1.03zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                        WhatsApp
+                        <span data-cms="global.mobile.headerWhatsapp">WhatsApp</span>
                     </a>
 
                     <a
                         href="/contacto"
+                        data-cms-href="global.mobile.headerQuoteUrl"
                         class="hidden rounded-full bg-brand-orange px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-orange-hover sm:inline-flex"
                     >
-                        Cotizar
+                        <span data-cms="global.mobile.headerQuote">Cotizar</span>
                     </a>
 
                     <button
@@ -103,7 +116,6 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
                     </button>
                 </div>
             </div>
-            <!-- Tel/email solo en tablets pequeñas (640–767px), no en celulares -->
             <div class="hidden gap-2 pb-3 text-sm font-bold text-gray-700 sm:grid md:hidden">
                 <a href="tel:+56994390870" class="rounded-full bg-accent-soft px-4 py-2 text-center text-accent-main" data-cms="global.phoneDisplay" data-cms-href="global.phone">+56 9 9439 0870</a>
                 <a href="mailto:ventas@mizo.cl" class="rounded-full bg-slate-50 px-4 py-2 text-center" data-cms="global.email" data-cms-href="global.email">ventas@mizo.cl</a>
@@ -111,23 +123,12 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
         </div>
     </div>
 
-    <!-- SUB-BARRA: navegación principal (desktop / tablet ≥768px) -->
     <div class="hidden md:block bg-charcoal border-b border-charcoal-muted">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center h-11">
-                <nav class="flex items-center gap-1">
+                <nav id="cms-header-nav-desktop" class="flex items-center gap-1">
                     {navLinks.map((link) => (
-                        <a
-                            href={link.url}
-                            class:list={[
-                                "px-3 py-1.5 rounded-md text-sm font-semibold transition duration-200",
-                                {
-                                    "bg-white/15 text-white": isActive(link.url),
-                                    "text-white/90 hover:bg-white/10 hover:text-white": !isActive(link.url),
-                                }
-                            ]}
-                            aria-current={isActive(link.url) ? "page" : undefined}
-                        >
+                        <a href={link.url} class={desktopLinkClass(isActive(link.url))} aria-current={isActive(link.url) ? "page" : undefined}>
                             {link.title}
                         </a>
                     ))}
@@ -136,50 +137,32 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
         </div>
     </div>
 
-    <!-- MENÚ MÓVIL -->
     <div class="md:hidden hidden bg-charcoal border-t border-charcoal-muted" id="mobile-menu">
-        <!-- Celulares: menú reducido orientado a contacto -->
         <div class="px-2 pt-2 pb-3 space-y-1 sm:hidden">
-            {phoneNavLinks.map((link) => (
-                <a
-                    href={link.url}
-                    class:list={[
-                        "block px-3 py-2.5 rounded-md text-base font-semibold transition duration-200",
-                        {
-                            "bg-white/15 text-white": isActive(link.url),
-                            "text-white/90 hover:text-white hover:bg-white/10": !isActive(link.url),
-                        }
-                    ]}
-                    aria-current={isActive(link.url) ? "page" : undefined}
-                >
-                    {link.title}
-                </a>
-            ))}
+            <div id="cms-header-nav-phone-primary" class="space-y-1">
+                {phoneNavLinks.map((link) => (
+                    <a href={link.url} class={mobileBlockClass(isActive(link.url))} aria-current={isActive(link.url) ? "page" : undefined}>
+                        {link.title}
+                    </a>
+                ))}
+            </div>
             <a
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-cms-href="global.whatsapp"
                 class="flex items-center justify-center gap-2 w-full text-center mt-2 px-4 py-2.5 text-base font-semibold rounded-md text-white bg-green-600 hover:bg-green-700 transition"
             >
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24z"/></svg>
-                Consultar por WhatsApp
+                <span data-cms="global.mobile.menuWhatsapp">Consultar por WhatsApp</span>
             </a>
             <details class="mt-2 rounded-md border border-white/10 bg-white/5">
-                <summary class="cursor-pointer px-3 py-2.5 text-sm font-semibold text-white/80 hover:text-white">
+                <summary class="cursor-pointer px-3 py-2.5 text-sm font-semibold text-white/80 hover:text-white" data-cms="global.mobile.navMoreLabel">
                     Más secciones
                 </summary>
-                <div class="space-y-1 border-t border-white/10 px-1 py-1">
+                <div id="cms-header-nav-phone-more" class="space-y-1 border-t border-white/10 px-1 py-1">
                     {phoneMoreLinks.map((link) => (
-                        <a
-                            href={link.url}
-                            class:list={[
-                                "block px-3 py-2 rounded-md text-sm font-semibold transition duration-200",
-                                {
-                                    "bg-white/15 text-white": isActive(link.url),
-                                    "text-white/80 hover:text-white hover:bg-white/10": !isActive(link.url),
-                                }
-                            ]}
-                        >
+                        <a href={link.url} class={mobileMoreClass(isActive(link.url))}>
                             {link.title}
                         </a>
                     ))}
@@ -187,37 +170,30 @@ const logoAlt = "Mizo - Sonido, Audiovisual e Instalaciones";
             </details>
         </div>
 
-        <!-- Tablets (640–767px): menú completo sin cambios -->
         <div class="hidden px-2 pt-2 pb-3 space-y-1 sm:block md:hidden sm:px-3">
-            {navLinks.map((link) => (
-                <a
-                    href={link.url}
-                    class:list={[
-                        "block px-3 py-2 rounded-md text-base font-semibold transition duration-200",
-                        {
-                            "bg-white/15 text-white": isActive(link.url),
-                            "text-white/90 hover:text-white hover:bg-white/10": !isActive(link.url),
-                        }
-                    ]}
-                    aria-current={isActive(link.url) ? "page" : undefined}
-                >
-                    {link.title}
-                </a>
-            ))}
+            <div id="cms-header-nav-tablet" class="space-y-1">
+                {navLinks.map((link) => (
+                    <a href={link.url} class={tabletBlockClass(isActive(link.url))} aria-current={isActive(link.url) ? "page" : undefined}>
+                        {link.title}
+                    </a>
+                ))}
+            </div>
             <a
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-cms-href="global.whatsapp"
                 class="flex items-center justify-center gap-2 w-full text-center mt-3 px-4 py-2.5 text-base font-semibold rounded-md text-white bg-green-600 hover:bg-green-700 transition"
             >
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24z"/></svg>
-                Consultar por WhatsApp
+                <span data-cms="global.mobile.menuWhatsapp">Consultar por WhatsApp</span>
             </a>
             <a
                 href="/contacto"
+                data-cms-href="global.mobile.menuQuoteUrl"
                 class="block w-full rounded-md bg-brand-orange px-4 py-2.5 text-center text-base font-bold text-white transition hover:bg-brand-orange-hover"
             >
-                Solicitar cotización
+                <span data-cms="global.mobile.menuQuote">Solicitar cotización</span>
             </a>
         </div>
     </div>
