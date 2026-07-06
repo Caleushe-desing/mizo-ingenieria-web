@@ -34,7 +34,10 @@ PRECIOS-FUENTES.md
 .ftp-deploy-sync-state.json
 
 # Datos runtime del panel Admin en modo SSR/cPanel
-data/
+/data/
+public/data/*
+!public/data/.htaccess
+!public/data/.gitkeep
 public/mizo-data/leads.json
 
 # Seguridad: credenciales, FTP y pruebas locales

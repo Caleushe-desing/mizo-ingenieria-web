@@ -839,6 +839,7 @@
 					<div class="flex flex-wrap items-center gap-3">
 						<button type="button" id="cms-save-all" class="${BTN_PRIMARY}" ${busy ? 'disabled' : ''}>${busy ? 'Guardando…' : 'Guardar todo el sitio'}</button>
 						<button type="button" id="cms-reload" class="${BTN_SECONDARY}" ${busy ? 'disabled' : ''}>Recargar</button>
+						<button type="button" id="cms-reset" class="${BTN_DANGER}" ${busy ? 'disabled' : ''}>Restaurar predeterminado</button>
 					</div>
 				</div>
 				<p id="cms-status" class="mt-3 text-sm font-semibold ${statusClass(statusKind)}">${esc(statusMessage)}</p>
@@ -854,6 +855,9 @@
 		});
 		mountEl.querySelector('#cms-reload')?.addEventListener('click', () => {
 			load().catch((error) => setStatus(error.message || 'Error al recargar.', 'error'));
+		});
+		mountEl.querySelector('#cms-reset')?.addEventListener('click', () => {
+			reset().catch((error) => setStatus(error.message || 'Error al restaurar.', 'error'));
 		});
 		mountEl.querySelectorAll('[data-cms-tab]').forEach((button) => {
 			button.addEventListener('click', () => {
@@ -985,6 +989,46 @@
 		return payload.path || payload.url || '';
 	}
 
+	function validateBeforeSave(data) {
+		const nav = getByPath(data, 'global.nav');
+		if (Array.isArray(nav) && nav.length === 0) {
+			throw new Error('El menú principal no puede quedar vacío. Agrega al menos un enlace o recarga el contenido.');
+		}
+		const heroSlides = getByPath(data, 'pages.home.heroSlides');
+		if (Array.isArray(heroSlides) && heroSlides.length === 0) {
+			throw new Error('El carrusel de inicio debe tener al menos una diapositiva.');
+		}
+	}
+
+	async function reset() {
+		if (!password) throw new Error('Falta la clave de administrador.');
+		if (!window.confirm('¿Restaurar todo el contenido del sitio a los valores predeterminados? Se perderán los cambios guardados.')) {
+			return null;
+		}
+		busy = true;
+		renderShell();
+		try {
+			const response = await fetch('/api/site-content.php', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+				body: JSON.stringify({ password, action: 'reset' }),
+			});
+			const payload = await response.json().catch(() => ({}));
+			if (!response.ok || !payload.ok) {
+				throw new Error(payload.error || 'No se pudo restaurar el contenido.');
+			}
+			content = deepClone(payload.content || {});
+			setStatus(payload.message || 'Contenido restaurado correctamente.', 'success');
+			return content;
+		} catch (error) {
+			setStatus(error.message || 'Error al restaurar.', 'error');
+			throw error;
+		} finally {
+			busy = false;
+			renderShell();
+		}
+	}
+
 	async function load() {
 		if (!password) throw new Error('Falta la clave de administrador.');
 		busy = true;
@@ -1014,6 +1058,7 @@
 	async function save() {
 		if (!password) throw new Error('Falta la clave de administrador.');
 		if (!content) throw new Error('No hay contenido para guardar.');
+		validateBeforeSave(content);
 		busy = true;
 		renderShell();
 		try {
@@ -1061,6 +1106,7 @@
 		init,
 		load,
 		save,
+		reset,
 		getByPath,
 		setByPath,
 		esc,
