@@ -12,7 +12,7 @@
 [build]
   # Si la sincronización falla (tienda caída, etc.), se continúa con el catálogo
   # ya guardado en el repo para que el sitio igual se publique.
-  command = "npm run sync-catalogo || echo 'sync fallo: uso catalogo existente'; npm run build-admin && npm run build"
+  command = "npm run sync-catalogo || echo 'sync fallo: uso catalogo existente'; npm run build"
   publish = "dist"
   functions = "netlify/functions"
 

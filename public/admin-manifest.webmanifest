@@ -1,8 +1,8 @@
 {
   "name": "Mizo Admin",
   "short_name": "Mizo Admin",
-  "description": "Panel de administración y formularios web de Mizo",
-  "start_url": "/admin/?app=1#leads",
+  "description": "Panel de administración Mizo: contenido web y cotizador",
+  "start_url": "/admin/?app=1",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
