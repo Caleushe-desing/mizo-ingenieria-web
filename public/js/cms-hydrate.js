@@ -43,7 +43,7 @@
 
 	function renderNavLinks(containerId, links, classForLink) {
 		const el = document.getElementById(containerId);
-		if (!el || !Array.isArray(links)) return;
+		if (!el || !Array.isArray(links) || !links.length) return;
 		el.innerHTML = links
 			.map((link) => {
 				const active = linkIsActive(link.url);
@@ -64,16 +64,62 @@
 		cur[keys[keys.length - 1]] = value;
 	}
 
+	function isAssocArray(value) {
+		return (
+			Array.isArray(value) &&
+			value.length > 0 &&
+			Object.keys(value).some((key) => !/^\d+$/.test(key))
+		);
+	}
+
+	function mergeContentDefaults(defaults, saved) {
+		if (!defaults || typeof defaults !== 'object') return saved || {};
+		if (!saved || typeof saved !== 'object') return defaults;
+		const result = { ...defaults };
+		for (const [key, value] of Object.entries(saved)) {
+			if (key === 'source') continue;
+			if (Array.isArray(value) && !isAssocArray(value)) {
+				if (!value.length) continue;
+				result[key] = value;
+				continue;
+			}
+			if (
+				value &&
+				typeof value === 'object' &&
+				result[key] &&
+				typeof result[key] === 'object' &&
+				isAssocArray(value) &&
+				isAssocArray(result[key])
+			) {
+				result[key] = mergeContentDefaults(result[key], value);
+				continue;
+			}
+			result[key] = value;
+		}
+		return result;
+	}
+
 	async function fetchContent() {
+		let defaults = null;
+		try {
+			const fallback = await fetch(FALLBACK, { headers: { Accept: 'application/json' }, cache: 'no-store' });
+			defaults = await fallback.json();
+		} catch (e) {
+			console.warn('site-content-default.json', e);
+		}
+
 		try {
 			const res = await fetch('/api/site-content.php', { headers: { Accept: 'application/json' }, cache: 'no-store' });
 			const payload = await res.json();
-			if (payload?.ok && payload.content) return payload.content;
+			if (payload?.ok && payload.content) {
+				return defaults ? mergeContentDefaults(defaults, payload.content) : payload.content;
+			}
 		} catch (e) {
 			console.warn('site-content.php', e);
 		}
-		const fallback = await fetch(FALLBACK, { headers: { Accept: 'application/json' }, cache: 'no-store' });
-		return fallback.json();
+
+		if (defaults) return defaults;
+		throw new Error('No se pudo cargar el contenido del sitio.');
 	}
 
 	function applyText(sel, value) {
@@ -345,11 +391,20 @@
 	}
 
 	function applyContent(content) {
+		if (!content || typeof content !== 'object') return;
 		window.MIZO_SITE_CONTENT = content;
-		applyGlobal(content.global);
+		try {
+			applyGlobal(content.global);
+		} catch (e) {
+			console.warn('CMS global', e);
+		}
 		const path = window.location.pathname.replace(/\/$/, '') || '/';
-		if (path === '/' || path === '/index.html') applyHome(content.pages?.home, content.global);
-		if (path === '/servicios') applyServicios(content.pages?.servicios);
+		try {
+			if (path === '/' || path === '/index.html') applyHome(content.pages?.home, content.global);
+			if (path === '/servicios') applyServicios(content.pages?.servicios);
+		} catch (e) {
+			console.warn('CMS page content', e);
+		}
 		document.dispatchEvent(new CustomEvent('mizo:content-ready', { detail: content }));
 	}
 

@@ -1257,6 +1257,14 @@ function mizo_merge_site_content_defaults(array $defaults, array $saved): array
         if ($key === 'source') {
             continue;
         }
+        if (is_array($value) && !mizo_is_assoc_array($value)) {
+            // No reemplazar listas (nav, heroSlides, etc.) con arrays vacíos.
+            if ($value === []) {
+                continue;
+            }
+            $result[$key] = $value;
+            continue;
+        }
         if (
             is_array($value)
             && isset($result[$key])
@@ -1270,6 +1278,57 @@ function mizo_merge_site_content_defaults(array $defaults, array $saved): array
         $result[$key] = $value;
     }
     return $result;
+}
+
+function mizo_default_site_content(): array
+{
+    $defaultPath = mizo_public_root() . '/site-content-default.json';
+    if (!is_file($defaultPath)) {
+        return [];
+    }
+    $raw = file_get_contents($defaultPath);
+    $decoded = is_string($raw) ? json_decode($raw, true) : null;
+    return is_array($decoded) ? $decoded : [];
+}
+
+function mizo_repair_site_content(array $content, array $defaults): array
+{
+    if ($defaults === []) {
+        return $content;
+    }
+
+    $repaired = mizo_merge_site_content_defaults($defaults, $content);
+    $criticalLists = [
+        ['global', 'nav'],
+        ['global', 'mobile', 'navPrimary'],
+        ['global', 'mobile', 'navMore'],
+        ['pages', 'home', 'heroSlides'],
+    ];
+
+    foreach ($criticalLists as $path) {
+        $savedValue = $content;
+        $defaultValue = $defaults;
+        foreach ($path as $segment) {
+            $savedValue = is_array($savedValue) ? ($savedValue[$segment] ?? null) : null;
+            $defaultValue = is_array($defaultValue) ? ($defaultValue[$segment] ?? null) : null;
+        }
+        if (is_array($savedValue) && $savedValue === []) {
+            $target = &$repaired;
+            foreach ($path as $index => $segment) {
+                if ($index === count($path) - 1) {
+                    $target[$segment] = is_array($defaultValue) ? $defaultValue : [];
+                } else {
+                    if (!isset($target[$segment]) || !is_array($target[$segment])) {
+                        $target[$segment] = [];
+                    }
+                    $target = &$target[$segment];
+                }
+            }
+            unset($target);
+        }
+    }
+
+    return $repaired;
 }
 
 function mizo_read_site_content(): array
@@ -1294,15 +1353,7 @@ function mizo_read_site_content(): array
         break;
     }
 
-    $defaultPath = mizo_public_root() . '/site-content-default.json';
-    $defaults = [];
-    if (is_file($defaultPath)) {
-        $raw = file_get_contents($defaultPath);
-        $decoded = is_string($raw) ? json_decode($raw, true) : null;
-        if (is_array($decoded)) {
-            $defaults = $decoded;
-        }
-    }
+    $defaults = mizo_default_site_content();
 
     if ($saved === null) {
         return array_merge($defaults, [
@@ -1314,7 +1365,7 @@ function mizo_read_site_content(): array
     }
 
     if ($defaults !== []) {
-        $saved = mizo_merge_site_content_defaults($defaults, $saved);
+        $saved = mizo_repair_site_content($saved, $defaults);
     }
 
     $saved['source'] = $source;
@@ -1323,15 +1374,37 @@ function mizo_read_site_content(): array
 
 function mizo_write_site_content(array $content): array
 {
+    unset($content['source']);
+    $defaults = mizo_default_site_content();
+    if ($defaults !== []) {
+        $content = mizo_repair_site_content($content, $defaults);
+    }
     $content['updatedAt'] = gmdate('c');
     $path = mizo_runtime_storage_root() . '/site-content.json';
     $tmp = $path . '.tmp';
-    $json = json_encode($content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-    if ($json === false || file_put_contents($tmp, $json, LOCK_EX) === false || !@rename($tmp, $path)) {
+    $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT;
+    if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
+        $flags |= JSON_INVALID_UTF8_SUBSTITUTE;
+    }
+    $json = json_encode(mizo_sanitize_utf8($content), $flags);
+    if ($json === false) {
+        $detail = function_exists('json_last_error_msg') ? json_last_error_msg() : 'json_encode failed';
+        throw new RuntimeException('No se pudo serializar el contenido del sitio: ' . $detail);
+    }
+    if (file_put_contents($tmp, $json, LOCK_EX) === false || !@rename($tmp, $path)) {
         @unlink($tmp);
-        throw new RuntimeException('No se pudo guardar el contenido del sitio.');
+        throw new RuntimeException('No se pudo guardar el contenido del sitio. Verifica permisos de escritura en la carpeta data/.');
     }
     return $content;
+}
+
+function mizo_reset_site_content(): array
+{
+    $path = mizo_runtime_storage_root() . '/site-content.json';
+    if (is_file($path)) {
+        @unlink($path);
+    }
+    return mizo_read_site_content();
 }
 
 function mizo_site_media_dir(): string

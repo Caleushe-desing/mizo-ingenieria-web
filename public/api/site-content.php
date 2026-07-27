@@ -57,6 +57,16 @@ if ($method === 'POST') {
             ]);
         }
 
+        if ($action === 'reset') {
+            $saved = mizo_reset_site_content();
+            mizo_json_response([
+                'ok' => true,
+                'message' => 'Contenido del sitio restaurado a los valores predeterminados.',
+                'updatedAt' => $saved['updatedAt'] ?? null,
+                'content' => $saved,
+            ]);
+        }
+
         mizo_json_response(['ok' => false, 'error' => 'Acción no reconocida.'], 400);
     } catch (Throwable $error) {
         mizo_json_response(['ok' => false, 'error' => $error->getMessage()], 500);
