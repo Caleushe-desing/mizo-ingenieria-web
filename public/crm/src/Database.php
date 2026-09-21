@@ -257,5 +257,15 @@ final class Database
 			}
 			$pdo->exec('PRAGMA user_version = 5');
 		}
+
+		if ($version < 6) {
+			$cols = $pdo->query('PRAGMA table_info(mail_messages)')->fetchAll();
+			$names = array_column($cols, 'name');
+			if (!in_array('important', $names, true)) {
+				$pdo->exec('ALTER TABLE mail_messages ADD COLUMN important INTEGER NOT NULL DEFAULT 0');
+			}
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mail_important ON mail_messages(user_id, folder, important, sent_at)');
+			$pdo->exec('PRAGMA user_version = 6');
+		}
 	}
 }

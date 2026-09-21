@@ -18,7 +18,7 @@ $onChat = str_starts_with($path, '/chat');
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=9">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=10">
 </head>
 <body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?>">
 	<header class="titlebar">
@@ -66,6 +66,6 @@ $onChat = str_starts_with($path, '/chat');
 		<?php endif; ?>
 		<?= $content ?>
 	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=9"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=10"></script>
 </body>
 </html>

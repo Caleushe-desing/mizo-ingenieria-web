@@ -171,6 +171,30 @@ final class MailController
 		Http::redirect($row && $row['folder'] === 'sent' ? '/correo/enviados' : '/correo');
 	}
 
+	public function status(string $id): void
+	{
+		Csrf::check();
+		$user = Auth::requireUser();
+		$row = MailMessage::owned((int) $user['id'], (int) $id);
+		if (!$row) {
+			View::flash('error', 'Ese correo no está en tu casilla.');
+			Http::redirect('/correo');
+		}
+		$action = Http::string('action', 20);
+		match ($action) {
+			'read' => MailMessage::setSeen($row, true),
+			'unread' => MailMessage::setSeen($row, false),
+			'important' => MailMessage::setImportant($row, true),
+			'unimportant' => MailMessage::setImportant($row, false),
+			default => null,
+		};
+		$back = trim((string) ($_POST['back'] ?? ''));
+		if ($back === '' || !str_starts_with($back, '/correo')) {
+			$back = '/correo/' . (int) $row['id'];
+		}
+		Http::redirect($back);
+	}
+
 	public function account(): void
 	{
 		$user = Auth::requireUser();

@@ -89,8 +89,11 @@ final class Imap
 		if (preg_match_all('/UID (\d+).*?FLAGS \(([^)]*)\)|FLAGS \(([^)]*)\).*?UID (\d+)/s', $buffer, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $row) {
 				$uid = (int) ($row[1] !== '' ? $row[1] : $row[4]);
-				$flags = $row[2] !== '' ? $row[2] : $row[3];
-				$out[$uid] = str_contains(strtoupper($flags), '\\SEEN');
+				$flags = strtoupper($row[2] !== '' ? $row[2] : $row[3]);
+				$out[$uid] = [
+					'seen' => str_contains($flags, '\\SEEN'),
+					'flagged' => str_contains($flags, '\\FLAGGED'),
+				];
 			}
 		}
 		return $out;
@@ -103,6 +106,7 @@ final class Imap
 		$this->write($tag . ' UID FETCH ' . $uid . ' (FLAGS RFC822)');
 		$raw = '';
 		$seen = false;
+		$flagged = false;
 		while (true) {
 			$line = $this->readLine();
 			if (str_starts_with($line, $tag . ' ')) {
@@ -111,8 +115,12 @@ final class Imap
 				}
 				break;
 			}
-			if (str_contains(strtoupper($line), '\\SEEN')) {
+			$upper = strtoupper($line);
+			if (str_contains($upper, '\\SEEN')) {
 				$seen = true;
+			}
+			if (str_contains($upper, '\\FLAGGED')) {
+				$flagged = true;
 			}
 			if (preg_match('/\{(\d+)\}\s*$/', $line, $matches)) {
 				$raw = $this->readBytes((int) $matches[1]);
@@ -121,6 +129,7 @@ final class Imap
 		}
 		$parsed = Mime::parse($raw);
 		$parsed['seen'] = $seen;
+		$parsed['flagged'] = $flagged;
 		$parsed['uid'] = $uid;
 		$parsed['raw'] = $raw;
 		return $parsed;
@@ -130,6 +139,19 @@ final class Imap
 	{
 		$this->select($folder);
 		$this->command('UID STORE ' . $uid . ' +FLAGS (\\Seen)');
+	}
+
+	public function markUnseen(string $folder, int $uid): void
+	{
+		$this->select($folder);
+		$this->command('UID STORE ' . $uid . ' -FLAGS (\\Seen)');
+	}
+
+	public function markFlagged(string $folder, int $uid, bool $flagged): void
+	{
+		$this->select($folder);
+		$op = $flagged ? '+FLAGS' : '-FLAGS';
+		$this->command('UID STORE ' . $uid . ' ' . $op . ' (\\Flagged)');
 	}
 
 	public function append(string $folder, string $rfc822): void

@@ -226,6 +226,7 @@ final class Mailbox extends Record
 				'body_html' => $parsed['body_html'],
 				'sent_at' => $parsed['sent_at'],
 				'seen' => $parsed['seen'] ? 1 : 0,
+				'important' => !empty($parsed['flagged']) ? 1 : 0,
 				'client_id' => $clientId,
 			]);
 			if ($notify && $folder === 'inbox' && $clientId) {
@@ -239,9 +240,11 @@ final class Mailbox extends Record
 			}
 		}
 		$flags = $imap->flags($remote, $uids);
-		foreach ($flags as $uid => $seen) {
-			self::pdo()->prepare('UPDATE mail_messages SET seen = ? WHERE user_id = ? AND folder = ? AND uid = ?')
-				->execute([$seen ? 1 : 0, $userId, $folder, $uid]);
+		foreach ($flags as $uid => $state) {
+			$seen = !empty($state['seen']) ? 1 : 0;
+			$important = !empty($state['flagged']) ? 1 : 0;
+			self::pdo()->prepare('UPDATE mail_messages SET seen = ?, important = ? WHERE user_id = ? AND folder = ? AND uid = ?')
+				->execute([$seen, $important, $userId, $folder, $uid]);
 		}
 	}
 }

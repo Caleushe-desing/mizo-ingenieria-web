@@ -33,7 +33,7 @@ final class MailMessage extends Record
 			$like = '%' . $query . '%';
 			$params = array_merge($params, [$like, $like, $like, $like, $like, $like]);
 		}
-		$sql .= ' ORDER BY m.sent_at DESC, m.id DESC LIMIT 120';
+		$sql .= ' ORDER BY m.important DESC, m.sent_at DESC, m.id DESC LIMIT 120';
 		$stmt = self::pdo()->prepare($sql);
 		$stmt->execute($params);
 		return $stmt->fetchAll();
@@ -133,6 +133,7 @@ final class MailMessage extends Record
 			'body_html' => $data['body_html'] ?? '',
 			'sent_at' => $data['sent_at'] ?? $now,
 			'seen' => (int) ($data['seen'] ?? 0),
+			'important' => (int) ($data['important'] ?? 0),
 			'client_id' => $data['client_id'] ?: null,
 			'created_at' => $now,
 		]);
@@ -140,18 +141,49 @@ final class MailMessage extends Record
 
 	public static function markRead(array $row): void
 	{
-		if ((int) $row['seen'] === 1) {
+		self::setSeen($row, true);
+	}
+
+	public static function setSeen(array $row, bool $seen): void
+	{
+		$next = $seen ? 1 : 0;
+		if ((int) ($row['seen'] ?? 0) === $next) {
 			return;
 		}
-		self::update((int) $row['id'], ['seen' => 1]);
-		if (empty($row['uid']) || $row['folder'] !== 'inbox') {
+		self::update((int) $row['id'], ['seen' => $next]);
+		self::syncImapFlag($row, $seen ? 'seen' : 'unseen');
+	}
+
+	public static function setImportant(array $row, bool $important): void
+	{
+		$next = $important ? 1 : 0;
+		if ((int) ($row['important'] ?? 0) === $next) {
+			return;
+		}
+		self::update((int) $row['id'], ['important' => $next]);
+		self::syncImapFlag($row, $important ? 'flag' : 'unflag');
+	}
+
+	private static function syncImapFlag(array $row, string $action): void
+	{
+		if (empty($row['uid'])) {
 			return;
 		}
 		try {
 			$box = Mailbox::open((int) $row['user_id']);
+			$remote = ($row['folder'] ?? '') === 'sent'
+				? (string) ($box['sent_folder'] ?? 'Sent')
+				: 'INBOX';
 			$imap = new \MizoCrm\Mail\Imap($box);
 			try {
-				$imap->markSeen('INBOX', (int) $row['uid']);
+				$uid = (int) $row['uid'];
+				match ($action) {
+					'seen' => $imap->markSeen($remote, $uid),
+					'unseen' => $imap->markUnseen($remote, $uid),
+					'flag' => $imap->markFlagged($remote, $uid, true),
+					'unflag' => $imap->markFlagged($remote, $uid, false),
+					default => null,
+				};
 			} finally {
 				$imap->close();
 			}
