@@ -103,7 +103,8 @@ final class Imap
 	{
 		$this->select($folder);
 		$tag = $this->tag();
-		$this->write($tag . ' UID FETCH ' . $uid . ' (FLAGS RFC822)');
+		// BODY.PEEK[] evita marcar el correo como \Seen al sincronizar (RFC822 sí lo hace).
+		$this->write($tag . ' UID FETCH ' . $uid . ' (FLAGS BODY.PEEK[])');
 		$raw = '';
 		$seen = false;
 		$flagged = false;

@@ -267,5 +267,19 @@ final class Database
 			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mail_important ON mail_messages(user_id, folder, important, sent_at)');
 			$pdo->exec('PRAGMA user_version = 6');
 		}
+
+		if ($version < 7) {
+			// La sync antigua con RFC822 marcaba todos como leídos en el servidor/CRM.
+			// Si no queda ningún no-leído en bandeja, restauramos el estado para que se note la diferencia.
+			try {
+				$inbox = (int) $pdo->query("SELECT COUNT(*) FROM mail_messages WHERE folder = 'inbox'")->fetchColumn();
+				$unread = (int) $pdo->query("SELECT COUNT(*) FROM mail_messages WHERE folder = 'inbox' AND seen = 0")->fetchColumn();
+				if ($inbox > 0 && $unread === 0) {
+					$pdo->exec("UPDATE mail_messages SET seen = 0 WHERE folder = 'inbox'");
+				}
+			} catch (\Throwable) {
+			}
+			$pdo->exec('PRAGMA user_version = 7');
+		}
 	}
 }

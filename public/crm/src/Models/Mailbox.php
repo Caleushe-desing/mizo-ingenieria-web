@@ -241,10 +241,11 @@ final class Mailbox extends Record
 		}
 		$flags = $imap->flags($remote, $uids);
 		foreach ($flags as $uid => $state) {
-			$seen = !empty($state['seen']) ? 1 : 0;
+			// Solo sincronizamos importante desde IMAP. El leído/no leído lo controla el CRM
+			// (abrir mensaje o botón), para que un FETCH previo no deje toda la bandeja "leída".
 			$important = !empty($state['flagged']) ? 1 : 0;
-			self::pdo()->prepare('UPDATE mail_messages SET seen = ?, important = ? WHERE user_id = ? AND folder = ? AND uid = ?')
-				->execute([$seen, $important, $userId, $folder, $uid]);
+			self::pdo()->prepare('UPDATE mail_messages SET important = ? WHERE user_id = ? AND folder = ? AND uid = ?')
+				->execute([$important, $userId, $folder, $uid]);
 		}
 	}
 }
