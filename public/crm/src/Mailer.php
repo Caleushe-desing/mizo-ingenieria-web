@@ -7,6 +7,15 @@ final class Mailer
 {
 	public static function send(string $to, string $subject, string $html, string $replyTo = ''): bool
 	{
+		$user = Auth::user();
+		if ($user && Models\Mailbox::forUser((int) $user['id'])) {
+			try {
+				Models\Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, '', Models\MailMessage::clientIdFor((int) $user['id'], $to));
+				return true;
+			} catch (\RuntimeException) {
+				return false;
+			}
+		}
 		$from = Config::COMPANY . ' <' . Config::EMAIL . '>';
 		$headers = [
 			'MIME-Version: 1.0',

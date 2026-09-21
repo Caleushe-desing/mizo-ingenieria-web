@@ -175,6 +175,52 @@ final class Database
 				$pdo->exec('ALTER TABLE deals ADD COLUMN visit_at TEXT');
 			}
 			$pdo->exec('PRAGMA user_version = 2');
+			$version = 2;
+		}
+
+		if ($version < 3) {
+			$pdo->exec(
+				<<<'SQL'
+				CREATE TABLE IF NOT EXISTS mailboxes (
+					user_id INTEGER PRIMARY KEY,
+					email TEXT NOT NULL,
+					password_enc TEXT NOT NULL,
+					smtp_host TEXT NOT NULL,
+					smtp_port INTEGER NOT NULL DEFAULT 465,
+					imap_host TEXT NOT NULL,
+					imap_port INTEGER NOT NULL DEFAULT 993,
+					sent_folder TEXT NOT NULL DEFAULT 'Sent',
+					last_sync TEXT,
+					FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+				);
+
+				CREATE TABLE IF NOT EXISTS mail_messages (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					user_id INTEGER NOT NULL,
+					folder TEXT NOT NULL,
+					uid INTEGER,
+					message_id TEXT,
+					in_reply_to TEXT,
+					from_email TEXT,
+					from_name TEXT,
+					to_email TEXT,
+					subject TEXT,
+					body_text TEXT,
+					body_html TEXT,
+					sent_at TEXT,
+					seen INTEGER NOT NULL DEFAULT 0,
+					client_id INTEGER,
+					created_at TEXT NOT NULL,
+					FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+					FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
+				);
+
+				CREATE UNIQUE INDEX IF NOT EXISTS idx_mail_uid ON mail_messages(user_id, folder, uid);
+				CREATE INDEX IF NOT EXISTS idx_mail_user_folder ON mail_messages(user_id, folder, sent_at);
+				CREATE INDEX IF NOT EXISTS idx_mail_client ON mail_messages(client_id);
+				SQL
+			);
+			$pdo->exec('PRAGMA user_version = 3');
 		}
 	}
 }

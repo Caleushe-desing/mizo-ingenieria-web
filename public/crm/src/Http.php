@@ -79,4 +79,11 @@ final class Http
 	{
 		return self::method() === 'POST';
 	}
+
+	public static function text(string $key, int $max = 20000): string
+	{
+		$value = str_replace("\0", '', (string) ($_POST[$key] ?? ''));
+		$value = trim($value);
+		return function_exists('mb_substr') ? mb_substr($value, 0, $max, 'UTF-8') : substr($value, 0, $max);
+	}
 }

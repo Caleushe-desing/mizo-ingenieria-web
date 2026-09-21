@@ -16,7 +16,7 @@ final class Client extends Record
 	{
 		$sql = "SELECT c.*, u.name AS owner_name,
 			(SELECT COUNT(*) FROM quotes q WHERE q.client_id = c.id) AS quotes_count,
-			(SELECT a.message FROM activities a WHERE a.client_id = c.id AND a.type IN ('comentario','nota','lead','quote_sent') ORDER BY a.id DESC LIMIT 1) AS last_note
+			(SELECT a.message FROM activities a WHERE a.client_id = c.id AND a.type IN ('comentario','nota','lead','quote_sent','mail_sent','mail_received') ORDER BY a.id DESC LIMIT 1) AS last_note
 			FROM clients c
 			LEFT JOIN users u ON u.id = c.owner_id
 			WHERE 1=1";

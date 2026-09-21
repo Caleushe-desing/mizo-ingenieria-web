@@ -245,7 +245,10 @@ final class QuoteController
 		$user = Auth::user();
 		$ok = Mailer::send($to, 'Cotización ' . $quote['number'] . ' — Mizo', $html, $user['email'] ?? '');
 		if (!$ok) {
-			View::flash('error', 'No se pudo enviar el correo desde este equipo. En el servidor sí sale. La cotización quedó guardada.');
+			$hint = \MizoCrm\Models\Mailbox::forUser(Auth::id())
+				? 'Revisa la clave de tu casilla en Correo.'
+				: 'Conecta tu casilla en Correo para que el cliente te responda ahí.';
+			View::flash('error', 'No se pudo enviar el correo. ' . $hint . ' La cotización quedó guardada.');
 			Http::redirect('/cotizaciones/' . $quoteId);
 		}
 		Quote::update((int) $quote['id'], [
@@ -268,7 +271,7 @@ final class QuoteController
 			(int) $quote['id']
 		);
 		Client::update((int) $quote['client_id'], ['updated_at' => date('c')]);
-		View::flash('ok', 'Cotización enviada a ' . $to . '.');
+		View::flash('ok', 'Cotización enviada a ' . $to . '. Si responde, te llega a Correo.');
 		Http::redirect('/clientes/' . $quote['client_id']);
 	}
 }

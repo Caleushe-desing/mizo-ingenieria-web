@@ -62,6 +62,7 @@ function activity_label(string $type): string
 		?? match ($type) {
 			'lead' => 'Sitio web',
 			'quote_created', 'quote_sent', 'quote_viewed', 'quote_accepted', 'quote_rejected' => 'Cotización',
+			'mail_sent', 'mail_received' => 'Correo',
 			'won' => 'Ganada',
 			'lost' => 'Perdida',
 			'assigned' => 'Asignación',

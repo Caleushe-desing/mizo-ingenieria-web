@@ -87,6 +87,7 @@ final class ClientController
 			'client' => $client,
 			'comments' => Activity::commentsForClient((int) $id),
 			'quotes' => Client::quotes((int) $id),
+			'mails' => \MizoCrm\Models\MailMessage::forClient(Auth::id(), (int) $id),
 			'owner' => $owner,
 			'team' => Auth::isAdmin() ? User::team() : [],
 		]);

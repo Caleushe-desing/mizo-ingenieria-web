@@ -7,6 +7,7 @@ $client = $client ?? [];
 $comments = $comments ?? [];
 $quotes = $quotes ?? [];
 $team = $team ?? [];
+$mails = $mails ?? [];
 ?>
 <div class="page-head">
 	<div>
@@ -23,7 +24,8 @@ $team = $team ?? [];
 			<?= Csrf::field() ?>
 			<button class="btn-danger-text" type="submit">Eliminar cliente</button>
 		</form>
-		<a class="btn btn-excel" href="<?= h(Http::url('/clientes/' . $client['id'] . '/cotizacion')) ?>">Nueva cotización</a>
+			<a class="btn btn-word" href="<?= h(Http::url('/correo/nuevo?cliente=' . $client['id'])) ?>">Escribir correo</a>
+			<a class="btn btn-excel" href="<?= h(Http::url('/clientes/' . $client['id'] . '/cotizacion')) ?>">Nueva cotización</a>
 	</div>
 </div>
 
@@ -56,6 +58,37 @@ $team = $team ?? [];
 				<button class="btn btn-word" type="submit">Guardar datos</button>
 			</div>
 		</form>
+	</section>
+
+	<section class="paper">
+		<h2 class="section-title word">Correos</h2>
+		<?php if (empty($mails)): ?>
+			<div class="empty">
+				<p>Aún no hay correos con este cliente en tu casilla.</p>
+				<a class="btn btn-word" href="<?= h(Http::url('/correo/nuevo?cliente=' . $client['id'])) ?>">Escribir correo</a>
+			</div>
+		<?php else: ?>
+			<div class="table-wrap">
+				<table class="sheet">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Asunto</th>
+							<th>Fecha</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php foreach ($mails as $mail): ?>
+						<tr class="is-link <?= empty($mail['seen']) && $mail['folder'] === 'inbox' ? 'is-unread' : '' ?>" onclick="location.href='<?= h(Http::url('/correo/' . $mail['id'])) ?>'">
+							<td><?= $mail['folder'] === 'sent' ? 'Enviado' : 'Recibido' ?></td>
+							<td><?= h($mail['subject'] ?: '(sin asunto)') ?></td>
+							<td><?= h(when($mail['sent_at'])) ?></td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		<?php endif; ?>
 	</section>
 
 	<section class="paper">
