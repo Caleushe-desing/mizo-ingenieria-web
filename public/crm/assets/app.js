@@ -204,3 +204,95 @@
 		hideTimer = setTimeout(function () { root.hidden = true; }, 5000);
 	});
 })();
+
+(function () {
+	function insertImage(area, url) {
+		area.focus();
+		document.execCommand('insertHTML', false, '<img src="' + url.replace(/"/g, '&quot;') + '" alt="" style="max-width:220px;height:auto">');
+	}
+
+	function uploadImage(root, file, done) {
+		const url = root.getAttribute('data-upload');
+		const csrf = root.getAttribute('data-csrf') || '';
+		if (!url || !file) return;
+		const data = new FormData();
+		data.append('_csrf', csrf);
+		data.append('image', file, file.name || 'firma.png');
+		fetch(url, { method: 'POST', body: data, credentials: 'same-origin' })
+			.then(function (res) { return res.json(); })
+			.then(function (json) {
+				if (json && json.ok && json.url) done(json.url);
+				else fallbackDataUrl(file, done);
+			})
+			.catch(function () { fallbackDataUrl(file, done); });
+	}
+
+	function fallbackDataUrl(file, done) {
+		const reader = new FileReader();
+		reader.onload = function () { done(String(reader.result || '')); };
+		reader.readAsDataURL(file);
+	}
+
+	document.querySelectorAll('[data-rich-editor]').forEach(function (root) {
+		const area = root.querySelector('.rich-area');
+		const input = root.querySelector('[data-rich-input]');
+		const form = root.closest('form');
+		const fileInput = root.querySelector('[data-file]');
+		if (!area || !input) return;
+
+		root.querySelectorAll('[data-cmd]').forEach(function (btn) {
+			btn.addEventListener('mousedown', function (event) { event.preventDefault(); });
+			btn.addEventListener('click', function () {
+				area.focus();
+				document.execCommand(btn.getAttribute('data-cmd'), false, null);
+			});
+		});
+
+		const size = root.querySelector('[data-fontsize]');
+		if (size) {
+			size.addEventListener('change', function () {
+				if (!size.value) return;
+				area.focus();
+				document.execCommand('fontSize', false, size.value);
+				size.value = '';
+			});
+		}
+
+		const color = root.querySelector('[data-color]');
+		if (color) {
+			color.addEventListener('input', function () {
+				area.focus();
+				document.execCommand('foreColor', false, color.value);
+			});
+		}
+
+		const pick = root.querySelector('[data-pick-image]');
+		if (pick && fileInput) {
+			pick.addEventListener('click', function () { fileInput.click(); });
+			fileInput.addEventListener('change', function () {
+				const file = fileInput.files && fileInput.files[0];
+				if (file) uploadImage(root, file, function (url) { insertImage(area, url); });
+				fileInput.value = '';
+			});
+		}
+
+		area.addEventListener('paste', function (event) {
+			const items = event.clipboardData ? event.clipboardData.items : null;
+			if (!items) return;
+			for (let i = 0; i < items.length; i += 1) {
+				if (items[i].type.indexOf('image/') === 0) {
+					event.preventDefault();
+					const file = items[i].getAsFile();
+					if (file) uploadImage(root, file, function (url) { insertImage(area, url); });
+					return;
+				}
+			}
+		});
+
+		if (form) {
+			form.addEventListener('submit', function () {
+				input.value = area.innerHTML;
+			});
+		}
+	});
+})();

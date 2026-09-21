@@ -15,9 +15,9 @@ $onMail = str_starts_with($path, '/correo');
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=3">
 </head>
-<body>
+<body class="<?= $onMail ? 'is-gmail' : '' ?>">
 	<header class="titlebar">
 		<img src="/mizo-logo-footer.png" alt="Mizo">
 		<small>Clientes, cotizaciones y correo</small>
@@ -60,6 +60,6 @@ $onMail = str_starts_with($path, '/correo');
 		<?php endif; ?>
 		<?= $content ?>
 	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=2"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=3"></script>
 </body>
 </html>

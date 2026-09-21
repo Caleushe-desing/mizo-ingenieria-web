@@ -70,3 +70,41 @@ function activity_label(string $type): string
 			default => 'Registro',
 		};
 }
+
+function mail_when(?string $value): string
+{
+	$time = strtotime((string) $value);
+	if (!$time) {
+		return '—';
+	}
+	$months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+	if (date('Y-m-d', $time) === date('Y-m-d')) {
+		return date('H:i', $time);
+	}
+	if (date('Y', $time) === date('Y')) {
+		return date('j', $time) . ' ' . $months[(int) date('n', $time) - 1];
+	}
+	return date('d-m-Y', $time);
+}
+
+function mail_snippet(?string $html, ?string $text): string
+{
+	$raw = trim(strip_tags((string) (($text ?? '') !== '' ? $text : $html)));
+	$raw = preg_replace('/\s+/u', ' ', $raw) ?? $raw;
+	if ($raw === '') {
+		return '';
+	}
+	if (function_exists('mb_strlen') && mb_strlen($raw, 'UTF-8') > 88) {
+		return mb_substr($raw, 0, 88, 'UTF-8') . '…';
+	}
+	if (strlen($raw) > 88) {
+		return substr($raw, 0, 88) . '…';
+	}
+	return $raw;
+}
+
+function mail_avatar_color(string $name): string
+{
+	$colors = ['#5f6368', '#1a73e8', '#188038', '#c5221f', '#e37400', '#7b1fa2', '#00897b'];
+	return $colors[abs(crc32($name)) % count($colors)];
+}

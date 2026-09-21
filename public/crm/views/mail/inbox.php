@@ -6,57 +6,42 @@ $messages = $messages ?? [];
 $mailbox = $mailbox ?? [];
 $unread = (int) ($unread ?? 0);
 ?>
-<div class="page-head">
-	<div>
-		<h1><?= $folder === 'sent' ? 'Enviados' : 'Bandeja de entrada' ?></h1>
-		<p>Correos de <?= h($mailbox['email'] ?? '') ?>. Si el cliente responde, aparece aquí.</p>
-	</div>
-	<div class="page-head-actions">
-		<a class="btn" href="<?= h(Http::url('/correo' . ($folder === 'sent' ? '/enviados' : '') . '?sync=1')) ?>">Actualizar</a>
-		<a class="btn btn-word" href="<?= h(Http::url('/correo/nuevo')) ?>">Nuevo correo</a>
-	</div>
-</div>
-
-<div class="mail-layout">
-	<aside class="mail-nav paper">
-		<a class="<?= $folder === 'inbox' ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo')) ?>">Bandeja<?= $unread > 0 ? ' (' . $unread . ')' : '' ?></a>
-		<a class="<?= $folder === 'sent' ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo/enviados')) ?>">Enviados</a>
-		<a href="<?= h(Http::url('/correo/nuevo')) ?>">Redactar</a>
-		<a href="<?= h(Http::url('/correo/cuenta')) ?>">Mi casilla</a>
-	</aside>
-	<section class="paper" style="padding:0">
+<div class="gmail">
+	<?php require __DIR__ . '/nav.php'; ?>
+	<section class="gmail-main">
+		<div class="gmail-toolbar">
+			<strong><?= $folder === 'sent' ? 'Enviados' : 'Recibidos' ?></strong>
+			<span><?= h($mailbox['email'] ?? '') ?></span>
+			<a href="<?= h(Http::url('/correo' . ($folder === 'sent' ? '/enviados' : '') . '?sync=1')) ?>">Actualizar</a>
+		</div>
 		<?php if (!$messages): ?>
-			<div class="empty">
-				<p><?= $folder === 'sent' ? 'Aún no hay correos enviados desde esta casilla.' : 'La bandeja está vacía. Cuando un cliente responda, el mensaje aparecerá aquí.' ?></p>
+			<div class="gmail-empty">
+				<p><?= $folder === 'sent' ? 'No hay correos enviados.' : 'La bandeja está vacía. Cuando un cliente responda, el mensaje aparece aquí.' ?></p>
 			</div>
 		<?php else: ?>
-			<div class="table-wrap">
-				<table class="sheet mail-sheet">
-					<thead>
-						<tr>
-							<th><?= $folder === 'sent' ? 'Para' : 'De' ?></th>
-							<th>Asunto</th>
-							<th>Cliente</th>
-							<th>Fecha</th>
-						</tr>
-					</thead>
-					<tbody>
-					<?php foreach ($messages as $row): ?>
-						<tr class="is-link <?= empty($row['seen']) ? 'is-unread' : '' ?>" onclick="location.href='<?= h(Http::url('/correo/' . $row['id'])) ?>'">
-							<td>
-								<?php if ($folder === 'sent'): ?>
-									<?= h($row['to_email']) ?>
-								<?php else: ?>
-									<?= h($row['from_name'] ?: $row['from_email']) ?>
-								<?php endif; ?>
-							</td>
-							<td><?= h($row['subject'] ?: '(sin asunto)') ?></td>
-							<td><?= h($row['client_name'] ?? '') ?></td>
-							<td><?= h(when($row['sent_at'])) ?></td>
-						</tr>
-					<?php endforeach; ?>
-					</tbody>
-				</table>
+			<div class="gmail-list">
+				<?php foreach ($messages as $row): ?>
+					<?php
+					$who = $folder === 'sent'
+						? (string) $row['to_email']
+						: (string) ($row['from_name'] ?: $row['from_email']);
+					$snippet = mail_snippet($row['body_html'] ?? '', $row['body_text'] ?? '');
+					?>
+					<a class="gmail-row <?= empty($row['seen']) ? 'is-unread' : '' ?>" href="<?= h(Http::url('/correo/' . $row['id'])) ?>">
+						<span class="gmail-avatar" style="background:<?= h(mail_avatar_color($who)) ?>"><?= h(initials($who)) ?></span>
+						<span class="gmail-from"><?= h($who) ?></span>
+						<span class="gmail-snippet">
+							<b><?= h($row['subject'] ?: '(sin asunto)') ?></b>
+							<?php if ($snippet !== ''): ?>
+								<span> — <?= h($snippet) ?></span>
+							<?php endif; ?>
+							<?php if (!empty($row['client_name'])): ?>
+								<em><?= h($row['client_name']) ?></em>
+							<?php endif; ?>
+						</span>
+						<time class="gmail-date"><?= h(mail_when($row['sent_at'] ?? null)) ?></time>
+					</a>
+				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
 	</section>

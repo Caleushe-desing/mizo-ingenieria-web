@@ -5,53 +5,52 @@ use MizoCrm\Mail\Mime;
 
 $message = $message ?? [];
 $client = $client ?? null;
-$peer = $message['folder'] === 'inbox' ? ($message['from_name'] ?: $message['from_email']) : $message['to_email'];
+$peer = $message['folder'] === 'sent' ? $message['to_email'] : ($message['from_name'] ?: $message['from_email']);
 $html = trim((string) ($message['body_html'] ?? ''));
 $text = trim((string) ($message['body_text'] ?? ''));
+$folder = $message['folder'] === 'sent' ? 'sent' : 'inbox';
+$unread = (int) ($unread ?? 0);
 ?>
-<div class="page-head">
-	<div>
-		<a class="back" href="<?= h(Http::url($message['folder'] === 'sent' ? '/correo/enviados' : '/correo')) ?>">← Correos</a>
-		<h1><?= h($message['subject'] ?: '(sin asunto)') ?></h1>
-		<p>
-			<?= $message['folder'] === 'sent' ? 'Para' : 'De' ?>: <?= h($peer) ?>
-			· <?= h(when($message['sent_at'])) ?>
-			<?php if ($client): ?>
-				· Cliente: <a href="<?= h(Http::url('/clientes/' . $client['id'])) ?>"><?= h($client['name']) ?></a>
-			<?php endif; ?>
-		</p>
-	</div>
-	<div class="page-head-actions">
-		<form method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Quitar este correo de la lista del CRM?');">
-			<?= Csrf::field() ?>
-			<button class="btn-danger-text" type="submit">Quitar de la lista</button>
-		</form>
-	</div>
-</div>
-
-<div class="stack">
-	<section class="paper mail-read">
-		<?php if ($html !== ''): ?>
-			<div class="mail-body"><?= Mime::safeHtml($html) ?></div>
-		<?php else: ?>
-			<div class="mail-body"><p><?= nl2br(h($text !== '' ? $text : 'Este correo no tiene texto.')) ?></p></div>
-		<?php endif; ?>
-	</section>
-
-	<?php if ($message['folder'] === 'inbox'): ?>
-		<section class="paper">
-			<h2 class="section-title word">Responder</h2>
-			<p class="muted">La respuesta sale desde tu casilla. El cliente te escribe de vuelta aquí.</p>
-			<form class="form" method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/responder')) ?>" style="margin-top:12px">
-				<?= Csrf::field() ?>
-				<label>
-					<span>Mensaje</span>
-					<textarea name="body" rows="6" required placeholder="Escribe la respuesta..."></textarea>
-				</label>
-				<div class="form-actions">
-					<button class="btn btn-word" type="submit">Enviar respuesta</button>
+<div class="gmail">
+	<?php require __DIR__ . '/nav.php'; ?>
+	<section class="gmail-main">
+		<div class="gmail-read">
+			<div class="gmail-read-top">
+				<h1><?= h($message['subject'] ?: '(sin asunto)') ?></h1>
+				<form method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Quitar este correo de la lista del CRM?');">
+					<?= Csrf::field() ?>
+					<button class="gmail-icon-btn" type="submit">Quitar</button>
+				</form>
+			</div>
+			<div class="gmail-read-meta">
+				<span class="gmail-avatar" style="background:<?= h(mail_avatar_color((string) $peer)) ?>"><?= h(initials((string) $peer)) ?></span>
+				<div>
+					<strong><?= h($peer) ?></strong>
+					<small>
+						<?= $message['folder'] === 'sent' ? 'para ' . h($message['to_email']) : 'para mí' ?>
+						· <?= h(mail_when($message['sent_at'] ?? null)) ?>
+						<?php if ($client): ?>
+							· <a href="<?= h(Http::url('/clientes/' . $client['id'])) ?>"><?= h($client['name']) ?></a>
+						<?php endif; ?>
+					</small>
 				</div>
-			</form>
-		</section>
-	<?php endif; ?>
+			</div>
+			<?php if ($html !== ''): ?>
+				<div class="mail-body"><?= Mime::safeHtml($html) ?></div>
+			<?php else: ?>
+				<div class="mail-body"><p><?= nl2br(h($text !== '' ? $text : 'Este correo no tiene texto.')) ?></p></div>
+			<?php endif; ?>
+
+			<?php if ($message['folder'] === 'inbox'): ?>
+				<form class="gmail-reply" method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/responder')) ?>">
+					<?= Csrf::field() ?>
+					<label>
+						<span>Responder a <?= h($peer) ?></span>
+						<textarea name="body" rows="6" required placeholder="Redacta tu respuesta"></textarea>
+					</label>
+					<button class="gmail-send" type="submit">Enviar</button>
+				</form>
+			<?php endif; ?>
+		</div>
+	</section>
 </div>

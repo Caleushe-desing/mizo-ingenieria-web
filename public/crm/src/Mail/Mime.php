@@ -94,7 +94,7 @@ final class Mime
 	public static function safeHtml(string $html): string
 	{
 		$html = preg_replace('#<(script|iframe|object|embed|form|link|meta|style)[^>]*>.*?</\1>#is', '', $html) ?? $html;
-		$html = strip_tags($html, '<p><br><b><strong><em><i><u><ul><ol><li><a><table><thead><tbody><tr><td><th><span><div><h1><h2><h3><blockquote><hr><img>');
+		$html = strip_tags($html, '<p><br><b><strong><em><i><u><ul><ol><li><a><table><thead><tbody><tr><td><th><span><div><h1><h2><h3><blockquote><hr><img><font>');
 		$html = preg_replace('/\son[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $html) ?? $html;
 		$html = preg_replace('/javascript:/i', '', $html) ?? $html;
 		return $html;

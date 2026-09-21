@@ -49,10 +49,32 @@ final class TeamController
 		if (!$member) {
 			Http::redirect('/equipo');
 		}
-		$text = Http::text('signature', 2000);
-		User::update((int) $id, ['signature' => $text]);
+		$html = User::sanitizeSignature(Http::text('signature', 80000));
+		$plain = trim(html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+		if ($plain === '' && !str_contains(strtolower($html), '<img')) {
+			View::flash('error', 'Escribe una firma o pega una imagen.');
+			Http::redirect('/equipo');
+		}
+		User::update((int) $id, ['signature' => $html]);
 		View::flash('ok', 'Firma de ' . $member['name'] . ' guardada. Se usará en sus correos y cotizaciones.');
 		Http::redirect('/equipo');
+	}
+
+	public function signatureImage(): void
+	{
+		Auth::requireAdmin();
+		Csrf::check();
+		$file = $_FILES['image'] ?? null;
+		if (!is_array($file) || (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+			Http::json(['ok' => false, 'error' => 'No se pudo leer la imagen.'], 400);
+		}
+		$binary = (string) file_get_contents((string) $file['tmp_name']);
+		$mime = (string) (new \finfo(FILEINFO_MIME_TYPE))->buffer($binary);
+		$url = User::storeSignatureImage($binary, $mime);
+		if (!$url) {
+			Http::json(['ok' => false, 'error' => 'Usa PNG, JPG, GIF o WebP de hasta 1,5 MB.'], 400);
+		}
+		Http::json(['ok' => true, 'url' => $url]);
 	}
 
 	public function destroy(string $id): void
