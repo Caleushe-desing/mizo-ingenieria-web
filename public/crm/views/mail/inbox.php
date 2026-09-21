@@ -6,8 +6,11 @@ $messages = $messages ?? [];
 $mailbox = $mailbox ?? [];
 $unread = (int) ($unread ?? 0);
 $message = $message ?? null;
+$query = trim((string) ($query ?? ''));
 $selectedId = $message ? (int) $message['id'] : 0;
 $openClass = $message ? ' has-open' : '';
+$folderUrl = Http::url('/correo' . ($folder === 'sent' ? '/enviados' : ''));
+$qParam = $query !== '' ? '&q=' . rawurlencode($query) : '';
 ?>
 <div class="gmail<?= $openClass ?>">
 	<?php require __DIR__ . '/nav.php'; ?>
@@ -16,13 +19,29 @@ $openClass = $message ? ' has-open' : '';
 			<div class="gmail-toolbar">
 				<strong><?= $folder === 'sent' ? 'Enviados' : 'Recibidos' ?></strong>
 				<span class="gmail-toolbar-mail"><?= h($mailbox['email'] ?? '') ?></span>
-				<a href="<?= h(Http::url('/correo' . ($folder === 'sent' ? '/enviados' : '') . '?sync=1')) ?>">Actualizar</a>
+				<a href="<?= h($folderUrl . '?sync=1' . $qParam) ?>">Actualizar</a>
 			</div>
+			<form class="gmail-search" method="get" action="<?= h($folderUrl) ?>" role="search">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+				<input type="search" name="q" value="<?= h($query) ?>" placeholder="Buscar correo, asunto o cliente" autocomplete="off">
+				<?php if ($query !== ''): ?>
+					<a class="gmail-search-clear" href="<?= h($folderUrl) ?>" title="Limpiar búsqueda">×</a>
+				<?php endif; ?>
+				<button type="submit">Buscar</button>
+			</form>
 			<?php if (!$messages): ?>
 				<div class="gmail-empty">
-					<p><?= $folder === 'sent' ? 'No hay correos enviados.' : 'La bandeja está vacía. Cuando un cliente responda, el mensaje aparece aquí.' ?></p>
+					<?php if ($query !== ''): ?>
+						<p>No hay correos que coincidan con «<?= h($query) ?>».</p>
+						<p><a href="<?= h($folderUrl) ?>">Ver todos</a></p>
+					<?php else: ?>
+						<p><?= $folder === 'sent' ? 'No hay correos enviados.' : 'La bandeja está vacía. Cuando un cliente responda, el mensaje aparece aquí.' ?></p>
+					<?php endif; ?>
 				</div>
 			<?php else: ?>
+				<?php if ($query !== ''): ?>
+					<p class="gmail-search-meta"><?= count($messages) ?> resultado<?= count($messages) === 1 ? '' : 's' ?> para «<?= h($query) ?>»</p>
+				<?php endif; ?>
 				<div class="gmail-list">
 					<?php foreach ($messages as $row): ?>
 						<?php
@@ -31,8 +50,9 @@ $openClass = $message ? ' has-open' : '';
 							: (string) ($row['from_name'] ?: $row['from_email']);
 						$snippet = mail_snippet($row['body_html'] ?? '', $row['body_text'] ?? '');
 						$isSelected = $selectedId === (int) $row['id'];
+						$href = Http::url('/correo/' . $row['id'] . ($query !== '' ? '?q=' . rawurlencode($query) : ''));
 						?>
-						<a class="gmail-row <?= empty($row['seen']) ? 'is-unread' : '' ?><?= $isSelected ? ' is-selected' : '' ?>" href="<?= h(Http::url('/correo/' . $row['id'])) ?>">
+						<a class="gmail-row <?= empty($row['seen']) ? 'is-unread' : '' ?><?= $isSelected ? ' is-selected' : '' ?>" href="<?= h($href) ?>">
 							<span class="gmail-avatar" style="background:<?= h(mail_avatar_color($who)) ?>"><?= h(initials($who)) ?></span>
 							<span class="gmail-row-main">
 								<span class="gmail-from"><?= h($who) ?></span>

@@ -112,14 +112,16 @@ final class MailController
 		if (!$box) {
 			Http::redirect('/correo/cuenta');
 		}
+		$query = Http::string('q', 80);
 		View::render('mail/inbox', [
 			'title' => $row['subject'] ?: 'Correo',
 			'folder' => $folder,
 			'mailbox' => $box,
-			'messages' => MailMessage::list((int) $user['id'], $folder),
+			'messages' => MailMessage::list((int) $user['id'], $folder, null, $query),
 			'message' => $row,
 			'client' => $client,
 			'unread' => MailMessage::unreadCount((int) $user['id']),
+			'query' => $query,
 		]);
 	}
 
@@ -228,12 +230,14 @@ final class MailController
 		if ($error !== '') {
 			View::flash('error', $error);
 		}
+		$query = Http::string('q', 80);
 		View::render('mail/inbox', [
 			'title' => $folder === 'sent' ? 'Enviados' : 'Bandeja de entrada',
 			'folder' => $folder,
 			'mailbox' => $box,
-			'messages' => MailMessage::list((int) $user['id'], $folder),
+			'messages' => MailMessage::list((int) $user['id'], $folder, null, $query),
 			'unread' => MailMessage::unreadCount((int) $user['id']),
+			'query' => $query,
 		]);
 	}
 

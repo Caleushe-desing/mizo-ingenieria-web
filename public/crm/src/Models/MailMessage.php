@@ -13,7 +13,7 @@ final class MailMessage extends Record
 		return 'mail_messages';
 	}
 
-	public static function list(int $userId, string $folder, ?int $clientId = null): array
+	public static function list(int $userId, string $folder, ?int $clientId = null, string $query = ''): array
 	{
 		$sql = 'SELECT m.*, c.name AS client_name
 			FROM mail_messages m
@@ -23,6 +23,15 @@ final class MailMessage extends Record
 		if ($clientId) {
 			$sql .= ' AND m.client_id = ?';
 			$params[] = $clientId;
+		}
+		$query = trim($query);
+		if ($query !== '') {
+			$sql .= ' AND (
+				m.subject LIKE ? OR m.from_name LIKE ? OR m.from_email LIKE ?
+				OR m.to_email LIKE ? OR m.body_text LIKE ? OR IFNULL(c.name, \'\') LIKE ?
+			)';
+			$like = '%' . $query . '%';
+			$params = array_merge($params, [$like, $like, $like, $like, $like, $like]);
 		}
 		$sql .= ' ORDER BY m.sent_at DESC, m.id DESC LIMIT 120';
 		$stmt = self::pdo()->prepare($sql);

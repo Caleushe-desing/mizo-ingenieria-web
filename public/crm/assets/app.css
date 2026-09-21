@@ -716,6 +716,67 @@ body.is-gmail .flash { margin: 12px 18px 0; }
 	min-width: 0;
 }
 .gmail-toolbar a { margin-left: auto; color: #0b57d0; text-decoration: none; font-weight: 600; flex-shrink: 0; }
+.gmail-search {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 14px 10px;
+	border-bottom: 1px solid #e8eaed;
+	background: #f6f8fc;
+	flex-shrink: 0;
+}
+.gmail-search svg {
+	width: 18px;
+	height: 18px;
+	fill: #5f6368;
+	flex-shrink: 0;
+}
+.gmail-search input[type="search"] {
+	flex: 1;
+	min-width: 0;
+	border: 1px solid #dadce0;
+	border-radius: 20px;
+	padding: 8px 14px;
+	background: #fff;
+	outline: none;
+}
+.gmail-search input[type="search"]:focus {
+	border-color: #0b57d0;
+	box-shadow: 0 0 0 1px #0b57d0;
+}
+.gmail-search button {
+	border: 0;
+	background: #0b57d0;
+	color: #fff;
+	border-radius: 16px;
+	padding: 7px 14px;
+	font-weight: 600;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+.gmail-search button:hover { filter: brightness(0.96); }
+.gmail-search-clear {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	color: #5f6368;
+	text-decoration: none;
+	font-size: 20px;
+	line-height: 1;
+	flex-shrink: 0;
+}
+.gmail-search-clear:hover { background: #e8eaed; text-decoration: none; }
+.gmail-search-meta {
+	margin: 0;
+	padding: 8px 16px;
+	font-size: 12px;
+	color: #5f6368;
+	border-bottom: 1px solid #f0f0f0;
+	background: #fff;
+}
 .gmail-empty { padding: 64px 24px; text-align: center; color: #5f6368; }
 .gmail-list { display: flex; flex-direction: column; }
 .gmail-row {
@@ -1210,9 +1271,4 @@ body.is-chat .flash {
 	.doc-id dl div { justify-content: flex-start; }
 	.doc-letterhead, .doc-parties, .doc-ref, .doc-items, .doc-notes, .doc-actions, .doc-foot { padding-left: 20px; padding-right: 20px; }
 	.doc-status { margin-left: 20px; margin-right: 20px; }
-}
-@media print {
-	.quote-doc { background: #fff; }
-	.quote-sheet { margin: 0; box-shadow: none; max-width: none; }
-	.doc-banner, .doc-actions { display: none !important; }
 }
