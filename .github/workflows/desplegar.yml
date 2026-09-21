@@ -11,57 +11,22 @@ jobs:
     name: Compilar y Subir Sitio
     runs-on: ubuntu-latest
     steps:
-      - name: 1. Obtener el código del repositorio
+      - name: Obtener el código
         uses: actions/checkout@v4
 
-      - name: 2. Configurar el entorno de Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: 3. Instalar dependencias del frontend
+      - name: Instalar dependencias
         run: npm ci
 
-      - name: 3.1 Instalar dependencias PHP (Web Push)
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          tools: composer
-      - run: composer install --no-dev --prefer-dist --no-interaction
-        working-directory: public/api
-
-      - name: 4. Sincronizar catálogo e imágenes de productos
-        run: npm run sync-catalogo || echo 'sync fallo, se usa catalogo existente'
-
-      - name: 5. Compilar el sitio web (Astro Build)
+      - name: Compilar el sitio
         run: npm run build
 
-      - name: 5.1 Generar secrets PHP (Web Push VAPID)
-        env:
-          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
-          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
-        run: |
-          python - <<'PY'
-          import os
-          from pathlib import Path
-
-          public_key = (os.environ.get("VAPID_PUBLIC_KEY") or "BOaGZcEpD7fPLO90M7XHzBBDRVZosq4U5rR5Jifg_x6q4aWQ_dGsTNd9CCbagWYFmyI-6y_nOb78SpkXRFeMLc8").strip()
-          private_key = (os.environ.get("VAPID_PRIVATE_KEY") or "ViDKdNzJBU_CXjABPtM-oOLD-dafrPchekd3suyzP84").strip()
-          if not public_key or not private_key:
-              print("No hay claves VAPID; se omiten notificaciones push instantáneas.")
-              raise SystemExit(0)
-
-          content = "<?php\nreturn [\n"
-          content += f"    'VAPID_PUBLIC_KEY' => {public_key!r},\n"
-          content += f"    'VAPID_PRIVATE_KEY' => {private_key!r},\n"
-          content += "    'VAPID_SUBJECT' => 'mailto:ventas@mizo.cl',\n"
-          content += "];\n"
-          Path("dist/api/mizo-secrets.php").write_text(content, encoding="utf-8")
-          print("mizo-secrets.php generado para Web Push.")
-          PY
-
-      - name: 7. Subir archivos al Hosting por FTP Nativo
+      - name: Subir por FTP
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
@@ -82,7 +47,7 @@ jobs:
           password = os.environ["FTP_PASSWORD"]
 
           MAX_ATTEMPTS = 5
-          TIMEOUT = 120
+          TIMEOUT = 180
 
           def connect():
               ftp = ftplib.FTP(timeout=TIMEOUT)
@@ -113,20 +78,80 @@ jobs:
                       print(f"Subiendo {item} -> {remote_path}")
                       ftp.storbinary(f"STOR {remote_path}", file)
 
+          def delete_path(ftp, remote_path):
+              try:
+                  ftp.delete(remote_path)
+                  print(f"Eliminado archivo {remote_path}")
+                  return
+              except ftplib.error_perm:
+                  pass
+              try:
+                  names = ftp.nlst(remote_path)
+              except ftplib.error_perm:
+                  return
+              for name in names:
+                  base = name.rstrip("/").split("/")[-1]
+                  if base in (".", ".."):
+                      continue
+                  child = f"{remote_path.rstrip('/')}/{base}"
+                  delete_path(ftp, child)
+              try:
+                  ftp.rmd(remote_path)
+                  print(f"Eliminado directorio {remote_path}")
+              except ftplib.error_perm as error:
+                  print(f"No se pudo eliminar {remote_path}: {error}")
+
+          OBSOLETE = [
+              "_astro",
+              "admin",
+              "admin-cms.js",
+              "admin-manifest.webmanifest",
+              "admin-notify-sw.js",
+              "admin-nueva-cotizacion.php",
+              "about",
+              "blog",
+              "carrito",
+              "productos",
+              "configurador",
+              "catalogo-productos.json",
+              "datos-privados.json",
+              "equipamiento",
+              "encuesta-satisfaccion",
+              "gracias",
+              "gracias-encuesta",
+              "testimonios",
+              "proyectos",
+              "api-equipamiento.php",
+              "api-productos-en-revision.php",
+              "api-productos-publicados.php",
+              "js",
+              "fonts",
+              "mizo-data",
+              "images/productos",
+              "images/clientes",
+              "images/cms",
+          ]
+
+          def prune_old_site(ftp):
+              for name in OBSOLETE:
+                  delete_path(ftp, f"{remote_root.rstrip('/')}/{name}")
+              api_dir = f"{remote_root.rstrip('/')}/api"
+              try:
+                  entries = []
+                  ftp.retrlines(f"NLST {api_dir}", entries.append)
+              except ftplib.error_perm:
+                  return
+              for name in entries:
+                  base = name.rstrip("/").split("/")[-1]
+                  if base in (".", "..", "contacto.php"):
+                      continue
+                  delete_path(ftp, f"{api_dir}/{base}")
+
           def deploy():
               ftp = connect()
               try:
+                  prune_old_site(ftp)
                   upload_dir(ftp, local_root, remote_root)
-                  for obsolete_path in (
-                      "/public_html/admin.catalogo.php",
-                      "/public_html/admin-catalogo.php",
-                  ):
-                      try:
-                          print(f"Eliminando obsoleto {obsolete_path}")
-                          ftp.delete(obsolete_path)
-                      except ftplib.error_perm as error:
-                          if not str(error).startswith("550"):
-                              raise
               finally:
                   try:
                       ftp.quit()
@@ -141,7 +166,7 @@ jobs:
                   print("Despliegue FTP completado correctamente.")
                   last_error = None
                   break
-              except Exception as error:  # noqa: BLE001
+              except Exception as error:
                   last_error = error
                   wait = attempt * 20
                   print(f"Fallo el intento {attempt}: {error}")

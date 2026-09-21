@@ -1,236 +1,109 @@
 ---
+import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-import SectionCTA from '../components/SectionCTA.astro';
-import PageHero from '../components/PageHero.astro';
-import { absoluteUrl, serviceSchema, webPageSchema } from '../lib/seo';
+import imgSonido from '../assets/servicio-sonido.jpg';
+import imgVideo from '../assets/servicio-video.jpg';
+import imgCctv from '../assets/servicio-cctv.jpg';
+import imgTi from '../assets/servicio-ti.jpg';
+import { SERVICES, whatsappUrl } from '../lib/site';
+import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
 
-const services = [
-	{
-		id: 'sonido',
-		title: 'Sistemas de sonido profesional',
-		description: 'Calculamos cobertura, potencia e inteligibilidad según el uso del recinto. Instalamos, calibramos y dejamos el sistema listo para operar.',
-		kicker: 'Audio',
-		details: [
-			'Diseño acústico y distribución por zonas',
-			'Parlantes activos, pasivos, columnas y subwoofers',
-			'Consolas, DSP, amplificación y microfonía',
-			'Medición, ecualización y control de feedback',
-			'Capacitación del operador y documentación',
-		],
-		image: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80',
-	},
-	{
-		id: 'video',
-		title: 'Videoproyección y salas audiovisuales',
-		description: 'Proyectores, pantallas, videoconferencia y control integrado. El usuario final enciende, selecciona la fuente y presenta sin complicaciones.',
-		kicker: 'Imagen',
-		details: [
-			'Proyectores láser, LED y pantallas interactivas',
-			'Soportes motorizados y ajuste geométrico',
-			'Matrices HDMI, extensores y switchers AV',
-			'Videoconferencia para salas híbridas',
-			'Escenas de control y automatización básica',
-		],
-		image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
-	},
-	{
-		id: 'electricas',
-		title: 'Instalaciones eléctricas',
-		description: 'Alimentación segura y normada para salas audiovisuales, tableros, circuitos dedicados e iluminación. La base eléctrica correcta evita ruidos, cortes y riesgos en tu instalación.',
-		kicker: 'Electricidad',
-		details: [
-			'Tableros, protecciones y circuitos dedicados para equipos AV',
-			'Tendido, canalización y puntos de enchufe según proyecto',
-			'Iluminación escénica, perimetral y de emergencia',
-			'UPS y estabilización para equipos críticos',
-			'Pruebas, certificación y documentación de la instalación',
-		],
-		image: 'https://images.unsplash.com/photo-1565815017322-9d9cb14f3087?auto=format&fit=crop&w=1200&q=80',
-	},
-	{
-		id: 'colegios',
-		title: 'Colegios y salas de clases',
-		description: 'Aulas con proyección nítida, audio claro y equipos que resisten el uso diario. Coordinamos la instalación para no interrumpir las clases más de lo necesario.',
-		kicker: 'Educación',
-		details: [
-			'Proyectores y pantallas por aula o auditorio',
-			'Audio para profesor y reproducción multimedia',
-			'Micrófonos inalámbricos y conexión a notebook',
-			'Cableado oculto y protección de equipos',
-			'Soporte post-instalación para el establecimiento',
-		],
-		image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=80',
-	},
-	{
-		id: 'streaming',
-		title: 'Iglesias y templos',
-		description: 'Sonido uniforme en naves amplias, voces inteligibles y música con presencia. Pensado para cultos, eventos y operación por voluntarios o técnicos.',
-		kicker: 'Templos',
-		details: [
-			'Columnas, line array o sistemas distribuidos',
-			'Mezcladores digitales con escenas guardadas',
-			'Monitoreo de escenario y grabación básica',
-			'Integración con transmisión en vivo',
-			'Mantención y respuesta ante fallas',
-		],
-		image: 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1200&q=80',
-	},
-	{
-		id: 'auditorios',
-		title: 'Auditorios y salas multiuso',
-		description: 'Proyección de gran formato, audio de alta inteligibilidad y cabina técnica ordenada. Para conferencias, obras, conciertos y actos institucionales.',
-		kicker: 'Auditorios',
-		details: [
-			'Proyección láser o LED de alto brillo',
-			'Sistemas de sonido para platea y escenario',
-			'Microfonía de mano, diadema y ambiental',
-			'Control de iluminación básico (si aplica)',
-			'Documentación técnica y planos as-built',
-		],
-		image: 'https://images.unsplash.com/photo-1507901747481-84a4f64fda6d?auto=format&fit=crop&w=1200&q=80',
-	},
-	{
-		id: 'retail',
-		title: 'Restaurantes, bares y retail',
-		description: 'Música por zonas, pantallas de menú o branding y control sencillo para el encargado del local. Instalación fuera de horario cuando es posible.',
-		kicker: 'Comercial',
-		details: [
-			'Audio multizona con control independiente',
-			'Pantallas comerciales y señalética digital',
-			'Integración con streaming o reproductor',
-			'Cableado discreto en salones y terrazas',
-			'Soporte remoto para ajustes menores',
-		],
-		image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
-	},
-	{
-		id: 'control',
-		title: 'Canalización, cableado e infraestructura AV',
-		description: 'La instalación se sostiene en rutas limpias, fijaciones confiables y terminaciones que se pueden mantener. Sin cables colgando ni cajas improvisadas.',
-		kicker: 'Infraestructura',
-		details: [
-			'Canalización técnica y bandejas',
-			'Cableado estructurado y patching ordenado',
-			'Soportería para proyectores, pantallas y parlantes',
-			'Anclajes, pasadas y terminaciones prolijas',
-			'Etiquetado y registro de conexiones',
-		],
-		image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80',
-	},
-];
+const images = {
+	sonido: imgSonido,
+	video: imgVideo,
+	cctv: imgCctv,
+	ti: imgTi,
+} as const;
 
-const process = [
-	'Visita al recinto y evaluación técnica del espacio',
-	'Propuesta con equipos, planos y presupuesto',
-	'Instalación coordinada con obra o operación',
-	'Pruebas, calibración y entrega documentada',
-];
+const labels = {
+	sonido: 'Sonido',
+	video: 'Video',
+	cctv: 'CCTV',
+	ti: 'Soporte TI',
+} as const;
 
-const pageUrl = absoluteUrl('/servicios');
-const jsonLd = [
-	webPageSchema({
-		name: 'Servicios | Mizo',
-		description: 'Instalación de sistemas de sonido, videoproyección, instalaciones eléctricas y salas audiovisuales en Chile.',
-		url: pageUrl,
-	}),
-	...services.map((service) =>
+const title = 'Servicios | Mizo — Sonido, video, CCTV y soporte TI';
+const description =
+	'Servicios técnicos de Mizo en Chile: sonido profesional, videoproyección, cámaras de seguridad CCTV y soporte TI e infraestructura.';
+
+const jsonLd = graphSchema([
+	organizationSchema(),
+	webPageSchema({ name: title, description, url: absoluteUrl('/servicios') }),
+	...SERVICES.map((service) =>
 		serviceSchema({
 			name: service.title,
 			description: service.description,
-			url: pageUrl,
+			url: absoluteUrl(service.href),
 		}),
 	),
-];
+]);
 ---
 
-<Layout
-	title="Servicios de Sonido, Videoproyección e Instalaciones Eléctricas | Mizo"
-	description="Instalación profesional de sistemas de sonido, videoproyección, instalaciones eléctricas, streaming y control AV para iglesias, colegios, auditorios, empresas y retail en Santiago, Frutillar y regiones."
-	keywords="instalación sonido profesional chile, videoproyección iglesias, instalaciones eléctricas santiago, audio auditorios, salas audiovisuales, electricista salas técnicas"
-	jsonLd={jsonLd}
->
-	<PageHero
-		eyebrow="Servicios"
-		title="Audio, videoproyección e instalaciones eléctricas que funcionan en el día a día."
-		subtitle="Diseño, suministro, montaje, calibración y soporte en Chile. Trabajamos el proyecto completo — sonido, imagen y electricidad — para iglesias, colegios, auditorios, empresas y locales comerciales."
-		image="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80"
-		chips={["Audio profesional", "Videoproyección", "Instalaciones eléctricas", "Instalación en terreno"]}
-		cmsPrefix="pages.servicios.hero"
-	/>
-
-	<section class="bg-white py-16">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:grid-cols-2 lg:grid-cols-4">
-				{process.map((item, index) => (
-					<div class="rounded-xl bg-white p-5">
-						<p class="text-xs font-bold uppercase tracking-[0.18em] text-brand-orange">Paso {index + 1}</p>
-						<p class="mt-2 text-sm font-semibold leading-relaxed text-gray-700">{item}</p>
-					</div>
+<Layout title={title} description={description} jsonLd={jsonLd}>
+	<section class="relative overflow-hidden border-b border-white/10 bg-charcoal pt-28 text-white sm:pt-32">
+		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
+		<div class="relative mx-auto max-w-6xl px-4 pb-14 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Servicios</p>
+			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] sm:text-5xl">Cuatro líneas técnicas, un solo estándar de instalación.</h1>
+			<p class="mt-4 max-w-2xl text-lg leading-8 text-white/65">
+				Diseñamos, instalamos y dejamos operativo cada sistema. Estos son los trabajos que ejecutamos en terreno.
+			</p>
+			<nav class="mt-8 inline-flex flex-wrap gap-px bg-white/10" aria-label="Líneas de servicio">
+				{SERVICES.map((service) => (
+					<a href={service.href} class="bg-charcoal px-4 py-2 text-sm font-semibold text-white/80 transition hover:bg-charcoal-light hover:text-white">
+						{labels[service.id]}
+					</a>
 				))}
-			</div>
+			</nav>
 		</div>
 	</section>
 
-	<section class="bg-white pb-20">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20" id="cms-servicios-list">
-			{services.map((service, index) => (
-				<div
-					id={service.id}
-					class:list={[
-					"grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center",
-					{ "lg:grid-flow-col-dense": index % 2 === 1 }
-				]}>
-					<div class:list={[{ "lg:col-start-2": index % 2 === 1 }]}>
-						<span class="inline-flex rounded-md bg-brand-orange/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-brand-orange">
-							{service.kicker}
-						</span>
-						<h2 class="mt-4 text-2xl font-black leading-tight text-ink lg:text-3xl">
-							{service.title}
-						</h2>
-						<p class="mt-4 text-base leading-relaxed text-gray-600">
-							{service.description}
-						</p>
-
-						<ul class="mt-6 grid gap-2 text-gray-700">
-							{service.details.map((detail) => (
-								<li class="flex items-start rounded-lg border border-gray-200 bg-gray-50 p-3">
-									<svg class="mr-2 mt-0.5 h-4 w-4 flex-shrink-0 text-accent-main" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-									<span class="text-sm font-medium leading-relaxed">{detail}</span>
-								</li>
-							))}
-						</ul>
-
-						<div class="mt-7">
-							<a href="/contacto" class="inline-flex rounded-md bg-charcoal px-6 py-3 text-sm font-bold text-white transition hover:bg-charcoal-light">
-								Cotizar este servicio
-							</a>
-						</div>
-					</div>
-
-					<div class:list={[
-						"relative min-h-[320px] overflow-hidden rounded-2xl border border-gray-200 bg-slate-100 shadow-lg",
-						{ "lg:col-start-1": index % 2 === 1 }
-					]}>
-						<img
-							src={service.image}
-							alt={service.title}
-							class="h-full min-h-[320px] w-full object-cover"
-							loading="lazy"
-							width="1200"
-							height="760"
-							onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80';"
-						/>
-						<div class="absolute inset-0 bg-gradient-to-t from-ink/35 via-transparent to-transparent"></div>
+	{SERVICES.map((service, index) => (
+		<section id={service.id} class:list={['scroll-mt-28 border-b border-white/10 py-16 sm:py-20', index % 2 === 1 ? 'bg-charcoal-light/20' : 'bg-charcoal']}>
+			<div class="mx-auto grid max-w-6xl items-start gap-8 px-4 sm:px-6 lg:grid-cols-2 lg:gap-0 lg:px-8">
+				<div class:list={['lg:pr-10', index % 2 === 1 ? 'lg:order-2 lg:pr-0 lg:pl-10' : '']}>
+					<Image
+						src={images[service.id]}
+						alt={service.title}
+						class="aspect-[16/10] w-full object-cover"
+						widths={[480, 800, 1200]}
+						sizes="(min-width: 1024px) 50vw, 100vw"
+						format="webp"
+						quality={72}
+						loading={index === 0 ? 'eager' : 'lazy'}
+					/>
+				</div>
+				<div>
+					<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-accent">Línea {String(index + 1).padStart(2, '0')}</p>
+					<h2 class="mt-3 text-3xl font-extrabold">{service.title}</h2>
+					<p class="mt-4 text-base leading-7 text-white/65">{service.description}</p>
+					<p class="mt-6 text-[0.7rem] font-bold uppercase tracking-[0.18em] text-orange">Trabajos que realizamos</p>
+					<ul class="mt-3 divide-y divide-white/10 border-y border-white/10">
+						{service.works.map((work) => (
+							<li class="flex gap-3 py-3 text-white/85">
+								<span class="mt-2 h-1.5 w-1.5 shrink-0 bg-orange"></span>
+								<span>{work}</span>
+							</li>
+						))}
+					</ul>
+					<div class="mt-8 flex flex-col gap-3 sm:flex-row">
+						<a href="/contacto" class="mizo-btn">Cotizar este servicio</a>
+						<a href={whatsappUrl(`Hola Mizo, quiero cotizar ${service.title}.`)} target="_blank" rel="noopener noreferrer" class="mizo-btn-ghost">
+							WhatsApp
+						</a>
 					</div>
 				</div>
-			))}
+			</div>
+		</section>
+	))}
+
+	<section class="bg-charcoal py-14">
+		<div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+			<div>
+				<h2 class="text-2xl font-extrabold">¿Cuál de estas líneas necesitas?</h2>
+				<p class="mt-2 max-w-xl text-white/65">Cuéntanos el recinto y te proponemos la instalación adecuada.</p>
+			</div>
+			<a href="/contacto" class="mizo-btn">Solicitar cotización</a>
 		</div>
 	</section>
-
-	<SectionCTA
-		title="¿Tienes un proyecto en mente?"
-		subtitle="Cuéntanos el recinto, el uso y los plazos. Te respondemos con una propuesta técnica y comercial."
-		buttonText="Solicitar cotización"
-		buttonLink="/contacto"
-	/>
 </Layout>

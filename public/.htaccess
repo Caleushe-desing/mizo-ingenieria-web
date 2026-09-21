@@ -1,5 +1,13 @@
-# Redirecciones legacy de tienda online hacia diagnóstico
-RedirectMatch 301 ^/carrito/?$ /configurador
-
-# Página 404 personalizada
 ErrorDocument 404 /404.html
+
+RedirectMatch 301 ^/proyectos/?$ /servicios
+RedirectMatch 301 ^/about/?$ /nosotros
+RedirectMatch 301 ^/testimonios/?$ /nosotros
+RedirectMatch 301 ^/equipamiento/?$ /servicios
+RedirectMatch 301 ^/productos(/.*)?$ /
+RedirectMatch 301 ^/carrito/?$ /
+RedirectMatch 301 ^/configurador/?$ /
+RedirectMatch 301 ^/blog(/.*)?$ /
+RedirectMatch 301 ^/admin(/.*)?$ /
+RedirectMatch 301 ^/encuesta-satisfaccion/?$ /
+RedirectMatch 301 ^/gracias(-encuesta)?/?$ /

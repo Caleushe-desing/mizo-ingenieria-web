@@ -1,130 +1,74 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import SectionCTA from '../components/SectionCTA.astro';
-import PageHero from '../components/PageHero.astro';
-import { absoluteUrl, organizationSchema, webPageSchema } from '../lib/seo';
+import { SITE } from '../lib/site';
+import { absoluteUrl, graphSchema, organizationSchema, webPageSchema } from '../lib/seo';
+
+const title = 'Nosotros | Mizo — Ingeniería y tecnología en Chile';
+const description =
+	'Mizo instala sonido, video, cámaras de seguridad y soporte TI con cobertura en Frutillar, Santiago y el sur de Chile.';
 
 const values = [
 	{
+		n: '01',
 		title: 'Ingeniería aplicada',
-		description: 'Cada decisión de marca, ubicación, potencia, cableado y control se toma desde el comportamiento real del recinto.',
-		kicker: 'Criterio técnico',
+		text: 'Cada sistema se dimensiona según el recinto, el uso real y la operación del cliente.',
 	},
 	{
-		title: 'Integración completa',
-		description: 'Unimos audio, video, electricidad, infraestructura, control y soporte para evitar compras aisladas que no conversan entre sí.',
-		kicker: 'AV + infraestructura',
+		n: '02',
+		title: 'Instalación en terreno',
+		text: 'Montaje, cableado, calibración y puesta en marcha con un único equipo responsable.',
 	},
 	{
-		title: 'Entrega responsable',
-		description: 'Instalamos, calibramos, explicamos y dejamos documentación clara para que el sistema pueda operarse con confianza.',
-		kicker: 'Soporte local',
+		n: '03',
+		title: 'Soporte posterior',
+		text: 'Acompañamos la operación con mantenimiento, redes y desarrollo cuando el proyecto lo requiere.',
 	},
-];
-
-const capabilities = [
-	'Diseño acústico y cobertura sonora',
-	'Proyección láser y salas audiovisuales',
-	'Instalaciones eléctricas y tableros para salas técnicas',
-	'Canalización y cableado estructural oculto',
-	'Soportería pesada y montaje técnico',
-	'Control, escenas y capacitación de usuarios',
-	'Calibración final y soporte posterior',
 ];
 ---
 
 <Layout
-	title="Nosotros | Mizo Ingeniería - Instalación Audiovisual en Chile"
-	description="Mizo Ingeniería: más de 10 años instalando sonido profesional, videoproyección e instalaciones eléctricas en Chile. Equipo técnico en Frutillar y Santiago para iglesias, colegios, auditorios y empresas."
-	keywords="Mizo ingeniería, empresa audiovisual Chile, instaladores sonido profesional, instalaciones eléctricas, integradores AV, ingeniería acústica Chile"
-	jsonLd={[
+	title={title}
+	description={description}
+	jsonLd={graphSchema([
 		organizationSchema(),
-		webPageSchema({
-			name: 'Nosotros | Mizo',
-			description: 'Especialistas en instalación audiovisual y equipos profesionales en Chile.',
-			url: absoluteUrl('/nosotros'),
-		}),
-	]}
+		webPageSchema({ name: title, description, url: absoluteUrl('/nosotros') }),
+	])}
 >
-	<PageHero
-		eyebrow="Nosotros"
-		title="La ingeniería detrás de instalaciones audiovisuales confiables en Chile."
-		subtitle="Mizo combina selección de equipamiento, diseño técnico, instalaciones eléctricas, ejecución en terreno y soporte posterior. Más de una década instalando sonido y videoproyección para instituciones y empresas."
-		image="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80"
-		chips={["Criterio técnico", "AV + infraestructura", "Soporte local"]}
-	/>
+	<section class="relative min-h-[100svh] overflow-hidden bg-charcoal pt-28 sm:pt-32">
+		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
+		<div class="relative mx-auto grid max-w-6xl lg:grid-cols-2">
+			<div class="border-white/10 px-4 pb-12 sm:px-6 lg:border-r lg:px-8 lg:pb-16">
+				<p class="mizo-kicker">Nosotros</p>
+				<h1 class="mt-4 max-w-md text-4xl font-extrabold leading-[1.1] sm:text-5xl">Equipo técnico, ejecución en terreno y soporte posterior.</h1>
+				<p class="mt-5 max-w-md text-lg leading-8 text-white/65">
+					Mizo diseña e instala sonido, videoproyección, cámaras de seguridad y soporte TI. Revisamos el recinto, proponemos lo necesario y dejamos el sistema listo para operar.
+				</p>
+				<div class="mt-10 grid grid-cols-1 gap-px bg-white/10 sm:grid-cols-2">
+					<div class="bg-charcoal px-5 py-5">
+						<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/40">Cobertura</p>
+						<p class="mt-2 text-sm font-semibold leading-6">Frutillar, Santiago y sur de Chile</p>
+					</div>
+					<div class="bg-charcoal px-5 py-5">
+						<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/40">Contacto</p>
+						<p class="mt-2 text-sm font-semibold leading-6">{SITE.phoneDisplay}</p>
+					</div>
+				</div>
+				<a href="/contacto" class="mizo-btn mt-10">Hablar con el equipo</a>
+			</div>
 
-	<section class="bg-white py-20">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-			<div>
-				<span class="inline-flex rounded-full bg-accent-main/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-accent-main">
-					Integradora audiovisual
-				</span>
-				<h2 class="mt-5 text-3xl font-black leading-tight text-gray-950 lg:text-5xl">
-					Nuestra misión: tecnología premium, instalada con criterio y responsabilidad.
-				</h2>
-				<p class="mt-5 text-lg leading-relaxed text-gray-600">
-					Ofrecemos a empresas, instituciones y hogares soluciones integrales que abarcan visita técnica en terreno, diseño de sistema, suministro de marcas líderes, montaje profesional y calibración final.
-				</p>
-				<p class="mt-4 text-lg leading-relaxed text-gray-600">
-					Con bases en <strong>Frutillar y Santiago</strong>, hemos instalado más de 120 proyectos en iglesias, colegios, auditorios, restaurantes e industria. Buscamos que cada espacio tenga una experiencia audiovisual clara, segura y fácil de operar.
-				</p>
-				<div class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
-					{capabilities.map((item) => (
-						<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-bold text-slate-700">
-							{item}
-						</div>
+			<div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-0">
+				<div class="divide-y divide-white/10 border border-white/10">
+					{values.map((value) => (
+						<article class="grid grid-cols-[3.5rem_1fr] gap-4 px-5 py-7 sm:px-7">
+							<p class="text-sm font-bold text-accent">{value.n}</p>
+							<div>
+								<h2 class="text-xl font-bold">{value.title}</h2>
+								<p class="mt-2 text-sm leading-6 text-white/60">{value.text}</p>
+							</div>
+						</article>
 					))}
 				</div>
-				<div class="mt-8">
-					<a href="/servicios" class="inline-flex rounded-full border border-accent-main px-6 py-3 text-sm font-black text-accent-main transition hover:bg-accent-main hover:text-white">
-						Ver Nuestros Servicios
-					</a>
-				</div>
-			</div>
-
-			<div class="relative min-h-[420px] overflow-hidden rounded-[2rem] border border-gray-200 bg-slate-100 shadow-2xl">
-				<img
-					src="https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop&w=1100&q=80"
-					alt="Planificación técnica de un proyecto audiovisual"
-					class="h-full min-h-[420px] w-full object-cover"
-					loading="lazy"
-					width="1100"
-					height="760"
-					onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1100&q=80';"
-				/>
-				<div class="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent"></div>
-				<div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-					<p class="text-xs font-bold uppercase tracking-[0.18em] text-brand-orange">Instalación en terreno</p>
-					<p class="mt-2 text-2xl font-black">Planificación, montaje y puesta en marcha</p>
-				</div>
 			</div>
 		</div>
 	</section>
-
-	<section class="py-20 bg-accent-soft">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-			<h2 class="text-3xl font-black text-gray-950 lg:text-4xl">Nuestros pilares</h2>
-			<p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto mb-12">
-				Construimos relaciones duraderas basadas en los principios que nos permiten entregar excelencia en cada proyecto.
-			</p>
-
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-				{values.map((value) => (
-					<div class="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-						<p class="text-xs font-black uppercase tracking-[0.18em] text-accent-main">{value.kicker}</p>
-						<h3 class="mt-4 text-xl font-black text-gray-950">{value.title}</h3>
-						<p class="mt-3 leading-relaxed text-gray-600">{value.description}</p>
-					</div>
-				))}
-			</div>
-		</div>
-	</section>
-
-	<SectionCTA
-		title="¿Listo para la solución que funciona?"
-		subtitle="Comienza tu proyecto hoy con la ingeniería precisa que tu negocio o tu hogar necesita."
-		buttonText="Contáctanos Ahora"
-		buttonLink="/contacto"
-	/>
 </Layout>

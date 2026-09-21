@@ -1,38 +1,15 @@
 ---
-// src/components/WhatsAppButton.astro
-
-// Define tu número de teléfono con código de país (sin +)
-// Ejemplo: 56912345678
-const phoneNumber = "56994390870"; 
-
-// Define el mensaje inicial que aparecerá en el chat de WhatsApp
-const defaultMessage = "Hola Mizo, quiero diseñar una solución audiovisual para mi espacio.";
-
-// Codifica el mensaje para la URL
-const encodedMessage = encodeURIComponent(defaultMessage);
-
-// Construye el enlace de WhatsApp
-const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+import { whatsappUrl } from '../lib/site';
 ---
 
-<a 
-    href={whatsappLink}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Contactar a Mizo Ingeniería por WhatsApp"
-    data-cms-href="global.whatsapp"
-    class="fixed bottom-6 right-6 z-50 hidden rounded-full bg-green-500 p-4 text-white shadow-lg transition duration-300 transform hover:scale-105 hover:bg-green-600 sm:block"
+<a
+	href={whatsappUrl()}
+	target="_blank"
+	rel="noopener noreferrer"
+	aria-label="Escribir a Mizo por WhatsApp"
+	class="fixed bottom-6 right-6 z-40 hidden h-14 w-14 items-center justify-center bg-[#25D366] text-white transition hover:bg-[#1ebe5d] sm:inline-flex"
 >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h.01a1 1 0 100-2H10v-3a1 1 0 00-1-1zm6 0a1 1 0 00-1-1h-1a1 1 0 100 2h1a1 1 0 001-1z" clip-rule="evenodd" />
-    </svg>
-    <style>
-        /* Aseguramos que el SVG se vea como el icono de WhatsApp si no tienes el SVG oficial */
-        .bg-green-500 {
-            background-color: #25D366; /* Color oficial de WhatsApp */
-        }
-        .hover\:bg-green-600:hover {
-            background-color: #128C7E;
-        }
-    </style>
+	<svg class="h-7 w-7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+		<path d="M.057 24l1.687-6.163A11.87 11.87 0 01.16 11.892C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.929-1.03z" />
+	</svg>
 </a>

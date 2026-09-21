@@ -1,217 +1,55 @@
-/*
-  The CSS in this style tag is based off of Bear Blog's default CSS.
-  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
-  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-	--accent: #1c9bd8;
-	--accent-dark: #0e6491;
-	--brand-orange: #f47b20;
-	--black: 17, 24, 39;
-	--gray: 100, 116, 139;
-	--gray-light: 226, 232, 240;
-	--gray-dark: 30, 41, 59;
-	--gray-gradient: #ffffff, #ffffff;
-	--box-shadow:
-		0 2px 6px rgba(28, 155, 216, 0.08), 0 8px 24px rgba(28, 155, 216, 0.08), 0 16px 32px
-		rgba(28, 155, 216, 0.08);
-}
-/* Reduce de forma uniforme el tamaño de todo el sitio: las utilidades
-   de Tailwind (espaciado, tipografía, anchos) usan rem y se escalan desde aquí. */
-html {
-	font-size: 87.5%;
-}
-@font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-regular.woff") format("woff");
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
-}
-@font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-bold.woff") format("woff");
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
-}
-body {
-	font-family: Helvetica, Arial, sans-serif;
-	margin: 0;
-	padding: 0;
-	text-align: left;
-	background: #ffffff;
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	color: rgb(var(--gray-dark));
-	font-size: 1.0625rem;
-	line-height: 1.6;
-}
-main {
-	width: 100%;
-	max-width: none;
-	margin: 0;
-	padding: 0;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	margin: 0 0 0.5rem 0;
-	color: rgb(var(--black));
-	line-height: 1.2;
-}
-h1 {
-	font-size: 2.488em;
-}
-h2 {
-	font-size: 2.074em;
-}
-h3 {
-	font-size: 1.728em;
-}
-h4 {
-	font-size: 1.44em;
-}
-h5 {
-	font-size: 1.2em;
-}
-strong,
-b {
-	font-weight: 700;
-}
-a {
-	color: var(--accent);
-}
-a:hover {
-	color: var(--accent);
-}
-p {
-	margin-bottom: 1em;
-}
-.prose p {
-	margin-bottom: 2em;
-}
-textarea {
-	width: 100%;
-	font-size: 16px;
-}
-input {
-	font-size: 16px;
-}
-table {
-	width: 100%;
-}
-img {
-	max-width: 100%;
-	height: auto;
-	border-radius: 8px;
-}
-code {
-	padding: 2px 5px;
-	background-color: rgb(var(--gray-light));
-	border-radius: 2px;
-}
-pre {
-	padding: 1.5em;
-	border-radius: 8px;
-}
-pre > code {
-	all: unset;
-}
-blockquote {
-	border-left: 4px solid var(--accent);
-	padding: 0 0 0 20px;
-	margin: 0;
-	font-size: 1.333em;
-}
-hr {
-	border: none;
-	border-top: 1px solid rgb(var(--gray-light));
-}
-@media (max-width: 720px) {
+@layer base {
+	html {
+		scroll-behavior: smooth;
+		scroll-padding-top: 8rem;
+	}
+
 	body {
-		font-size: 1rem;
-		line-height: 1.5;
+		@apply bg-charcoal font-sans text-white antialiased;
 	}
-	main {
-		padding: 0;
+
+	img {
+		@apply max-w-full h-auto;
+	}
+
+	:focus-visible {
+		@apply outline-2 outline-offset-2 outline-accent;
 	}
 }
 
-/* Solo celulares (<640px): espacio para barra de contacto inferior */
+@layer components {
+	.mizo-grid {
+		background-image: linear-gradient(#1c9bd8 1px, transparent 1px), linear-gradient(90deg, #1c9bd8 1px, transparent 1px);
+		background-size: 72px 72px;
+	}
+
+	.mizo-kicker {
+		@apply text-[0.7rem] font-bold uppercase tracking-[0.28em] text-orange;
+	}
+
+	.mizo-btn {
+		@apply inline-flex items-center justify-center bg-orange px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white transition hover:bg-orange-hover;
+	}
+
+	.mizo-btn-ghost {
+		@apply inline-flex items-center justify-center border border-white/20 px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white transition hover:border-orange hover:text-orange;
+	}
+}
+
 @media (max-width: 639px) {
 	body.has-mobile-contact-bar {
-		padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+		padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
 	}
 }
 
-/* Secciones colapsables en celular; abiertas siempre en tablet/desktop */
-.phone-collapse {
-	border: none;
-}
-
-.phone-collapse__summary {
-	display: flex;
-	cursor: pointer;
-	list-style: none;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	border-radius: 0.75rem;
-	border: 1px solid rgb(229 231 235);
-	background: white;
-	padding: 1rem 1.25rem;
-	font-weight: 700;
-	color: rgb(24 27 32);
-}
-
-.phone-collapse__summary::-webkit-details-marker {
+.nav-summary::-webkit-details-marker {
 	display: none;
 }
 
-.phone-collapse__summary::after {
-	content: '+';
-	font-size: 1.25rem;
-	font-weight: 700;
-	color: #f47b20;
-}
-
-.phone-collapse[open] .phone-collapse__summary::after {
-	content: '−';
-}
-
-.phone-collapse__content {
-	padding-top: 1rem;
-}
-
-@media (min-width: 640px) {
-	.phone-collapse__summary {
-		display: none;
-	}
-
-	.phone-collapse__content {
-		padding-top: 0;
-	}
-}
-
-.sr-only {
-	border: 0;
-	padding: 0;
-	margin: 0;
-	position: absolute !important;
-	height: 1px;
-	width: 1px;
-	overflow: hidden;
-	/* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
-	clip: rect(1px 1px 1px 1px);
-	/* maybe deprecated but we need to support legacy browsers */
-	clip: rect(1px, 1px, 1px, 1px);
-	/* modern browsers, clip-path works inwards from each corner */
-	clip-path: inset(50%);
-	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
-	white-space: nowrap;
+.nav-summary {
+	list-style: none;
 }

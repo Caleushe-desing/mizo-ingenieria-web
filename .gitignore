@@ -1,11 +1,7 @@
-# build output
+# build
 dist/
-# generated types
 .astro/
-
-# dependencies
 node_modules/
-vendor/
 
 # logs
 npm-debug.log*
@@ -13,36 +9,18 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-
-# environment variables
+# env
 .env
 .env.production
 
-# macOS-specific files
+# OS / IDE
 .DS_Store
-
-# jetbrains setting folder
 .idea/
-
-# Documento privado con el origen de los precios (no publicar)
-PRECIOS-FUENTES.md
-
-# Mensaje de commit temporal
-.commit-msg.txt
-
-# Estado local de FTP Deploy Action
-.ftp-deploy-sync-state.json
-
-# Datos runtime del panel Admin en modo SSR/cPanel
-data/
-public/mizo-data/leads.json
-
-# Seguridad: credenciales, FTP y pruebas locales
 .vscode/
+
+# deploy local
+.ftp-deploy-sync-state.json
 sftp.json
-public/scraper-audiomusica.php
-public/scraper-audiosystems.php
-public/scraper-casaroyal.php
-test-scraper-audiosystems.js
-node_modules/
-.env
+
+# local portable runtime
+.tools/

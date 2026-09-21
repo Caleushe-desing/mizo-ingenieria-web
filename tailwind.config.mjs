@@ -1,51 +1,34 @@
-// tailwind.config.mjs - Paleta basada en el logo Mizo: azul de la onda, naranja del diafragma y negro
-
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    './src/**/*.{astro,html,js,jsx,md,mdx,ts,tsx}',
-  ],
-  theme: {
-    extend: {
-      maxWidth: {
-        '8xl': '90rem',
-        '9xl': '100rem',
-        '10xl': '112rem',
-      },
-      colors: {
-        // Azul del logo (la onda de sonido)
-        'accent-main': '#1c9bd8',
-        'accent-hover': '#1684bc',
-        'accent-dark': '#0e6491',
-        'accent-light': '#54b9e6',
-        'accent-soft': '#e2f3fb',
-        // Naranja del logo (el diafragma)
-        'brand-orange': '#f47b20',
-        'brand-orange-hover': '#e06814',
-        'brand-orange-dark': '#c2560d',
-        'brand-orange-soft': '#fdebd9',
-        // Verde fosforescente (cintillo superior)
-        'brand-neon': '#39ff14',
-        'brand-neon-dark': '#1a8f0a',
-        // Base seria: negro y grises
-        'charcoal': '#0f1114',
-        'charcoal-light': '#1c1f26',
-        'charcoal-muted': '#2a2e36',
-        // Negro suavizado: gris muy oscuro, cercano a negro (reemplaza al negro puro)
-        'ink': '#181b20',
-        // Sustituye los tonos "negros" usados en el sitio por un gris muy oscuro
-        black: '#181b20',
-        slate: {
-          950: '#181b20',
-        },
-        gray: {
-          950: '#181b20',
-        },
-      },
-      fontFamily: {
-        sans: ['Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-      },
-    },
-  },
-  plugins: [],
+	content: ['./src/**/*.{astro,html,js,ts}'],
+	theme: {
+		extend: {
+			colors: {
+				accent: {
+					DEFAULT: '#1c9bd8',
+					hover: '#1684bc',
+					dark: '#0e6491',
+					soft: '#e2f3fb',
+				},
+				orange: {
+					DEFAULT: '#f47b20',
+					hover: '#e06814',
+					soft: '#fdebd9',
+				},
+				ink: '#181b20',
+				charcoal: {
+					DEFAULT: '#0f1114',
+					light: '#1c1f26',
+					muted: '#2a2e36',
+				},
+			},
+			fontFamily: {
+				sans: ['Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+			},
+			boxShadow: {
+				card: '0 8px 30px rgba(15, 17, 20, 0.08)',
+			},
+		},
+	},
+	plugins: [],
 };
