@@ -25,11 +25,20 @@ $onMail = str_starts_with($path, '/correo');
 	<div class="ribbon">
 		<nav class="ribbon-nav">
 			<a class="<?= $path === '/' || str_starts_with($path, '/clientes') || str_starts_with($path, '/cotizaciones') ? 'is-on' : '' ?>" href="<?= h(Http::url('/')) ?>">Clientes</a>
-			<a class="<?= $onMail ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo')) ?>">Correo<?php if ($unreadMail > 0): ?> <span class="mail-badge"><?= (int) $unreadMail ?></span><?php endif; ?></a>
+			<a id="nav-mail" class="<?= $onMail ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo')) ?>">Correo <span class="mail-badge" id="mail-badge"<?= $unreadMail > 0 ? '' : ' hidden' ?>><?= (int) $unreadMail ?></span></a>
 			<?php if (Auth::isAdmin()): ?>
 				<a class="<?= $path === '/equipo' ? 'is-on' : '' ?>" href="<?= h(Http::url('/equipo')) ?>">Equipo</a>
 			<?php endif; ?>
 		</nav>
+		<div class="ribbon-live" id="live-alert" data-live-url="<?= h(Http::url('/avisos')) ?>" hidden>
+			<a class="live-alert" href="#">
+				<span class="live-alert-dot"></span>
+				<span class="live-alert-copy">
+					<strong></strong>
+					<span></span>
+				</span>
+			</a>
+		</div>
 		<div class="ribbon-actions">
 			<?php if (!empty($user)): ?>
 				<span class="who"><?= h($user['name']) ?></span>
@@ -51,6 +60,6 @@ $onMail = str_starts_with($path, '/correo');
 		<?php endif; ?>
 		<?= $content ?>
 	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=2"></script>
 </body>
 </html>

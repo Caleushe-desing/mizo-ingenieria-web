@@ -78,7 +78,7 @@ final class MailController
 		} else {
 			$clientId = MailMessage::clientIdFor((int) $user['id'], $to);
 		}
-		$html = self::htmlFromText($body, (string) $user['name']);
+		$html = self::htmlFromText($body, $user);
 		try {
 			$id = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, $replyId, $clientId);
 		} catch (RuntimeException $e) {
@@ -135,7 +135,7 @@ final class MailController
 			$subject = 'Re: ' . $subject;
 		}
 		$clientId = !empty($row['client_id']) ? (int) $row['client_id'] : MailMessage::clientIdFor((int) $user['id'], $to);
-		$html = self::htmlFromText($body, (string) $user['name']);
+		$html = self::htmlFromText($body, $user);
 		try {
 			$newId = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, (string) $row['message_id'], $clientId);
 		} catch (RuntimeException $e) {
@@ -230,12 +230,12 @@ final class MailController
 		]);
 	}
 
-	private static function htmlFromText(string $text, string $name): string
+	private static function htmlFromText(string $text, array $user): string
 	{
 		$body = nl2br(h($text), false);
 		return '<div style="font-family:Segoe UI,Arial,sans-serif;font-size:15px;line-height:1.5;color:#222;">'
 			. $body
-			. '<p style="margin-top:24px;color:#555;">' . h($name) . '<br>Mizo</p>'
+			. \MizoCrm\Models\User::signatureHtml($user)
 			. '</div>';
 	}
 }

@@ -56,6 +56,19 @@ final class MailMessage extends Record
 		return (int) $stmt->fetchColumn();
 	}
 
+	public static function unreadPeek(int $userId, int $limit = 8): array
+	{
+		$limit = max(1, min(20, $limit));
+		$stmt = self::pdo()->prepare(
+			"SELECT id, from_name, from_email, subject, client_id, sent_at
+			 FROM mail_messages
+			 WHERE user_id = ? AND folder = 'inbox' AND seen = 0
+			 ORDER BY id DESC LIMIT {$limit}"
+		);
+		$stmt->execute([$userId]);
+		return $stmt->fetchAll();
+	}
+
 	public static function uidsFor(int $userId, string $folder): array
 	{
 		$stmt = self::pdo()->prepare('SELECT uid, id FROM mail_messages WHERE user_id = ? AND folder = ? AND uid IS NOT NULL');

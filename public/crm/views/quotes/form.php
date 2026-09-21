@@ -85,7 +85,7 @@ $action = $quote
 	</div>
 
 	<?php if ($quote): ?>
-		<p class="muted">Estado: <?= h(quote_status_label((string) $quote['status'])) ?><?= !empty($quote['sent_to']) ? ' · enviada a ' . h($quote['sent_to']) : '' ?></p>
+		<p class="muted">Estado: <span data-quote-status="<?= (int) $quote['id'] ?>"><?= h(quote_status_label((string) $quote['status'])) ?></span><?= !empty($quote['sent_to']) ? ' · enviada a ' . h($quote['sent_to']) : '' ?></p>
 	<?php endif; ?>
 
 	<?php if (!$locked): ?>

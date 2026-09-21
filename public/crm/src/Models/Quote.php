@@ -101,6 +101,25 @@ final class Quote extends Record
 		return (int) self::pdo()->query("SELECT COUNT(*) FROM quotes WHERE status IN ('enviada','vista','aceptada','rechazada')")->fetchColumn();
 	}
 
+	public static function recentResponses(?int $ownerId, int $hours = 72): array
+	{
+		$sql = "SELECT q.id, q.number, q.status, q.responded_at, q.client_id, c.name AS client_name
+			FROM quotes q
+			JOIN clients c ON c.id = q.client_id
+			WHERE q.status IN ('aceptada', 'rechazada')
+			  AND q.responded_at IS NOT NULL
+			  AND q.responded_at >= ?";
+		$params = [date('c', time() - ($hours * 3600))];
+		if ($ownerId) {
+			$sql .= ' AND c.owner_id = ?';
+			$params[] = $ownerId;
+		}
+		$sql .= ' ORDER BY q.responded_at DESC LIMIT 8';
+		$stmt = self::pdo()->prepare($sql);
+		$stmt->execute($params);
+		return $stmt->fetchAll();
+	}
+
 	public static function itemsFromPost(): array
 	{
 		$descriptions = $_POST['item_description'] ?? [];

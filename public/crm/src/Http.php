@@ -86,4 +86,12 @@ final class Http
 		$value = trim($value);
 		return function_exists('mb_substr') ? mb_substr($value, 0, $max, 'UTF-8') : substr($value, 0, $max);
 	}
+
+	public static function json(array $data, int $code = 200): never
+	{
+		http_response_code($code);
+		header('Content-Type: application/json; charset=UTF-8');
+		echo json_encode($data, JSON_UNESCAPED_UNICODE);
+		exit;
+	}
 }

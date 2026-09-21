@@ -90,7 +90,7 @@ final class Mailbox extends Record
 		self::pdo()->prepare('DELETE FROM mailboxes WHERE user_id = ?')->execute([$userId]);
 	}
 
-	public static function sync(int $userId, bool $force = false): void
+	public static function sync(int $userId, bool $force = false, bool $inboxOnly = false): void
 	{
 		$box = self::open($userId);
 		$last = strtotime((string) ($box['last_sync'] ?? '')) ?: 0;
@@ -101,14 +101,16 @@ final class Mailbox extends Record
 		$notify = !empty($box['last_sync']);
 		try {
 			self::syncFolder($userId, $imap, 'INBOX', 'inbox', $notify);
-			$sent = (string) ($box['sent_folder'] ?: 'Sent');
-			try {
-				self::syncFolder($userId, $imap, $sent, 'sent', false);
-			} catch (RuntimeException) {
-				$sent = $imap->findSentFolder();
-				if ($sent !== (string) $box['sent_folder']) {
-					self::pdo()->prepare('UPDATE mailboxes SET sent_folder = ? WHERE user_id = ?')->execute([$sent, $userId]);
+			if (!$inboxOnly) {
+				$sent = (string) ($box['sent_folder'] ?: 'Sent');
+				try {
 					self::syncFolder($userId, $imap, $sent, 'sent', false);
+				} catch (RuntimeException) {
+					$sent = $imap->findSentFolder();
+					if ($sent !== (string) $box['sent_folder']) {
+						self::pdo()->prepare('UPDATE mailboxes SET sent_folder = ? WHERE user_id = ?')->execute([$sent, $userId]);
+						self::syncFolder($userId, $imap, $sent, 'sent', false);
+					}
 				}
 			}
 		} finally {
@@ -120,7 +122,8 @@ final class Mailbox extends Record
 	public static function deliver(int $userId, array $user, string $to, string $subject, string $html, string $replyToMessageId = '', ?int $clientId = null): int
 	{
 		$box = self::open($userId);
-		$rfc822 = Mime::build((string) $user['name'], (string) $box['email'], $to, $subject, $html, $replyToMessageId);
+		$fromName = User::mailFromName($user);
+		$rfc822 = Mime::build($fromName, (string) $box['email'], $to, $subject, $html, $replyToMessageId);
 		Smtp::send($box, $to, $rfc822);
 		try {
 			$imap = new Imap($box);
@@ -139,7 +142,7 @@ final class Mailbox extends Record
 			'message_id' => $parsed['message_id'],
 			'in_reply_to' => $parsed['in_reply_to'],
 			'from_email' => $box['email'],
-			'from_name' => (string) $user['name'],
+			'from_name' => $fromName,
 			'to_email' => mb_strtolower($to),
 			'subject' => $subject,
 			'body_text' => $parsed['body_text'],

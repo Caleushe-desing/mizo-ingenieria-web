@@ -221,6 +221,16 @@ final class Database
 				SQL
 			);
 			$pdo->exec('PRAGMA user_version = 3');
+			$version = 3;
+		}
+
+		if ($version < 4) {
+			$cols = $pdo->query('PRAGMA table_info(users)')->fetchAll();
+			$names = array_column($cols, 'name');
+			if (!in_array('signature', $names, true)) {
+				$pdo->exec('ALTER TABLE users ADD COLUMN signature TEXT');
+			}
+			$pdo->exec('PRAGMA user_version = 4');
 		}
 	}
 }

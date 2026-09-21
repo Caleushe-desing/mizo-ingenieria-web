@@ -1,8 +1,8 @@
-<?php use MizoCrm\Auth; use MizoCrm\Csrf; use MizoCrm\Http; ?>
+<?php use MizoCrm\Auth; use MizoCrm\Csrf; use MizoCrm\Http; use MizoCrm\Models\User; ?>
 <div class="page-head">
 	<div>
 		<h1>Equipo</h1>
-		<p>Cada ejecutivo ve solo sus clientes. El administrador ve todos.</p>
+		<p>Cada ejecutivo ve solo sus clientes. El administrador ve todos y configura las firmas de correo.</p>
 	</div>
 </div>
 <div class="stack">
@@ -38,6 +38,28 @@
 			</table>
 		</div>
 	</section>
+
+	<section class="paper">
+		<h2 class="section-title word">Firmas de correo</h2>
+		<p class="muted" style="margin:-6px 0 16px">Esta firma se agrega al final de los correos y cotizaciones que envíe cada persona desde el CRM.</p>
+		<div class="signature-grid">
+			<?php foreach ($users as $member): ?>
+				<form class="form signature-card" method="post" action="<?= h(Http::url('/equipo/' . $member['id'] . '/firma')) ?>">
+					<?= Csrf::field() ?>
+					<strong><?= h($member['name']) ?></strong>
+					<span class="muted"><?= h($member['email']) ?></span>
+					<label>
+						<span>Firma</span>
+						<textarea name="signature" rows="6" required><?= h(User::signatureText($member)) ?></textarea>
+					</label>
+					<div class="form-actions">
+						<button class="btn btn-word" type="submit">Guardar firma</button>
+					</div>
+				</form>
+			<?php endforeach; ?>
+		</div>
+	</section>
+
 	<form class="paper form" method="post" action="<?= h(Http::url('/equipo')) ?>" style="max-width:520px">
 		<h2 class="section-title word">Sumar colega</h2>
 		<?= Csrf::field() ?>

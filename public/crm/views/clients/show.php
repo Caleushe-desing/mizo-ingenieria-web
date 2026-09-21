@@ -144,9 +144,9 @@ $mails = $mails ?? [];
 					</thead>
 					<tbody>
 					<?php foreach ($quotes as $quote): ?>
-						<tr>
+						<tr data-quote-row="<?= (int) $quote['id'] ?>">
 							<td><a href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>"><?= h($quote['number']) ?></a></td>
-							<td><?= h(quote_status_label((string) $quote['status'])) ?></td>
+							<td data-quote-status="<?= (int) $quote['id'] ?>"><?= h(quote_status_label((string) $quote['status'])) ?></td>
 							<td><?= money((int) $quote['total']) ?></td>
 							<td><?= h(when($quote['created_at'], 'd-m-Y')) ?></td>
 							<td>

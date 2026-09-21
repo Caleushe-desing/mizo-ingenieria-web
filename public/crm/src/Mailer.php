@@ -16,7 +16,8 @@ final class Mailer
 				return false;
 			}
 		}
-		$from = Config::COMPANY . ' <' . Config::EMAIL . '>';
+		$fromName = Models\User::mailFromName($user);
+		$from = $fromName . ' <' . Config::EMAIL . '>';
 		$headers = [
 			'MIME-Version: 1.0',
 			'Content-Type: text/html; charset=UTF-8',
@@ -29,7 +30,7 @@ final class Mailer
 		return @mail($to, $encoded, $html, implode("\r\n", $headers));
 	}
 
-	public static function quoteHtml(array $quote, array $items, array $client, string $publicUrl): string
+	public static function quoteHtml(array $quote, array $items, array $client, string $publicUrl, ?array $user = null): string
 	{
 		$logo = App::origin() . '/mizo-logo.png';
 		$contact = (string) ($client['contact_name'] ?: $client['name']);
@@ -97,6 +98,7 @@ final class Mailer
 					<p style="margin:28px 0 0;text-align:center;">
 						<a href="' . h($publicUrl) . '" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:14px 22px;font-weight:bold;font-size:14px;letter-spacing:.03em;">Ver cotización completa</a>
 					</p>
+					' . Models\User::signatureHtml($user) . '
 					<p style="margin:18px 0 0;font-size:12px;color:#777;text-align:center;line-height:1.5;">Válida hasta ' . h(when($quote['valid_until'], 'd-m-Y')) . '. Precios en pesos chilenos, neto + IVA.<br>
 					' . h(Config::PHONE) . ' · ' . h(Config::EMAIL) . ' · mizo.cl</p>
 				</td>

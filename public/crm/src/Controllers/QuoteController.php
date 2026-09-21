@@ -241,8 +241,8 @@ final class QuoteController
 		}
 		$quote['deal_title'] = $quote['intro'] !== '' ? $quote['intro'] : ($items[0]['description'] ?? 'Cotización');
 		$url = App::absolute('/q/' . $quote['token']);
-		$html = Mailer::quoteHtml($quote, $items, $client, $url);
 		$user = Auth::user();
+		$html = Mailer::quoteHtml($quote, $items, $client, $url, $user);
 		$ok = Mailer::send($to, 'Cotización ' . $quote['number'] . ' — Mizo', $html, $user['email'] ?? '');
 		if (!$ok) {
 			$hint = \MizoCrm\Models\Mailbox::forUser(Auth::id())

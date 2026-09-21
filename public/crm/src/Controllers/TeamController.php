@@ -41,6 +41,20 @@ final class TeamController
 		Http::redirect('/equipo');
 	}
 
+	public function signature(string $id): void
+	{
+		Auth::requireAdmin();
+		Csrf::check();
+		$member = User::find((int) $id);
+		if (!$member) {
+			Http::redirect('/equipo');
+		}
+		$text = Http::text('signature', 2000);
+		User::update((int) $id, ['signature' => $text]);
+		View::flash('ok', 'Firma de ' . $member['name'] . ' guardada. Se usará en sus correos y cotizaciones.');
+		Http::redirect('/equipo');
+	}
+
 	public function destroy(string $id): void
 	{
 		Auth::requireAdmin();
