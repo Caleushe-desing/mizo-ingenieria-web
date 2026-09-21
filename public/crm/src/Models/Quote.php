@@ -120,6 +120,27 @@ final class Quote extends Record
 		return $stmt->fetchAll();
 	}
 
+	public static function recentChanges(int $viewerId, ?int $ownerId, int $hours = 24): array
+	{
+		$sql = "SELECT q.id, q.number, q.status, q.updated_at, q.updated_by, q.client_id,
+				c.name AS client_name, u.name AS editor_name
+			FROM quotes q
+			JOIN clients c ON c.id = q.client_id
+			LEFT JOIN users u ON u.id = q.updated_by
+			WHERE q.updated_by IS NOT NULL
+			  AND q.updated_by != ?
+			  AND q.updated_at >= ?";
+		$params = [$viewerId, date('c', time() - ($hours * 3600))];
+		if ($ownerId) {
+			$sql .= ' AND c.owner_id = ?';
+			$params[] = $ownerId;
+		}
+		$sql .= ' ORDER BY q.updated_at DESC LIMIT 8';
+		$stmt = self::pdo()->prepare($sql);
+		$stmt->execute($params);
+		return $stmt->fetchAll();
+	}
+
 	public static function itemsFromPost(): array
 	{
 		$descriptions = $_POST['item_description'] ?? [];

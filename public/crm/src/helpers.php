@@ -61,7 +61,7 @@ function activity_label(string $type): string
 	return \MizoCrm\Config::activityKinds()[$type]
 		?? match ($type) {
 			'lead' => 'Sitio web',
-			'quote_created', 'quote_sent', 'quote_viewed', 'quote_accepted', 'quote_rejected' => 'Cotización',
+			'quote_created', 'quote_updated', 'quote_sent', 'quote_viewed', 'quote_accepted', 'quote_rejected' => 'Cotización',
 			'mail_sent', 'mail_received' => 'Correo',
 			'won' => 'Ganada',
 			'lost' => 'Perdida',

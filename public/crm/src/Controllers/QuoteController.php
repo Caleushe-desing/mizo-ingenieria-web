@@ -177,11 +177,12 @@ final class QuoteController
 				'total' => 0,
 				'token' => bin2hex(random_bytes(16)),
 				'created_by' => Auth::id(),
+				'updated_by' => Auth::id(),
 				'created_at' => $now,
 				'updated_at' => $now,
 			]);
 			$totals = Quote::saveItems($id, $items);
-			Quote::update($id, [...$totals, 'updated_at' => $now]);
+			Quote::update($id, [...$totals, 'updated_at' => $now, 'updated_by' => Auth::id()]);
 			Deal::update($dealId, ['amount' => $totals['total'], 'title' => $title, 'updated_at' => $now]);
 			$created = Quote::find($id);
 			Activity::log('quote_created', 'Cotización ' . ($created['number'] ?? '') . ' creada.', Auth::id(), $clientId, $dealId, $id);
@@ -200,6 +201,7 @@ final class QuoteController
 			'valid_until' => $validUntil,
 			...$totals,
 			'updated_at' => $now,
+			'updated_by' => Auth::id(),
 		]);
 		Deal::update((int) $quote['deal_id'], [
 			'title' => $title,
@@ -207,6 +209,14 @@ final class QuoteController
 			'updated_at' => $now,
 		]);
 		Client::update($clientId, ['updated_at' => $now]);
+		Activity::log(
+			'quote_updated',
+			'Cotización ' . ($quote['number'] ?? '') . ' actualizada.',
+			Auth::id(),
+			$clientId,
+			(int) $quote['deal_id'],
+			(int) $quote['id']
+		);
 		return (int) $quote['id'];
 	}
 
@@ -256,6 +266,7 @@ final class QuoteController
 			'sent_at' => date('c'),
 			'sent_to' => $to,
 			'updated_at' => date('c'),
+			'updated_by' => Auth::id(),
 		]);
 		Deal::update((int) $quote['deal_id'], [
 			'stage' => 'propuesta',

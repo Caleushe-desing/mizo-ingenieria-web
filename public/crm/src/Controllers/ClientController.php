@@ -121,8 +121,11 @@ final class ClientController
 		if (Auth::isAdmin() && isset($_POST['owner_id'])) {
 			$ownerId = Http::int('owner_id');
 			$payload['owner_id'] = $ownerId > 0 ? $ownerId : null;
+			$prevOwner = (int) ($client['owner_id'] ?? 0);
+			if ($payload['owner_id'] && $payload['owner_id'] !== $prevOwner) {
+				Activity::log('assigned', 'Cliente asignado a un ejecutivo.', Auth::id(), (int) $id);
+			}
 		}
-		unset($client);
 		Client::update((int) $id, $payload);
 		View::flash('ok', 'Datos del cliente actualizados.');
 		Http::redirect('/clientes/' . $id);

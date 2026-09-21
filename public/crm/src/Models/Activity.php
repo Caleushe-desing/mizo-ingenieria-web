@@ -64,10 +64,32 @@ final class Activity extends Record
 			 FROM activities a
 			 LEFT JOIN users u ON u.id = a.user_id
 			 WHERE a.client_id = ?
-			   AND a.type IN ('comentario','nota','lead','quote_sent','quote_accepted','quote_rejected','mail_sent','mail_received')
+			   AND a.type IN ('comentario','nota','lead','quote_created','quote_updated','quote_sent','quote_accepted','quote_rejected','mail_sent','mail_received','assigned')
 			 ORDER BY a.id DESC LIMIT 80"
 		);
 		$stmt->execute([$clientId]);
+		return $stmt->fetchAll();
+	}
+
+	public static function recentNotices(int $viewerId, ?int $ownerId, int $hours = 24): array
+	{
+		$sql = "SELECT a.id, a.type, a.message, a.created_at, a.client_id, a.quote_id,
+				c.name AS client_name, u.name AS user_name
+			FROM activities a
+			JOIN clients c ON c.id = a.client_id
+			LEFT JOIN users u ON u.id = a.user_id
+			WHERE a.user_id IS NOT NULL
+			  AND a.user_id != ?
+			  AND a.created_at >= ?
+			  AND a.type IN ('comentario','quote_sent','assigned')";
+		$params = [$viewerId, date('c', time() - ($hours * 3600))];
+		if ($ownerId) {
+			$sql .= ' AND c.owner_id = ?';
+			$params[] = $ownerId;
+		}
+		$sql .= ' ORDER BY a.id DESC LIMIT 10';
+		$stmt = self::pdo()->prepare($sql);
+		$stmt->execute($params);
 		return $stmt->fetchAll();
 	}
 }

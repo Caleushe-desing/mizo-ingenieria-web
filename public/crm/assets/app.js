@@ -86,12 +86,15 @@
 	const titleEl = root.querySelector('strong');
 	const textEl = root.querySelector('.live-alert-copy span');
 	const badge = document.getElementById('mail-badge');
+	const chatBadge = document.getElementById('chat-badge');
 	if (!url || !link || !titleEl || !textEl) return;
 
 	const seenKey = 'mizo_seen_alerts';
 	const unreadKey = 'mizo_unread_known';
+	const chatKey = 'mizo_chat_known';
 	let primed = false;
 	let lastUnread = badge && !badge.hidden ? Number(badge.textContent || 0) : 0;
+	let lastChat = chatBadge && !chatBadge.hidden ? Number(chatBadge.textContent || 0) : 0;
 	let hideTimer = 0;
 
 	function seenIds() {
@@ -107,16 +110,16 @@
 		const ids = seenIds();
 		if (ids.indexOf(id) !== -1) return;
 		ids.push(id);
-		localStorage.setItem(seenKey, JSON.stringify(ids.slice(-80)));
+		localStorage.setItem(seenKey, JSON.stringify(ids.slice(-120)));
 	}
 
-	function updateBadge(count) {
-		if (!badge) return;
+	function updateBadge(el, count) {
+		if (!el) return;
 		if (count > 0) {
-			badge.hidden = false;
-			badge.textContent = String(count);
+			el.hidden = false;
+			el.textContent = String(count);
 		} else {
-			badge.hidden = true;
+			el.hidden = true;
 		}
 	}
 
@@ -129,7 +132,7 @@
 	}
 
 	function showAlert(alert) {
-		link.className = 'live-alert is-' + alert.kind;
+		link.className = 'live-alert is-' + (alert.kind || 'change');
 		link.href = alert.href || '#';
 		titleEl.textContent = alert.title || '';
 		textEl.textContent = alert.text || '';
@@ -140,16 +143,38 @@
 		}, 14000);
 	}
 
+	function pathName() {
+		return window.location.pathname.replace(/\/+$/, '');
+	}
+
 	function onInbox() {
-		const path = window.location.pathname.replace(/\/+$/, '');
-		return /\/correo$/.test(path);
+		return /\/correo$/.test(pathName());
+	}
+
+	function onChatThread() {
+		return /\/chat\/\d+$/.test(pathName());
+	}
+
+	function shouldReload(alert) {
+		if (!alert || !alert.reload) return false;
+		const path = pathName();
+		if (alert.kind === 'mail' && onInbox()) return true;
+		if (alert.quote_id && path.indexOf('/cotizaciones/' + alert.quote_id) !== -1) return true;
+		if (alert.href && path.indexOf('/clientes/') !== -1 && String(alert.href).indexOf(path) !== -1) return true;
+		if ((alert.kind === 'quote_edit' || alert.kind === 'change' || alert.kind === 'quote_ok' || alert.kind === 'quote_no')
+			&& (/\/crm\/?$/.test(path) || /\/clientes$/.test(path) || path.endsWith('/crm'))) {
+			return true;
+		}
+		return false;
 	}
 
 	function apply(data) {
 		if (!data || !data.ok) return;
 		const unread = Number(data.unread || 0);
+		const chatUnread = Number(data.chat_unread || 0);
 		const alerts = Array.isArray(data.alerts) ? data.alerts : [];
-		updateBadge(unread);
+		updateBadge(badge, unread);
+		updateBadge(chatBadge, chatUnread);
 		updateQuotes(alerts);
 
 		const known = seenIds();
@@ -159,31 +184,50 @@
 
 		if (!primed) {
 			const saved = Number(localStorage.getItem(unreadKey) || -1);
-			const quotes = fresh.filter(function (alert) { return alert.kind !== 'mail'; });
+			const savedChat = Number(localStorage.getItem(chatKey) || -1);
+			const priority = fresh.filter(function (alert) {
+				return alert.kind !== 'mail' && alert.kind !== 'chat';
+			});
 			const mails = fresh.filter(function (alert) { return alert.kind === 'mail'; });
-			if (quotes[0]) {
-				showAlert(quotes[0]);
-				quotes.forEach(function (alert) { remember(alert.id); });
+			const chats = fresh.filter(function (alert) { return alert.kind === 'chat'; });
+			if (priority[0]) {
+				showAlert(priority[0]);
+				priority.forEach(function (alert) { remember(alert.id); });
 			} else if (saved >= 0 && unread > saved && mails[0]) {
 				showAlert(mails[0]);
+			} else if (savedChat >= 0 && chatUnread > savedChat && chats[0]) {
+				showAlert(chats[0]);
 			}
 			mails.forEach(function (alert) { remember(alert.id); });
+			chats.forEach(function (alert) { remember(alert.id); });
 			localStorage.setItem(unreadKey, String(unread));
+			localStorage.setItem(chatKey, String(chatUnread));
 			primed = true;
 			lastUnread = unread;
+			lastChat = chatUnread;
 			return;
 		}
 
 		if (fresh[0]) {
 			showAlert(fresh[0]);
 			remember(fresh[0].id);
+			if (shouldReload(fresh[0])) {
+				window.location.reload();
+				return;
+			}
 		}
 		localStorage.setItem(unreadKey, String(unread));
+		localStorage.setItem(chatKey, String(chatUnread));
 		if (onInbox() && unread > lastUnread) {
 			window.location.reload();
 			return;
 		}
+		if (onChatThread() && chatUnread > lastChat) {
+			lastChat = chatUnread;
+			return;
+		}
 		lastUnread = unread;
+		lastChat = chatUnread;
 	}
 
 	function poll() {
@@ -195,13 +239,69 @@
 	}
 
 	poll();
-	setInterval(poll, 18000);
+	setInterval(poll, 10000);
 	document.addEventListener('visibilitychange', function () {
 		if (!document.hidden) poll();
 	});
 	root.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
 	root.addEventListener('mouseleave', function () {
 		hideTimer = setTimeout(function () { root.hidden = true; }, 5000);
+	});
+})();
+
+(function () {
+	const box = document.getElementById('chat-messages');
+	if (!box) return;
+	const pollUrl = box.getAttribute('data-poll');
+	if (!pollUrl) return;
+	let last = Number(box.getAttribute('data-last') || 0);
+
+	function escapeHtml(text) {
+		return String(text)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+	}
+
+	function appendMessage(msg) {
+		if (box.querySelector('[data-id="' + msg.id + '"]')) return;
+		const start = box.querySelector('.chat-start');
+		if (start) start.remove();
+		const el = document.createElement('div');
+		el.className = 'chat-bubble ' + (msg.from_me ? 'is-mine' : 'is-theirs');
+		el.setAttribute('data-id', String(msg.id));
+		el.innerHTML = '<div class="chat-bubble-body">' + escapeHtml(msg.body).replace(/\n/g, '<br>')
+			+ '</div><time>' + escapeHtml(msg.created_at || '') + '</time>';
+		box.appendChild(el);
+		box.scrollTop = box.scrollHeight;
+		last = Math.max(last, Number(msg.id) || 0);
+	}
+
+	function tick() {
+		if (document.hidden) return;
+		fetch(pollUrl + '?despues=' + last, { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+			.then(function (res) { return res.ok ? res.json() : null; })
+			.then(function (data) {
+				if (!data || !data.ok || !Array.isArray(data.messages)) return;
+				data.messages.forEach(appendMessage);
+				const chatBadge = document.getElementById('chat-badge');
+				if (chatBadge && typeof data.chat_unread === 'number') {
+					if (data.chat_unread > 0) {
+						chatBadge.hidden = false;
+						chatBadge.textContent = String(data.chat_unread);
+					} else {
+						chatBadge.hidden = true;
+					}
+				}
+			})
+			.catch(function () {});
+	}
+
+	box.scrollTop = box.scrollHeight;
+	setInterval(tick, 4000);
+	document.addEventListener('visibilitychange', function () {
+		if (!document.hidden) tick();
 	});
 })();
 

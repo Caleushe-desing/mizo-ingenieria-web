@@ -232,5 +232,30 @@ final class Database
 			}
 			$pdo->exec('PRAGMA user_version = 4');
 		}
+
+		if ($version < 5) {
+			$pdo->exec(
+				<<<'SQL'
+				CREATE TABLE IF NOT EXISTS chat_messages (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					from_user_id INTEGER NOT NULL,
+					to_user_id INTEGER NOT NULL,
+					body TEXT NOT NULL,
+					seen INTEGER NOT NULL DEFAULT 0,
+					created_at TEXT NOT NULL,
+					FOREIGN KEY (from_user_id) REFERENCES users(id) ON DELETE CASCADE,
+					FOREIGN KEY (to_user_id) REFERENCES users(id) ON DELETE CASCADE
+				);
+				CREATE INDEX IF NOT EXISTS idx_chat_peer ON chat_messages(from_user_id, to_user_id, id);
+				CREATE INDEX IF NOT EXISTS idx_chat_to_seen ON chat_messages(to_user_id, seen, id);
+				SQL
+			);
+			$cols = $pdo->query('PRAGMA table_info(quotes)')->fetchAll();
+			$names = array_column($cols, 'name');
+			if (!in_array('updated_by', $names, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN updated_by INTEGER');
+			}
+			$pdo->exec('PRAGMA user_version = 5');
+		}
 	}
 }
