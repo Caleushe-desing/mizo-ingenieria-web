@@ -12,6 +12,7 @@ $lastId = 0;
 foreach ($messages as $row) {
 	$lastId = max($lastId, (int) $row['id']);
 }
+$emojis = ['😀','😁','😂','😊','😉','😍','😎','🤩','🙂','😢','😭','😡','👍','👎','👏','🙏','💪','🔥','✅','❌','⭐','🎉','👋','❤️','💙','🧡','💯','📌','📞','📧','🏗️','🛠️','⚡','💡','📝','🤝'];
 ?>
 <div class="chat<?= $openClass ?>">
 	<aside class="chat-peers">
@@ -78,12 +79,20 @@ foreach ($messages as $row) {
 					</div>
 				<?php endforeach; ?>
 			</div>
-			<form class="chat-compose" method="post" action="<?= h(Http::url('/chat/' . $peer['id'])) ?>" data-chat-form>
-				<?= Csrf::field() ?>
-				<textarea name="body" rows="2" required placeholder="Escribe y pulsa Enter para enviar…" maxlength="4000" data-chat-input></textarea>
-				<button class="btn btn-word" type="submit">Enviar</button>
-			</form>
-			<p class="chat-compose-hint">Enter envía · Shift+Enter salto de línea</p>
+			<div class="chat-compose-wrap">
+				<div class="chat-emoji-panel" id="chat-emoji-panel" hidden>
+					<?php foreach ($emojis as $emoji): ?>
+						<button type="button" class="chat-emoji-btn" data-emoji="<?= h($emoji) ?>"><?= $emoji ?></button>
+					<?php endforeach; ?>
+				</div>
+				<form class="chat-compose" method="post" action="<?= h(Http::url('/chat/' . $peer['id'])) ?>" data-chat-form>
+					<?= Csrf::field() ?>
+					<button class="chat-emoji-toggle" type="button" id="chat-emoji-toggle" title="Emoticones" aria-label="Emoticones">😊</button>
+					<textarea name="body" rows="2" required placeholder="Escribe y pulsa Enter para enviar…" maxlength="4000" data-chat-input></textarea>
+					<button class="btn btn-word" type="submit">Enviar</button>
+				</form>
+				<p class="chat-compose-hint">Enter envía · Shift+Enter salto de línea</p>
+			</div>
 		<?php endif; ?>
 	</section>
 </div>

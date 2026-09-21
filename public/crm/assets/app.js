@@ -353,6 +353,44 @@
 		});
 	}
 
+	const emojiToggle = document.getElementById('chat-emoji-toggle');
+	const emojiPanel = document.getElementById('chat-emoji-panel');
+	function insertEmoji(emoji) {
+		if (!input) return;
+		const start = input.selectionStart || 0;
+		const end = input.selectionEnd || 0;
+		const value = String(input.value || '');
+		input.value = value.slice(0, start) + emoji + value.slice(end);
+		const pos = start + emoji.length;
+		input.focus();
+		input.setSelectionRange(pos, pos);
+	}
+	if (emojiToggle && emojiPanel) {
+		emojiToggle.addEventListener('click', function () {
+			const open = emojiPanel.hasAttribute('hidden');
+			if (open) {
+				emojiPanel.removeAttribute('hidden');
+				emojiToggle.classList.add('is-on');
+			} else {
+				emojiPanel.setAttribute('hidden', '');
+				emojiToggle.classList.remove('is-on');
+			}
+			input && input.focus();
+		});
+		emojiPanel.querySelectorAll('[data-emoji]').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				insertEmoji(btn.getAttribute('data-emoji') || '');
+			});
+		});
+		document.addEventListener('click', function (event) {
+			if (!emojiPanel || emojiPanel.hasAttribute('hidden')) return;
+			const t = event.target;
+			if (emojiPanel.contains(t) || emojiToggle.contains(t)) return;
+			emojiPanel.setAttribute('hidden', '');
+			emojiToggle.classList.remove('is-on');
+		});
+	}
+
 	box.scrollTop = box.scrollHeight;
 	setInterval(tick, 2000);
 	document.addEventListener('visibilitychange', function () {

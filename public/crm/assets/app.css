@@ -917,16 +917,27 @@ body.is-gmail .flash { margin: 12px 18px 0; }
 	color: #202124;
 }
 
-body.is-chat { background: #f3f2f1; }
+body.is-chat {
+	background: #f3f2f1;
+	height: 100vh;
+	overflow: hidden;
+}
 body.is-chat .workspace.workspace-chat {
 	max-width: none;
 	margin: 0;
-	padding: 0 0 20px;
+	padding: 0;
+	height: calc(100vh - 108px);
+	overflow: hidden;
+}
+body.is-chat .flash {
+	margin: 8px 12px 0;
+	flex: none;
 }
 .chat {
 	display: grid;
 	grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
-	min-height: calc(100vh - 118px);
+	height: 100%;
+	min-height: 0;
 	background: #fff;
 	border-top: 1px solid var(--line);
 }
@@ -935,17 +946,21 @@ body.is-chat .workspace.workspace-chat {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
+	min-height: 0;
+	height: 100%;
 	background: #faf9f8;
+	overflow: hidden;
 }
 .chat-peers-head {
 	padding: 16px 16px 12px;
 	border-bottom: 1px solid var(--line);
 	display: grid;
 	gap: 2px;
+	flex: none;
 }
 .chat-peers-head strong { font-size: 16px; color: var(--ink); }
 .chat-peers-head span { font-size: 12px; color: var(--muted); }
-.chat-peer-list { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+.chat-peer-list { overflow-y: auto; flex: 1; min-height: 0; -webkit-overflow-scrolling: touch; }
 .chat-peer {
 	display: grid;
 	grid-template-columns: 36px minmax(0, 1fr) auto;
@@ -984,7 +999,9 @@ body.is-chat .workspace.workspace-chat {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
-	min-height: calc(100vh - 118px);
+	min-height: 0;
+	height: 100%;
+	overflow: hidden;
 }
 .chat-thread-head {
 	display: flex;
@@ -992,6 +1009,8 @@ body.is-chat .workspace.workspace-chat {
 	gap: 12px;
 	padding: 12px 18px;
 	border-bottom: 1px solid var(--line);
+	flex: none;
+	background: #fff;
 }
 .chat-thread-head strong { display: block; font-size: 15px; }
 .chat-thread-head small { color: var(--muted); font-size: 12px; }
@@ -1003,8 +1022,10 @@ body.is-chat .workspace.workspace-chat {
 	font-size: 14px;
 }
 .chat-messages {
-	flex: 1;
+	flex: 1 1 auto;
+	min-height: 0;
 	overflow-y: auto;
+	overflow-x: hidden;
 	padding: 18px;
 	display: flex;
 	flex-direction: column;
@@ -1034,20 +1055,61 @@ body.is-chat .workspace.workspace-chat {
 }
 .chat-bubble-body { font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
 .chat-bubble time { font-size: 11px; opacity: .72; }
-.chat-compose {
-	display: grid;
-	grid-template-columns: 1fr auto;
-	gap: 10px;
-	padding: 12px 14px 4px;
+.chat-compose-wrap {
+	flex: none;
 	border-top: 1px solid var(--line);
 	background: #fff;
+	position: relative;
+}
+.chat-emoji-panel {
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	gap: 4px;
+	padding: 10px;
+	border-bottom: 1px solid #eee;
+	background: #faf9f8;
+	max-height: 160px;
+	overflow-y: auto;
+}
+.chat-emoji-panel[hidden] { display: none !important; }
+.chat-emoji-btn {
+	border: 0;
+	background: transparent;
+	font-size: 22px;
+	line-height: 1.2;
+	padding: 6px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+.chat-emoji-btn:hover { background: #e8f0fe; }
+.chat-compose {
+	display: grid;
+	grid-template-columns: auto 1fr auto;
+	gap: 8px;
+	padding: 12px 14px 4px;
+	background: #fff;
 	align-items: end;
+}
+.chat-emoji-toggle {
+	width: 40px;
+	height: 40px;
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	background: #fff;
+	font-size: 20px;
+	cursor: pointer;
+	line-height: 1;
+}
+.chat-emoji-toggle:hover,
+.chat-emoji-toggle.is-on {
+	background: #eef4fb;
+	border-color: #c9daf8;
 }
 .chat-compose textarea {
 	width: 100%;
 	min-height: 44px;
-	max-height: 140px;
-	resize: vertical;
+	max-height: 120px;
+	resize: none;
 	border: 1px solid var(--line);
 	border-radius: 8px;
 	padding: 10px 12px;
@@ -1118,12 +1180,14 @@ body.is-chat .workspace.workspace-chat {
 	.gmail-settings { padding: 20px 16px; }
 	.chat {
 		grid-template-columns: 1fr;
-		min-height: calc(100vh - 118px);
+		height: 100%;
+		min-height: 0;
 	}
 	.chat:not(.has-open) .chat-thread { display: none; }
 	.chat.has-open .chat-peers { display: none; }
 	.chat.has-open .chat-back { display: inline-flex; }
-	.chat-thread { min-height: calc(100vh - 118px); }
+	.chat-thread { height: 100%; min-height: 0; }
+	.chat-emoji-panel { grid-template-columns: repeat(6, 1fr); }
 }
 @media (max-width: 720px) {
 	body.is-gmail .titlebar small { display: none; }
