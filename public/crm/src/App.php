@@ -1,0 +1,100 @@
+<?php
+declare(strict_types=1);
+
+namespace MizoCrm;
+
+final class App
+{
+	public static function run(): void
+	{
+		header('X-Frame-Options: SAMEORIGIN');
+		header('Referrer-Policy: same-origin');
+		header('Cache-Control: no-store');
+
+		$path = Http::path();
+		$method = Http::method();
+
+		if (str_starts_with($path, '/q/')) {
+			self::dispatch($method, $path);
+			return;
+		}
+
+		if (Auth::needsSetup() && !str_starts_with($path, '/setup')) {
+			Http::redirect('/setup');
+		}
+
+		if (!Auth::needsSetup() && str_starts_with($path, '/setup')) {
+			Http::redirect('/login');
+		}
+
+		$public = ['/login', '/setup'];
+		if (!in_array($path, $public, true) && !Auth::user() && $path !== '/logout') {
+			Http::redirect('/login');
+		}
+
+		self::dispatch($method, $path);
+	}
+
+	private static function dispatch(string $method, string $path): void
+	{
+		$routes = [
+			['GET', '#^/setup$#', [Controllers\SetupController::class, 'show']],
+			['POST', '#^/setup$#', [Controllers\SetupController::class, 'store']],
+			['GET', '#^/login$#', [Controllers\AuthController::class, 'show']],
+			['POST', '#^/login$#', [Controllers\AuthController::class, 'login']],
+			['POST', '#^/logout$#', [Controllers\AuthController::class, 'logout']],
+			['GET', '#^/$#', [Controllers\ClientController::class, 'index']],
+			['GET', '#^/clientes/nuevo$#', [Controllers\ClientController::class, 'create']],
+			['POST', '#^/clientes$#', [Controllers\ClientController::class, 'store']],
+			['GET', '#^/clientes/(\d+)/cotizacion$#', [Controllers\QuoteController::class, 'create']],
+			['POST', '#^/clientes/(\d+)/cotizacion$#', [Controllers\QuoteController::class, 'store']],
+			['POST', '#^/clientes/(\d+)/comentarios/(\d+)/eliminar$#', [Controllers\ClientController::class, 'destroyComment']],
+			['POST', '#^/clientes/(\d+)/eliminar$#', [Controllers\ClientController::class, 'destroy']],
+			['POST', '#^/clientes/(\d+)/comentario$#', [Controllers\ClientController::class, 'comment']],
+			['GET', '#^/clientes/(\d+)$#', [Controllers\ClientController::class, 'show']],
+			['POST', '#^/clientes/(\d+)$#', [Controllers\ClientController::class, 'update']],
+			['GET', '#^/clientes$#', [Controllers\ClientController::class, 'index']],
+			['GET', '#^/cotizaciones/(\d+)/preview$#', [Controllers\QuoteController::class, 'preview']],
+			['POST', '#^/cotizaciones/(\d+)/enviar$#', [Controllers\QuoteController::class, 'send']],
+			['POST', '#^/cotizaciones/(\d+)/eliminar$#', [Controllers\QuoteController::class, 'destroy']],
+			['GET', '#^/cotizaciones/(\d+)$#', [Controllers\QuoteController::class, 'show']],
+			['POST', '#^/cotizaciones/(\d+)$#', [Controllers\QuoteController::class, 'update']],
+			['POST', '#^/equipo/(\d+)/eliminar$#', [Controllers\TeamController::class, 'destroy']],
+			['GET', '#^/equipo$#', [Controllers\TeamController::class, 'index']],
+			['POST', '#^/equipo$#', [Controllers\TeamController::class, 'store']],
+			['GET', '#^/nueva$#', [Controllers\ClientController::class, 'create']],
+			['GET', '#^/t/(\d+)$#', [Controllers\ClientController::class, 'fromDeal']],
+			['GET', '#^/q/([a-zA-Z0-9]+)$#', [Controllers\PublicQuoteController::class, 'show']],
+			['POST', '#^/q/([a-zA-Z0-9]+)$#', [Controllers\PublicQuoteController::class, 'respond']],
+		];
+
+		foreach ($routes as [$verb, $pattern, $handler]) {
+			if ($verb !== $method) {
+				continue;
+			}
+			if (!preg_match($pattern, $path, $matches)) {
+				continue;
+			}
+			array_shift($matches);
+			[$class, $action] = $handler;
+			(new $class())->{$action}(...$matches);
+			return;
+		}
+
+		http_response_code(404);
+		echo 'Página no encontrada.';
+	}
+
+	public static function origin(): string
+	{
+		$host = $_SERVER['HTTP_HOST'] ?? 'mizo.cl';
+		$https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $host === 'mizo.cl';
+		return ($https ? 'https' : 'http') . '://' . $host;
+	}
+
+	public static function absolute(string $path): string
+	{
+		$path = '/' . ltrim($path, '/');
+		return self::origin() . Http::url($path);
+	}
+}

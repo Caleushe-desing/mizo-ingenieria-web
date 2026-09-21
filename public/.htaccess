@@ -1,5 +1,10 @@
 ErrorDocument 404 /404.html
 
+RewriteEngine On
+RewriteRule ^crm/assets/ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^crm(/.*)?$ /crm/index.php [QSA,L]
+
 RedirectMatch 301 ^/proyectos/?$ /servicios
 RedirectMatch 301 ^/about/?$ /nosotros
 RedirectMatch 301 ^/testimonios/?$ /nosotros

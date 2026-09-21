@@ -61,4 +61,11 @@ if (!$sent) {
     respond(500, ['ok' => false, 'error' => 'No se pudo enviar.']);
 }
 
+try {
+    require_once dirname(__DIR__) . '/crm/src/Autoload.php';
+    \MizoCrm\LeadIngest::fromContactForm($nombre, $telefono, $correo, $servicio, $mensaje);
+} catch (Throwable) {
+    // El correo ya salió; el CRM no debe bloquear el contacto.
+}
+
 respond(200, ['ok' => true]);

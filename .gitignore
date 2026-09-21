@@ -24,3 +24,7 @@ sftp.json
 
 # local portable runtime
 .tools/
+
+# CRM database (created on the server)
+public/crm-data/*.sqlite
+public/crm-data/*.sqlite-*
