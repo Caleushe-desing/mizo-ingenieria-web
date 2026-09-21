@@ -15,7 +15,7 @@ $onMail = str_starts_with($path, '/correo');
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=3">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=4">
 </head>
 <body class="<?= $onMail ? 'is-gmail' : '' ?>">
 	<header class="titlebar">

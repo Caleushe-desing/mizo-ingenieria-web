@@ -107,11 +107,18 @@ final class MailController
 		if ($client && !Auth::canAccessClient($client)) {
 			$client = null;
 		}
-		View::render('mail/show', [
+		$folder = ($row['folder'] ?? '') === 'sent' ? 'sent' : 'inbox';
+		$box = Mailbox::forUser((int) $user['id']);
+		if (!$box) {
+			Http::redirect('/correo/cuenta');
+		}
+		View::render('mail/inbox', [
 			'title' => $row['subject'] ?: 'Correo',
+			'folder' => $folder,
+			'mailbox' => $box,
+			'messages' => MailMessage::list((int) $user['id'], $folder),
 			'message' => $row,
 			'client' => $client,
-			'mailbox' => Mailbox::forUser((int) $user['id']),
 			'unread' => MailMessage::unreadCount((int) $user['id']),
 		]);
 	}
