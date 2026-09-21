@@ -151,8 +151,8 @@
 		return /\/correo$/.test(pathName());
 	}
 
-	function onChatThread() {
-		return /\/chat\/\d+$/.test(pathName());
+	function onChatList() {
+		return /\/chat$/.test(pathName());
 	}
 
 	function shouldReload(alert) {
@@ -162,7 +162,7 @@
 		if (alert.quote_id && path.indexOf('/cotizaciones/' + alert.quote_id) !== -1) return true;
 		if (alert.href && path.indexOf('/clientes/') !== -1 && String(alert.href).indexOf(path) !== -1) return true;
 		if ((alert.kind === 'quote_edit' || alert.kind === 'change' || alert.kind === 'quote_ok' || alert.kind === 'quote_no')
-			&& (/\/crm\/?$/.test(path) || /\/clientes$/.test(path) || path.endsWith('/crm'))) {
+			&& (/\/crm\/?$/.test(path) || /\/clientes$/.test(path) || path.endsWith('/crm') || path.indexOf('/clientes/') !== -1 || path.indexOf('/cotizaciones/') !== -1)) {
 			return true;
 		}
 		return false;
@@ -222,8 +222,8 @@
 			window.location.reload();
 			return;
 		}
-		if (onChatThread() && chatUnread > lastChat) {
-			lastChat = chatUnread;
+		if (onChatList() && chatUnread > lastChat) {
+			window.location.reload();
 			return;
 		}
 		lastUnread = unread;
@@ -239,7 +239,7 @@
 	}
 
 	poll();
-	setInterval(poll, 10000);
+	setInterval(poll, 4000);
 	document.addEventListener('visibilitychange', function () {
 		if (!document.hidden) poll();
 	});
@@ -251,10 +251,13 @@
 
 (function () {
 	const box = document.getElementById('chat-messages');
+	const form = document.querySelector('[data-chat-form]');
+	const input = document.querySelector('[data-chat-input]');
 	if (!box) return;
 	const pollUrl = box.getAttribute('data-poll');
 	if (!pollUrl) return;
 	let last = Number(box.getAttribute('data-last') || 0);
+	let sending = false;
 
 	function escapeHtml(text) {
 		return String(text)
@@ -278,6 +281,17 @@
 		last = Math.max(last, Number(msg.id) || 0);
 	}
 
+	function updateChatBadge(count) {
+		const chatBadge = document.getElementById('chat-badge');
+		if (!chatBadge || typeof count !== 'number') return;
+		if (count > 0) {
+			chatBadge.hidden = false;
+			chatBadge.textContent = String(count);
+		} else {
+			chatBadge.hidden = true;
+		}
+	}
+
 	function tick() {
 		if (document.hidden) return;
 		fetch(pollUrl + '?despues=' + last, { credentials: 'same-origin', headers: { Accept: 'application/json' } })
@@ -285,21 +299,62 @@
 			.then(function (data) {
 				if (!data || !data.ok || !Array.isArray(data.messages)) return;
 				data.messages.forEach(appendMessage);
-				const chatBadge = document.getElementById('chat-badge');
-				if (chatBadge && typeof data.chat_unread === 'number') {
-					if (data.chat_unread > 0) {
-						chatBadge.hidden = false;
-						chatBadge.textContent = String(data.chat_unread);
-					} else {
-						chatBadge.hidden = true;
-					}
-				}
+				updateChatBadge(data.chat_unread);
 			})
 			.catch(function () {});
 	}
 
+	function sendNow() {
+		if (!form || !input || sending) return;
+		const body = String(input.value || '').trim();
+		if (!body) return;
+		sending = true;
+		const data = new FormData(form);
+		data.set('body', body);
+		fetch(form.getAttribute('action'), {
+			method: 'POST',
+			body: data,
+			credentials: 'same-origin',
+			headers: {
+				Accept: 'application/json',
+				'X-Requested-With': 'fetch',
+			},
+		})
+			.then(function (res) { return res.json(); })
+			.then(function (json) {
+				if (json && json.ok && json.message) {
+					appendMessage(json.message);
+					input.value = '';
+					input.focus();
+					updateChatBadge(json.chat_unread);
+				}
+			})
+			.catch(function () {
+				form.submit();
+			})
+			.finally(function () {
+				sending = false;
+			});
+	}
+
+	if (input) {
+		input.addEventListener('keydown', function (event) {
+			if (event.key !== 'Enter' || event.shiftKey) return;
+			event.preventDefault();
+			sendNow();
+		});
+		input.focus();
+	}
+
+	if (form) {
+		form.addEventListener('submit', function (event) {
+			event.preventDefault();
+			sendNow();
+		});
+	}
+
 	box.scrollTop = box.scrollHeight;
-	setInterval(tick, 4000);
+	setInterval(tick, 2000);
 	document.addEventListener('visibilitychange', function () {
 		if (!document.hidden) tick();
 	});

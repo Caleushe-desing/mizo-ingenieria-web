@@ -78,11 +78,12 @@ foreach ($messages as $row) {
 					</div>
 				<?php endforeach; ?>
 			</div>
-			<form class="chat-compose" method="post" action="<?= h(Http::url('/chat/' . $peer['id'])) ?>">
+			<form class="chat-compose" method="post" action="<?= h(Http::url('/chat/' . $peer['id'])) ?>" data-chat-form>
 				<?= Csrf::field() ?>
-				<textarea name="body" rows="2" required placeholder="Escribe un mensaje…" maxlength="4000"></textarea>
+				<textarea name="body" rows="2" required placeholder="Escribe y pulsa Enter para enviar…" maxlength="4000" data-chat-input></textarea>
 				<button class="btn btn-word" type="submit">Enviar</button>
 			</form>
+			<p class="chat-compose-hint">Enter envía · Shift+Enter salto de línea</p>
 		<?php endif; ?>
 	</section>
 </div>

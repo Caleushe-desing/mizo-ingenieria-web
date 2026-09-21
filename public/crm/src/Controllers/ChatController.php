@@ -52,16 +52,37 @@ final class ChatController
 		Csrf::check();
 		$user = Auth::requireUser();
 		$peer = User::find((int) $id);
+		$wantsJson = str_contains((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json')
+			|| ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch';
 		if (!$peer || !ChatMessage::canTalk($user, $peer)) {
+			if ($wantsJson) {
+				Http::json(['ok' => false, 'error' => 'No puedes chatear con esa persona.'], 403);
+			}
 			View::flash('error', 'No puedes chatear con esa persona.');
 			Http::redirect('/chat');
 		}
 		$body = trim(Http::text('body', 4000));
 		if ($body === '') {
+			if ($wantsJson) {
+				Http::json(['ok' => false, 'error' => 'Escribe un mensaje.'], 422);
+			}
 			View::flash('error', 'Escribe un mensaje.');
 			Http::redirect('/chat/' . $id);
 		}
-		ChatMessage::send((int) $user['id'], (int) $peer['id'], $body);
+		$msgId = ChatMessage::send((int) $user['id'], (int) $peer['id'], $body);
+		if ($wantsJson) {
+			Http::json([
+				'ok' => true,
+				'message' => [
+					'id' => $msgId,
+					'from_me' => true,
+					'from_name' => (string) $user['name'],
+					'body' => $body,
+					'created_at' => when(date('c')),
+				],
+				'chat_unread' => ChatMessage::unreadCount((int) $user['id']),
+			]);
+		}
 		Http::redirect('/chat/' . $id);
 	}
 
