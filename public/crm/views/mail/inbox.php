@@ -71,7 +71,10 @@ $listBack = $folderPath . $qSuffix;
 							<a class="gmail-row-link" href="<?= h($href) ?>">
 								<span class="gmail-avatar" style="background:<?= h(mail_avatar_color($who)) ?>"><?= h(initials($who)) ?></span>
 								<span class="gmail-row-main">
-									<span class="gmail-from"><?= h($who) ?></span>
+									<span class="gmail-from">
+										<?php if ($isUnread): ?><span class="gmail-unread-dot" aria-hidden="true"></span><?php endif; ?>
+										<?= h($who) ?>
+									</span>
 									<span class="gmail-snippet">
 										<b><?= h($row['subject'] ?: '(sin asunto)') ?></b>
 										<?php if ($snippet !== ''): ?>
