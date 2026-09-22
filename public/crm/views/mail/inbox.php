@@ -40,7 +40,7 @@ $filterOpts = [
 <div class="gmail<?= $openClass ?>">
 	<?php require __DIR__ . '/nav.php'; ?>
 	<section class="gmail-main gmail-split">
-		<div class="gmail-list-pane">
+		<div class="gmail-list-pane" data-crm-scroll="mail-list">
 			<div class="gmail-toolbar">
 				<strong><?= $folder === 'sent' ? 'Enviados' : 'Recibidos' ?></strong>
 				<span class="gmail-toolbar-mail"><?= h($mailbox['email'] ?? '') ?></span>
@@ -134,7 +134,7 @@ $filterOpts = [
 				</div>
 			<?php endif; ?>
 		</div>
-		<div class="gmail-read-pane">
+		<div class="gmail-read-pane" data-crm-scroll="mail-read">
 			<?php if ($message): ?>
 				<?php require __DIR__ . '/read.php'; ?>
 			<?php else: ?>

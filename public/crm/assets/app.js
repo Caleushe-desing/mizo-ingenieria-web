@@ -591,3 +591,142 @@
 		});
 	}
 })();
+
+(function () {
+	const PLACE_KEY = "mizo-crm-places";
+	const base = (document.body && document.body.getAttribute("data-crm-base")) || "/crm";
+
+	function loadPlaces() {
+		try {
+			return JSON.parse(localStorage.getItem(PLACE_KEY) || "{}") || {};
+		} catch (e) {
+			return {};
+		}
+	}
+
+	function savePlaces(places) {
+		try {
+			localStorage.setItem(PLACE_KEY, JSON.stringify(places));
+		} catch (e) {}
+	}
+
+	function internalPath(pathname) {
+		pathname = pathname || "/";
+		if (pathname === base || pathname === base + "/") return "/";
+		if (pathname.indexOf(base + "/") === 0) {
+			return pathname.slice(base.length) || "/";
+		}
+		return pathname;
+	}
+
+	function sectionOf(pathname) {
+		const path = internalPath(pathname);
+		if (path.indexOf("/correo") === 0) return "correo";
+		if (path.indexOf("/chat") === 0) return "chat";
+		if (path.indexOf("/equipo") === 0) return "equipo";
+		if (path === "/" || path.indexOf("/clientes") === 0 || path.indexOf("/cotizaciones") === 0) return "clientes";
+		return null;
+	}
+
+	function shouldRemember(pathname) {
+		const path = internalPath(pathname);
+		if (!sectionOf(pathname)) return false;
+		if (path === "/login" || path === "/setup" || path === "/logout" || path === "/avisos") return false;
+		if (path.indexOf("/correo/adjunto/") === 0) return false;
+		if (/^\/chat\/\d+\/mensajes$/.test(path)) return false;
+		return true;
+	}
+
+	function isTransient(pathname) {
+		const path = internalPath(pathname);
+		return (
+			path === "/correo/nuevo" ||
+			path === "/clientes/nuevo" ||
+			/\/cotizacion$/.test(path) ||
+			path === "/correo/cuenta"
+		);
+	}
+
+	function fullPlace() {
+		return location.pathname + location.search;
+	}
+
+	function rememberHere() {
+		if (!shouldRemember(location.pathname)) return;
+		if (isTransient(location.pathname)) return;
+		const section = sectionOf(location.pathname);
+		if (!section) return;
+		const places = loadPlaces();
+		places[section] = fullPlace();
+		savePlaces(places);
+	}
+
+	function scrollStoreKey(id) {
+		return "mizo-crm-scroll:" + fullPlace() + "#" + id;
+	}
+
+	function saveScrolls() {
+		if (!shouldRemember(location.pathname)) return;
+		try {
+			sessionStorage.setItem(scrollStoreKey("window"), String(window.scrollY || 0));
+			document.querySelectorAll("[data-crm-scroll]").forEach(function (el) {
+				const id = el.getAttribute("data-crm-scroll") || "pane";
+				sessionStorage.setItem(scrollStoreKey(id), String(el.scrollTop || 0));
+			});
+		} catch (e) {}
+	}
+
+	function restoreScrolls() {
+		try {
+			const y = sessionStorage.getItem(scrollStoreKey("window"));
+			if (y) window.scrollTo(0, parseInt(y, 10) || 0);
+			document.querySelectorAll("[data-crm-scroll]").forEach(function (el) {
+				const id = el.getAttribute("data-crm-scroll") || "pane";
+				const top = sessionStorage.getItem(scrollStoreKey(id));
+				if (top) el.scrollTop = parseInt(top, 10) || 0;
+			});
+		} catch (e) {}
+	}
+
+	function refreshNav() {
+		const places = loadPlaces();
+		const current = sectionOf(location.pathname);
+		document.querySelectorAll("[data-crm-section]").forEach(function (a) {
+			const section = a.getAttribute("data-crm-section");
+			const home = a.getAttribute("data-crm-home") || a.getAttribute("href");
+			if (!section || !home) return;
+			if (current === section) {
+				a.setAttribute("href", home);
+				a.title = "Ir al inicio de esta sección";
+			} else if (places[section]) {
+				a.setAttribute("href", places[section]);
+				a.title = "Volver a donde lo dejaste";
+			} else {
+				a.setAttribute("href", home);
+				a.removeAttribute("title");
+			}
+		});
+	}
+
+	rememberHere();
+	refreshNav();
+	requestAnimationFrame(function () {
+		requestAnimationFrame(restoreScrolls);
+	});
+
+	window.addEventListener("pagehide", saveScrolls);
+	document.addEventListener("visibilitychange", function () {
+		if (document.visibilityState === "hidden") saveScrolls();
+	});
+	let scrollTimer = null;
+	window.addEventListener("scroll", function () {
+		clearTimeout(scrollTimer);
+		scrollTimer = setTimeout(saveScrolls, 200);
+	}, { passive: true });
+	document.querySelectorAll("[data-crm-scroll]").forEach(function (el) {
+		el.addEventListener("scroll", function () {
+			clearTimeout(scrollTimer);
+			scrollTimer = setTimeout(saveScrolls, 200);
+		}, { passive: true });
+	});
+})();
