@@ -29,6 +29,7 @@ sftp.json
 public/crm-data/*.sqlite
 public/crm-data/*.sqlite-*
 public/crm-data/mail.key
+public/crm-data/mail-files/
 
 # signature images uploaded from Equipo
 public/crm/uploads/firmas/*

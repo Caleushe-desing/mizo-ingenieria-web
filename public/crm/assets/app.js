@@ -489,3 +489,105 @@
 		}
 	});
 })();
+
+(function () {
+	document.querySelectorAll("[data-check-all]").forEach(function (master) {
+		master.addEventListener("change", function () {
+			document.querySelectorAll("input[form=\"bulk-form\"][name=\"ids[]\"]").forEach(function (box) {
+				box.checked = master.checked;
+			});
+		});
+	});
+})();
+
+(function () {
+	const forms = document.querySelectorAll("[data-contacts-form]");
+	if (!forms.length) return;
+	forms.forEach(function (form) {
+		const rows = form.querySelector("[data-contact-rows]");
+		const addBtn = form.querySelector("[data-add-contact]");
+		if (!rows || !addBtn) return;
+		function bindRemove(row) {
+			const btn = row.querySelector("[data-remove-contact]");
+			if (!btn) return;
+			btn.hidden = rows.querySelectorAll("[data-contact-row]").length <= 1;
+			btn.onclick = function () {
+				if (rows.querySelectorAll("[data-contact-row]").length <= 1) return;
+				row.remove();
+				rows.querySelectorAll("[data-contact-row]").forEach(function (r) {
+					const b = r.querySelector("[data-remove-contact]");
+					if (b) b.hidden = rows.querySelectorAll("[data-contact-row]").length <= 1;
+				});
+			};
+		}
+		rows.querySelectorAll("[data-contact-row]").forEach(bindRemove);
+		addBtn.addEventListener("click", function () {
+			const first = rows.querySelector("[data-contact-row]");
+			if (!first) return;
+			const clone = first.cloneNode(true);
+			clone.querySelectorAll("input").forEach(function (input) {
+				if (input.name === "contact_id[]") input.value = "";
+				else input.value = "";
+			});
+			rows.appendChild(clone);
+			rows.querySelectorAll("[data-contact-row]").forEach(bindRemove);
+		});
+	});
+})();
+
+(function () {
+	const root = document.querySelector("[data-compose]");
+	if (!root) return;
+	const clientSelect = root.querySelector("[data-pick-client]");
+	const contactsBox = root.querySelector("[data-pick-contacts]");
+	const toField = root.querySelector("[data-to-field]");
+	let clientInput = root.querySelector("input[name=\"client_id\"]");
+	if (!clientInput) {
+		clientInput = document.createElement("input");
+		clientInput.type = "hidden";
+		clientInput.name = "client_id";
+		root.appendChild(clientInput);
+	}
+	function syncTo() {
+		if (!toField || !contactsBox) return;
+		const emails = [];
+		contactsBox.querySelectorAll("[data-contact-email]:checked").forEach(function (box) {
+			emails.push(box.value);
+		});
+		toField.value = emails.join(", ");
+	}
+	function renderContacts(list) {
+		if (!contactsBox) return;
+		contactsBox.innerHTML = "";
+		if (!list || !list.length) {
+			contactsBox.innerHTML = "<p class=\"muted\">Este cliente no tiene contactos con correo.</p>";
+			return;
+		}
+		list.forEach(function (c) {
+			if (!c.email) return;
+			const label = document.createElement("label");
+			label.className = "check-pill";
+			label.innerHTML = "<span><input type=\"checkbox\" data-contact-email value=\"" + String(c.email).replace(/"/g, "&quot;") + "\" checked> " +
+				(c.name || c.email).replace(/</g, "&lt;") + "</span><small>" + String(c.email).replace(/</g, "&lt;") + "</small>";
+			contactsBox.appendChild(label);
+		});
+		contactsBox.querySelectorAll("[data-contact-email]").forEach(function (box) {
+			box.addEventListener("change", syncTo);
+		});
+		syncTo();
+	}
+	if (clientSelect) {
+		clientSelect.addEventListener("change", function () {
+			const opt = clientSelect.options[clientSelect.selectedIndex];
+			clientInput.value = clientSelect.value || "";
+			let list = [];
+			try { list = JSON.parse(opt.getAttribute("data-contacts") || "[]"); } catch (e) { list = []; }
+			renderContacts(list);
+		});
+	}
+	if (contactsBox) {
+		contactsBox.querySelectorAll("[data-contact-email]").forEach(function (box) {
+			box.addEventListener("change", syncTo);
+		});
+	}
+})();

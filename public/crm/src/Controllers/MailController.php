@@ -6,9 +6,12 @@ namespace MizoCrm\Controllers;
 use MizoCrm\Auth;
 use MizoCrm\Csrf;
 use MizoCrm\Http;
+use MizoCrm\Mail\Mime;
 use MizoCrm\Models\Activity;
 use MizoCrm\Models\Client;
+use MizoCrm\Models\ClientContact;
 use MizoCrm\Models\Mailbox;
+use MizoCrm\Models\MailAttachment;
 use MizoCrm\Models\MailMessage;
 use MizoCrm\View;
 use RuntimeException;
@@ -33,19 +36,33 @@ final class MailController
 			Http::redirect('/correo/cuenta');
 		}
 		$client = null;
-		$to = Http::string('para', 160);
+		$contacts = [];
+		$to = Http::string('para', 400);
 		$clientId = Http::int('cliente');
 		if ($clientId > 0) {
 			$client = Auth::requireClient(Client::find($clientId));
-			if ($to === '' && !empty($client['email'])) {
-				$to = (string) $client['email'];
+			$contacts = ClientContact::forClient((int) $client['id']);
+			if ($to === '') {
+				$emails = [];
+				foreach ($contacts as $c) {
+					if (!empty($c['email'])) {
+						$emails[] = (string) $c['email'];
+					}
+				}
+				if ($emails === [] && !empty($client['email'])) {
+					$emails[] = (string) $client['email'];
+				}
+				$to = implode(', ', $emails);
 			}
 		}
 		View::render('mail/compose', [
 			'title' => 'Nuevo correo',
 			'mailbox' => Mailbox::forUser((int) $user['id']),
 			'client' => $client,
+			'contacts' => $contacts,
+			'directory' => ClientContact::directory(Auth::ownerScope()),
 			'to' => $to,
+			'cc' => '',
 			'subject' => Http::string('asunto', 180),
 			'body' => '',
 			'unread' => MailMessage::unreadCount((int) $user['id']),
@@ -56,13 +73,16 @@ final class MailController
 	{
 		Csrf::check();
 		$user = Auth::requireUser();
-		$to = mb_strtolower(Http::string('to', 160));
+		$toRaw = (string) ($_POST['to'] ?? '');
+		$ccRaw = (string) ($_POST['cc'] ?? '');
+		$toList = Mime::emailsFromString($toRaw);
+		$ccList = Mime::emailsFromString($ccRaw);
 		$subject = Http::string('subject', 180);
 		$body = Http::text('body', 20000);
 		$clientId = Http::int('client_id') ?: null;
 		$replyId = Http::string('in_reply_to', 200);
-		if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-			View::flash('error', 'Escribe un correo de destino válido.');
+		if ($toList === []) {
+			View::flash('error', 'Elige al menos un destinatario válido.');
 			Http::redirect('/correo/nuevo');
 		}
 		if ($subject === '') {
@@ -76,11 +96,13 @@ final class MailController
 			$client = Auth::requireClient(Client::find($clientId));
 			$clientId = (int) $client['id'];
 		} else {
-			$clientId = MailMessage::clientIdFor((int) $user['id'], $to);
+			$clientId = MailMessage::clientIdFor((int) $user['id'], $toList[0]);
 		}
 		$html = self::htmlFromText($body, $user);
+		$to = implode(', ', $toList);
+		$cc = implode(', ', $ccList);
 		try {
-			$id = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, $replyId, $clientId);
+			$id = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, $replyId, $clientId, $cc);
 		} catch (RuntimeException $e) {
 			View::flash('error', $e->getMessage());
 			Http::redirect('/correo/nuevo');
@@ -89,7 +111,7 @@ final class MailController
 			Activity::log('mail_sent', 'Correo enviado a ' . $to . ': ' . $subject, (int) $user['id'], $clientId);
 			Client::update($clientId, ['updated_at' => date('c')]);
 		}
-		View::flash('ok', 'Correo enviado a ' . $to . '. Si responde, te llega aquí a Bandeja.');
+		View::flash('ok', 'Correo enviado. Si responden, te llega aquí a Bandeja.');
 		Http::redirect('/correo/' . $id);
 	}
 
@@ -113,15 +135,20 @@ final class MailController
 			Http::redirect('/correo/cuenta');
 		}
 		$query = Http::string('q', 80);
+		$sort = Http::string('orden', 20) ?: 'fecha';
+		$filter = Http::string('filtro', 20) ?: 'todos';
 		View::render('mail/inbox', [
 			'title' => $row['subject'] ?: 'Correo',
 			'folder' => $folder,
 			'mailbox' => $box,
-			'messages' => MailMessage::list((int) $user['id'], $folder, null, $query),
+			'messages' => MailMessage::list((int) $user['id'], $folder, null, $query, $sort, $filter),
 			'message' => $row,
+			'attachments' => MailAttachment::forMessage((int) $row['id']),
 			'client' => $client,
 			'unread' => MailMessage::unreadCount((int) $user['id']),
 			'query' => $query,
+			'sort' => $sort,
+			'filter' => $filter,
 		]);
 	}
 
@@ -138,7 +165,25 @@ final class MailController
 			View::flash('error', 'Escribe la respuesta.');
 			Http::redirect('/correo/' . $id);
 		}
+		$mode = Http::string('mode', 20);
+		$myEmail = mb_strtolower((string) (Mailbox::forUser((int) $user['id'])['email'] ?? $user['email']));
 		$to = $row['folder'] === 'inbox' ? (string) $row['from_email'] : (string) $row['to_email'];
+		$cc = '';
+		if ($mode === 'all') {
+			$pool = array_merge(
+				Mime::emailsFromString((string) ($row['to_email'] ?? '')),
+				Mime::emailsFromString((string) ($row['cc_email'] ?? '')),
+				Mime::emailsFromString((string) ($row['from_email'] ?? ''))
+			);
+			$ccList = [];
+			foreach ($pool as $email) {
+				if ($email === $myEmail || $email === mb_strtolower($to)) {
+					continue;
+				}
+				$ccList[] = $email;
+			}
+			$cc = implode(', ', array_values(array_unique($ccList)));
+		}
 		$subject = (string) $row['subject'];
 		if (!str_starts_with(mb_strtolower($subject), 're:')) {
 			$subject = 'Re: ' . $subject;
@@ -146,7 +191,7 @@ final class MailController
 		$clientId = !empty($row['client_id']) ? (int) $row['client_id'] : MailMessage::clientIdFor((int) $user['id'], $to);
 		$html = self::htmlFromText($body, $user);
 		try {
-			$newId = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, (string) $row['message_id'], $clientId);
+			$newId = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, (string) $row['message_id'], $clientId, $cc);
 		} catch (RuntimeException $e) {
 			View::flash('error', $e->getMessage());
 			Http::redirect('/correo/' . $id);
@@ -155,7 +200,7 @@ final class MailController
 			Activity::log('mail_sent', 'Respuesta enviada a ' . $to . ': ' . $subject, (int) $user['id'], $clientId);
 			Client::update($clientId, ['updated_at' => date('c')]);
 		}
-		View::flash('ok', 'Respuesta enviada.');
+		View::flash('ok', $mode === 'all' ? 'Respuesta a todos enviada.' : 'Respuesta enviada.');
 		Http::redirect('/correo/' . $newId);
 	}
 
@@ -193,6 +238,64 @@ final class MailController
 			$back = '/correo/' . (int) $row['id'];
 		}
 		Http::redirect($back);
+	}
+
+	public function bulk(): void
+	{
+		Csrf::check();
+		$user = Auth::requireUser();
+		$action = Http::string('action', 20);
+		$ids = $_POST['ids'] ?? [];
+		if (!is_array($ids)) {
+			$ids = [];
+		}
+		$rows = MailMessage::bulkOwned((int) $user['id'], $ids);
+		foreach ($rows as $row) {
+			match ($action) {
+				'read' => MailMessage::setSeen($row, true),
+				'unread' => MailMessage::setSeen($row, false),
+				'important' => MailMessage::setImportant($row, true),
+				'unimportant' => MailMessage::setImportant($row, false),
+				'delete' => MailMessage::delete((int) $row['id']),
+				default => null,
+			};
+		}
+		$n = count($rows);
+		View::flash('ok', $n === 0 ? 'No seleccionaste correos.' : "Listo: {$n} correo(s) actualizados.");
+		$back = trim((string) ($_POST['back'] ?? '/correo'));
+		if ($back === '' || !str_starts_with($back, '/correo')) {
+			$back = '/correo';
+		}
+		Http::redirect($back);
+	}
+
+	public function attachment(string $id): void
+	{
+		$user = Auth::requireUser();
+		$row = MailAttachment::owned((int) $user['id'], (int) $id);
+		if (!$row) {
+			http_response_code(404);
+			echo 'Adjunto no encontrado.';
+			exit;
+		}
+		$path = MailAttachment::absolutePath($row);
+		if (!is_file($path)) {
+			http_response_code(404);
+			echo 'Archivo no disponible.';
+			exit;
+		}
+		$mime = (string) ($row['mime'] ?: 'application/octet-stream');
+		$filename = (string) $row['filename'];
+		$inline = MailAttachment::isPreviewable($mime, $filename) && Http::string('dl', 4) !== '1';
+		header('Content-Type: ' . $mime);
+		header('Content-Length: ' . (string) filesize($path));
+		header(
+			($inline ? 'Content-Disposition: inline' : 'Content-Disposition: attachment')
+			. '; filename="' . str_replace('"', '', $filename) . '"'
+		);
+		header('X-Content-Type-Options: nosniff');
+		readfile($path);
+		exit;
 	}
 
 	public function account(): void
@@ -248,7 +351,6 @@ final class MailController
 		$error = '';
 		$forceSync = Http::string('sync', 8) === '1';
 		try {
-			// Auto: solo INBOX. "Actualizar": bandeja + enviados. Evita timeout/HTTP 500.
 			Mailbox::sync((int) $user['id'], $forceSync, !$forceSync);
 		} catch (\Throwable $e) {
 			$error = $e->getMessage() !== ''
@@ -259,7 +361,9 @@ final class MailController
 			View::flash('error', $error);
 		}
 		$query = Http::string('q', 80);
-		$messages = MailMessage::list((int) $user['id'], $folder, null, $query);
+		$sort = Http::string('orden', 20) ?: 'fecha';
+		$filter = Http::string('filtro', 20) ?: 'todos';
+		$messages = MailMessage::list((int) $user['id'], $folder, null, $query, $sort, $filter);
 		View::render('mail/inbox', [
 			'title' => $folder === 'sent' ? 'Enviados' : 'Bandeja de entrada',
 			'folder' => $folder,
@@ -267,6 +371,8 @@ final class MailController
 			'messages' => $messages,
 			'unread' => MailMessage::unreadCount((int) $user['id']),
 			'query' => $query,
+			'sort' => $sort,
+			'filter' => $filter,
 		]);
 	}
 

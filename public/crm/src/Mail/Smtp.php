@@ -14,6 +14,10 @@ final class Smtp
 		$user = (string) $mailbox['email'];
 		$pass = (string) $mailbox['password'];
 		$from = $user;
+		$recipients = Mime::emailsFromString($to);
+		if ($recipients === []) {
+			throw new RuntimeException('No hay destinatarios válidos.');
+		}
 
 		if ($port === 465) {
 			$fp = Socket::open('ssl://' . $host . ':' . $port);
@@ -33,7 +37,9 @@ final class Smtp
 			self::cmd($fp, base64_encode($user), 334);
 			self::cmd($fp, base64_encode($pass), 235);
 			self::cmd($fp, 'MAIL FROM:<' . $from . '>', 250);
-			self::cmd($fp, 'RCPT TO:<' . $to . '>', 250);
+			foreach ($recipients as $rcpt) {
+				self::cmd($fp, 'RCPT TO:<' . $rcpt . '>', 250);
+			}
 			self::cmd($fp, 'DATA', 354);
 			$payload = preg_replace('/^\./m', '..', str_replace("\n", "\r\n", str_replace("\r\n", "\n", $rfc822))) ?? $rfc822;
 			fwrite($fp, $payload . "\r\n.\r\n");

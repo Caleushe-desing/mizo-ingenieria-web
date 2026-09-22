@@ -57,6 +57,8 @@ final class App
 			['POST', '#^/correo/(\d+)/responder$#', [Controllers\MailController::class, 'reply']],
 			['POST', '#^/correo/(\d+)/eliminar$#', [Controllers\MailController::class, 'destroy']],
 			['POST', '#^/correo/(\d+)/estado$#', [Controllers\MailController::class, 'status']],
+			['POST', '#^/correo/lote$#', [Controllers\MailController::class, 'bulk']],
+			['GET', '#^/correo/adjunto/(\d+)$#', [Controllers\MailController::class, 'attachment']],
 			['GET', '#^/correo/(\d+)$#', [Controllers\MailController::class, 'show']],
 			['GET', '#^/correo$#', [Controllers\MailController::class, 'inbox']],
 			['POST', '#^/correo$#', [Controllers\MailController::class, 'send']],

@@ -121,12 +121,23 @@ final class Mailbox extends Record
 		self::pdo()->prepare('UPDATE mailboxes SET last_sync = ? WHERE user_id = ?')->execute([date('c'), $userId]);
 	}
 
-	public static function deliver(int $userId, array $user, string $to, string $subject, string $html, string $replyToMessageId = '', ?int $clientId = null): int
-	{
+	public static function deliver(
+		int $userId,
+		array $user,
+		string $to,
+		string $subject,
+		string $html,
+		string $replyToMessageId = '',
+		?int $clientId = null,
+		string $cc = ''
+	): int {
 		$box = self::open($userId);
 		$fromName = User::mailFromName($user);
-		$rfc822 = Mime::build($fromName, (string) $box['email'], $to, $subject, $html, $replyToMessageId);
-		Smtp::send($box, $to, $rfc822);
+		$allRcpt = array_values(array_unique([...Mime::emailsFromString($to), ...Mime::emailsFromString($cc)]));
+		$toHeader = implode(', ', Mime::emailsFromString($to));
+		$ccHeader = implode(', ', Mime::emailsFromString($cc));
+		$rfc822 = Mime::build($fromName, (string) $box['email'], $toHeader, $subject, $html, $replyToMessageId, $ccHeader);
+		Smtp::send($box, implode(',', $allRcpt), $rfc822);
 		try {
 			$imap = new Imap($box);
 			try {
@@ -145,7 +156,8 @@ final class Mailbox extends Record
 			'in_reply_to' => $parsed['in_reply_to'],
 			'from_email' => $box['email'],
 			'from_name' => $fromName,
-			'to_email' => mb_strtolower($to),
+			'to_email' => $toHeader,
+			'cc_email' => $ccHeader,
 			'subject' => $subject,
 			'body_text' => $parsed['body_text'],
 			'body_html' => $html,
@@ -229,23 +241,31 @@ final class Mailbox extends Record
 			$peer = $folder === 'inbox' ? $parsed['from_email'] : $parsed['to_email'];
 			$clientId = MailMessage::clientIdFor($userId, $peer);
 			try {
-				MailMessage::store($userId, $folder, [
+				$msgId = MailMessage::store($userId, $folder, [
 					'uid' => $uid,
 					'message_id' => $parsed['message_id'],
 					'in_reply_to' => $parsed['in_reply_to'],
 					'from_email' => $parsed['from_email'],
 					'from_name' => $parsed['from_name'],
 					'to_email' => $parsed['to_email'],
+					'cc_email' => $parsed['cc_email'] ?? '',
 					'subject' => $parsed['subject'],
 					'body_text' => $parsed['body_text'],
 					'body_html' => $parsed['body_html'],
 					'sent_at' => $parsed['sent_at'],
 					'seen' => $parsed['seen'] ? 1 : 0,
 					'important' => !empty($parsed['flagged']) ? 1 : 0,
+					'has_attachments' => !empty($parsed['attachments']) ? 1 : 0,
 					'client_id' => $clientId,
 				]);
+				if ($msgId > 0 && !empty($parsed['attachments']) && MailAttachment::forMessage($msgId) === []) {
+					try {
+						MailAttachment::saveForMessage($userId, $msgId, $parsed['attachments']);
+					} catch (\Throwable) {
+					}
+				}
 			} catch (\Throwable) {
-				// Reintento sin columna important (bases antiguas).
+				// Reintento sin columnas nuevas (bases antiguas).
 				try {
 					MailMessage::store($userId, $folder, [
 						'uid' => $uid,

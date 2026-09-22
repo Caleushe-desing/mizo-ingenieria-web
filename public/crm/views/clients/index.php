@@ -5,7 +5,7 @@
 		<p>Abre un cliente para ver sus comentarios y cotizaciones.</p>
 	</div>
 	<form class="search" method="get" action="<?= h(Http::url('/')) ?>">
-		<input name="q" value="<?= h($q ?? '') ?>" placeholder="Buscar por cliente, contacto, correo o teléfono" aria-label="Buscar cliente">
+		<input name="q" value="<?= h($q ?? '') ?>" placeholder="Buscar por cliente, RUT, contacto o correo" aria-label="Buscar cliente">
 		<button class="btn btn-word" type="submit">Buscar</button>
 	</form>
 </div>
@@ -22,6 +22,7 @@
 				<thead>
 					<tr>
 						<th>Cliente</th>
+						<th>RUT</th>
 						<th>Contacto</th>
 						<th>Teléfono</th>
 						<th>Correo</th>
@@ -35,6 +36,7 @@
 				<?php foreach ($clients as $row): ?>
 					<tr>
 						<td><a href="<?= h(Http::url('/clientes/' . $row['id'])) ?>"><?= h($row['name']) ?></a></td>
+						<td><?= h($row['rut'] ?: '—') ?></td>
 						<td><?= h($row['contact_name'] ?: '—') ?></td>
 						<td><?= h($row['phone'] ?: '—') ?></td>
 						<td><?= h($row['email'] ?: '—') ?></td>

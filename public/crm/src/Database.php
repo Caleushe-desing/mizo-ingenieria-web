@@ -282,9 +282,69 @@ final class Database
 			}
 			$pdo->exec('PRAGMA user_version = 7');
 		}
+
+		if ($version < 8) {
+			$pdo->exec(
+				<<<'SQL'
+				CREATE TABLE IF NOT EXISTS client_contacts (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					client_id INTEGER NOT NULL,
+					name TEXT NOT NULL DEFAULT '',
+					email TEXT NOT NULL DEFAULT '',
+					phone TEXT NOT NULL DEFAULT '',
+					title TEXT NOT NULL DEFAULT '',
+					is_primary INTEGER NOT NULL DEFAULT 0,
+					created_at TEXT NOT NULL,
+					FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+				);
+				CREATE INDEX IF NOT EXISTS idx_contacts_client ON client_contacts(client_id);
+				CREATE INDEX IF NOT EXISTS idx_contacts_email ON client_contacts(email);
+
+				CREATE TABLE IF NOT EXISTS mail_attachments (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					message_id INTEGER NOT NULL,
+					user_id INTEGER NOT NULL,
+					filename TEXT NOT NULL,
+					mime TEXT NOT NULL DEFAULT 'application/octet-stream',
+					size INTEGER NOT NULL DEFAULT 0,
+					storage_path TEXT NOT NULL,
+					created_at TEXT NOT NULL,
+					FOREIGN KEY (message_id) REFERENCES mail_messages(id) ON DELETE CASCADE,
+					FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+				);
+				CREATE INDEX IF NOT EXISTS idx_mail_attach_msg ON mail_attachments(message_id);
+				SQL
+			);
+			$cols = $pdo->query('PRAGMA table_info(mail_messages)')->fetchAll();
+			$names = array_column($cols, 'name');
+			if (!in_array('cc_email', $names, true)) {
+				$pdo->exec('ALTER TABLE mail_messages ADD COLUMN cc_email TEXT');
+			}
+			if (!in_array('has_attachments', $names, true)) {
+				$pdo->exec('ALTER TABLE mail_messages ADD COLUMN has_attachments INTEGER NOT NULL DEFAULT 0');
+			}
+			// Migra el contacto principal desde la ficha del cliente.
+			$clients = $pdo->query('SELECT id, contact_name, email, phone, created_at FROM clients')->fetchAll();
+			$ins = $pdo->prepare(
+				'INSERT INTO client_contacts (client_id, name, email, phone, title, is_primary, created_at)
+				 SELECT ?, ?, ?, ?, ?, 1, ?
+				 WHERE NOT EXISTS (SELECT 1 FROM client_contacts WHERE client_id = ?)'
+			);
+			foreach ($clients as $c) {
+				$email = mb_strtolower(trim((string) ($c['email'] ?? '')));
+				$name = trim((string) ($c['contact_name'] ?? ''));
+				$phone = trim((string) ($c['phone'] ?? ''));
+				if ($name === '' && $email === '' && $phone === '') {
+					continue;
+				}
+				$now = (string) ($c['created_at'] ?? date('c'));
+				$ins->execute([(int) $c['id'], $name !== '' ? $name : 'Contacto', $email, $phone, '', $now, (int) $c['id']]);
+			}
+			$pdo->exec('PRAGMA user_version = 8');
+		}
 	}
 
-	/** Garantiza columnas de correo aunque un deploy parcial haya dejado el schema atrasado. */
+	/** Garantiza columnas/tablas de correo y contactos aunque un deploy parcial deje el schema atrasado. */
 	private static function ensureMailSchema(PDO $pdo): void
 	{
 		try {
@@ -296,7 +356,42 @@ final class Database
 			if (!in_array('important', $names, true)) {
 				$pdo->exec('ALTER TABLE mail_messages ADD COLUMN important INTEGER NOT NULL DEFAULT 0');
 			}
+			if (!in_array('cc_email', $names, true)) {
+				$pdo->exec('ALTER TABLE mail_messages ADD COLUMN cc_email TEXT');
+			}
+			if (!in_array('has_attachments', $names, true)) {
+				$pdo->exec('ALTER TABLE mail_messages ADD COLUMN has_attachments INTEGER NOT NULL DEFAULT 0');
+			}
 			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mail_important ON mail_messages(user_id, folder, important, sent_at)');
+			$pdo->exec(
+				<<<'SQL'
+				CREATE TABLE IF NOT EXISTS client_contacts (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					client_id INTEGER NOT NULL,
+					name TEXT NOT NULL DEFAULT '',
+					email TEXT NOT NULL DEFAULT '',
+					phone TEXT NOT NULL DEFAULT '',
+					title TEXT NOT NULL DEFAULT '',
+					is_primary INTEGER NOT NULL DEFAULT 0,
+					created_at TEXT NOT NULL,
+					FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+				);
+				CREATE INDEX IF NOT EXISTS idx_contacts_client ON client_contacts(client_id);
+				CREATE TABLE IF NOT EXISTS mail_attachments (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					message_id INTEGER NOT NULL,
+					user_id INTEGER NOT NULL,
+					filename TEXT NOT NULL,
+					mime TEXT NOT NULL DEFAULT 'application/octet-stream',
+					size INTEGER NOT NULL DEFAULT 0,
+					storage_path TEXT NOT NULL,
+					created_at TEXT NOT NULL,
+					FOREIGN KEY (message_id) REFERENCES mail_messages(id) ON DELETE CASCADE,
+					FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+				);
+				CREATE INDEX IF NOT EXISTS idx_mail_attach_msg ON mail_attachments(message_id);
+				SQL
+			);
 		} catch (\Throwable) {
 			// Si la tabla aún no existe, migrate la creará en el próximo arranque limpio.
 		}

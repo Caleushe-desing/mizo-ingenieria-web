@@ -26,9 +26,10 @@ final class Client extends Record
 			$params[] = $ownerId;
 		}
 		if ($q) {
-			$sql .= ' AND (c.name LIKE ? OR c.contact_name LIKE ? OR c.email LIKE ? OR c.phone LIKE ? OR c.rut LIKE ?)';
+			$sql .= ' AND (c.name LIKE ? OR c.contact_name LIKE ? OR c.email LIKE ? OR c.phone LIKE ? OR c.rut LIKE ?
+				OR EXISTS (SELECT 1 FROM client_contacts ct WHERE ct.client_id = c.id AND (ct.name LIKE ? OR ct.email LIKE ? OR ct.phone LIKE ?)))';
 			$like = '%' . $q . '%';
-			$params = [...$params, $like, $like, $like, $like, $like];
+			$params = [...$params, $like, $like, $like, $like, $like, $like, $like, $like];
 		}
 		$sql .= ' ORDER BY c.updated_at DESC';
 		$stmt = self::pdo()->prepare($sql);
@@ -99,6 +100,12 @@ final class Client extends Record
 	public static function conflictForUser(string $email, string $phone, int $userId): ?array
 	{
 		$existing = self::findByEmail($email) ?? self::findByPhone($phone);
+		if (!$existing && $email !== '') {
+			$contact = ClientContact::findByEmail($email);
+			if ($contact) {
+				$existing = self::find((int) $contact['client_id']);
+			}
+		}
 		if (!$existing) {
 			return null;
 		}
@@ -135,6 +142,7 @@ final class Client extends Record
 				$placeholders = implode(',', array_fill(0, count($ids), '?'));
 				$pdo->prepare("DELETE FROM quote_items WHERE quote_id IN ({$placeholders})")->execute($ids);
 			}
+			$pdo->prepare('DELETE FROM client_contacts WHERE client_id = ?')->execute([$clientId]);
 			$pdo->prepare('DELETE FROM activities WHERE client_id = ?')->execute([$clientId]);
 			$pdo->prepare('DELETE FROM quotes WHERE client_id = ?')->execute([$clientId]);
 			$pdo->prepare('DELETE FROM deals WHERE client_id = ?')->execute([$clientId]);

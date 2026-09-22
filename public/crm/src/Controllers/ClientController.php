@@ -35,35 +35,46 @@ final class ClientController
 	{
 		Csrf::check();
 		$name = Http::string('name', 120);
-		$contact = Http::string('contact_name', 120);
-		$email = Http::string('email', 160);
-		$phone = Http::string('phone', 40);
+		$rut = Http::string('rut', 20);
 		$city = Http::string('city', 80);
 		$comment = self::commentFromPost();
+		$contacts = self::contactsFromPost();
 		if ($name === '') {
 			View::flash('error', 'Escribe el nombre del cliente.');
 			Http::redirect('/clientes/nuevo');
 		}
-		if ($email === '' && $phone === '') {
-			View::flash('error', 'Indica un correo o un teléfono.');
+		$hasReach = false;
+		foreach ($contacts as $c) {
+			if (($c['email'] ?? '') !== '' || ($c['phone'] ?? '') !== '') {
+				$hasReach = true;
+				break;
+			}
+		}
+		if (!$hasReach) {
+			View::flash('error', 'Agrega al menos un contacto con correo o teléfono.');
 			Http::redirect('/clientes/nuevo');
 		}
-		if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			View::flash('error', 'El correo no es válido.');
-			Http::redirect('/clientes/nuevo');
-		}
-		if (!Auth::isAdmin() && Client::conflictForUser($email, $phone, Auth::id())) {
-			View::flash('error', 'Ese cliente ya lo lleva otro ejecutivo. Pide al administrador que te lo asigne.');
-			Http::redirect('/clientes/nuevo');
+		foreach ($contacts as $c) {
+			$email = (string) ($c['email'] ?? '');
+			if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				View::flash('error', 'Hay un correo de contacto inválido.');
+				Http::redirect('/clientes/nuevo');
+			}
+			$phone = (string) ($c['phone'] ?? '');
+			if (!Auth::isAdmin() && Client::conflictForUser($email, $phone, Auth::id())) {
+				View::flash('error', 'Ese cliente/contacto ya lo lleva otro ejecutivo.');
+				Http::redirect('/clientes/nuevo');
+			}
 		}
 
+		$primary = $contacts[0] ?? ['name' => '', 'email' => '', 'phone' => ''];
 		$now = date('c');
 		$id = Client::insert([
 			'name' => $name,
-			'contact_name' => $contact,
-			'email' => $email !== '' ? mb_strtolower($email) : '',
-			'phone' => $phone,
-			'rut' => '',
+			'contact_name' => (string) ($primary['name'] ?? ''),
+			'email' => (string) ($primary['email'] ?? ''),
+			'phone' => (string) ($primary['phone'] ?? ''),
+			'rut' => $rut,
 			'city' => $city,
 			'source' => 'otro',
 			'notes' => $comment,
@@ -71,10 +82,11 @@ final class ClientController
 			'created_at' => $now,
 			'updated_at' => $now,
 		]);
+		\MizoCrm\Models\ClientContact::replaceForClient($id, $contacts);
 		if ($comment !== '') {
 			Activity::log('comentario', $comment, Auth::id(), $id);
 		}
-		View::flash('ok', 'Cliente guardado. Ya puedes dejar comentarios o armar una cotización.');
+		View::flash('ok', 'Cliente guardado con sus contactos.');
 		Http::redirect('/clientes/' . $id);
 	}
 
@@ -85,6 +97,7 @@ final class ClientController
 		View::render('clients/show', [
 			'title' => $client['name'],
 			'client' => $client,
+			'contacts' => \MizoCrm\Models\ClientContact::forClient((int) $id),
 			'comments' => Activity::commentsForClient((int) $id),
 			'quotes' => Client::quotes((int) $id),
 			'mails' => \MizoCrm\Models\MailMessage::forClient(Auth::id(), (int) $id),
@@ -98,23 +111,27 @@ final class ClientController
 		Csrf::check();
 		$client = Auth::requireClient(Client::find((int) $id));
 		$name = Http::string('name', 120);
-		$contact = Http::string('contact_name', 120);
-		$email = Http::string('email', 160);
-		$phone = Http::string('phone', 40);
+		$rut = Http::string('rut', 20);
 		$city = Http::string('city', 80);
+		$contacts = self::contactsFromPost();
 		if ($name === '') {
 			View::flash('error', 'El cliente no puede quedar vacío.');
 			Http::redirect('/clientes/' . $id);
 		}
-		if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			View::flash('error', 'El correo no es válido.');
-			Http::redirect('/clientes/' . $id);
+		foreach ($contacts as $c) {
+			$email = (string) ($c['email'] ?? '');
+			if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				View::flash('error', 'Hay un correo de contacto inválido.');
+				Http::redirect('/clientes/' . $id);
+			}
 		}
+		$primary = $contacts[0] ?? ['name' => '', 'email' => '', 'phone' => ''];
 		$payload = [
 			'name' => $name,
-			'contact_name' => $contact,
-			'email' => $email !== '' ? mb_strtolower($email) : '',
-			'phone' => $phone,
+			'rut' => $rut,
+			'contact_name' => (string) ($primary['name'] ?? ''),
+			'email' => (string) ($primary['email'] ?? ''),
+			'phone' => (string) ($primary['phone'] ?? ''),
 			'city' => $city,
 			'updated_at' => date('c'),
 		];
@@ -127,7 +144,8 @@ final class ClientController
 			}
 		}
 		Client::update((int) $id, $payload);
-		View::flash('ok', 'Datos del cliente actualizados.');
+		\MizoCrm\Models\ClientContact::replaceForClient((int) $id, $contacts);
+		View::flash('ok', 'Datos del cliente y contactos actualizados.');
 		Http::redirect('/clientes/' . $id);
 	}
 
@@ -185,5 +203,45 @@ final class ClientController
 	{
 		$message = trim((string) ($_POST['comment'] ?? ''));
 		return function_exists('mb_substr') ? mb_substr($message, 0, 4000, 'UTF-8') : substr($message, 0, 4000);
+	}
+
+	/** @return list<array{id?:int,name:string,email:string,phone:string,title:string}> */
+	private static function contactsFromPost(): array
+	{
+		$names = $_POST['contact_name'] ?? [];
+		$emails = $_POST['contact_email'] ?? [];
+		$phones = $_POST['contact_phone'] ?? [];
+		$titles = $_POST['contact_title'] ?? [];
+		$ids = $_POST['contact_id'] ?? [];
+		if (!is_array($names)) {
+			$names = [$names];
+			$emails = [$emails];
+			$phones = [$phones];
+			$titles = [$titles];
+			$ids = [$ids];
+		}
+		$out = [];
+		$n = max(count($names), count($emails), count($phones));
+		for ($i = 0; $i < $n; $i++) {
+			$name = trim((string) ($names[$i] ?? ''));
+			$email = mb_strtolower(trim((string) ($emails[$i] ?? '')));
+			$phone = trim((string) ($phones[$i] ?? ''));
+			$title = trim((string) ($titles[$i] ?? ''));
+			$id = (int) ($ids[$i] ?? 0);
+			if ($name === '' && $email === '' && $phone === '') {
+				continue;
+			}
+			$row = [
+				'name' => $name,
+				'email' => $email,
+				'phone' => $phone,
+				'title' => $title,
+			];
+			if ($id > 0) {
+				$row['id'] = $id;
+			}
+			$out[] = $row;
+		}
+		return $out;
 	}
 }

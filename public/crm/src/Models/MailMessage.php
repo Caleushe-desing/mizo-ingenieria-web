@@ -13,8 +13,14 @@ final class MailMessage extends Record
 		return 'mail_messages';
 	}
 
-	public static function list(int $userId, string $folder, ?int $clientId = null, string $query = ''): array
-	{
+	public static function list(
+		int $userId,
+		string $folder,
+		?int $clientId = null,
+		string $query = '',
+		string $sort = 'fecha',
+		string $filter = 'todos'
+	): array {
 		$sql = 'SELECT m.*, c.name AS client_name
 			FROM mail_messages m
 			LEFT JOIN clients c ON c.id = m.client_id
@@ -33,7 +39,14 @@ final class MailMessage extends Record
 			$like = '%' . $query . '%';
 			$params = array_merge($params, [$like, $like, $like, $like, $like, $like]);
 		}
-		$sql .= ' ORDER BY m.sent_at DESC, m.id DESC LIMIT 120';
+		if ($filter === 'no_leidos') {
+			$sql .= ' AND m.seen = 0';
+		} elseif ($filter === 'importantes') {
+			$sql .= ' AND m.important = 1';
+		} elseif ($filter === 'adjuntos') {
+			$sql .= ' AND m.has_attachments = 1';
+		}
+		$sql .= ' ORDER BY m.sent_at DESC, m.id DESC LIMIT 200';
 		try {
 			$stmt = self::pdo()->prepare($sql);
 			$stmt->execute($params);
@@ -41,13 +54,19 @@ final class MailMessage extends Record
 		} catch (\Throwable) {
 			return [];
 		}
-		usort($rows, static function (array $a, array $b): int {
-			$ia = (int) ($a['important'] ?? 0);
-			$ib = (int) ($b['important'] ?? 0);
-			if ($ia !== $ib) {
-				return $ib <=> $ia;
-			}
-			return strcmp((string) ($b['sent_at'] ?? ''), (string) ($a['sent_at'] ?? ''));
+		usort($rows, static function (array $a, array $b) use ($sort): int {
+			return match ($sort) {
+				'fecha_asc' => strcmp((string) ($a['sent_at'] ?? ''), (string) ($b['sent_at'] ?? '')),
+				'remitente' => strcasecmp(
+					(string) (($a['from_name'] ?: $a['from_email']) ?? ''),
+					(string) (($b['from_name'] ?: $b['from_email']) ?? '')
+				),
+				'asunto' => strcasecmp((string) ($a['subject'] ?? ''), (string) ($b['subject'] ?? '')),
+				'no_leidos' => ((int) ($a['seen'] ?? 0) <=> (int) ($b['seen'] ?? 0))
+					?: strcmp((string) ($b['sent_at'] ?? ''), (string) ($a['sent_at'] ?? '')),
+				default => ((int) ($b['important'] ?? 0) <=> (int) ($a['important'] ?? 0))
+					?: strcmp((string) ($b['sent_at'] ?? ''), (string) ($a['sent_at'] ?? '')),
+			};
 		});
 		return $rows;
 	}
@@ -141,15 +160,32 @@ final class MailMessage extends Record
 			'from_email' => $data['from_email'] ?? '',
 			'from_name' => $data['from_name'] ?? '',
 			'to_email' => $data['to_email'] ?? '',
+			'cc_email' => $data['cc_email'] ?? '',
 			'subject' => $data['subject'] ?? '',
 			'body_text' => $data['body_text'] ?? '',
 			'body_html' => $data['body_html'] ?? '',
 			'sent_at' => $data['sent_at'] ?? $now,
 			'seen' => (int) ($data['seen'] ?? 0),
 			'important' => (int) ($data['important'] ?? 0),
+			'has_attachments' => (int) ($data['has_attachments'] ?? 0),
 			'client_id' => $data['client_id'] ?: null,
 			'created_at' => $now,
 		]);
+	}
+
+	/** @param list<int> $ids */
+	public static function bulkOwned(int $userId, array $ids): array
+	{
+		$ids = array_values(array_filter(array_map('intval', $ids), static fn($id) => $id > 0));
+		if ($ids === []) {
+			return [];
+		}
+		$placeholders = implode(',', array_fill(0, count($ids), '?'));
+		$stmt = self::pdo()->prepare(
+			"SELECT * FROM mail_messages WHERE user_id = ? AND id IN ({$placeholders})"
+		);
+		$stmt->execute([$userId, ...$ids]);
+		return $stmt->fetchAll();
 	}
 
 	public static function markRead(array $row): void
@@ -211,6 +247,12 @@ final class MailMessage extends Record
 			return null;
 		}
 		$client = Client::findByEmail($email);
+		if (!$client) {
+			$contact = ClientContact::findByEmail($email);
+			if ($contact) {
+				$client = Client::find((int) $contact['client_id']);
+			}
+		}
 		if (!$client) {
 			return null;
 		}

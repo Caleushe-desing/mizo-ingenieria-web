@@ -2,10 +2,14 @@
 use MizoCrm\Csrf;
 use MizoCrm\Http;
 use MizoCrm\Mail\Mime;
+use MizoCrm\Models\MailAttachment;
 
 $message = $message ?? null;
 $client = $client ?? null;
+$attachments = $attachments ?? [];
 $query = trim((string) ($query ?? ''));
+$sort = (string) ($sort ?? 'fecha');
+$filter = (string) ($filter ?? 'todos');
 if (!$message) {
 	return;
 }
@@ -17,8 +21,9 @@ $text = trim((string) ($message['body_text'] ?? ''));
 $back = $message['folder'] === 'sent' ? '/correo/enviados' : '/correo';
 $isUnread = (int) ($message['seen'] ?? 0) === 0;
 $isImportant = (int) ($message['important'] ?? 0) === 1;
-$here = '/correo/' . (int) $message['id'] . ($query !== '' ? '?q=' . rawurlencode($query) : '');
-$listBack = $back . ($query !== '' ? '?q=' . rawurlencode($query) : '');
+$qs = array_filter(['q' => $query ?: null, 'orden' => $sort !== 'fecha' ? $sort : null, 'filtro' => $filter !== 'todos' ? $filter : null]);
+$here = '/correo/' . (int) $message['id'] . ($qs ? ('?' . http_build_query($qs)) : '');
+$listBack = $back . ($qs ? ('?' . http_build_query($qs)) : '');
 ?>
 <div class="gmail-read">
 	<div class="gmail-read-top">
@@ -29,18 +34,14 @@ $listBack = $back . ($query !== '' ? '?q=' . rawurlencode($query) : '');
 				<?= Csrf::field() ?>
 				<input type="hidden" name="action" value="<?= $isImportant ? 'unimportant' : 'important' ?>">
 				<input type="hidden" name="back" value="<?= h($here) ?>">
-				<button class="gmail-icon-btn<?= $isImportant ? ' is-important' : '' ?>" type="submit" title="<?= $isImportant ? 'Quitar importante' : 'Marcar importante' ?>">
-					<?= $isImportant ? '★ Importante' : '☆ Importante' ?>
-				</button>
+				<button class="gmail-icon-btn<?= $isImportant ? ' is-important' : '' ?>" type="submit"><?= $isImportant ? '★ Importante' : '☆ Importante' ?></button>
 			</form>
 			<?php if ($message['folder'] === 'inbox'): ?>
 				<form method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/estado')) ?>">
 					<?= Csrf::field() ?>
 					<input type="hidden" name="action" value="<?= $isUnread ? 'read' : 'unread' ?>">
 					<input type="hidden" name="back" value="<?= h($here) ?>">
-					<button class="gmail-icon-btn" type="submit">
-						<?= $isUnread ? 'Marcar leído' : 'Marcar no leído' ?>
-					</button>
+					<button class="gmail-icon-btn" type="submit"><?= $isUnread ? 'Marcar leído' : 'Marcar no leído' ?></button>
 				</form>
 			<?php endif; ?>
 			<form method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Quitar este correo de la lista del CRM?');">
@@ -54,7 +55,10 @@ $listBack = $back . ($query !== '' ? '?q=' . rawurlencode($query) : '');
 		<div>
 			<strong><?= h($peer) ?></strong>
 			<small>
-				<?= $message['folder'] === 'sent' ? 'para ' . h($message['to_email']) : 'para mí' ?>
+				<?= $message['folder'] === 'sent' ? 'para ' . h($message['to_email']) : 'de ' . h($message['from_email'] ?? '') ?>
+				<?php if (!empty($message['cc_email'])): ?>
+					· cc <?= h($message['cc_email']) ?>
+				<?php endif; ?>
 				· <?= h(mail_when($message['sent_at'] ?? null)) ?>
 				<?php if ($isUnread): ?>
 					· <span class="gmail-status-pill">No leído</span>
@@ -67,6 +71,41 @@ $listBack = $back . ($query !== '' ? '?q=' . rawurlencode($query) : '');
 			</small>
 		</div>
 	</div>
+
+	<?php if ($attachments): ?>
+		<div class="mail-attachments">
+			<strong>Adjuntos (<?= count($attachments) ?>)</strong>
+			<ul>
+				<?php foreach ($attachments as $att): ?>
+					<?php
+					$kind = MailAttachment::kind((string) $att['mime'], (string) $att['filename']);
+					$url = Http::url('/correo/adjunto/' . $att['id']);
+					$canPreview = MailAttachment::isPreviewable((string) $att['mime'], (string) $att['filename']);
+					?>
+					<li class="mail-att mail-att-<?= h($kind) ?>">
+						<span class="mail-att-name"><?= h($att['filename']) ?></span>
+						<small><?= number_format((int) $att['size'] / 1024, 0, ',', '.') ?> KB · <?= h(strtoupper($kind)) ?></small>
+						<span class="mail-att-actions">
+							<?php if ($canPreview): ?>
+								<a href="<?= h($url) ?>" target="_blank" rel="noopener">Ver</a>
+							<?php endif; ?>
+							<a href="<?= h($url . '?dl=1') ?>">Descargar</a>
+						</span>
+						<?php if ($kind === 'pdf'): ?>
+							<iframe class="mail-att-frame" src="<?= h($url) ?>" title="<?= h($att['filename']) ?>"></iframe>
+						<?php elseif ($kind === 'image'): ?>
+							<img class="mail-att-img" src="<?= h($url) ?>" alt="<?= h($att['filename']) ?>">
+						<?php elseif (in_array($kind, ['word', 'excel'], true)): ?>
+							<p class="muted">Descárgalo para abrirlo en Word o Excel. El archivo queda guardado en este correo del CRM.</p>
+						<?php elseif ($kind === 'file' && str_starts_with(strtolower((string) $att['mime']), 'text/')): ?>
+							<iframe class="mail-att-frame" src="<?= h($url) ?>" title="<?= h($att['filename']) ?>"></iframe>
+						<?php endif; ?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+	<?php endif; ?>
+
 	<?php if ($html !== ''): ?>
 		<div class="mail-body"><?= Mime::safeHtml($html) ?></div>
 	<?php else: ?>
@@ -80,7 +119,10 @@ $listBack = $back . ($query !== '' ? '?q=' . rawurlencode($query) : '');
 				<span>Responder a <?= h($peer) ?></span>
 				<textarea name="body" rows="6" required placeholder="Redacta tu respuesta"></textarea>
 			</label>
-			<button class="gmail-send" type="submit">Enviar</button>
+			<div class="gmail-reply-actions">
+				<button class="gmail-send" type="submit" name="mode" value="one">Responder</button>
+				<button class="gmail-send gmail-send-secondary" type="submit" name="mode" value="all">Responder a todos</button>
+			</div>
 		</form>
 	<?php endif; ?>
 </div>
