@@ -33,17 +33,23 @@ final class MailMessage extends Record
 			$like = '%' . $query . '%';
 			$params = array_merge($params, [$like, $like, $like, $like, $like, $like]);
 		}
-		$sql .= ' ORDER BY m.important DESC, m.sent_at DESC, m.id DESC LIMIT 120';
+		$sql .= ' ORDER BY m.sent_at DESC, m.id DESC LIMIT 120';
 		try {
 			$stmt = self::pdo()->prepare($sql);
 			$stmt->execute($params);
-			return $stmt->fetchAll();
+			$rows = $stmt->fetchAll();
 		} catch (\Throwable) {
-			$sql = str_replace(' ORDER BY m.important DESC, m.sent_at DESC, m.id DESC LIMIT 120', ' ORDER BY m.sent_at DESC, m.id DESC LIMIT 120', $sql);
-			$stmt = self::pdo()->prepare($sql);
-			$stmt->execute($params);
-			return $stmt->fetchAll();
+			return [];
 		}
+		usort($rows, static function (array $a, array $b): int {
+			$ia = (int) ($a['important'] ?? 0);
+			$ib = (int) ($b['important'] ?? 0);
+			if ($ia !== $ib) {
+				return $ib <=> $ia;
+			}
+			return strcmp((string) ($b['sent_at'] ?? ''), (string) ($a['sent_at'] ?? ''));
+		});
+		return $rows;
 	}
 
 	public static function forClient(int $userId, int $clientId): array

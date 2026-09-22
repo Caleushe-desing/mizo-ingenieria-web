@@ -246,8 +246,10 @@ final class MailController
 			return;
 		}
 		$error = '';
+		$forceSync = Http::string('sync', 8) === '1';
 		try {
-			Mailbox::sync((int) $user['id'], Http::string('sync', 8) === '1');
+			// Auto: solo INBOX. "Actualizar": bandeja + enviados. Evita timeout/HTTP 500.
+			Mailbox::sync((int) $user['id'], $forceSync, !$forceSync);
 		} catch (\Throwable $e) {
 			$error = $e->getMessage() !== ''
 				? $e->getMessage()
@@ -257,12 +259,7 @@ final class MailController
 			View::flash('error', $error);
 		}
 		$query = Http::string('q', 80);
-		try {
-			$messages = MailMessage::list((int) $user['id'], $folder, null, $query);
-		} catch (\Throwable) {
-			$messages = [];
-			View::flash('error', 'No se pudieron cargar los correos. Recarga la página.');
-		}
+		$messages = MailMessage::list((int) $user['id'], $folder, null, $query);
 		View::render('mail/inbox', [
 			'title' => $folder === 'sent' ? 'Enviados' : 'Bandeja de entrada',
 			'folder' => $folder,

@@ -94,9 +94,11 @@ final class Mailbox extends Record
 	{
 		$box = self::open($userId);
 		$last = strtotime((string) ($box['last_sync'] ?? '')) ?: 0;
-		if (!$force && $last > time() - 40) {
+		// Evita sync pesada en cada visita (provoca HTTP 500 por timeout en hosting).
+		if (!$force && $last > time() - 180) {
 			return;
 		}
+		@set_time_limit(90);
 		$imap = new Imap($box);
 		$notify = !empty($box['last_sync']);
 		try {
@@ -202,7 +204,7 @@ final class Mailbox extends Record
 
 	private static function syncFolder(int $userId, Imap $imap, string $remote, string $folder, bool $notify = false): void
 	{
-		$uids = $imap->uids($remote);
+		$uids = $imap->uids($remote, 50);
 		$known = MailMessage::uidsFor($userId, $folder);
 		$missing = [];
 		foreach ($uids as $uid) {
@@ -210,7 +212,15 @@ final class Mailbox extends Record
 				$missing[] = $uid;
 			}
 		}
+		// Como máximo 15 correos nuevos por sync para no tumbar el hosting.
+		if (count($missing) > 15) {
+			$missing = array_slice($missing, -15);
+		}
+		$started = time();
 		foreach ($missing as $uid) {
+			if (time() - $started > 25) {
+				break;
+			}
 			try {
 				$parsed = $imap->fetch($remote, $uid);
 			} catch (RuntimeException) {

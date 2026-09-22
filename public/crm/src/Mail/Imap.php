@@ -186,14 +186,21 @@ final class Imap
 
 	public function close(): void
 	{
-		if (!is_resource($this->fp)) {
+		if ($this->fp === null) {
+			return;
+		}
+		if (!is_resource($this->fp) && !is_object($this->fp)) {
+			$this->fp = null;
 			return;
 		}
 		try {
 			$this->write($this->tag() . ' LOGOUT');
 		} catch (\Throwable) {
 		}
-		fclose($this->fp);
+		try {
+			fclose($this->fp);
+		} catch (\Throwable) {
+		}
 		$this->fp = null;
 	}
 
