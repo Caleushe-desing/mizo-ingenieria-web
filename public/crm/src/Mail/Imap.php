@@ -102,9 +102,18 @@ final class Imap
 	public function fetch(string $folder, int $uid): array
 	{
 		$this->select($folder);
+		try {
+			return $this->fetchRaw($uid, 'FLAGS BODY.PEEK[]');
+		} catch (RuntimeException) {
+			// Algunos servidores IMAP no aceptan BODY.PEEK[]; RFC822 puede marcar \Seen.
+			return $this->fetchRaw($uid, 'FLAGS RFC822');
+		}
+	}
+
+	private function fetchRaw(int $uid, string $items): array
+	{
 		$tag = $this->tag();
-		// BODY.PEEK[] evita marcar el correo como \Seen al sincronizar (RFC822 sí lo hace).
-		$this->write($tag . ' UID FETCH ' . $uid . ' (FLAGS BODY.PEEK[])');
+		$this->write($tag . ' UID FETCH ' . $uid . ' (' . $items . ')');
 		$raw = '';
 		$seen = false;
 		$flagged = false;

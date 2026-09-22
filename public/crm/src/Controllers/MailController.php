@@ -248,18 +248,26 @@ final class MailController
 		$error = '';
 		try {
 			Mailbox::sync((int) $user['id'], Http::string('sync', 8) === '1');
-		} catch (RuntimeException $e) {
-			$error = $e->getMessage();
+		} catch (\Throwable $e) {
+			$error = $e->getMessage() !== ''
+				? $e->getMessage()
+				: 'No se pudo actualizar el correo ahora. Intenta de nuevo en un momento.';
 		}
 		if ($error !== '') {
 			View::flash('error', $error);
 		}
 		$query = Http::string('q', 80);
+		try {
+			$messages = MailMessage::list((int) $user['id'], $folder, null, $query);
+		} catch (\Throwable) {
+			$messages = [];
+			View::flash('error', 'No se pudieron cargar los correos. Recarga la página.');
+		}
 		View::render('mail/inbox', [
 			'title' => $folder === 'sent' ? 'Enviados' : 'Bandeja de entrada',
 			'folder' => $folder,
 			'mailbox' => $box,
-			'messages' => MailMessage::list((int) $user['id'], $folder, null, $query),
+			'messages' => $messages,
 			'unread' => MailMessage::unreadCount((int) $user['id']),
 			'query' => $query,
 		]);

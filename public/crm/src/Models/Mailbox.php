@@ -211,24 +211,50 @@ final class Mailbox extends Record
 			}
 		}
 		foreach ($missing as $uid) {
-			$parsed = $imap->fetch($remote, $uid);
+			try {
+				$parsed = $imap->fetch($remote, $uid);
+			} catch (RuntimeException) {
+				continue;
+			}
 			$peer = $folder === 'inbox' ? $parsed['from_email'] : $parsed['to_email'];
 			$clientId = MailMessage::clientIdFor($userId, $peer);
-			MailMessage::store($userId, $folder, [
-				'uid' => $uid,
-				'message_id' => $parsed['message_id'],
-				'in_reply_to' => $parsed['in_reply_to'],
-				'from_email' => $parsed['from_email'],
-				'from_name' => $parsed['from_name'],
-				'to_email' => $parsed['to_email'],
-				'subject' => $parsed['subject'],
-				'body_text' => $parsed['body_text'],
-				'body_html' => $parsed['body_html'],
-				'sent_at' => $parsed['sent_at'],
-				'seen' => $parsed['seen'] ? 1 : 0,
-				'important' => !empty($parsed['flagged']) ? 1 : 0,
-				'client_id' => $clientId,
-			]);
+			try {
+				MailMessage::store($userId, $folder, [
+					'uid' => $uid,
+					'message_id' => $parsed['message_id'],
+					'in_reply_to' => $parsed['in_reply_to'],
+					'from_email' => $parsed['from_email'],
+					'from_name' => $parsed['from_name'],
+					'to_email' => $parsed['to_email'],
+					'subject' => $parsed['subject'],
+					'body_text' => $parsed['body_text'],
+					'body_html' => $parsed['body_html'],
+					'sent_at' => $parsed['sent_at'],
+					'seen' => $parsed['seen'] ? 1 : 0,
+					'important' => !empty($parsed['flagged']) ? 1 : 0,
+					'client_id' => $clientId,
+				]);
+			} catch (\Throwable) {
+				// Reintento sin columna important (bases antiguas).
+				try {
+					MailMessage::store($userId, $folder, [
+						'uid' => $uid,
+						'message_id' => $parsed['message_id'],
+						'in_reply_to' => $parsed['in_reply_to'],
+						'from_email' => $parsed['from_email'],
+						'from_name' => $parsed['from_name'],
+						'to_email' => $parsed['to_email'],
+						'subject' => $parsed['subject'],
+						'body_text' => $parsed['body_text'],
+						'body_html' => $parsed['body_html'],
+						'sent_at' => $parsed['sent_at'],
+						'seen' => $parsed['seen'] ? 1 : 0,
+						'client_id' => $clientId,
+					]);
+				} catch (\Throwable) {
+					continue;
+				}
+			}
 			if ($notify && $folder === 'inbox' && $clientId) {
 				Activity::log(
 					'mail_received',
@@ -239,13 +265,20 @@ final class Mailbox extends Record
 				Client::update($clientId, ['updated_at' => date('c')]);
 			}
 		}
-		$flags = $imap->flags($remote, $uids);
-		foreach ($flags as $uid => $state) {
-			// Solo sincronizamos importante desde IMAP. El leído/no leído lo controla el CRM
-			// (abrir mensaje o botón), para que un FETCH previo no deje toda la bandeja "leída".
-			$important = !empty($state['flagged']) ? 1 : 0;
-			self::pdo()->prepare('UPDATE mail_messages SET important = ? WHERE user_id = ? AND folder = ? AND uid = ?')
-				->execute([$important, $userId, $folder, $uid]);
+		try {
+			$flags = $imap->flags($remote, $uids);
+			foreach ($flags as $uid => $state) {
+				$important = is_array($state)
+					? (!empty($state['flagged']) ? 1 : 0)
+					: 0;
+				try {
+					self::pdo()->prepare('UPDATE mail_messages SET important = ? WHERE user_id = ? AND folder = ? AND uid = ?')
+						->execute([$important, $userId, $folder, $uid]);
+				} catch (\Throwable) {
+					break;
+				}
+			}
+		} catch (\Throwable) {
 		}
 	}
 }

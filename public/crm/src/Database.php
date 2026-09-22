@@ -40,6 +40,7 @@ final class Database
 		}
 		self::$pdo = $pdo;
 		self::migrate($pdo);
+		self::ensureMailSchema($pdo);
 		return $pdo;
 	}
 
@@ -280,6 +281,24 @@ final class Database
 			} catch (\Throwable) {
 			}
 			$pdo->exec('PRAGMA user_version = 7');
+		}
+	}
+
+	/** Garantiza columnas de correo aunque un deploy parcial haya dejado el schema atrasado. */
+	private static function ensureMailSchema(PDO $pdo): void
+	{
+		try {
+			$cols = $pdo->query('PRAGMA table_info(mail_messages)')->fetchAll();
+			if ($cols === []) {
+				return;
+			}
+			$names = array_column($cols, 'name');
+			if (!in_array('important', $names, true)) {
+				$pdo->exec('ALTER TABLE mail_messages ADD COLUMN important INTEGER NOT NULL DEFAULT 0');
+			}
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mail_important ON mail_messages(user_id, folder, important, sent_at)');
+		} catch (\Throwable) {
+			// Si la tabla aún no existe, migrate la creará en el próximo arranque limpio.
 		}
 	}
 }
