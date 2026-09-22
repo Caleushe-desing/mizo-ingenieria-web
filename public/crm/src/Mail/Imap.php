@@ -133,9 +133,17 @@ final class Imap
 				$flagged = true;
 			}
 			if (preg_match('/\{(\d+)\}\s*$/', $line, $matches)) {
-				$raw = $this->readBytes((int) $matches[1]);
+				$n = (int) $matches[1];
+				$chunk = $this->readBytes($n);
+				// Quedarse con el literal más grande (el cuerpo RFC822 / BODY[]).
+				if ($n >= strlen($raw)) {
+					$raw = $chunk;
+				}
 				$this->readLine();
 			}
+		}
+		if (trim($raw) === '') {
+			throw new RuntimeException('El correo llegó vacío desde el servidor.');
 		}
 		$parsed = Mime::parse($raw);
 		$parsed['seen'] = $seen;

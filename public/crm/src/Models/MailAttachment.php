@@ -28,6 +28,65 @@ final class MailAttachment extends Record
 		return $stmt->fetchAll();
 	}
 
+	/**
+	 * Si el correo ya estaba en el CRM sin adjuntos guardados, los baja de IMAP al abrirlo.
+	 * @return list<array<string,mixed>>
+	 */
+	public static function ensureForMessage(int $userId, array $message): array
+	{
+		$messageId = (int) ($message['id'] ?? 0);
+		if ($messageId <= 0) {
+			return [];
+		}
+		$existing = self::forMessage($messageId);
+		$missingFiles = false;
+		foreach ($existing as $row) {
+			if (!is_file(self::absolutePath($row))) {
+				$missingFiles = true;
+				break;
+			}
+		}
+		if ($existing !== [] && !$missingFiles) {
+			return $existing;
+		}
+		$uid = (int) ($message['uid'] ?? 0);
+		if ($uid <= 0) {
+			return $existing;
+		}
+		try {
+			$box = Mailbox::open($userId);
+			$folder = (($message['folder'] ?? '') === 'sent')
+				? (string) ($box['sent_folder'] ?? 'Sent')
+				: 'INBOX';
+			$imap = new \MizoCrm\Mail\Imap($box);
+			try {
+				$parsed = $imap->fetch($folder, $uid);
+			} finally {
+				$imap->close();
+			}
+			$atts = $parsed['attachments'] ?? [];
+			if ($atts === []) {
+				return $existing;
+			}
+			if ($missingFiles && $existing !== []) {
+				foreach ($existing as $row) {
+					$path = self::absolutePath($row);
+					if (is_file($path)) {
+						@unlink($path);
+					}
+					self::delete((int) $row['id']);
+				}
+			}
+			self::saveForMessage($userId, $messageId, $atts);
+			if (!empty($atts)) {
+				MailMessage::update($messageId, ['has_attachments' => 1]);
+			}
+			return self::forMessage($messageId);
+		} catch (\Throwable) {
+			return $existing;
+		}
+	}
+
 	public static function owned(int $userId, int $id): ?array
 	{
 		$stmt = self::pdo()->prepare('SELECT * FROM mail_attachments WHERE id = ? AND user_id = ?');
@@ -43,6 +102,14 @@ final class MailAttachment extends Record
 		$dir = self::root() . '/' . $userId . '/' . $messageId;
 		if ($attachments && !is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
 			throw new RuntimeException('No se pudo guardar adjuntos.');
+		}
+		$root = self::root();
+		if (!is_dir($root)) {
+			@mkdir($root, 0775, true);
+		}
+		$deny = $root . '/.htaccess';
+		if (!is_file($deny)) {
+			@file_put_contents($deny, "Require all denied\n");
 		}
 		foreach (array_slice($attachments, 0, 12) as $att) {
 			$bin = (string) ($att['content'] ?? '');

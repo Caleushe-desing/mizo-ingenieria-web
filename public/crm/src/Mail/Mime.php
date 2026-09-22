@@ -165,39 +165,59 @@ final class Mime
 	/** @return array{text:string,html:string,attachments:list<array{filename:string,mime:string,content:string}>} */
 	private static function decodePart(array $headers, string $body): array
 	{
-		$type = strtolower((string) ($headers['content-type'] ?? 'text/plain'));
-		$encoding = strtolower((string) ($headers['content-transfer-encoding'] ?? ''));
+		$typeRaw = (string) ($headers['content-type'] ?? 'text/plain');
+		$type = strtolower($typeRaw);
+		$encoding = strtolower(trim((string) ($headers['content-transfer-encoding'] ?? '')));
 		$disposition = strtolower((string) ($headers['content-disposition'] ?? ''));
 		$charset = 'UTF-8';
-		if (preg_match('/charset="?([^";\s]+)"?/i', $type, $matches)) {
+		if (preg_match('/charset="?([^";\s]+)"?/i', $typeRaw, $matches)) {
 			$charset = $matches[1];
 		}
-		if (str_starts_with($type, 'multipart/') && preg_match('/boundary="?([^";\s]+)"?/i', $type, $matches)) {
-			return self::multipart($body, $matches[1]);
+		// El boundary es case-sensitive: no usar $type en minúsculas para extraerlo.
+		if (str_starts_with($type, 'multipart/') && preg_match('/boundary=("([^"]+)"|([^;\s]+))/i', $typeRaw, $matches)) {
+			$boundary = ($matches[2] ?? '') !== '' ? $matches[2] : (string) ($matches[3] ?? '');
+			if ($boundary !== '') {
+				return self::multipart($body, $boundary);
+			}
 		}
 
 		$filename = self::filenameFrom($headers);
+		$mime = strtolower(trim(explode(';', $type)[0]));
+		if ($mime === '') {
+			$mime = 'application/octet-stream';
+		}
+
 		$isAttach = str_contains($disposition, 'attachment')
-			|| ($filename !== '' && !str_starts_with($type, 'text/'))
-			|| str_starts_with($type, 'application/')
-			|| str_starts_with($type, 'image/');
+			|| (str_contains($disposition, 'inline') && $filename !== '')
+			|| ($filename !== '' && !str_starts_with($mime, 'text/'))
+			|| str_starts_with($mime, 'application/')
+			|| str_starts_with($mime, 'image/')
+			|| str_starts_with($mime, 'audio/')
+			|| str_starts_with($mime, 'video/');
+
+		// El cuerpo del mensaje (text/html o text/plain) no es adjunto.
+		if (str_starts_with($mime, 'text/') && !str_contains($disposition, 'attachment')) {
+			$isAttach = false;
+		}
 
 		$rawBody = self::decodeBodyBinary($body, $encoding);
-		if ($isAttach && $filename !== '') {
-			$mime = trim(explode(';', $type)[0]);
+		if ($isAttach && $rawBody !== '') {
+			if ($filename === '') {
+				$filename = self::defaultFilename($mime);
+			}
 			return [
 				'text' => '',
 				'html' => '',
 				'attachments' => [[
 					'filename' => $filename,
-					'mime' => $mime !== '' ? $mime : 'application/octet-stream',
+					'mime' => $mime,
 					'content' => $rawBody,
 				]],
 			];
 		}
 
 		$decoded = self::toUtf8($rawBody, $charset);
-		if (str_starts_with($type, 'text/html')) {
+		if (str_starts_with($mime, 'text/html')) {
 			return ['text' => '', 'html' => $decoded, 'attachments' => []];
 		}
 		return ['text' => $decoded, 'html' => '', 'attachments' => []];
@@ -209,13 +229,25 @@ final class Mime
 		$text = '';
 		$html = '';
 		$attachments = [];
-		$chunks = preg_split('/--' . preg_quote($boundary, '/') . '(?:--)?\s*/', $body) ?: [];
+		$pattern = '/\r?\n--' . preg_quote($boundary, '/') . '(?:--)?[ \t]*\r?\n/';
+		// Prefijo por si el cuerpo empieza con el boundary.
+		$normalized = str_starts_with(ltrim($body), '--' . $boundary)
+			? "\n" . ltrim($body)
+			: $body;
+		$chunks = preg_split($pattern, $normalized) ?: [];
 		foreach ($chunks as $chunk) {
 			$chunk = trim($chunk);
 			if ($chunk === '' || $chunk === '--') {
 				continue;
 			}
+			// Quita el cierre final suelto que dejan algunos servidores.
+			if ($chunk === '--') {
+				continue;
+			}
 			$parts = explode("\n\n", str_replace("\r\n", "\n", $chunk), 2);
+			if (count($parts) < 2) {
+				$parts = explode("\r\n\r\n", $chunk, 2);
+			}
 			$headers = self::headers($parts[0] ?? '');
 			$partBody = $parts[1] ?? '';
 			$decoded = self::decodePart($headers, $partBody);
@@ -237,23 +269,47 @@ final class Mime
 		$disp = (string) ($headers['content-disposition'] ?? '');
 		$type = (string) ($headers['content-type'] ?? '');
 		foreach ([$disp, $type] as $src) {
-			if (preg_match('/filename\*=(?:UTF-8\'\')?([^;]+)/i', $src, $m)) {
+			if (preg_match('/filename\*\s*=\s*(?:UTF-8\'\')?([^;]+)/i', $src, $m)) {
 				return self::decodeHeader(trim($m[1], " \t\"'"));
 			}
-			if (preg_match('/filename="?([^";]+)"?/i', $src, $m)) {
+			if (preg_match('/filename\s*=\s*"([^"]+)"/i', $src, $m)) {
 				return self::decodeHeader(trim($m[1]));
+			}
+			if (preg_match('/filename\s*=\s*([^;\s]+)/i', $src, $m)) {
+				return self::decodeHeader(trim($m[1], " \t\"'"));
+			}
+			if (preg_match('/\bname\s*=\s*"([^"]+)"/i', $src, $m)) {
+				return self::decodeHeader(trim($m[1]));
+			}
+			if (preg_match('/\bname\s*=\s*([^;\s]+)/i', $src, $m)) {
+				return self::decodeHeader(trim($m[1], " \t\"'"));
 			}
 		}
 		return '';
 	}
 
+	private static function defaultFilename(string $mime): string
+	{
+		return match (true) {
+			str_contains($mime, 'pdf') => 'documento.pdf',
+			str_contains($mime, 'word') || str_contains($mime, 'msword') => 'documento.docx',
+			str_contains($mime, 'sheet') || str_contains($mime, 'excel') => 'planilla.xlsx',
+			str_starts_with($mime, 'image/') => 'imagen.' . (explode('/', $mime)[1] ?? 'bin'),
+			default => 'adjunto.bin',
+		};
+	}
+
 	private static function decodeBodyBinary(string $body, string $encoding): string
 	{
-		$body = str_replace("\n", "\r\n", $body);
+		$encoding = strtolower(trim($encoding));
+		$clean = preg_replace('/\s+/', '', $body) ?? '';
 		return match ($encoding) {
-			'base64' => (string) base64_decode(preg_replace('/\s+/', '', $body) ?? '', true),
-			'quoted-printable' => quoted_printable_decode($body),
-			default => $body,
+			'base64' => (string) (base64_decode($clean, true) !== false
+				? base64_decode($clean, true)
+				: base64_decode($clean)),
+			'quoted-printable' => quoted_printable_decode(str_replace("\r\n", "\n", $body)),
+			'7bit', '8bit', 'binary', '' => str_replace("\r\n", "\n", $body),
+			default => str_replace("\r\n", "\n", $body),
 		};
 	}
 

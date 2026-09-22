@@ -137,13 +137,17 @@ final class MailController
 		$query = Http::string('q', 80);
 		$sort = Http::string('orden', 20) ?: 'fecha';
 		$filter = Http::string('filtro', 20) ?: 'todos';
+		$attachments = MailAttachment::ensureForMessage((int) $user['id'], $row);
+		if ($attachments !== []) {
+			$row['has_attachments'] = 1;
+		}
 		View::render('mail/inbox', [
 			'title' => $row['subject'] ?: 'Correo',
 			'folder' => $folder,
 			'mailbox' => $box,
 			'messages' => MailMessage::list((int) $user['id'], $folder, null, $query, $sort, $filter),
 			'message' => $row,
-			'attachments' => MailAttachment::forMessage((int) $row['id']),
+			'attachments' => $attachments,
 			'client' => $client,
 			'unread' => MailMessage::unreadCount((int) $user['id']),
 			'query' => $query,
@@ -285,13 +289,18 @@ final class MailController
 			exit;
 		}
 		$mime = (string) ($row['mime'] ?: 'application/octet-stream');
+		$mime = strtolower(trim(explode(';', $mime)[0]));
+		if ($mime === '') {
+			$mime = 'application/octet-stream';
+		}
 		$filename = (string) $row['filename'];
 		$inline = MailAttachment::isPreviewable($mime, $filename) && Http::string('dl', 4) !== '1';
 		header('Content-Type: ' . $mime);
 		header('Content-Length: ' . (string) filesize($path));
+		$safeName = str_replace(['"', "\r", "\n"], '', $filename);
 		header(
 			($inline ? 'Content-Disposition: inline' : 'Content-Disposition: attachment')
-			. '; filename="' . str_replace('"', '', $filename) . '"'
+			. '; filename="' . $safeName . '"'
 		);
 		header('X-Content-Type-Options: nosniff');
 		readfile($path);
