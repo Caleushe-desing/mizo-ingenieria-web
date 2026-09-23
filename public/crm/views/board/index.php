@@ -9,7 +9,7 @@ $services = $services ?? Config::services();
 $cards = $cards ?? [];
 $team = $team ?? [];
 $ownerFilter = (int) ($ownerFilter ?? 0);
-$execLimit = (string) ($execLimit ?? '');
+$execAllow = $execAllow ?? [];
 $grouped = [];
 foreach (array_keys($stages) as $key) {
 	$grouped[$key] = [];
@@ -39,7 +39,7 @@ foreach ($invoiceCards as $invoice) {
 	$grouped[$stage][] = $invoice;
 }
 ?>
-<div class="kb" data-board data-move="<?= h(Http::url('/tablero/mover')) ?>" data-csrf="<?= h(Csrf::token()) ?>"<?= $execLimit !== '' ? ' data-exec-limit="' . h($execLimit) . '"' : '' ?>>
+<div class="kb" data-board data-move="<?= h(Http::url('/tablero/mover')) ?>" data-csrf="<?= h(Csrf::token()) ?>"<?= $execAllow ? ' data-exec-allow="' . h(implode(' ', $execAllow)) . '"' : '' ?>>
 	<div class="kb-bar">
 		<div>
 			<h1>Tablero comercial</h1>
@@ -135,7 +135,7 @@ foreach ($invoiceCards as $invoice) {
 						$ageDays = $stamp ? (int) floor((time() - $stamp) / 86400) : 99;
 						$priority = ($ageDays >= 7 || $amount >= 2000000) ? 'alta' : ($amount >= 500000 ? 'media' : 'baja');
 						$hay = mb_strtolower(trim(
-							($card['deal_title'] ?? '') . ' ' . ($card['name'] ?? '') . ' ' . ($card['rut'] ?? '') . ' ' . ($card['city'] ?? '')
+							($card['deal_title'] ?? '') . ' ' . ($card['name'] ?? '') . ' ' . ($card['rut'] ?? '') . ' ' . ($card['city'] ?? '') . ' ' . ($card['quote_number'] ?? '') . ' ' . ($card['quote_revision'] ?? '')
 						), 'UTF-8');
 						$snippet = trim((string) ($card['last_note'] ?? ''));
 						if ($snippet !== '' && function_exists('mb_strimwidth')) {
@@ -159,6 +159,9 @@ foreach ($invoiceCards as $invoice) {
 							<p class="kb-note"><?= h($card['name']) ?></p>
 							<?php if (($card['quote_status'] ?? '') === 'rechazada'): ?>
 								<span class="kb-reject">Presupuesto no aceptado</span>
+							<?php endif; ?>
+							<?php if (trim((string) ($card['quote_revision'] ?? '')) !== ''): ?>
+								<span class="kb-rev"><?= h($card['quote_revision']) ?></span>
 							<?php endif; ?>
 							<?php if ($service !== '' && isset($services[$service]) && ($card['deal_id'] ?? null)): ?>
 								<span class="kb-tag kb-tag-<?= h($service) ?>"><?= h($services[$service]) ?></span>

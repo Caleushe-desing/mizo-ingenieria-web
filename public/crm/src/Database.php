@@ -498,6 +498,15 @@ final class Database
 			$pdo->exec('PRAGMA user_version = 14');
 			$version = 14;
 		}
+
+		if ($version < 15) {
+			$quoteCols = array_column($pdo->query('PRAGMA table_info(quotes)')->fetchAll(), 'name');
+			if (!in_array('revision', $quoteCols, true)) {
+				$pdo->exec("ALTER TABLE quotes ADD COLUMN revision TEXT NOT NULL DEFAULT ''");
+			}
+			$pdo->exec('PRAGMA user_version = 15');
+			$version = 15;
+		}
 	}
 
 	/** Garantiza columnas/tablas de correo y contactos aunque un deploy parcial deje el schema atrasado. */

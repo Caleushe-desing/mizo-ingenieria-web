@@ -54,21 +54,42 @@ final class Pipeline extends Record
 		self::move($deal, 'sent', 'El cliente no aceptó el presupuesto. La tarjeta sigue en Presupuesto enviado.');
 	}
 
-	public static function withinExecutiveReach(string $from, string $to): bool
+	/** @return list<string> */
+	public static function executiveSlugs(): array
 	{
 		$sent = self::slug('sent');
 		if ($sent === null) {
-			return false;
+			return [];
 		}
-		$positions = [];
-		foreach (self::pdo()->query('SELECT slug, position FROM board_stages')->fetchAll() as $row) {
-			$positions[(string) $row['slug']] = (int) $row['position'];
+		$rows = self::pdo()->query('SELECT slug, position, role, kind FROM board_stages ORDER BY position ASC, id ASC')->fetchAll();
+		$sentPos = null;
+		foreach ($rows as $row) {
+			if ((string) $row['slug'] === $sent) {
+				$sentPos = (int) $row['position'];
+			}
 		}
-		if (!isset($positions[$sent], $positions[$to])) {
-			return false;
+		if ($sentPos === null) {
+			return [$sent];
 		}
-		$fromPos = $positions[$from] ?? 0;
-		return $fromPos <= $positions[$sent] && $positions[$to] <= $positions[$sent];
+		$out = [];
+		foreach ($rows as $row) {
+			$role = (string) ($row['role'] ?? '');
+			$kind = (string) ($row['kind'] ?? 'open');
+			if (in_array($role, ['accepted', 'invoiced', 'paid'], true) || in_array($kind, ['won', 'lost'], true)) {
+				continue;
+			}
+			if ((int) $row['position'] > $sentPos) {
+				continue;
+			}
+			$out[] = (string) $row['slug'];
+		}
+		return $out !== [] ? $out : [$sent];
+	}
+
+	public static function withinExecutiveReach(string $from, string $to): bool
+	{
+		$allowed = self::executiveSlugs();
+		return in_array($from, $allowed, true) && in_array($to, $allowed, true);
 	}
 
 	public static function onInvoicesChanged(int $dealId): void

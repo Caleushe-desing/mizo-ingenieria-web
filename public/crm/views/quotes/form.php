@@ -13,7 +13,7 @@ $action = $quote
 <div class="client-sheet quote-sheet">
 	<div class="page-head">
 		<div>
-			<h1><?= $quote ? h($quote['number']) : 'Nueva cotización' ?></h1>
+			<h1><?= $quote ? h($quote['number'] . ((trim((string) ($quote['revision'] ?? '')) !== '') ? ' · ' . $quote['revision'] : '')) : 'Nueva cotización' ?></h1>
 			<p>
 				<?= h($client['name']) ?>
 				<?php if ($project): ?> · <?= h($project['title']) ?><?php endif; ?>
@@ -23,7 +23,7 @@ $action = $quote
 	</div>
 
 	<?php if ($sentAlready && !$locked): ?>
-		<p class="quote-notice">Esta cotización ya se envió al cliente. Si la cambias y la vuelves a enviar, se crea una revisión (A, B, C…) y esta queda igual.</p>
+		<p class="quote-notice">Esta cotización ya se envió. Al guardar una versión (REV-01, OC u otra), reemplaza a la anterior en la misma tarjeta del tablero.</p>
 	<?php endif; ?>
 
 	<form class="paper form quote-work" method="post" action="<?= h($action) ?>">
@@ -119,6 +119,12 @@ $action = $quote
 					<small class="muted">Este cliente no tiene contactos. Agrégalos en su ficha.</small>
 				<?php endif; ?>
 			</label>
+			<?php if ($sentAlready && !$locked): ?>
+			<label>
+				<span>Versión</span>
+				<input name="revision" value="<?= h($quote['revision'] ?? '') ?>" placeholder="REV-01, OC" maxlength="24" required>
+			</label>
+			<?php endif; ?>
 			<label>
 				<span>Válida hasta</span>
 				<input name="valid_until" type="date" value="<?= h($quote['valid_until'] ?? date('Y-m-d', strtotime('+15 days'))) ?>" <?= $locked ? 'readonly' : '' ?>>

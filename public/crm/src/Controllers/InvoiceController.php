@@ -84,6 +84,94 @@ final class InvoiceController
 		Http::redirect('/facturas');
 	}
 
+	public function updateSale(string $id): void
+	{
+		Csrf::check();
+		Auth::requireAdmin();
+		try {
+			$data = self::moneyRow(['net', 'tax', 'total']);
+			$number = Http::string('number', 40);
+			$issued = self::day('issued_on');
+			$status = Http::string('status', 20);
+			if ($number === '' || $issued === '') {
+				throw new RuntimeException('Indica el número y la fecha de la factura.');
+			}
+			if ($data['total'] < $data['net'] + $data['tax']) {
+				$data['total'] = $data['net'] + $data['tax'];
+			}
+			Invoice::updateSale((int) $id, [
+				'number' => $number,
+				'client_id' => Http::int('client_id'),
+				'deal_id' => Http::int('deal_id'),
+				'net' => $data['net'],
+				'tax' => $data['tax'],
+				'total' => $data['total'],
+				'status' => $status === 'paid' ? 'paid' : 'pending',
+				'issued_on' => $issued,
+			]);
+			View::flash('ok', 'Factura de venta actualizada. La tarjeta del tablero quedó al día.');
+		} catch (RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+		}
+		Http::redirect('/facturas');
+	}
+
+	public function deleteSale(string $id): void
+	{
+		Csrf::check();
+		Auth::requireAdmin();
+		try {
+			Invoice::deleteSale((int) $id);
+			View::flash('ok', 'Factura de venta eliminada. Ya no aparece en el tablero.');
+		} catch (RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+		}
+		Http::redirect('/facturas');
+	}
+
+	public function updatePurchase(string $id): void
+	{
+		Csrf::check();
+		Auth::requireAdmin();
+		try {
+			$supplier = Http::string('supplier', 120);
+			$number = Http::string('number', 40);
+			$issued = self::day('issued_on');
+			if ($supplier === '' || $number === '' || $issued === '') {
+				throw new RuntimeException('Indica proveedor, número y fecha.');
+			}
+			$data = self::moneyRow(['net', 'tax', 'travel', 'operations', 'other_costs']);
+			Invoice::updatePurchase((int) $id, [
+				'supplier' => $supplier,
+				'number' => $number,
+				'deal_id' => Http::int('deal_id'),
+				'net' => $data['net'],
+				'tax' => $data['tax'],
+				'travel' => $data['travel'],
+				'operations' => $data['operations'],
+				'other_costs' => $data['other_costs'],
+				'issued_on' => $issued,
+			]);
+			View::flash('ok', 'Factura de compra actualizada.');
+		} catch (RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+		}
+		Http::redirect('/facturas');
+	}
+
+	public function deletePurchase(string $id): void
+	{
+		Csrf::check();
+		Auth::requireAdmin();
+		try {
+			Invoice::deletePurchase((int) $id);
+			View::flash('ok', 'Factura de compra eliminada.');
+		} catch (RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+		}
+		Http::redirect('/facturas');
+	}
+
 	public function pay(string $id): void
 	{
 		Csrf::check();

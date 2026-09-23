@@ -29,6 +29,9 @@ if ($reference === '' && $items) {
 		<div class="doc-id">
 			<p class="doc-type">Cotización</p>
 			<p class="doc-number"><?= h($quote['number']) ?></p>
+			<?php if (trim((string) ($quote['revision'] ?? '')) !== ''): ?>
+				<p>Versión <?= h($quote['revision']) ?></p>
+			<?php endif; ?>
 			<dl>
 				<div><dt>Fecha</dt><dd><?= h(when($issued, 'd-m-Y')) ?></dd></div>
 				<div><dt>Válida hasta</dt><dd><?= h(when($quote['valid_until'], 'd-m-Y')) ?></dd></div>

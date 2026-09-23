@@ -20,7 +20,6 @@ final class Invoice extends Record
 		$deals = self::pdo()->query(
 			'SELECT d.id, d.title, d.amount, d.client_id, c.name AS client_name
 			 FROM deals d JOIN clients c ON c.id = d.client_id
-			 WHERE COALESCE(d.archived, 0) = 0
 			 ORDER BY c.name ASC, d.title ASC'
 		)->fetchAll();
 		$sales = self::pdo()->query(
@@ -96,6 +95,90 @@ final class Invoice extends Record
 		self::update($id, ['status' => 'paid', 'paid_at' => $now, 'updated_at' => $now]);
 		Pipeline::onInvoicesChanged((int) $row['deal_id']);
 		Activity::log('stage', 'Factura ' . $row['number'] . ' marcada como pagada.', $userId, (int) $row['client_id'], (int) $row['deal_id'], $row['quote_id'] ? (int) $row['quote_id'] : null);
+	}
+
+	public static function updateSale(int $id, array $data): void
+	{
+		$stmt = self::pdo()->prepare('SELECT * FROM sales_invoices WHERE id = ?');
+		$stmt->execute([$id]);
+		$row = $stmt->fetch();
+		if (!$row) {
+			throw new RuntimeException('Esa factura no existe.');
+		}
+		$deal = Deal::find((int) $data['deal_id']);
+		if (!$deal || (int) $deal['client_id'] !== (int) $data['client_id']) {
+			throw new RuntimeException('Elige un proyecto de ese cliente.');
+		}
+		$status = (string) ($data['status'] ?? 'pending') === 'paid' ? 'paid' : 'pending';
+		$now = date('c');
+		self::update($id, [
+			'number' => $data['number'],
+			'client_id' => (int) $data['client_id'],
+			'deal_id' => (int) $deal['id'],
+			'net' => (int) $data['net'],
+			'tax' => (int) $data['tax'],
+			'total' => (int) $data['total'],
+			'status' => $status,
+			'issued_on' => $data['issued_on'],
+			'paid_at' => $status === 'paid' ? ((string) ($row['paid_at'] ?? '') !== '' ? $row['paid_at'] : $now) : null,
+			'updated_at' => $now,
+		]);
+		Pipeline::onInvoicesChanged((int) $row['deal_id']);
+		if ((int) $row['deal_id'] !== (int) $deal['id']) {
+			Pipeline::onInvoicesChanged((int) $deal['id']);
+		}
+	}
+
+	public static function deleteSale(int $id): void
+	{
+		$stmt = self::pdo()->prepare('SELECT * FROM sales_invoices WHERE id = ?');
+		$stmt->execute([$id]);
+		$row = $stmt->fetch();
+		if (!$row) {
+			throw new RuntimeException('Esa factura no existe.');
+		}
+		self::delete($id);
+		Pipeline::onInvoicesChanged((int) $row['deal_id']);
+		Activity::log('stage', 'Se eliminó la factura de venta ' . $row['number'] . '.', null, (int) $row['client_id'], (int) $row['deal_id']);
+	}
+
+	public static function updatePurchase(int $id, array $data): void
+	{
+		$stmt = self::pdo()->prepare('SELECT id FROM purchase_invoices WHERE id = ?');
+		$stmt->execute([$id]);
+		if (!$stmt->fetch()) {
+			throw new RuntimeException('Esa factura no existe.');
+		}
+		$dealId = (int) ($data['deal_id'] ?? 0);
+		if ($dealId > 0 && !Deal::find($dealId)) {
+			throw new RuntimeException('Ese proyecto no existe.');
+		}
+		$update = self::pdo()->prepare(
+			'UPDATE purchase_invoices
+			 SET supplier = ?, number = ?, deal_id = ?, net = ?, tax = ?, travel = ?, operations = ?, other_costs = ?, issued_on = ?
+			 WHERE id = ?'
+		);
+		$update->execute([
+			$data['supplier'],
+			$data['number'],
+			$dealId > 0 ? $dealId : null,
+			(int) $data['net'],
+			(int) $data['tax'],
+			(int) $data['travel'],
+			(int) $data['operations'],
+			(int) $data['other_costs'],
+			$data['issued_on'],
+			$id,
+		]);
+	}
+
+	public static function deletePurchase(int $id): void
+	{
+		$stmt = self::pdo()->prepare('DELETE FROM purchase_invoices WHERE id = ?');
+		$stmt->execute([$id]);
+		if ($stmt->rowCount() < 1) {
+			throw new RuntimeException('Esa factura no existe.');
+		}
 	}
 
 	public static function addPurchase(array $data): int

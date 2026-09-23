@@ -2332,3 +2332,19 @@ body.is-clients .btn-word, body.is-clients .kb-enroll, .kb-enroll, .kb-go {
 	font-size: 11px;
 	font-weight: 700;
 }
+
+.kb-rev {
+	display: inline-flex;
+	align-items: center;
+	margin: 6px 6px 2px 0;
+	padding: 3px 8px;
+	border-radius: 999px;
+	background: #e8f6fc;
+	color: #0b6ea8;
+	border: 1px solid #1c9bd8;
+	font-size: 11px;
+	font-weight: 700;
+}
+.invoice-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+.invoice-edit { min-width: 220px; }
+.invoice-edit form { display: grid; gap: 8px; margin-top: 8px; }

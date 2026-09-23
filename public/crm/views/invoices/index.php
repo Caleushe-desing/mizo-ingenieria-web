@@ -108,13 +108,52 @@ $book = $book ?? ['clients' => [], 'deals' => [], 'sales' => [], 'purchases' => 
 								<td><?= money((int) $row['tax']) ?></td>
 								<td><?= money((int) $row['total']) ?></td>
 								<td><?= ($row['status'] ?? '') === 'paid' ? 'Pagada' : 'Pendiente' ?></td>
-								<td>
+								<td class="invoice-actions">
 									<?php if (($row['status'] ?? '') !== 'paid'): ?>
 										<form method="post" action="<?= h(Http::url('/facturas/venta/' . $row['id'] . '/pagar')) ?>">
 											<?= Csrf::field() ?>
 											<button class="btn btn-excel" type="submit">Marcar pagada</button>
 										</form>
 									<?php endif; ?>
+									<details class="invoice-edit">
+										<summary>Editar</summary>
+										<form class="form" method="post" action="<?= h(Http::url('/facturas/venta/' . $row['id'])) ?>">
+											<?= Csrf::field() ?>
+											<label><span>Número</span><input name="number" required maxlength="40" value="<?= h($row['number']) ?>"></label>
+											<label><span>Fecha</span><input type="date" name="issued_on" required value="<?= h($row['issued_on']) ?>"></label>
+											<label>
+												<span>Cliente</span>
+												<select name="client_id" required>
+													<?php foreach ($book['clients'] as $client): ?>
+														<option value="<?= (int) $client['id'] ?>" <?= (int) $client['id'] === (int) $row['client_id'] ? 'selected' : '' ?>><?= h($client['name']) ?></option>
+													<?php endforeach; ?>
+												</select>
+											</label>
+											<label>
+												<span>Proyecto</span>
+												<select name="deal_id" required>
+													<?php foreach ($book['deals'] as $deal): ?>
+														<option value="<?= (int) $deal['id'] ?>" <?= (int) $deal['id'] === (int) $row['deal_id'] ? 'selected' : '' ?>><?= h($deal['client_name'] . ' · ' . $deal['title']) ?></option>
+													<?php endforeach; ?>
+												</select>
+											</label>
+											<label><span>Neto</span><input name="net" inputmode="numeric" required value="<?= (int) $row['net'] ?>"></label>
+											<label><span>IVA</span><input name="tax" inputmode="numeric" value="<?= (int) $row['tax'] ?>"></label>
+											<label><span>Total</span><input name="total" inputmode="numeric" value="<?= (int) $row['total'] ?>"></label>
+											<label>
+												<span>Pago</span>
+												<select name="status">
+													<option value="pending" <?= ($row['status'] ?? '') !== 'paid' ? 'selected' : '' ?>>Pendiente</option>
+													<option value="paid" <?= ($row['status'] ?? '') === 'paid' ? 'selected' : '' ?>>Pagada</option>
+												</select>
+											</label>
+											<button class="btn btn-word" type="submit">Guardar</button>
+										</form>
+									</details>
+									<form method="post" action="<?= h(Http::url('/facturas/venta/' . $row['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Eliminar esta factura de venta?');">
+										<?= Csrf::field() ?>
+										<button class="btn-danger-text" type="submit">Eliminar</button>
+									</form>
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -132,7 +171,7 @@ $book = $book ?? ['clients' => [], 'deals' => [], 'sales' => [], 'purchases' => 
 			<div class="table-wrap">
 				<table class="sheet">
 					<thead>
-						<tr><th>Número</th><th>Fecha</th><th>Proveedor</th><th>Proyecto</th><th>Neto</th><th>IVA</th><th>Viáticos</th><th>Operación</th><th>Otros</th></tr>
+						<tr><th>Número</th><th>Fecha</th><th>Proveedor</th><th>Proyecto</th><th>Neto</th><th>IVA</th><th>Viáticos</th><th>Operación</th><th>Otros</th><th></th></tr>
 					</thead>
 					<tbody>
 						<?php foreach ($book['purchases'] as $row): ?>
@@ -146,6 +185,36 @@ $book = $book ?? ['clients' => [], 'deals' => [], 'sales' => [], 'purchases' => 
 								<td><?= money((int) $row['travel']) ?></td>
 								<td><?= money((int) $row['operations']) ?></td>
 								<td><?= money((int) $row['other_costs']) ?></td>
+								<td class="invoice-actions">
+									<details class="invoice-edit">
+										<summary>Editar</summary>
+										<form class="form" method="post" action="<?= h(Http::url('/facturas/compra/' . $row['id'])) ?>">
+											<?= Csrf::field() ?>
+											<label><span>Proveedor</span><input name="supplier" required maxlength="120" value="<?= h($row['supplier']) ?>"></label>
+											<label><span>Número</span><input name="number" required maxlength="40" value="<?= h($row['number']) ?>"></label>
+											<label><span>Fecha</span><input type="date" name="issued_on" required value="<?= h($row['issued_on']) ?>"></label>
+											<label>
+												<span>Proyecto</span>
+												<select name="deal_id">
+													<option value="0">Gasto general</option>
+													<?php foreach ($book['deals'] as $deal): ?>
+														<option value="<?= (int) $deal['id'] ?>" <?= (int) $deal['id'] === (int) ($row['deal_id'] ?? 0) ? 'selected' : '' ?>><?= h($deal['client_name'] . ' · ' . $deal['title']) ?></option>
+													<?php endforeach; ?>
+												</select>
+											</label>
+											<label><span>Neto</span><input name="net" inputmode="numeric" value="<?= (int) $row['net'] ?>"></label>
+											<label><span>IVA</span><input name="tax" inputmode="numeric" value="<?= (int) $row['tax'] ?>"></label>
+											<label><span>Viáticos</span><input name="travel" inputmode="numeric" value="<?= (int) $row['travel'] ?>"></label>
+											<label><span>Gastos de operación</span><input name="operations" inputmode="numeric" value="<?= (int) $row['operations'] ?>"></label>
+											<label><span>Otros costos</span><input name="other_costs" inputmode="numeric" value="<?= (int) $row['other_costs'] ?>"></label>
+											<button class="btn btn-word" type="submit">Guardar</button>
+										</form>
+									</details>
+									<form method="post" action="<?= h(Http::url('/facturas/compra/' . $row['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Eliminar esta factura de compra?');">
+										<?= Csrf::field() ?>
+										<button class="btn-danger-text" type="submit">Eliminar</button>
+									</form>
+								</td>
 							</tr>
 						<?php endforeach; ?>
 					</tbody>

@@ -27,7 +27,7 @@ final class BoardController
 			'services' => Config::services(),
 			'cards' => Deal::board(Auth::ownerScope()),
 			'invoiceCards' => \MizoCrm\Models\Invoice::kanban(Auth::ownerScope()),
-			'execLimit' => Auth::isAdmin() ? '' : (\MizoCrm\Models\Pipeline::slug('sent') ?? ''),
+			'execAllow' => Auth::isAdmin() ? [] : \MizoCrm\Models\Pipeline::executiveSlugs(),
 			'team' => Auth::isAdmin() ? User::team() : [],
 			'ownerFilter' => 0,
 		]);

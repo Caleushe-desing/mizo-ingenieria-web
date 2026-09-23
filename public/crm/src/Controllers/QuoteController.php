@@ -133,12 +133,10 @@ final class QuoteController
 			Http::redirect('/');
 		}
 		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
-		$sentAlready = !empty($quote['sent_at']) || (string) $quote['status'] === 'enviada' || (string) $quote['status'] === 'vista';
 		$locked = in_array((string) $quote['status'], ['aceptada', 'rechazada'], true);
-		if (Http::string('intent', 20) === 'send' && $sentAlready && !$locked) {
-			$newId = $this->forkRevision($client, $quote);
-			$this->deliver($newId);
-			return;
+		if ($locked) {
+			View::flash('error', 'Esa cotización ya fue respondida y no se puede modificar.');
+			Http::redirect('/cotizaciones/' . $id);
 		}
 		$this->saveQuote($client, $quote);
 		if (Http::string('intent', 20) === 'send') {
@@ -189,41 +187,6 @@ final class QuoteController
 			'items' => Quote::items((int) $quote['id']),
 			'preview' => true,
 		], 'public-layout');
-	}
-
-	private function forkRevision(array $client, array $quote): int
-	{
-		$now = date('c');
-		$number = Quote::nextRevision((string) $quote['number']);
-		$id = Quote::insert([
-			'number' => $number,
-			'deal_id' => (int) $quote['deal_id'],
-			'client_id' => (int) $client['id'],
-			'status' => 'borrador',
-			'intro' => (string) ($quote['intro'] ?? ''),
-			'notes' => (string) ($quote['notes'] ?? ''),
-			'valid_until' => (string) ($quote['valid_until'] ?? ''),
-			'tax_rate' => 19,
-			'subtotal' => 0,
-			'tax' => 0,
-			'total' => 0,
-			'token' => bin2hex(random_bytes(16)),
-			'sent_to' => (string) ($quote['sent_to'] ?? ''),
-			'contact_id' => !empty($quote['contact_id']) ? (int) $quote['contact_id'] : null,
-			'created_by' => Auth::id(),
-			'updated_by' => Auth::id(),
-			'created_at' => $now,
-			'updated_at' => $now,
-		]);
-		Activity::log(
-			'quote_created',
-			'Revisión ' . $number . ' a partir de ' . $quote['number'] . '.',
-			Auth::id(),
-			(int) $client['id'],
-			(int) $quote['deal_id'],
-			$id
-		);
-		return $id;
 	}
 
 	private function saveQuote(array $client, ?array $quote, ?int $attachDealId = null): int
@@ -277,7 +240,7 @@ final class QuoteController
 		}
 
 		$totals = Quote::saveItems((int) $quote['id'], $items);
-		Quote::update((int) $quote['id'], [
+		$fields = [
 			'intro' => $intro,
 			'notes' => $notes,
 			'valid_until' => $validUntil,
@@ -286,21 +249,38 @@ final class QuoteController
 			...$totals,
 			'updated_at' => $now,
 			'updated_by' => Auth::id(),
-		]);
+		];
+		if (!empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true)) {
+			$fields['revision'] = $this->revisionLabel($quote);
+		}
+		Quote::update((int) $quote['id'], $fields);
 		Deal::update((int) $quote['deal_id'], [
 			'amount' => $totals['total'],
 			'updated_at' => $now,
 		]);
 		Client::update($clientId, ['updated_at' => $now]);
+		$versionNote = !empty($fields['revision']) ? ' Versión ' . $fields['revision'] . '.' : '';
 		Activity::log(
 			'quote_updated',
-			'Cotización ' . ($quote['number'] ?? '') . ' actualizada.',
+			'Cotización ' . ($quote['number'] ?? '') . ' actualizada.' . $versionNote,
 			Auth::id(),
 			$clientId,
 			(int) $quote['deal_id'],
 			(int) $quote['id']
 		);
 		return (int) $quote['id'];
+	}
+
+	/** @param array<string,mixed> $quote */
+	private function revisionLabel(array $quote): string
+	{
+		$raw = strtoupper(trim(Http::string('revision', 24)));
+		$raw = preg_replace('/\s+/', '-', $raw) ?? '';
+		if ($raw !== '' && preg_match('/^[A-Z0-9][A-Z0-9\-]{0,23}$/', $raw)) {
+			return $raw;
+		}
+		View::flash('error', 'Indica la versión con letras y números, por ejemplo REV-01 o OC.');
+		Http::redirect('/cotizaciones/' . (int) $quote['id']);
 	}
 
 	/** @return array{id: ?int, email: string} */
@@ -324,6 +304,7 @@ final class QuoteController
 		if (!$quote) {
 			Http::redirect('/');
 		}
+		$alreadySent = !empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true);
 		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
 		$this->saveQuote($client, $quote);
 		$quote = Quote::find($quoteId);
@@ -358,7 +339,9 @@ final class QuoteController
 		$url = App::absolute('/q/' . $quote['token']);
 		$user = Auth::user();
 		$html = Mailer::quoteHtml($quote, $items, $client, $url, $user);
-		$ok = Mailer::send($to, 'Cotización ' . $quote['number'] . ' — Mizo', $html, $user['email'] ?? '');
+		$version = trim((string) ($quote['revision'] ?? ''));
+		$subject = 'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' — Mizo';
+		$ok = Mailer::send($to, $subject, $html, $user['email'] ?? '');
 		if (!$ok) {
 			$hint = \MizoCrm\Models\Mailbox::forUser(Auth::id())
 				? 'Revisa la clave de tu casilla en Correo.'
@@ -373,17 +356,21 @@ final class QuoteController
 			'updated_at' => date('c'),
 			'updated_by' => Auth::id(),
 		]);
-		\MizoCrm\Models\Pipeline::onQuoteSent((int) $quote['deal_id']);
+		if (!$alreadySent) {
+			\MizoCrm\Models\Pipeline::onQuoteSent((int) $quote['deal_id']);
+		}
 		Activity::log(
 			'quote_sent',
-			'Cotización ' . $quote['number'] . ' enviada a ' . $to . '.',
+			'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' enviada a ' . $to . '.',
 			Auth::id(),
 			(int) $quote['client_id'],
 			(int) $quote['deal_id'],
 			(int) $quote['id']
 		);
 		Client::update((int) $quote['client_id'], ['updated_at' => date('c')]);
-		View::flash('ok', 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '. Si responde, te llega a Correo.');
+		View::flash('ok', $alreadySent
+			? 'Versión ' . ($version !== '' ? $version : $quote['number']) . ' enviada. La tarjeta sigue en la misma columna.'
+			: 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '. Si responde, te llega a Correo.');
 		Http::redirect('/tablero/cliente/' . $quote['client_id'] . '/ficha');
 	}
 }

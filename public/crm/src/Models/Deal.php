@@ -58,7 +58,9 @@ final class Deal extends Record
 				ORDER BY a.id DESC LIMIT 1) AS last_note,
 			(SELECT a.created_at FROM activities a WHERE a.deal_id = d.id ORDER BY a.id DESC LIMIT 1) AS last_at,
 			(SELECT q.total FROM quotes q WHERE q.deal_id = d.id ORDER BY q.id DESC LIMIT 1) AS quote_total,
-			(SELECT q.status FROM quotes q WHERE q.deal_id = d.id AND q.status != \'borrador\' ORDER BY q.id DESC LIMIT 1) AS quote_status
+			(SELECT q.status FROM quotes q WHERE q.deal_id = d.id AND q.status != \'borrador\' ORDER BY q.id DESC LIMIT 1) AS quote_status,
+			(SELECT q.number FROM quotes q WHERE q.deal_id = d.id AND q.status != \'borrador\' ORDER BY q.id DESC LIMIT 1) AS quote_number,
+			(SELECT q.revision FROM quotes q WHERE q.deal_id = d.id AND q.status != \'borrador\' ORDER BY q.id DESC LIMIT 1) AS quote_revision
 			FROM deals d
 			JOIN clients c ON c.id = d.client_id
 			LEFT JOIN users u ON u.id = COALESCE(d.owner_id, c.owner_id)
