@@ -363,6 +363,15 @@ final class Database
 				$pdo->exec('ALTER TABLE quotes ADD COLUMN contact_id INTEGER');
 			}
 			$pdo->exec('PRAGMA user_version = 10');
+			$version = 10;
+		}
+
+		if ($version < 11 && function_exists('imagecreatefromstring') && function_exists('imagecreatetruecolor')) {
+			try {
+				\MizoCrm\Models\User::optimizeSignatureDirectory();
+			} catch (\Throwable) {
+			}
+			$pdo->exec('PRAGMA user_version = 11');
 		}
 	}
 

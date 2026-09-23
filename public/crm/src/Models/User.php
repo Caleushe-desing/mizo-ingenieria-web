@@ -142,15 +142,244 @@ final class User extends Record
 		if (@getimagesizefromstring($binary) === false) {
 			return null;
 		}
-		$dir = dirname(__DIR__, 2) . '/uploads/firmas';
+		$dir = self::signatureDir();
 		if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
 			return null;
 		}
 		$name = date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
-		if (file_put_contents($dir . '/' . $name, $binary) === false) {
+		$path = $dir . '/' . $name;
+		if (file_put_contents($path, $binary) === false) {
 			return null;
 		}
+		self::optimizeSignatureFile($path);
 		return \MizoCrm\App::absolute('/uploads/firmas/' . $name);
+	}
+
+	public static function signatureDir(): string
+	{
+		return dirname(__DIR__, 2) . '/uploads/firmas';
+	}
+
+	/** Achica las firmas ya guardadas: máximo 600 px y, si se puede, menos de 50 KB. */
+	public static function optimizeSignatureDirectory(): int
+	{
+		$dir = self::signatureDir();
+		if (!is_dir($dir)) {
+			return 0;
+		}
+		$done = 0;
+		foreach (scandir($dir) ?: [] as $name) {
+			if ($name === '.' || $name === '..' || str_starts_with($name, '.')) {
+				continue;
+			}
+			$path = $dir . '/' . $name;
+			if (is_file($path) && self::optimizeSignatureFile($path)) {
+				$done++;
+			}
+		}
+		return $done;
+	}
+
+	public static function optimizeSignatureFile(string $path): bool
+	{
+		if (!is_file($path) || !function_exists('imagecreatefromstring') || !function_exists('imagecreatetruecolor')) {
+			return false;
+		}
+		$info = @getimagesize($path);
+		if ($info === false) {
+			return false;
+		}
+		$width = (int) $info[0];
+		$before = (int) filesize($path);
+		if ($before > 0 && $before <= 50 * 1024 && $width <= 600) {
+			return false;
+		}
+		$binary = (string) file_get_contents($path);
+		$optimized = self::compressSignatureBinary($binary, (int) $info[2]);
+		if ($optimized === null || $optimized === '') {
+			return false;
+		}
+		$after = strlen($optimized);
+		if ($after >= $before && $width <= 600) {
+			return false;
+		}
+		$tmp = $path . '.tmp';
+		if (file_put_contents($tmp, $optimized) === false) {
+			@unlink($tmp);
+			return false;
+		}
+		if (!@rename($tmp, $path)) {
+			@unlink($path);
+			if (!@rename($tmp, $path)) {
+				@unlink($tmp);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static function compressSignatureBinary(string $binary, int $type): ?string
+	{
+		$src = @imagecreatefromstring($binary);
+		if ($src === false) {
+			return null;
+		}
+		if (function_exists('imagepalettetotruecolor') && !imageistruecolor($src)) {
+			imagepalettetotruecolor($src);
+		}
+		imagealphablending($src, true);
+		imagesavealpha($src, true);
+		$target = 50 * 1024;
+		$best = null;
+		$maxW = min(imagesx($src), 600);
+		while ($maxW >= 160) {
+			$frame = self::resizeSignature($src, $maxW);
+			$blob = self::encodeSignature($frame, $type, $target);
+			imagedestroy($frame);
+			if (is_string($blob) && $blob !== '' && ($best === null || strlen($blob) < strlen($best))) {
+				$best = $blob;
+			}
+			if (is_string($blob) && strlen($blob) <= $target) {
+				break;
+			}
+			$next = (int) floor($maxW * 0.75);
+			if ($next >= $maxW) {
+				break;
+			}
+			$maxW = $next;
+		}
+		imagedestroy($src);
+		return $best;
+	}
+
+	/** @param \GdImage|resource $src @return \GdImage|resource */
+	private static function resizeSignature($src, int $maxWidth)
+	{
+		$width = imagesx($src);
+		$height = max(1, imagesy($src));
+		$newWidth = max(1, min($width, $maxWidth));
+		$newHeight = max(1, (int) round($height * ($newWidth / $width)));
+		$dst = imagecreatetruecolor($newWidth, $newHeight);
+		imagealphablending($dst, false);
+		imagesavealpha($dst, true);
+		$clear = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+		imagefilledrectangle($dst, 0, 0, $newWidth, $newHeight, $clear);
+		imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+		imagesavealpha($dst, true);
+		return $dst;
+	}
+
+	/** @param \GdImage|resource $img */
+	private static function encodeSignature($img, int $type, int $target): ?string
+	{
+		if ($type === IMAGETYPE_JPEG) {
+			return self::encodeJpeg(self::flattenSignature($img), $target);
+		}
+		if ($type === IMAGETYPE_WEBP && function_exists('imagewebp')) {
+			return self::encodeWebp($img, $target);
+		}
+		if ($type === IMAGETYPE_GIF) {
+			return self::encodeGif($img);
+		}
+		return self::encodePng($img, $target);
+	}
+
+	/** @param \GdImage|resource $img @return \GdImage|resource */
+	private static function flattenSignature($img)
+	{
+		$width = imagesx($img);
+		$height = imagesy($img);
+		$flat = imagecreatetruecolor($width, $height);
+		$white = imagecolorallocate($flat, 255, 255, 255);
+		imagefilledrectangle($flat, 0, 0, $width, $height, $white);
+		imagecopy($flat, $img, 0, 0, 0, 0, $width, $height);
+		return $flat;
+	}
+
+	/** @param \GdImage|resource $img */
+	private static function encodeJpeg($img, int $target): ?string
+	{
+		$best = null;
+		foreach ([80, 68, 56, 46, 38] as $quality) {
+			$blob = self::captureImage(static function () use ($img, $quality): bool {
+				return @imagejpeg($img, null, $quality);
+			});
+			if ($blob === null) {
+				continue;
+			}
+			if ($best === null || strlen($blob) < strlen($best)) {
+				$best = $blob;
+			}
+			if (strlen($blob) <= $target) {
+				break;
+			}
+		}
+		imagedestroy($img);
+		return $best;
+	}
+
+	/** @param \GdImage|resource $img */
+	private static function encodeWebp($img, int $target): ?string
+	{
+		$best = null;
+		foreach ([78, 64, 52, 40] as $quality) {
+			$blob = self::captureImage(static function () use ($img, $quality): bool {
+				return @imagewebp($img, null, $quality);
+			});
+			if ($blob === null) {
+				continue;
+			}
+			if ($best === null || strlen($blob) < strlen($best)) {
+				$best = $blob;
+			}
+			if (strlen($blob) <= $target) {
+				break;
+			}
+		}
+		return $best;
+	}
+
+	/** @param \GdImage|resource $img */
+	private static function encodeGif($img): ?string
+	{
+		return self::captureImage(static function () use ($img): bool {
+			return @imagegif($img);
+		});
+	}
+
+	/** @param \GdImage|resource $img */
+	private static function encodePng($img, int $target): ?string
+	{
+		$blob = self::captureImage(static function () use ($img): bool {
+			return @imagepng($img, null, 9);
+		});
+		if ($blob !== null && strlen($blob) <= $target) {
+			return $blob;
+		}
+		$palette = imagecreatetruecolor(imagesx($img), imagesy($img));
+		imagealphablending($palette, false);
+		imagesavealpha($palette, true);
+		imagecopy($palette, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));
+		imagetruecolortopalette($palette, false, 64);
+		$smaller = self::captureImage(static function () use ($palette): bool {
+			return @imagepng($palette, null, 9);
+		});
+		imagedestroy($palette);
+		if ($smaller !== null && ($blob === null || strlen($smaller) < strlen($blob))) {
+			return $smaller;
+		}
+		return $blob;
+	}
+
+	private static function captureImage(callable $write): ?string
+	{
+		ob_start();
+		$ok = $write();
+		$blob = ob_get_clean();
+		if ($ok !== true || !is_string($blob) || $blob === '') {
+			return null;
+		}
+		return $blob;
 	}
 
 	private static function wrapResponsiveSignature(string $inner): string
