@@ -54,36 +54,49 @@ final class Pipeline extends Record
 		self::move($deal, 'sent', 'El cliente no aceptó el presupuesto. La tarjeta sigue en Presupuesto enviado.');
 	}
 
-	/** @return list<string> */
+	/** Columnas que el ejecutivo puede usar, de la primera hasta Presupuesto enviado inclusive. @return list<string> */
 	public static function executiveSlugs(): array
 	{
-		$sent = self::slug('sent');
-		if ($sent === null) {
-			return [];
-		}
-		$rows = self::pdo()->query('SELECT slug, position, role, kind FROM board_stages ORDER BY position ASC, id ASC')->fetchAll();
-		$sentPos = null;
-		foreach ($rows as $row) {
-			if ((string) $row['slug'] === $sent) {
-				$sentPos = (int) $row['position'];
-			}
-		}
-		if ($sentPos === null) {
-			return [$sent];
-		}
+		$rows = self::stageRows();
+		$boundary = self::boundaryRow($rows);
 		$out = [];
 		foreach ($rows as $row) {
-			$role = (string) ($row['role'] ?? '');
-			$kind = (string) ($row['kind'] ?? 'open');
-			if (in_array($role, ['accepted', 'invoiced', 'paid'], true) || in_array($kind, ['won', 'lost'], true)) {
+			if (self::isBlockedRole((string) ($row['role'] ?? ''))) {
 				continue;
 			}
-			if ((int) $row['position'] > $sentPos) {
+			if ($boundary !== null && (int) $row['position'] > (int) $boundary['position']) {
+				continue;
+			}
+			if ($boundary === null && in_array((string) ($row['kind'] ?? 'open'), ['won', 'lost'], true)) {
 				continue;
 			}
 			$out[] = (string) $row['slug'];
 		}
-		return $out !== [] ? $out : [$sent];
+		if ($boundary !== null) {
+			$slug = (string) $boundary['slug'];
+			if (!in_array($slug, $out, true) && !self::isBlockedRole((string) ($boundary['role'] ?? ''))) {
+				$out[] = $slug;
+			}
+		}
+		return $out;
+	}
+
+	public static function executiveLimitSlug(): string
+	{
+		$boundary = self::boundaryRow(self::stageRows());
+		return $boundary ? (string) $boundary['slug'] : '';
+	}
+
+	/** @return list<string> */
+	public static function executiveBlockSlugs(): array
+	{
+		$out = [];
+		foreach (self::stageRows() as $row) {
+			if (self::isBlockedRole((string) ($row['role'] ?? ''))) {
+				$out[] = (string) $row['slug'];
+			}
+		}
+		return $out;
 	}
 
 	public static function withinExecutiveReach(string $from, string $to): bool
@@ -185,6 +198,54 @@ final class Pipeline extends Record
 		$stmt->execute([$slug]);
 		$role = $stmt->fetchColumn();
 		return $role ? (string) $role : '';
+	}
+
+	/** @return list<array<string,mixed>> */
+	private static function stageRows(): array
+	{
+		static $rows = null;
+		if ($rows === null) {
+			$fetched = self::pdo()->query(
+				'SELECT slug, label, position, role, kind FROM board_stages ORDER BY position ASC, id ASC'
+			)->fetchAll();
+			$rows = $fetched ?: [];
+		}
+		return $rows;
+	}
+
+	/** @param list<array<string,mixed>> $rows */
+	private static function boundaryRow(array $rows): ?array
+	{
+		foreach ($rows as $row) {
+			if ((string) ($row['role'] ?? '') === 'sent') {
+				return $row;
+			}
+		}
+		foreach ($rows as $row) {
+			if ((string) ($row['slug'] ?? '') === 'propuesta') {
+				return $row;
+			}
+		}
+		foreach ($rows as $row) {
+			if (str_contains(self::fold((string) ($row['label'] ?? '')), 'presupuesto enviado')) {
+				return $row;
+			}
+		}
+		return null;
+	}
+
+	private static function isBlockedRole(string $role): bool
+	{
+		return in_array($role, ['accepted', 'invoiced', 'paid'], true);
+	}
+
+	private static function fold(string $value): string
+	{
+		$value = strtr($value, [
+			'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ü' => 'U', 'Ñ' => 'N',
+			'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n',
+		]);
+		return strtolower(trim($value));
 	}
 
 	private static function rank(string $role): int

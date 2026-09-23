@@ -748,7 +748,7 @@
 			}
 			if (current === section) {
 				a.setAttribute("href", home);
-				a.title = "Ir al inicio de esta sección";
+				a.title = "Ir al inicio de esta secciÃ³n";
 			} else if (places[section]) {
 				a.setAttribute("href", places[section]);
 				a.title = "Volver a donde lo dejaste";
@@ -1122,12 +1122,49 @@
 	if (!board) return;
 	const base = (document.body.getAttribute("data-crm-base") || "/crm").replace(/\/$/, "");
 	const moveUrl = board.getAttribute("data-move");
+	const execMode = board.hasAttribute("data-exec");
+	const execLimit = board.getAttribute("data-exec-limit") || "";
+	const execBlock = (board.getAttribute("data-exec-block") || "").split(/\s+/).filter(Boolean);
 	const execAllow = (board.getAttribute("data-exec-allow") || "").split(/\s+/).filter(Boolean);
+	function columnOf(node) {
+		if (!node) return null;
+		if (node.classList && node.classList.contains("kb-col")) return node;
+		return node.closest ? node.closest(".kb-col") : null;
+	}
+	function stageOf(node) {
+		if (!node || !node.getAttribute) return "";
+		const drop = node.getAttribute("data-drop");
+		if (drop) return drop;
+		const col = columnOf(node);
+		return col ? (col.getAttribute("data-stage") || "") : "";
+	}
+	function columnByStage(stage) {
+		const cols = board.querySelectorAll(".kb-col");
+		for (let i = 0; i < cols.length; i++) {
+			if ((cols[i].getAttribute("data-stage") || "") === stage) return cols[i];
+		}
+		return null;
+	}
+	function columnIndex(col) {
+		if (!col) return -1;
+		const cols = board.querySelectorAll(".kb-col");
+		for (let i = 0; i < cols.length; i++) {
+			if (cols[i] === col) return i;
+		}
+		return -1;
+	}
 	function outsideExecutive(node) {
-		if (!execAllow.length || !node) return false;
-		const col = node.classList && node.classList.contains("kb-col") ? node : node.closest(".kb-col");
-		if (!col) return false;
-		return execAllow.indexOf(col.getAttribute("data-stage") || "") === -1;
+		if (!execMode || !node) return false;
+		const stage = stageOf(node);
+		if (stage && execBlock.indexOf(stage) !== -1) return true;
+		const col = columnOf(node);
+		if (execLimit) {
+			const limitCol = columnByStage(execLimit);
+			if (limitCol && col) return columnIndex(col) > columnIndex(limitCol);
+		}
+		if (!stage) return true;
+		if (!execAllow.length) return false;
+		return execAllow.indexOf(stage) === -1;
 	}
 	const csrf = board.getAttribute("data-csrf") || "";
 	const drawer = document.querySelector("[data-drawer]");
@@ -1216,14 +1253,21 @@
 	board.querySelectorAll("[data-drop]").forEach(function (zone) {
 		zone.addEventListener("dragover", function (event) {
 			event.preventDefault();
-			zone.classList.add("is-over");
+			if (event.dataTransfer) {
+				event.dataTransfer.dropEffect = outsideExecutive(zone) ? "none" : "move";
+			}
+			zone.classList.toggle("is-over", !outsideExecutive(zone));
 		});
 		zone.addEventListener("dragleave", function () { zone.classList.remove("is-over"); });
 		zone.addEventListener("drop", function (event) {
 			event.preventDefault();
 			zone.classList.remove("is-over");
 			if (!dragged) return;
-			if (outsideExecutive(zone)) return;
+			if (outsideExecutive(zone)) {
+				if (origin && dragged.parentElement !== origin) origin.appendChild(dragged);
+				recount();
+				return;
+			}
 			const stage = zone.getAttribute("data-drop");
 			const from = origin;
 			zone.appendChild(dragged);
@@ -1272,7 +1316,7 @@
 			const body = new FormData(mailForm);
 			body.set("_csrf", csrf);
 			body.set("client_id", mailClient || "");
-			if (mailStatus) mailStatus.textContent = "Enviando…";
+			if (mailStatus) mailStatus.textContent = "Enviandoâ¦";
 			fetch(base + "/correo", {
 				method: "POST",
 				body: body,
@@ -1314,7 +1358,7 @@
 	});
 
 	function contactLine(label, value) {
-		return "<div><dt>" + label + "</dt><dd>" + (value || "—") + "</dd></div>";
+		return "<div><dt>" + label + "</dt><dd>" + (value || "â") + "</dd></div>";
 	}
 
 	function paintPerson(person) {
@@ -1322,18 +1366,18 @@
 		const mailBtn = drawerBody.querySelector("[data-open-mail]");
 		if (!box) return;
 		if (!person) {
-			box.innerHTML = "<p class=\"muted\">Elige quién está a cargo.</p>";
+			box.innerHTML = "<p class=\"muted\">Elige quiÃ©n estÃ¡ a cargo.</p>";
 			if (mailBtn) mailBtn.hidden = true;
 			return;
 		}
 		const phone = person.phone
 			? '<a href="tel:' + escapeHtml(person.phone) + '">' + escapeHtml(person.phone) + "</a>"
-			: "—";
+			: "â";
 		box.innerHTML = ""
 			+ contactLine("Nombre", escapeHtml(person.name || "Contacto"))
-			+ contactLine("Cargo", escapeHtml(person.title || "—"))
-			+ contactLine("Teléfono", phone)
-			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "—");
+			+ contactLine("Cargo", escapeHtml(person.title || "â"))
+			+ contactLine("TelÃ©fono", phone)
+			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "â");
 		if (mailBtn) {
 			mailBtn.hidden = false;
 			mailBtn.disabled = !person.email;
@@ -1343,7 +1387,7 @@
 
 	function contactPicker(dealId, contacts) {
 		if (!contacts.length) {
-			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. Agrégalos en sus datos.</p></section>';
+			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. AgrÃ©galos en sus datos.</p></section>';
 		}
 		const options = contacts.map(function (person) {
 			return '<option value="' + person.id + '"' + (person.on ? " selected" : "") + ">" + escapeHtml(person.name || "Contacto") + "</option>";
@@ -1361,10 +1405,10 @@
 		const deal = data.deal || {};
 		const id = deal.id;
 		if (drawerTitle) drawerTitle.textContent = deal.title || "Proyecto";
-		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " · " + (deal.stage_label || "Prospecto");
+		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " Â· " + (deal.stage_label || "Prospecto");
 		const notes = (data.notes || []).map(function (note) {
 			const prefix = note.type === "recordatorio" ? "Recordatorio: " : "";
-			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " · " + escapeHtml(note.when) + "</small></li>";
+			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " Â· " + escapeHtml(note.when) + "</small></li>";
 		}).join("");
 		const quotes = (data.quotes || []).map(function (quote) {
 			return '<li><a href="' + base + "/cotizaciones/" + quote.id + '">' + escapeHtml(quote.number) + "</a>"
@@ -1373,9 +1417,9 @@
 		drawerBody.innerHTML = ''
 			+ '<p class="muted">' + escapeHtml(deal.service_label || "") + "</p>"
 			+ contactPicker(id, data.contacts || [])
-			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavía.</p></li>") + "</ul>"
-			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotización</a>'
-			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
+			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavÃ­a.</p></li>") + "</ul>"
+			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotizaciÃ³n</a>'
+			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'Â¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
 			+ '<input type="hidden" name="_csrf" value="' + escapeHtml(csrf) + '">'
 			+ '<input type="hidden" name="volver" value="tablero">'
 			+ '<button type="submit" class="is-danger">Eliminar proyecto</button></form></div></section>'
@@ -1411,7 +1455,7 @@
 				const person = selectedPerson();
 				if (!person || !person.email || !mailPop || !mailForm) return;
 				mailTo.value = person.email;
-				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " · " + person.phone : "");
+				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " Â· " + person.phone : "");
 				mailSubject.value = deal.title ? deal.title : "";
 				mailBody.value = "";
 				mailStatus.textContent = "";
@@ -1442,7 +1486,7 @@
 						if (!json || !json.ok) return;
 						const list = drawerBody.querySelector("[data-project-notes]");
 						const li = document.createElement("li");
-						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " · " + escapeHtml(json.note.when) + "</small>";
+						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " Â· " + escapeHtml(json.note.when) + "</small>";
 						const empty = list.querySelector("li");
 						if (empty && empty.textContent.indexOf("Sin notas") === 0) empty.remove();
 						list.prepend(li);
@@ -1457,7 +1501,7 @@
 	function openDrawer(card) {
 		if (!drawer || !drawerBody) return;
 		drawer.hidden = false;
-		drawerBody.innerHTML = '<p class="muted">Cargando…</p>';
+		drawerBody.innerHTML = '<p class="muted">Cargandoâ¦</p>';
 		fetch(card.getAttribute("data-detail"), { credentials: "same-origin", headers: { Accept: "application/json" } })
 			.then(function (res) { return res.json(); })
 			.then(function (data) {

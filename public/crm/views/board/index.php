@@ -10,6 +10,9 @@ $cards = $cards ?? [];
 $team = $team ?? [];
 $ownerFilter = (int) ($ownerFilter ?? 0);
 $execAllow = $execAllow ?? [];
+$execMode = !empty($execMode);
+$execLimit = (string) ($execLimit ?? '');
+$execBlock = $execBlock ?? [];
 $grouped = [];
 foreach (array_keys($stages) as $key) {
 	$grouped[$key] = [];
@@ -39,7 +42,7 @@ foreach ($invoiceCards as $invoice) {
 	$grouped[$stage][] = $invoice;
 }
 ?>
-<div class="kb" data-board data-move="<?= h(Http::url('/tablero/mover')) ?>" data-csrf="<?= h(Csrf::token()) ?>"<?= $execAllow ? ' data-exec-allow="' . h(implode(' ', $execAllow)) . '"' : '' ?>>
+<div class="kb" data-board data-move="<?= h(Http::url('/tablero/mover')) ?>" data-csrf="<?= h(Csrf::token()) ?>"<?= $execMode ? ' data-exec="1"' : '' ?><?= $execLimit !== '' ? ' data-exec-limit="' . h($execLimit) . '"' : '' ?><?= $execBlock ? ' data-exec-block="' . h(implode(' ', $execBlock)) . '"' : '' ?><?= $execAllow ? ' data-exec-allow="' . h(implode(' ', $execAllow)) . '"' : '' ?>>
 	<div class="kb-bar">
 		<div>
 			<h1>Tablero comercial</h1>
