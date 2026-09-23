@@ -384,7 +384,7 @@ final class User extends Record
 
 	private static function wrapResponsiveSignature(string $inner): string
 	{
-		return '<div style="max-width:100%;width:100%;box-sizing:border-box;overflow:hidden;margin:24px 0 0;font-size:13px;line-height:1.45;color:#444;word-break:break-word;">'
+		return '<div style="max-width:500px;width:100%;box-sizing:border-box;overflow:hidden;margin:24px 0 0;font-size:13px;line-height:1.45;color:#444;word-break:break-word;">'
 			. '<hr style="width:100%;max-width:100%;border:0;border-top:1px solid #e6e6e6;margin:0 0 16px;height:0;">'
 			. $inner
 			. '</div>';
@@ -396,11 +396,11 @@ final class User extends Record
 		$html = preg_replace_callback('/<img\b([^>]*)>/i', static function (array $match): string {
 			$attrs = preg_replace('/\s(?:width|height)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $match[1]) ?? $match[1];
 			$attrs = self::setInlineStyle($attrs, [
-				'max-width' => '100%',
+				'max-width' => '320px',
+				'width' => '100%',
 				'height' => 'auto',
 				'display' => 'block',
-				'border' => '0',
-			], ['width', 'height', 'max-height', 'min-width']);
+			], ['height', 'max-height', 'min-width']);
 			return '<img' . $attrs . '>';
 		}, $html) ?? $html;
 
@@ -472,7 +472,7 @@ final class User extends Record
 				$kind = strtolower($match[2]);
 				$mime = ($kind === 'jpg' || $kind === 'jpeg') ? 'image/jpeg' : 'image/' . $kind;
 				$url = self::storeSignatureImage($binary, $mime);
-				return $url ? '<img src="' . h($url) . '" alt="" style="max-width:100%;height:auto;display:block;border:0">' : '';
+				return $url ? '<img src="' . h($url) . '" alt="" style="max-width:320px;width:100%;height:auto;display:block;">' : '';
 			},
 			$html
 		) ?? $html;
