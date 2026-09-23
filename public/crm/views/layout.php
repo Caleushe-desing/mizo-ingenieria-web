@@ -20,7 +20,7 @@ $onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cot
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=43">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=44">
 </head>
 <body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
 	<header class="titlebar">
@@ -40,6 +40,7 @@ $onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cot
 			<a id="nav-chat" data-crm-section="chat" data-crm-home="<?= h(Http::url('/chat')) ?>" class="<?= $onChat ? 'is-on' : '' ?>" href="<?= h(Http::url('/chat')) ?>">Chat <span class="mail-badge" id="chat-badge"<?= $unreadChat > 0 ? '' : ' hidden' ?>><?= (int) $unreadChat ?></span></a>
 			<?php if (Auth::isAdmin()): ?>
 				<a data-crm-section="facturas" data-crm-home="<?= h(Http::url('/facturas')) ?>" class="<?= str_starts_with($path, '/facturas') ? 'is-on' : '' ?>" href="<?= h(Http::url('/facturas')) ?>">Facturas</a>
+				<a data-crm-section="contabilidad" data-crm-home="<?= h(Http::url('/contabilidad')) ?>" class="<?= str_starts_with($path, '/contabilidad') ? 'is-on' : '' ?>" href="<?= h(Http::url('/contabilidad')) ?>">Contabilidad</a>
 				<a data-crm-section="control" data-crm-home="<?= h(Http::url('/admin')) ?>" class="<?= str_starts_with($path, '/admin') ? 'is-on' : '' ?>" href="<?= h(Http::url('/admin')) ?>">Control</a>
 				<a data-crm-section="equipo" data-crm-home="<?= h(Http::url('/equipo')) ?>" class="<?= $path === '/equipo' ? 'is-on' : '' ?>" href="<?= h(Http::url('/equipo')) ?>">Equipo</a>
 			<?php endif; ?>
@@ -77,6 +78,6 @@ $onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cot
 		<?php endif; ?>
 		<?= $content ?>
 	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=43"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=44"></script>
 </body>
 </html>

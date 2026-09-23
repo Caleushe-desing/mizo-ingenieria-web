@@ -507,6 +507,39 @@ final class Database
 			$pdo->exec('PRAGMA user_version = 15');
 			$version = 15;
 		}
+
+		if ($version < 16) {
+			$userCols = array_column($pdo->query('PRAGMA table_info(users)')->fetchAll(), 'name');
+			if (!in_array('commission_rate', $userCols, true)) {
+				$pdo->exec('ALTER TABLE users ADD COLUMN commission_rate REAL NOT NULL DEFAULT 0');
+			}
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS accounting_settings (
+					id INTEGER PRIMARY KEY CHECK (id = 1),
+					income_tax_rate REAL NOT NULL DEFAULT 27
+				)'
+			);
+			$pdo->exec('INSERT OR IGNORE INTO accounting_settings (id, income_tax_rate) VALUES (1, 27)');
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS company_obligations (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					kind TEXT NOT NULL,
+					concept TEXT NOT NULL,
+					notes TEXT NOT NULL DEFAULT \'\',
+					net INTEGER NOT NULL DEFAULT 0,
+					tax INTEGER NOT NULL DEFAULT 0,
+					total INTEGER NOT NULL DEFAULT 0,
+					status TEXT NOT NULL DEFAULT \'pending\',
+					issued_on TEXT NOT NULL,
+					due_on TEXT,
+					paid_at TEXT,
+					created_by INTEGER,
+					created_at TEXT NOT NULL,
+					updated_at TEXT NOT NULL
+				)'
+			);
+			$pdo->exec('PRAGMA user_version = 16');
+		}
 	}
 
 	/** Garantiza columnas/tablas de correo y contactos aunque un deploy parcial deje el schema atrasado. */
