@@ -20,15 +20,26 @@ if ($editContacts === []) {
 }
 ?>
 <div class="client-file">
-	<div class="page-head">
-		<div>
-			<h1><?= h($client['name'] ?? 'Cliente') ?></h1>
-			<p><?= h(trim((string) (($client['rut'] ?? '') !== '' ? $client['rut'] . ' · ' : '') . ($client['city'] ?? ''))) ?></p>
+	<div class="file-section">
+		<p class="file-kicker">Ficha del cliente</p>
+		<div class="page-head">
+			<div>
+				<h1><?= h($client['name'] ?? 'Cliente') ?></h1>
+				<p><?= h(trim((string) (($client['rut'] ?? '') !== '' ? $client['rut'] . ' · ' : '') . ($client['city'] ?? ''))) ?></p>
+			</div>
 		</div>
+		<nav class="file-tabs" data-file-tabs="<?= (int) ($client['id'] ?? 0) ?>" aria-label="Secciones de la ficha">
+			<button type="button" data-file-tab="datos" class="is-on">Datos</button>
+			<button type="button" data-file-tab="proyectos">Proyectos</button>
+			<button type="button" data-file-tab="enviar">Enviar correo</button>
+			<button type="button" data-file-tab="correos">Correos</button>
+			<button type="button" data-file-tab="notas">Anotaciones</button>
+			<button type="button" data-file-tab="cotizaciones">Cotizaciones</button>
+		</nav>
 	</div>
+	<div class="file-stage">
 
-	<details class="paper fold" open>
-		<summary>Datos del cliente</summary>
+	<section class="paper file-panel" data-file-panel="datos">
 		<div class="fold-body">
 			<form class="form client-inline is-locked" method="post" action="<?= h(Http::url('/clientes/' . $client['id'])) ?>" data-contacts-form data-client-inline>
 				<?= Csrf::field() ?>
@@ -69,10 +80,9 @@ if ($editContacts === []) {
 				<button type="button" class="btn btn-word" data-add-contact>+ Otro contacto</button>
 			</form>
 		</div>
-	</details>
+	</section>
 
-	<details class="paper fold" open>
-		<summary>Proyectos</summary>
+	<section class="paper file-panel" data-file-panel="proyectos" hidden>
 		<div class="fold-body">
 		<p class="muted">Cada proyecto es una tarjeta del tablero. Desde ahí ves sus notas y cotizaciones.</p>
 		<?php if (!$projects): ?>
@@ -165,10 +175,9 @@ if ($editContacts === []) {
 			</div>
 		</form>
 		</div>
-	</details>
+	</section>
 
-	<details class="paper fold" open>
-		<summary>Enviar correo a contactos</summary>
+	<section class="paper file-panel" data-file-panel="enviar" hidden>
 		<div class="fold-body">
 		<?php
 		$mailable = array_values(array_filter($contacts, static fn($c) => !empty($c['email'])));
@@ -205,10 +214,9 @@ if ($editContacts === []) {
 			</script>
 		<?php endif; ?>
 		</div>
-	</details>
+	</section>
 
-	<details class="paper fold" open>
-		<summary>Correos</summary>
+	<section class="paper file-panel" data-file-panel="correos" hidden>
 		<div class="fold-body">
 		<?php if (empty($mails)): ?>
 			<div class="empty">
@@ -238,10 +246,9 @@ if ($editContacts === []) {
 			</div>
 		<?php endif; ?>
 		</div>
-	</details>
+	</section>
 
-	<details class="paper fold" open>
-		<summary>Anotaciones y recordatorios</summary>
+	<section class="paper file-panel" data-file-panel="notas" hidden>
 		<div class="fold-body">
 		<form class="form" method="post" action="<?= h(Http::url('/clientes/' . $client['id'] . '/comentario')) ?>">
 			<?= Csrf::field() ?>
@@ -273,10 +280,9 @@ if ($editContacts === []) {
 			</ul>
 		<?php endif; ?>
 		</div>
-	</details>
+	</section>
 
-	<details class="paper fold" open>
-		<summary>Cotizaciones</summary>
+	<section class="paper file-panel" data-file-panel="cotizaciones" hidden>
 		<div class="fold-body">
 		<?php if (!$projects): ?>
 			<p class="muted">Crea un proyecto antes de hacer una cotización. Después eliges a cuál asociarla.</p>
@@ -330,5 +336,6 @@ if ($editContacts === []) {
 			</div>
 		<?php endif; ?>
 		</div>
-	</details>
+	</section>
+	</div>
 </div>

@@ -748,7 +748,7 @@
 			}
 			if (current === section) {
 				a.setAttribute("href", home);
-				a.title = "Ir al inicio de esta secciÃÂ³n";
+				a.title = "Ir al inicio de esta secciÃÂÃÂ³n";
 			} else if (places[section]) {
 				a.setAttribute("href", places[section]);
 				a.title = "Volver a donde lo dejaste";
@@ -1260,7 +1260,7 @@
 			const body = new FormData(mailForm);
 			body.set("_csrf", csrf);
 			body.set("client_id", mailClient || "");
-			if (mailStatus) mailStatus.textContent = "Enviando…";
+			if (mailStatus) mailStatus.textContent = "Enviandoâ¦";
 			fetch(base + "/correo", {
 				method: "POST",
 				body: body,
@@ -1299,7 +1299,7 @@
 	});
 
 	function contactLine(label, value) {
-		return "<div><dt>" + label + "</dt><dd>" + (value || "—") + "</dd></div>";
+		return "<div><dt>" + label + "</dt><dd>" + (value || "â") + "</dd></div>";
 	}
 
 	function paintPerson(person) {
@@ -1307,18 +1307,18 @@
 		const mailBtn = drawerBody.querySelector("[data-open-mail]");
 		if (!box) return;
 		if (!person) {
-			box.innerHTML = "<p class=\"muted\">Elige quién está a cargo.</p>";
+			box.innerHTML = "<p class=\"muted\">Elige quiÃ©n estÃ¡ a cargo.</p>";
 			if (mailBtn) mailBtn.hidden = true;
 			return;
 		}
 		const phone = person.phone
 			? '<a href="tel:' + escapeHtml(person.phone) + '">' + escapeHtml(person.phone) + "</a>"
-			: "—";
+			: "â";
 		box.innerHTML = ""
 			+ contactLine("Nombre", escapeHtml(person.name || "Contacto"))
-			+ contactLine("Cargo", escapeHtml(person.title || "—"))
-			+ contactLine("Teléfono", phone)
-			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "—");
+			+ contactLine("Cargo", escapeHtml(person.title || "â"))
+			+ contactLine("TelÃ©fono", phone)
+			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "â");
 		if (mailBtn) {
 			mailBtn.hidden = false;
 			mailBtn.disabled = !person.email;
@@ -1328,7 +1328,7 @@
 
 	function contactPicker(dealId, contacts) {
 		if (!contacts.length) {
-			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. Agrégalos en sus datos.</p></section>';
+			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. AgrÃ©galos en sus datos.</p></section>';
 		}
 		const options = contacts.map(function (person) {
 			return '<option value="' + person.id + '"' + (person.on ? " selected" : "") + ">" + escapeHtml(person.name || "Contacto") + "</option>";
@@ -1346,10 +1346,10 @@
 		const deal = data.deal || {};
 		const id = deal.id;
 		if (drawerTitle) drawerTitle.textContent = deal.title || "Proyecto";
-		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " · " + (deal.stage_label || "Prospecto");
+		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " Â· " + (deal.stage_label || "Prospecto");
 		const notes = (data.notes || []).map(function (note) {
 			const prefix = note.type === "recordatorio" ? "Recordatorio: " : "";
-			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " · " + escapeHtml(note.when) + "</small></li>";
+			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " Â· " + escapeHtml(note.when) + "</small></li>";
 		}).join("");
 		const quotes = (data.quotes || []).map(function (quote) {
 			return '<li><a href="' + base + "/cotizaciones/" + quote.id + '">' + escapeHtml(quote.number) + "</a>"
@@ -1358,9 +1358,9 @@
 		drawerBody.innerHTML = ''
 			+ '<p class="muted">' + escapeHtml(deal.service_label || "") + "</p>"
 			+ contactPicker(id, data.contacts || [])
-			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavía.</p></li>") + "</ul>"
-			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotización</a>'
-			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
+			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavÃ­a.</p></li>") + "</ul>"
+			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotizaciÃ³n</a>'
+			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'Â¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
 			+ '<input type="hidden" name="_csrf" value="' + escapeHtml(csrf) + '">'
 			+ '<input type="hidden" name="volver" value="tablero">'
 			+ '<button type="submit" class="is-danger">Eliminar proyecto</button></form></div></section>'
@@ -1396,7 +1396,7 @@
 				const person = selectedPerson();
 				if (!person || !person.email || !mailPop || !mailForm) return;
 				mailTo.value = person.email;
-				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " · " + person.phone : "");
+				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " Â· " + person.phone : "");
 				mailSubject.value = deal.title ? deal.title : "";
 				mailBody.value = "";
 				mailStatus.textContent = "";
@@ -1425,7 +1425,7 @@
 						if (!json || !json.ok) return;
 						const list = drawerBody.querySelector("[data-project-notes]");
 						const li = document.createElement("li");
-						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " · " + escapeHtml(json.note.when) + "</small>";
+						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " Â· " + escapeHtml(json.note.when) + "</small>";
 						const empty = list.querySelector("li");
 						if (empty && empty.textContent.indexOf("Sin notas") === 0) empty.remove();
 						list.prepend(li);
@@ -1440,7 +1440,7 @@
 	function openDrawer(card) {
 		if (!drawer || !drawerBody) return;
 		drawer.hidden = false;
-		drawerBody.innerHTML = '<p class="muted">Cargando…</p>';
+		drawerBody.innerHTML = '<p class="muted">Cargandoâ¦</p>';
 		fetch(card.getAttribute("data-detail"), { credentials: "same-origin", headers: { Accept: "application/json" } })
 			.then(function (res) { return res.json(); })
 			.then(function (data) {
@@ -1454,4 +1454,48 @@
 				drawerBody.innerHTML = '<p class="muted">No se pudo abrir esta tarjeta.</p>';
 			});
 	}
+})();
+
+(function () {
+	const nav = document.querySelector("[data-file-tabs]");
+	if (!nav) return;
+	const key = "mizo-ficha-tab-" + (nav.getAttribute("data-file-tabs") || "0");
+	const buttons = nav.querySelectorAll("[data-file-tab]");
+	const panels = document.querySelectorAll("[data-file-panel]");
+	function show(id) {
+		let found = false;
+		panels.forEach(function (panel) {
+			const on = panel.getAttribute("data-file-panel") === id;
+			panel.hidden = !on;
+			if (on) found = true;
+		});
+		if (!found) id = "datos";
+		buttons.forEach(function (button) {
+			const on = button.getAttribute("data-file-tab") === id;
+			button.classList.toggle("is-on", on);
+			if (on) button.setAttribute("aria-current", "page");
+			else button.removeAttribute("aria-current");
+		});
+		if (!found) {
+			panels.forEach(function (panel) {
+				panel.hidden = panel.getAttribute("data-file-panel") !== "datos";
+			});
+		}
+		try { sessionStorage.setItem(key, id); } catch (e) {}
+	}
+	buttons.forEach(function (button) {
+		button.addEventListener("click", function () {
+			show(button.getAttribute("data-file-tab"));
+		});
+	});
+	let start = "datos";
+	const hash = (location.hash || "").replace("#", "");
+	if (hash && nav.querySelector('[data-file-tab="' + hash + '"]')) start = hash;
+	else {
+		try {
+			const saved = sessionStorage.getItem(key);
+			if (saved && nav.querySelector('[data-file-tab="' + saved + '"]')) start = saved;
+		} catch (e) {}
+	}
+	show(start);
 })();

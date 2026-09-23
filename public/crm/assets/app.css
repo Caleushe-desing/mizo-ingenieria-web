@@ -2038,11 +2038,48 @@ body.is-clients .quote-sheet [data-add-item] {
 	margin-top: 12px;
 }
 .client-file {
-	width: min(860px, calc(100% - 32px));
-	margin: 22px auto 32px;
-	display: grid;
-	gap: 14px;
+	width: 100%;
+	margin: 0;
 }
+.file-section {
+	background: #e4f3fb;
+	border-bottom: 1px solid #b7d7ea;
+	padding: 14px 20px 0;
+}
+.file-kicker {
+	margin: 0 0 4px;
+	font-size: 11px;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: #f47b20;
+}
+.file-tabs {
+	display: flex;
+	gap: 4px;
+	overflow-x: auto;
+	margin-top: 12px;
+}
+.file-tabs button {
+	border: 0;
+	background: transparent;
+	color: #0b6ea8;
+	font-weight: 700;
+	font-size: 14px;
+	padding: 10px 14px;
+	border-bottom: 3px solid transparent;
+	border-radius: 8px 8px 0 0;
+	cursor: pointer;
+	white-space: nowrap;
+}
+.file-tabs button:hover { background: rgba(255, 255, 255, .55); }
+.file-tabs button.is-on {
+	background: #fff;
+	color: #1f2328;
+	border-bottom-color: #f47b20;
+}
+.file-stage { padding: 16px 20px 32px; }
+.client-file .file-panel[hidden] { display: none; }
 .client-file .page-head {
 	display: flex;
 	justify-content: space-between;
