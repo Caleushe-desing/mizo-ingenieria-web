@@ -48,10 +48,13 @@ if ($reference === '' && $items) {
 		<div class="doc-card">
 			<h2>Para</h2>
 			<p><strong><?= h($clientName !== '' ? $clientName : 'Cliente') ?></strong></p>
-			<?php if ($contactName !== '' && $contactName !== $clientName): ?>
-				<p>Contacto: <?= h($contactName) ?></p>
+			<?php if ($contactName !== ''): ?>
+				<p>Contacto: <?= h($contactName) ?><?php if (!empty($quote['contact_title'])): ?> · <?= h($quote['contact_title']) ?><?php endif; ?></p>
 			<?php endif; ?>
-			<?php if (!empty($quote['client_email'])): ?><p><?= h($quote['client_email']) ?></p><?php endif; ?>
+			<?php
+			$contactEmail = trim((string) ($quote['contact_email'] ?? $quote['client_email'] ?? ''));
+			?>
+			<?php if ($contactEmail !== ''): ?><p><?= h($contactEmail) ?></p><?php endif; ?>
 			<?php if (!empty($quote['client_phone'])): ?><p><?= h($quote['client_phone']) ?></p><?php endif; ?>
 			<?php if (!empty($quote['client_city'])): ?><p><?= h($quote['client_city']) ?></p><?php endif; ?>
 		</div>

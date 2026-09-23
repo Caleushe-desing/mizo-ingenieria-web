@@ -5,11 +5,10 @@ use MizoCrm\Http;
 $project = $project ?? null;
 $locked = $quote && in_array($quote['status'], ['aceptada', 'rechazada'], true);
 $sentAlready = $quote && (!empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true));
+$projects = $projects ?? [];
 $action = $quote
 	? Http::url('/cotizaciones/' . $quote['id'])
-	: ($project
-		? Http::url('/proyectos/' . $project['id'] . '/cotizacion')
-		: Http::url('/clientes/' . $client['id'] . '/cotizacion'));
+	: Http::url('/clientes/' . $client['id'] . '/cotizacion');
 ?>
 <div class="client-sheet quote-sheet">
 	<div class="page-head">
@@ -30,14 +29,95 @@ $action = $quote
 	<form class="paper form quote-work" method="post" action="<?= h($action) ?>">
 		<?= Csrf::field() ?>
 		<h2 class="section-title word">Para quién y hasta cuándo</h2>
+		<?php if (!$quote): ?>
+			<label>
+				<span>Proyecto</span>
+				<select name="project_id" required>
+					<option value="">Elige el proyecto</option>
+					<?php foreach ($projects as $row): ?>
+						<option value="<?= (int) $row['id'] ?>" <?= (int) ($project['id'] ?? 0) === (int) $row['id'] ? 'selected' : '' ?>><?= h($row['title']) ?></option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+		<?php elseif ($project): ?>
+			<p class="muted">Proyecto: <?= h($project['title']) ?></p>
+		<?php endif; ?>
 		<div class="grid-2">
 			<label>
 				<span>Título que verá el cliente</span>
 				<input name="intro" value="<?= h($quote['intro'] ?? '') ?>" placeholder="Ej: Sistema de sonido para gimnasio" <?= $locked ? 'readonly' : '' ?>>
 			</label>
 			<label>
-				<span>Enviar a este correo</span>
-				<input name="sent_to" type="email" value="<?= h($quote['sent_to'] ?? $client['email'] ?? '') ?>" placeholder="correo@cliente.cl">
+				<span>Contacto al que va dirigida</span>
+				<?php
+				$contacts = $contacts ?? \MizoCrm\Models\ClientContact::forClient((int) $client['id']);
+				$selectedContact = is_array($quote) ? (int) ($quote['contact_id'] ?? 0) : 0;
+				if ($selectedContact === 0 && !empty($project['id'])) {
+					$assigned = \MizoCrm\Models\Deal::contactsByDeal([(int) $project['id']])[(int) $project['id']] ?? [];
+					if ($assigned) {
+						$selectedContact = (int) $assigned[0]['id'];
+					}
+				}
+				if ($selectedContact === 0 && is_array($quote) && !empty($quote['sent_to'])) {
+					foreach ($contacts as $c) {
+						if (strcasecmp((string) ($c['email'] ?? ''), (string) $quote['sent_to']) === 0) {
+							$selectedContact = (int) $c['id'];
+							break;
+						}
+					}
+				}
+				if ($selectedContact === 0 && $contacts) {
+					foreach ($contacts as $c) {
+						if (trim((string) ($c['email'] ?? '')) !== '') {
+							$selectedContact = (int) $c['id'];
+							break;
+						}
+					}
+					if ($selectedContact === 0) {
+						$selectedContact = (int) $contacts[0]['id'];
+					}
+				}
+				?>
+				<?php if ($contacts): ?>
+					<select name="contact_id" <?= $locked ? 'disabled' : '' ?>>
+						<?php foreach ($contacts as $c): ?>
+							<?php
+							$label = trim((string) ($c['name'] ?? '')) !== '' ? (string) $c['name'] : 'Contacto';
+							if (trim((string) ($c['title'] ?? '')) !== '') {
+								$label .= ' · ' . $c['title'];
+							}
+							$email = trim((string) ($c['email'] ?? ''));
+							$label .= $email !== '' ? ' · ' . $email : ' · sin correo';
+							?>
+							<option value="<?= (int) $c['id'] ?>" data-email="<?= h($email) ?>" <?= $selectedContact === (int) $c['id'] ? 'selected' : '' ?>><?= h($label) ?></option>
+						<?php endforeach; ?>
+					</select>
+					<?php
+					$chosenEmail = '';
+					foreach ($contacts as $c) {
+						if ((int) $c['id'] === $selectedContact) {
+							$chosenEmail = trim((string) ($c['email'] ?? ''));
+							break;
+						}
+					}
+					?>
+					<small class="muted" data-quote-mail><?= $chosenEmail !== '' ? h($chosenEmail) : 'Este contacto no tiene correo.' ?></small>
+					<script>
+					(function () {
+						var select = document.querySelector(".quote-work select[name=contact_id]");
+						var mail = document.querySelector("[data-quote-mail]");
+						if (!select || !mail) return;
+						select.addEventListener("change", function () {
+							var opt = select.options[select.selectedIndex];
+							var email = opt ? (opt.getAttribute("data-email") || "") : "";
+							mail.textContent = email || "Este contacto no tiene correo.";
+						});
+					})();
+					</script>
+				<?php else: ?>
+					<input name="sent_to" type="email" value="<?= h($quote['sent_to'] ?? $client['email'] ?? '') ?>" placeholder="correo@cliente.cl">
+					<small class="muted">Este cliente no tiene contactos. Agrégalos en su ficha.</small>
+				<?php endif; ?>
 			</label>
 			<label>
 				<span>Válida hasta</span>

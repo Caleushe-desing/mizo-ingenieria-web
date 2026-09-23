@@ -278,10 +278,14 @@ if ($editContacts === []) {
 	<details class="paper fold" open>
 		<summary>Cotizaciones</summary>
 		<div class="fold-body">
+		<?php if (!$projects): ?>
+			<p class="muted">Crea un proyecto antes de hacer una cotización. Después eliges a cuál asociarla.</p>
+		<?php else: ?>
+			<p><a class="btn btn-excel" href="<?= h(Http::url('/clientes/' . $client['id'] . '/cotizacion')) ?>">Nueva cotización</a></p>
+		<?php endif; ?>
 		<?php if (!$quotes): ?>
 			<div class="empty">
 				<p>Este cliente todavía no tiene cotizaciones.</p>
-				<a class="btn btn-excel" href="<?= h(Http::url('/clientes/' . $client['id'] . '/cotizacion')) ?>">Crear cotización</a>
 			</div>
 		<?php else: ?>
 			<div class="table-wrap">
@@ -289,6 +293,7 @@ if ($editContacts === []) {
 					<thead>
 						<tr>
 							<th>Número</th>
+							<th>Proyecto</th>
 							<th>Estado</th>
 							<th>Total</th>
 							<th>Fecha</th>
@@ -299,6 +304,16 @@ if ($editContacts === []) {
 					<?php foreach ($quotes as $quote): ?>
 						<tr data-quote-row="<?= (int) $quote['id'] ?>">
 							<td><a href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>"><?= h($quote['number']) ?></a></td>
+							<td><?php
+								$quoteProject = '';
+								foreach ($projects as $row) {
+									if ((int) $row['id'] === (int) ($quote['deal_id'] ?? 0)) {
+										$quoteProject = (string) $row['title'];
+										break;
+									}
+								}
+								echo h($quoteProject !== '' ? $quoteProject : '—');
+							?></td>
 							<td data-quote-status="<?= (int) $quote['id'] ?>"><?= h(quote_status_label((string) $quote['status'])) ?></td>
 							<td><?= money((int) $quote['total']) ?></td>
 							<td><?= h(when($quote['created_at'], 'd-m-Y')) ?></td>

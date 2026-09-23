@@ -6,6 +6,7 @@ namespace MizoCrm\Controllers;
 use MizoCrm\Csrf;
 use MizoCrm\Http;
 use MizoCrm\Models\Activity;
+use MizoCrm\Models\ClientContact;
 use MizoCrm\Models\Deal;
 use MizoCrm\Models\Quote;
 use MizoCrm\View;
@@ -27,7 +28,7 @@ final class PublicQuoteController
 		}
 		View::render('quotes/public', [
 			'title' => 'Cotización ' . $quote['number'],
-			'quote' => $quote,
+			'quote' => ClientContact::applyToQuote($quote),
 			'items' => Quote::items((int) $quote['id']),
 		], 'public-layout');
 	}

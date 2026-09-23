@@ -353,6 +353,16 @@ final class Database
 			);
 			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_deal_contacts_contact ON deal_contacts(contact_id)');
 			$pdo->exec('PRAGMA user_version = 9');
+			$version = 9;
+		}
+
+		if ($version < 10) {
+			$cols = $pdo->query('PRAGMA table_info(quotes)')->fetchAll();
+			$names = array_column($cols, 'name');
+			if (!in_array('contact_id', $names, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN contact_id INTEGER');
+			}
+			$pdo->exec('PRAGMA user_version = 10');
 		}
 	}
 

@@ -21,6 +21,48 @@ final class ClientContact extends Record
 		return $stmt->fetchAll();
 	}
 
+	/** Pone en la cotización el nombre, cargo, correo y teléfono del contacto elegido. */
+	public static function applyToQuote(array $quote): array
+	{
+		$clientId = (int) ($quote['client_id'] ?? 0);
+		$contact = null;
+		$id = (int) ($quote['contact_id'] ?? 0);
+		if ($id > 0 && $clientId > 0) {
+			$contact = self::owned($id, $clientId);
+		}
+		if (!$contact) {
+			$dealId = (int) ($quote['deal_id'] ?? 0);
+			if ($dealId > 0) {
+				$assigned = Deal::contactsByDeal([$dealId])[$dealId] ?? [];
+				if ($assigned) {
+					$contact = $assigned[0];
+				}
+			}
+		}
+		if (!$contact && $clientId > 0 && !empty($quote['sent_to'])) {
+			foreach (self::forClient($clientId) as $row) {
+				if (strcasecmp((string) $row['email'], (string) $quote['sent_to']) === 0) {
+					$contact = $row;
+					break;
+				}
+			}
+		}
+		if (!$contact) {
+			return $quote;
+		}
+		$quote['contact_name'] = (string) ($contact['name'] ?? '');
+		$quote['contact_title'] = (string) ($contact['title'] ?? '');
+		$email = trim((string) ($contact['email'] ?? ''));
+		if ($email !== '') {
+			$quote['client_email'] = $email;
+			$quote['contact_email'] = $email;
+		}
+		if (trim((string) ($contact['phone'] ?? '')) !== '') {
+			$quote['client_phone'] = (string) $contact['phone'];
+		}
+		return $quote;
+	}
+
 	public static function owned(int $id, int $clientId): ?array
 	{
 		$stmt = self::pdo()->prepare('SELECT * FROM client_contacts WHERE id = ? AND client_id = ?');
