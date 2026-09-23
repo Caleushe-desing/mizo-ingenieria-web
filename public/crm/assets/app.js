@@ -401,7 +401,7 @@
 (function () {
 	function insertImage(area, url) {
 		area.focus();
-		document.execCommand('insertHTML', false, '<img src="' + url.replace(/"/g, '&quot;') + '" alt="" style="max-width:220px;height:auto">');
+		document.execCommand('insertHTML', false, '<img src="' + url.replace(/"/g, '&quot;') + '" alt="" style="max-width:100%;height:auto;display:block;border:0">');
 	}
 
 	function uploadImage(root, file, done) {
@@ -748,7 +748,7 @@
 			}
 			if (current === section) {
 				a.setAttribute("href", home);
-				a.title = "Ir al inicio de esta secciÃÂÃÂ³n";
+				a.title = "Ir al inicio de esta secciÃÂÃÂÃÂÃÂ³n";
 			} else if (places[section]) {
 				a.setAttribute("href", places[section]);
 				a.title = "Volver a donde lo dejaste";
@@ -1260,7 +1260,7 @@
 			const body = new FormData(mailForm);
 			body.set("_csrf", csrf);
 			body.set("client_id", mailClient || "");
-			if (mailStatus) mailStatus.textContent = "Enviandoâ¦";
+			if (mailStatus) mailStatus.textContent = "EnviandoÃ¢ÂÂ¦";
 			fetch(base + "/correo", {
 				method: "POST",
 				body: body,
@@ -1299,7 +1299,7 @@
 	});
 
 	function contactLine(label, value) {
-		return "<div><dt>" + label + "</dt><dd>" + (value || "â") + "</dd></div>";
+		return "<div><dt>" + label + "</dt><dd>" + (value || "Ã¢ÂÂ") + "</dd></div>";
 	}
 
 	function paintPerson(person) {
@@ -1307,18 +1307,18 @@
 		const mailBtn = drawerBody.querySelector("[data-open-mail]");
 		if (!box) return;
 		if (!person) {
-			box.innerHTML = "<p class=\"muted\">Elige quiÃ©n estÃ¡ a cargo.</p>";
+			box.innerHTML = "<p class=\"muted\">Elige quiÃÂ©n estÃÂ¡ a cargo.</p>";
 			if (mailBtn) mailBtn.hidden = true;
 			return;
 		}
 		const phone = person.phone
 			? '<a href="tel:' + escapeHtml(person.phone) + '">' + escapeHtml(person.phone) + "</a>"
-			: "â";
+			: "Ã¢ÂÂ";
 		box.innerHTML = ""
 			+ contactLine("Nombre", escapeHtml(person.name || "Contacto"))
-			+ contactLine("Cargo", escapeHtml(person.title || "â"))
-			+ contactLine("TelÃ©fono", phone)
-			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "â");
+			+ contactLine("Cargo", escapeHtml(person.title || "Ã¢ÂÂ"))
+			+ contactLine("TelÃÂ©fono", phone)
+			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "Ã¢ÂÂ");
 		if (mailBtn) {
 			mailBtn.hidden = false;
 			mailBtn.disabled = !person.email;
@@ -1328,7 +1328,7 @@
 
 	function contactPicker(dealId, contacts) {
 		if (!contacts.length) {
-			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. AgrÃ©galos en sus datos.</p></section>';
+			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. AgrÃÂ©galos en sus datos.</p></section>';
 		}
 		const options = contacts.map(function (person) {
 			return '<option value="' + person.id + '"' + (person.on ? " selected" : "") + ">" + escapeHtml(person.name || "Contacto") + "</option>";
@@ -1346,10 +1346,10 @@
 		const deal = data.deal || {};
 		const id = deal.id;
 		if (drawerTitle) drawerTitle.textContent = deal.title || "Proyecto";
-		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " Â· " + (deal.stage_label || "Prospecto");
+		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " ÃÂ· " + (deal.stage_label || "Prospecto");
 		const notes = (data.notes || []).map(function (note) {
 			const prefix = note.type === "recordatorio" ? "Recordatorio: " : "";
-			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " Â· " + escapeHtml(note.when) + "</small></li>";
+			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " ÃÂ· " + escapeHtml(note.when) + "</small></li>";
 		}).join("");
 		const quotes = (data.quotes || []).map(function (quote) {
 			return '<li><a href="' + base + "/cotizaciones/" + quote.id + '">' + escapeHtml(quote.number) + "</a>"
@@ -1358,9 +1358,9 @@
 		drawerBody.innerHTML = ''
 			+ '<p class="muted">' + escapeHtml(deal.service_label || "") + "</p>"
 			+ contactPicker(id, data.contacts || [])
-			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavÃ­a.</p></li>") + "</ul>"
-			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotizaciÃ³n</a>'
-			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'Â¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
+			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavÃÂ­a.</p></li>") + "</ul>"
+			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotizaciÃÂ³n</a>'
+			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'ÃÂ¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
 			+ '<input type="hidden" name="_csrf" value="' + escapeHtml(csrf) + '">'
 			+ '<input type="hidden" name="volver" value="tablero">'
 			+ '<button type="submit" class="is-danger">Eliminar proyecto</button></form></div></section>'
@@ -1396,7 +1396,7 @@
 				const person = selectedPerson();
 				if (!person || !person.email || !mailPop || !mailForm) return;
 				mailTo.value = person.email;
-				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " Â· " + person.phone : "");
+				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " ÃÂ· " + person.phone : "");
 				mailSubject.value = deal.title ? deal.title : "";
 				mailBody.value = "";
 				mailStatus.textContent = "";
@@ -1425,7 +1425,7 @@
 						if (!json || !json.ok) return;
 						const list = drawerBody.querySelector("[data-project-notes]");
 						const li = document.createElement("li");
-						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " Â· " + escapeHtml(json.note.when) + "</small>";
+						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " ÃÂ· " + escapeHtml(json.note.when) + "</small>";
 						const empty = list.querySelector("li");
 						if (empty && empty.textContent.indexOf("Sin notas") === 0) empty.remove();
 						list.prepend(li);
@@ -1440,7 +1440,7 @@
 	function openDrawer(card) {
 		if (!drawer || !drawerBody) return;
 		drawer.hidden = false;
-		drawerBody.innerHTML = '<p class="muted">Cargandoâ¦</p>';
+		drawerBody.innerHTML = '<p class="muted">CargandoÃ¢ÂÂ¦</p>';
 		fetch(card.getAttribute("data-detail"), { credentials: "same-origin", headers: { Accept: "application/json" } })
 			.then(function (res) { return res.json(); })
 			.then(function (data) {

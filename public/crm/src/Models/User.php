@@ -85,9 +85,7 @@ final class User extends Record
 		$inner = self::looksLikeHtml($text)
 			? \MizoCrm\Mail\Mime::safeHtml($text)
 			: nl2br(h($text), false);
-		return '<div style="margin:24px 0 0;padding-top:16px;border-top:1px solid #e6e6e6;font-size:13px;line-height:1.45;color:#444;">'
-			. $inner
-			. '</div>';
+		return self::wrapResponsiveSignature(self::responsiveSignature($inner));
 	}
 
 	public static function signatureEditorHtml(?array $user): string
@@ -107,6 +105,7 @@ final class User extends Record
 		$html = self::persistInlineImages($html);
 		$html = \MizoCrm\Mail\Mime::safeHtml($html);
 		$origin = \MizoCrm\App::origin();
+		$html = self::responsiveSignature($html);
 		$html = preg_replace_callback(
 			'/(<img\b[^>]*\bsrc=["\'])([^"\']+)(["\'])/i',
 			static function (array $match) use ($origin): string {
@@ -154,6 +153,79 @@ final class User extends Record
 		return \MizoCrm\App::absolute('/uploads/firmas/' . $name);
 	}
 
+	private static function wrapResponsiveSignature(string $inner): string
+	{
+		return '<div style="max-width:100%;width:100%;box-sizing:border-box;overflow:hidden;margin:24px 0 0;font-size:13px;line-height:1.45;color:#444;word-break:break-word;">'
+			. '<hr style="width:100%;max-width:100%;border:0;border-top:1px solid #e6e6e6;margin:0 0 16px;height:0;">'
+			. $inner
+			. '</div>';
+	}
+
+	/** Ajusta imágenes y tablas de la firma para que no se salgan en el celular. */
+	private static function responsiveSignature(string $html): string
+	{
+		$html = preg_replace_callback('/<img\b([^>]*)>/i', static function (array $match): string {
+			$attrs = preg_replace('/\s(?:width|height)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $match[1]) ?? $match[1];
+			$attrs = self::setInlineStyle($attrs, [
+				'max-width' => '100%',
+				'height' => 'auto',
+				'display' => 'block',
+				'border' => '0',
+			], ['width', 'height', 'max-height', 'min-width']);
+			return '<img' . $attrs . '>';
+		}, $html) ?? $html;
+
+		$html = preg_replace_callback('/<table\b([^>]*)>/i', static function (array $match): string {
+			$attrs = preg_replace('/\swidth\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $match[1]) ?? $match[1];
+			$attrs = self::setInlineStyle($attrs . ' width="100%"', [
+				'width' => '100%',
+				'max-width' => '100%',
+			], ['min-width']);
+			return '<table' . $attrs . '>';
+		}, $html) ?? $html;
+
+		$html = preg_replace_callback('/<(td|th)\b([^>]*)>/i', static function (array $match): string {
+			$attrs = self::setInlineStyle($match[2], [
+				'word-break' => 'break-word',
+				'overflow-wrap' => 'break-word',
+			], []);
+			return '<' . strtolower($match[1]) . $attrs . '>';
+		}, $html) ?? $html;
+
+		return $html;
+	}
+
+	/** @param array<string, string> $set @param list<string> $drop */
+	private static function setInlineStyle(string $attrs, array $set, array $drop): string
+	{
+		$style = '';
+		if (preg_match('/\sstyle\s*=\s*("|\')(.*?)\1/i', $attrs, $match)) {
+			$style = $match[2];
+			$attrs = preg_replace('/\sstyle\s*=\s*("|\')(.*?)\1/i', '', $attrs, 1) ?? $attrs;
+		}
+		$props = [];
+		foreach (explode(';', $style) as $part) {
+			$part = trim($part);
+			if ($part === '' || !str_contains($part, ':')) {
+				continue;
+			}
+			[$name, $value] = explode(':', $part, 2);
+			$name = strtolower(trim($name));
+			if ($name === '' || in_array($name, $drop, true) || array_key_exists($name, $set)) {
+				continue;
+			}
+			$props[$name] = trim($value);
+		}
+		foreach ($set as $name => $value) {
+			$props[$name] = $value;
+		}
+		$css = [];
+		foreach ($props as $name => $value) {
+			$css[] = $name . ':' . $value;
+		}
+		return $attrs . ' style="' . htmlspecialchars(implode(';', $css), ENT_QUOTES, 'UTF-8') . '"';
+	}
+
 	private static function looksLikeHtml(string $text): bool
 	{
 		return (bool) preg_match('/<[a-z][\s\S]*>/i', $text);
@@ -171,7 +243,7 @@ final class User extends Record
 				$kind = strtolower($match[2]);
 				$mime = ($kind === 'jpg' || $kind === 'jpeg') ? 'image/jpeg' : 'image/' . $kind;
 				$url = self::storeSignatureImage($binary, $mime);
-				return $url ? '<img src="' . h($url) . '" alt="" style="max-width:240px;height:auto;border:0">' : '';
+				return $url ? '<img src="' . h($url) . '" alt="" style="max-width:100%;height:auto;display:block;border:0">' : '';
 			},
 			$html
 		) ?? $html;
