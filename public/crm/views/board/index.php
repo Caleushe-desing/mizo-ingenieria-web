@@ -149,7 +149,7 @@ $accents = [
 				<label class="mail-attach">
 					<span>Adjuntos</span>
 					<input type="file" name="adjuntos[]" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.xml,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rtf" multiple data-mail-files>
-					<small>PDF, imágenes, XML, Excel, Word o ZIP.</small>
+					<small>Puedes elegir varios juntos o sumar de a uno. PDF, imágenes, XML, Excel, Word o ZIP.</small>
 				</label>
 				<p class="muted" data-mail-status></p>
 				<div class="kb-actions">

@@ -71,7 +71,7 @@ $unread = (int) ($unread ?? 0);
 			<label class="mail-attach">
 				<span>Adjuntos</span>
 				<input type="file" name="adjuntos[]" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.xml,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rtf" multiple>
-				<small>PDF, imágenes, XML, Excel, Word o ZIP. Hasta 5 archivos, 8 MB cada uno.</small>
+				<small>Puedes elegir varios juntos o sumar de a uno. Hasta 5 archivos, 8 MB cada uno.</small>
 			</label>
 			<div class="gmail-window-actions">
 				<button class="gmail-send" type="submit">Enviar</button>

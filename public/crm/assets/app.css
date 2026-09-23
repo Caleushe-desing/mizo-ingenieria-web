@@ -1050,6 +1050,9 @@ body.is-gmail .flash { margin: 12px 18px 0; }
 }
 .mail-attach input { display: block; margin-top: 4px; max-width: 100%; }
 .mail-attach small { display: block; margin-top: 4px; color: #5f6368; }
+.mail-attach-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.mail-attach-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+.mail-attach-list button { border: 0; background: transparent; color: #c5221f; cursor: pointer; font-size: 12px; padding: 0; }
 .kb-pop .mail-attach { padding: 0; margin: 8px 0; }
 .gmail-window-actions {
 	display: flex;

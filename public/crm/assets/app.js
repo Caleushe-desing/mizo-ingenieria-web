@@ -748,7 +748,7 @@
 			}
 			if (current === section) {
 				a.setAttribute("href", home);
-				a.title = "Ir al inicio de esta secciÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ³n";
+				a.title = "Ir al inicio de esta sección";
 			} else if (places[section]) {
 				a.setAttribute("href", places[section]);
 				a.title = "Volver a donde lo dejaste";
@@ -1260,7 +1260,7 @@
 			const body = new FormData(mailForm);
 			body.set("_csrf", csrf);
 			body.set("client_id", mailClient || "");
-			if (mailStatus) mailStatus.textContent = "EnviandoÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦";
+			if (mailStatus) mailStatus.textContent = "Enviando…";
 			fetch(base + "/correo", {
 				method: "POST",
 				body: body,
@@ -1276,7 +1276,8 @@
 					if (mailStatus) mailStatus.textContent = json.message || "Correo enviado.";
 					if (mailBody) mailBody.value = "";
 					const files = mailForm.querySelector("[data-mail-files]");
-					if (files) files.value = "";
+					if (files && files.mizoClearAttachments) files.mizoClearAttachments();
+					else if (files) files.value = "";
 				})
 				.catch(function () {
 					if (mailStatus) mailStatus.textContent = "No se pudo enviar.";
@@ -1301,7 +1302,7 @@
 	});
 
 	function contactLine(label, value) {
-		return "<div><dt>" + label + "</dt><dd>" + (value || "ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ") + "</dd></div>";
+		return "<div><dt>" + label + "</dt><dd>" + (value || "—") + "</dd></div>";
 	}
 
 	function paintPerson(person) {
@@ -1309,18 +1310,18 @@
 		const mailBtn = drawerBody.querySelector("[data-open-mail]");
 		if (!box) return;
 		if (!person) {
-			box.innerHTML = "<p class=\"muted\">Elige quiÃÂÃÂÃÂÃÂ©n estÃÂÃÂÃÂÃÂ¡ a cargo.</p>";
+			box.innerHTML = "<p class=\"muted\">Elige quién está a cargo.</p>";
 			if (mailBtn) mailBtn.hidden = true;
 			return;
 		}
 		const phone = person.phone
 			? '<a href="tel:' + escapeHtml(person.phone) + '">' + escapeHtml(person.phone) + "</a>"
-			: "ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ";
+			: "—";
 		box.innerHTML = ""
 			+ contactLine("Nombre", escapeHtml(person.name || "Contacto"))
-			+ contactLine("Cargo", escapeHtml(person.title || "ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ"))
-			+ contactLine("TelÃÂÃÂÃÂÃÂ©fono", phone)
-			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ");
+			+ contactLine("Cargo", escapeHtml(person.title || "—"))
+			+ contactLine("Teléfono", phone)
+			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "—");
 		if (mailBtn) {
 			mailBtn.hidden = false;
 			mailBtn.disabled = !person.email;
@@ -1330,7 +1331,7 @@
 
 	function contactPicker(dealId, contacts) {
 		if (!contacts.length) {
-			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. AgrÃÂÃÂÃÂÃÂ©galos en sus datos.</p></section>';
+			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. Agrégalos en sus datos.</p></section>';
 		}
 		const options = contacts.map(function (person) {
 			return '<option value="' + person.id + '"' + (person.on ? " selected" : "") + ">" + escapeHtml(person.name || "Contacto") + "</option>";
@@ -1348,10 +1349,10 @@
 		const deal = data.deal || {};
 		const id = deal.id;
 		if (drawerTitle) drawerTitle.textContent = deal.title || "Proyecto";
-		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " ÃÂÃÂÃÂÃÂ· " + (deal.stage_label || "Prospecto");
+		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " · " + (deal.stage_label || "Prospecto");
 		const notes = (data.notes || []).map(function (note) {
 			const prefix = note.type === "recordatorio" ? "Recordatorio: " : "";
-			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " ÃÂÃÂÃÂÃÂ· " + escapeHtml(note.when) + "</small></li>";
+			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " · " + escapeHtml(note.when) + "</small></li>";
 		}).join("");
 		const quotes = (data.quotes || []).map(function (quote) {
 			return '<li><a href="' + base + "/cotizaciones/" + quote.id + '">' + escapeHtml(quote.number) + "</a>"
@@ -1360,9 +1361,9 @@
 		drawerBody.innerHTML = ''
 			+ '<p class="muted">' + escapeHtml(deal.service_label || "") + "</p>"
 			+ contactPicker(id, data.contacts || [])
-			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavÃÂÃÂÃÂÃÂ­a.</p></li>") + "</ul>"
-			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotizaciÃÂÃÂÃÂÃÂ³n</a>'
-			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'ÃÂÃÂÃÂÃÂ¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
+			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavía.</p></li>") + "</ul>"
+			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotización</a>'
+			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
 			+ '<input type="hidden" name="_csrf" value="' + escapeHtml(csrf) + '">'
 			+ '<input type="hidden" name="volver" value="tablero">'
 			+ '<button type="submit" class="is-danger">Eliminar proyecto</button></form></div></section>'
@@ -1398,10 +1399,12 @@
 				const person = selectedPerson();
 				if (!person || !person.email || !mailPop || !mailForm) return;
 				mailTo.value = person.email;
-				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " ÃÂÃÂÃÂÃÂ· " + person.phone : "");
+				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " · " + person.phone : "");
 				mailSubject.value = deal.title ? deal.title : "";
 				mailBody.value = "";
 				mailStatus.textContent = "";
+				const files = mailForm.querySelector("[data-mail-files]");
+				if (files && files.mizoClearAttachments) files.mizoClearAttachments();
 				mailClient = client.id || "";
 				mailPop.hidden = false;
 				mailBody.focus();
@@ -1427,7 +1430,7 @@
 						if (!json || !json.ok) return;
 						const list = drawerBody.querySelector("[data-project-notes]");
 						const li = document.createElement("li");
-						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " ÃÂÃÂÃÂÃÂ· " + escapeHtml(json.note.when) + "</small>";
+						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " · " + escapeHtml(json.note.when) + "</small>";
 						const empty = list.querySelector("li");
 						if (empty && empty.textContent.indexOf("Sin notas") === 0) empty.remove();
 						list.prepend(li);
@@ -1442,7 +1445,7 @@
 	function openDrawer(card) {
 		if (!drawer || !drawerBody) return;
 		drawer.hidden = false;
-		drawerBody.innerHTML = '<p class="muted">CargandoÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦</p>';
+		drawerBody.innerHTML = '<p class="muted">Cargando…</p>';
 		fetch(card.getAttribute("data-detail"), { credentials: "same-origin", headers: { Accept: "application/json" } })
 			.then(function (res) { return res.json(); })
 			.then(function (data) {
@@ -1500,4 +1503,62 @@
 		} catch (e) {}
 	}
 	show(start);
+})();
+
+(function () {
+	document.querySelectorAll('input[type="file"][name="adjuntos[]"]').forEach(function (input) {
+		if (input.mizoClearAttachments) return;
+		const selected = [];
+		const list = document.createElement("ul");
+		list.className = "mail-attach-list";
+		input.insertAdjacentElement("afterend", list);
+
+		let writing = false;
+		function sync() {
+			writing = true;
+			const bag = new DataTransfer();
+			selected.forEach(function (file) { bag.items.add(file); });
+			input.files = bag.files;
+			writing = false;
+		}
+
+		function paint() {
+			list.textContent = "";
+			selected.forEach(function (file, index) {
+				const item = document.createElement("li");
+				const name = document.createElement("span");
+				name.textContent = file.name;
+				const remove = document.createElement("button");
+				remove.type = "button";
+				remove.textContent = "Quitar";
+				remove.addEventListener("click", function () {
+					selected.splice(index, 1);
+					sync();
+					paint();
+				});
+				item.appendChild(name);
+				item.appendChild(remove);
+				list.appendChild(item);
+			});
+		}
+
+		input.addEventListener("change", function () {
+			if (writing) return;
+			Array.prototype.forEach.call(input.files, function (file) {
+				const same = selected.some(function (have) {
+					return have.name === file.name && have.size === file.size && have.lastModified === file.lastModified;
+				});
+				if (!same && selected.length < 5) selected.push(file);
+			});
+			sync();
+			paint();
+		});
+
+		input.mizoClearAttachments = function () {
+			selected.length = 0;
+			input.value = "";
+			sync();
+			paint();
+		};
+	});
 })();
