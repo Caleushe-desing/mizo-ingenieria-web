@@ -25,12 +25,24 @@ foreach ($cards as $card) {
 	$grouped[$stage][] = $card;
 }
 $stageColors = $stageColors ?? [];
+$invoiceCards = $invoiceCards ?? [];
+foreach ($invoiceCards as $invoice) {
+	$stage = (string) ($invoice['stage'] ?? '');
+	if (!isset($grouped[$stage])) {
+		$fallback = array_key_first($grouped);
+		if ($fallback === null) {
+			continue;
+		}
+		$stage = (string) $fallback;
+	}
+	$grouped[$stage][] = $invoice;
+}
 ?>
 <div class="kb" data-board data-move="<?= h(Http::url('/tablero/mover')) ?>" data-csrf="<?= h(Csrf::token()) ?>">
 	<div class="kb-bar">
 		<div>
 			<h1>Tablero comercial</h1>
-			<p>Cada tarjeta es un proyecto. Un cliente puede tener varios. Arrastra para cambiar la etapa.</p>
+			<p>Cada proyecto sigue en su hilera. Cada factura de venta es una tarjeta aparte, en Proyecto facturado o Factura pagada.</p>
 		</div>
 		<div class="kb-filters">
 			<input type="search" data-kb-q placeholder="Buscar proyecto o cliente" autocomplete="off">
@@ -76,6 +88,42 @@ $stageColors = $stageColors ?? [];
 				</header>
 				<div class="kb-drop" data-drop="<?= h($key) ?>">
 					<?php foreach ($grouped[$key] as $card): ?>
+						<?php if (!empty($card['invoice_id'])): ?>
+							<?php
+							$paid = (string) ($card['status'] ?? '') === 'paid';
+							$amount = (int) ($card['total'] ?? 0);
+							$stamp = strtotime((string) ($card['issued_on'] ?: $card['created_at'] ?: ''));
+							$ageDays = $stamp ? (int) floor((time() - $stamp) / 86400) : 0;
+							$service = (string) ($card['service'] ?? 'otro');
+							$hay = mb_strtolower(trim(
+								($card['number'] ?? '') . ' ' . ($card['name'] ?? '') . ' ' . ($card['deal_title'] ?? '') . ' ' . ($card['rut'] ?? '')
+							), 'UTF-8');
+							?>
+							<article class="kb-card kb-card-invoice<?= $paid ? ' is-paid' : '' ?>"
+								draggable="false"
+								data-invoice="<?= (int) $card['invoice_id'] ?>"
+								data-client="<?= (int) $card['client_id'] ?>"
+								data-deal="<?= (int) $card['deal_id'] ?>"
+								data-service="<?= h($service) ?>"
+								data-owner="<?= (int) ($card['owner_id'] ?? 0) ?>"
+								data-priority="<?= $paid ? 'baja' : 'alta' ?>"
+								data-age="<?= (int) $ageDays ?>"
+								data-hay="<?= h($hay) ?>"
+								data-detail="<?= h(Http::url('/tablero/proyecto/' . $card['deal_id'])) ?>">
+								<div class="kb-card-top">
+									<strong>Factura <?= h($card['number']) ?></strong>
+									<em class="kb-pri <?= $paid ? 'kb-pri-baja' : 'kb-pri-alta' ?>"><?= $paid ? 'Pagada' : 'Pendiente' ?></em>
+								</div>
+								<p class="kb-note"><?= h($card['name']) ?></p>
+								<span class="kb-tag kb-tag-otro"><?= h($card['deal_title'] ?: 'Proyecto') ?></span>
+								<div class="kb-meta">
+									<span><?= $amount > 0 ? money($amount) : 'Sin monto' ?></span>
+									<span><?= h($card['owner_name'] ?: 'Sin asignar') ?></span>
+								</div>
+								<p class="kb-note kb-snippet"><?= $paid ? 'Pagada' : 'Pendiente de pago' ?></p>
+							</article>
+							<?php continue; ?>
+						<?php endif; ?>
 						<?php
 						$service = (string) ($card['service'] ?? '');
 						if ($service === '') {

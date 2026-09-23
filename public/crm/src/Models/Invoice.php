@@ -125,6 +125,36 @@ final class Invoice extends Record
 		return (int) self::pdo()->lastInsertId();
 	}
 
+	/** @return list<array<string,mixed>> */
+	public static function kanban(?int $ownerId): array
+	{
+		$pendingStage = Pipeline::slug('invoiced') ?? 'proyecto-facturado';
+		$paidStage = Pipeline::slug('paid') ?? 'factura-pagada';
+		$sql = 'SELECT s.id AS invoice_id, s.number, s.total, s.net, s.status, s.issued_on, s.created_at,
+			s.deal_id, s.client_id, c.name, c.rut, c.city,
+			d.title AS deal_title, d.service, d.owner_id, u.name AS owner_name
+			FROM sales_invoices s
+			JOIN clients c ON c.id = s.client_id
+			JOIN deals d ON d.id = s.deal_id
+			LEFT JOIN users u ON u.id = COALESCE(d.owner_id, c.owner_id)
+			WHERE 1=1';
+		$params = [];
+		if ($ownerId) {
+			$sql .= ' AND (c.owner_id = ? OR d.owner_id = ?)';
+			$params[] = $ownerId;
+			$params[] = $ownerId;
+		}
+		$sql .= ' ORDER BY s.issued_on DESC, s.id DESC';
+		$stmt = self::pdo()->prepare($sql);
+		$stmt->execute($params);
+		$rows = $stmt->fetchAll();
+		foreach ($rows as &$row) {
+			$row['stage'] = ((string) $row['status'] === 'paid') ? $paidStage : $pendingStage;
+		}
+		unset($row);
+		return $rows;
+	}
+
 	/** @return array<string,int> */
 	public static function summary(): array
 	{

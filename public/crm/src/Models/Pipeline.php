@@ -44,33 +44,60 @@ final class Pipeline extends Record
 
 	public static function onInvoicesChanged(int $dealId): void
 	{
+		self::reconcile($dealId);
+	}
+
+	/** Devuelve al tablero los proyectos cerrados antes de que lo pagado cubra el monto. */
+	public static function reconcileOpen(): void
+	{
+		$ids = self::pdo()->query(
+			'SELECT id FROM deals WHERE COALESCE(archived, 0) = 1
+			 OR stage IN (SELECT slug FROM board_stages WHERE role IN (\'invoiced\', \'paid\'))'
+		)->fetchAll(\PDO::FETCH_COLUMN);
+		foreach ($ids as $id) {
+			self::reconcile((int) $id);
+		}
+	}
+
+	public static function reconcile(int $dealId): void
+	{
 		$deal = Deal::find($dealId);
-		if (!$deal || !empty($deal['archived'])) {
+		if (!$deal) {
 			return;
 		}
-		$sales = self::pdo()->prepare('SELECT COUNT(*) AS n, COALESCE(SUM(total), 0) AS total, SUM(CASE WHEN status = \'paid\' THEN 1 ELSE 0 END) AS paid FROM sales_invoices WHERE deal_id = ?');
+		$sales = self::pdo()->prepare(
+			'SELECT COALESCE(SUM(CASE WHEN status = \'paid\' THEN total ELSE 0 END), 0) AS paid_total
+			 FROM sales_invoices WHERE deal_id = ?'
+		);
 		$sales->execute([$dealId]);
-		$row = $sales->fetch() ?: ['n' => 0, 'total' => 0, 'paid' => 0];
-		$count = (int) $row['n'];
-		if ($count < 1) {
-			return;
-		}
+		$paidTotal = (int) $sales->fetchColumn();
 		$target = self::target($dealId, $deal);
-		$covered = $target > 0 && (int) $row['total'] >= $target;
-		$allPaid = (int) $row['paid'] === $count;
-		if ($covered && $allPaid) {
-			$fields = ['archived' => 1, 'updated_at' => date('c')];
-			$paid = self::slug('paid');
-			if ($paid !== null) {
-				$fields['stage'] = $paid;
+		$covered = $target > 0 && $paidTotal >= $target;
+		if ($covered) {
+			if (!empty($deal['archived'])) {
+				return;
 			}
-			Deal::update($dealId, $fields);
-			Activity::log('stage', 'Las facturas cubren el proyecto y están pagadas. Salió del tablero activo.', null, (int) $deal['client_id'], $dealId);
+			Deal::update($dealId, ['archived' => 1, 'updated_at' => date('c')]);
+			Activity::log('stage', 'Lo pagado ya cubre el proyecto. Salió del tablero activo.', null, (int) $deal['client_id'], $dealId);
 			return;
 		}
-		self::move($deal, $allPaid ? 'paid' : 'invoiced', $allPaid
-			? 'La factura quedó pagada. La tarjeta pasó a «' . self::label('paid') . '».'
-			: 'Se registró una factura. La tarjeta pasó a «' . self::label('invoiced') . '».');
+		$fields = ['updated_at' => date('c')];
+		$bringBack = false;
+		if (!empty($deal['archived'])) {
+			$fields['archived'] = 0;
+			$bringBack = true;
+		}
+		$role = self::roleOf((string) $deal['stage']);
+		$accepted = self::slug('accepted');
+		if ($accepted && in_array($role, ['invoiced', 'paid'], true) && (string) $deal['stage'] !== $accepted) {
+			$fields['stage'] = $accepted;
+			$bringBack = true;
+		}
+		if (!$bringBack) {
+			return;
+		}
+		Deal::update($dealId, $fields);
+		Activity::log('stage', 'El proyecto sigue en el tablero: lo pagado todavía no cubre el monto.', null, (int) $deal['client_id'], $dealId);
 	}
 
 	/** @param array<string,mixed> $deal */

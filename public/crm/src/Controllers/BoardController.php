@@ -17,6 +17,7 @@ final class BoardController
 {
 	public function index(): void
 	{
+		\MizoCrm\Models\Pipeline::reconcileOpen();
 		View::render('board/index', [
 			'title' => 'Tablero',
 			'stages' => \MizoCrm\Models\Stage::labels(),
@@ -25,6 +26,7 @@ final class BoardController
 			'stageCounts' => Auth::isAdmin() ? \MizoCrm\Models\Stage::dealCounts() : [],
 			'services' => Config::services(),
 			'cards' => Deal::board(Auth::ownerScope()),
+			'invoiceCards' => \MizoCrm\Models\Invoice::kanban(Auth::ownerScope()),
 			'team' => Auth::isAdmin() ? User::team() : [],
 			'ownerFilter' => 0,
 		]);

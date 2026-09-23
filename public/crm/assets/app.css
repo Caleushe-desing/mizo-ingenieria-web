@@ -2315,3 +2315,7 @@ body.is-clients .btn-word, body.is-clients .kb-enroll, .kb-enroll, .kb-go {
 	background: #fff;
 	cursor: pointer;
 }
+
+.kb-card-invoice { cursor: pointer; }
+.kb-card-invoice .kb-card-top strong { color: #0b6ea8; }
+.kb-card-invoice.is-paid .kb-card-top strong { color: #1f8a4c; }

@@ -1177,6 +1177,10 @@
 
 	function bindCard(card) {
 		card.addEventListener("dragstart", function (event) {
+			if (card.hasAttribute("data-invoice")) {
+				event.preventDefault();
+				return;
+			}
 			dragged = card;
 			origin = card.parentElement;
 			moved = false;

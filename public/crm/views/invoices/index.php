@@ -9,7 +9,7 @@ $book = $book ?? ['clients' => [], 'deals' => [], 'sales' => [], 'purchases' => 
 		<div>
 			<p class="file-kicker">Administración</p>
 			<h1>Ingreso de facturas</h1>
-			<p>La venta mueve la tarjeta del proyecto. La compra alimenta el margen. El proyecto sale del tablero cuando las facturas cubren el monto y están pagadas.</p>
+			<p>Cada factura de venta aparece en el tablero. El proyecto aceptado sale solo cuando lo pagado cubre el monto. Si queda algo pendiente, el proyecto sigue visible.</p>
 		</div>
 	</div>
 

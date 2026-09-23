@@ -46,7 +46,7 @@ final class InvoiceController
 				'issued_on' => $issued,
 				'created_by' => (int) $user['id'],
 			]);
-			View::flash('ok', 'Factura de venta registrada. El proyecto se movió en el tablero.');
+			View::flash('ok', 'Factura de venta registrada. Quedó como tarjeta en el tablero.');
 		} catch (RuntimeException $e) {
 			View::flash('error', $e->getMessage());
 		}
