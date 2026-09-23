@@ -465,9 +465,7 @@ final class WorkController
 			'sent_to' => $to,
 			'updated_at' => date('c'),
 		]);
-		if (in_array($deal['stage'], ['nuevo', 'contactado'], true)) {
-			Deal::update($dealId, ['stage' => 'propuesta', 'job_status' => 'cotizado', 'updated_at' => date('c')]);
-		}
+		\MizoCrm\Models\Pipeline::onQuoteSent($dealId);
 		Activity::log(
 			'quote_sent',
 			'Cotización ' . $quote['number'] . ' enviada a ' . $to . '.',

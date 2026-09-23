@@ -5,6 +5,18 @@ $pipeline = $pipeline ?? [];
 $executives = $executives ?? [];
 $web = $web ?? ['forms' => 0, 'web_clients' => 0, 'services' => [], 'projects' => []];
 $trend = $trend ?? ['labels' => [], 'quotes' => [], 'won' => []];
+$finance = $finance ?? [
+	'sales_net' => 0,
+	'sales_tax' => 0,
+	'purchase_tax' => 0,
+	'vat_net' => 0,
+	'travel' => 0,
+	'operations' => 0,
+	'other_costs' => 0,
+	'margin' => 0,
+	'cost' => 0,
+];
+$margins = $margins ?? [];
 $quotesSent = 0;
 foreach ($executives as $person) {
 	$quotesSent += (int) ($person['quotes_sent'] ?? 0);
@@ -69,6 +81,67 @@ $conversion = $closed > 0 ? (int) round(100 * (int) $won / $closed) : null;
 		</section>
 	</div>
 
+	<section class="admin-card">
+		<h2>Márgenes y facturación</h2>
+		<p class="muted">El margen es la venta neta menos la compra neta, viáticos, gastos de operación y otros costos. El IVA no entra en la rentabilidad.</p>
+		<div class="admin-kpis">
+			<article class="admin-kpi">
+				<strong><?= money((int) $finance['sales_net']) ?></strong>
+				<span>Ventas netas</span>
+			</article>
+			<article class="admin-kpi is-orange">
+				<strong><?= money((int) $finance['sales_tax']) ?></strong>
+				<span>IVA por pagar</span>
+			</article>
+			<article class="admin-kpi">
+				<strong><?= money((int) $finance['purchase_tax']) ?></strong>
+				<span>IVA a recuperar</span>
+			</article>
+			<article class="admin-kpi is-orange">
+				<strong><?= money((int) $finance['vat_net']) ?></strong>
+				<span>IVA neto</span>
+			</article>
+			<article class="admin-kpi">
+				<strong><?= money((int) $finance['travel']) ?></strong>
+				<span>Viáticos</span>
+			</article>
+			<article class="admin-kpi is-orange">
+				<strong><?= money((int) $finance['operations']) ?></strong>
+				<span>Gastos de operación</span>
+			</article>
+			<article class="admin-kpi">
+				<strong><?= money((int) ($finance['other_costs'] ?? 0)) ?></strong>
+				<span>Otros costos</span>
+			</article>
+			<article class="admin-kpi is-orange">
+				<strong><?= money((int) $finance['margin']) ?></strong>
+				<span>Rentabilidad real</span>
+			</article>
+		</div>
+		<?php if (!$margins): ?>
+			<p class="muted">Cuando registres facturas, el margen de cada proyecto aparece aquí.</p>
+		<?php else: ?>
+			<div class="table-wrap">
+				<table class="sheet">
+					<thead>
+						<tr><th>Cliente</th><th>Proyecto</th><th>Venta neta</th><th>Costos</th><th>Margen</th><th>Estado</th></tr>
+					</thead>
+					<tbody>
+						<?php foreach ($margins as $row): ?>
+							<tr>
+								<td><?= h($row['client_name']) ?></td>
+								<td><?= h($row['title']) ?></td>
+								<td><?= money((int) $row['revenue']) ?></td>
+								<td><?= money((int) $row['cost']) ?></td>
+								<td><?= money((int) $row['margin']) ?></td>
+								<td><?= !empty($row['archived']) ? 'Completado' : 'Activo' ?></td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		<?php endif; ?>
+	</section>
 	<section class="admin-card">
 		<h2>Rendimiento por ejecutivo</h2>
 		<div class="table-wrap">

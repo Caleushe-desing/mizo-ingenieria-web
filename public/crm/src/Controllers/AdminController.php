@@ -6,6 +6,7 @@ namespace MizoCrm\Controllers;
 use MizoCrm\Auth;
 use MizoCrm\Config;
 use MizoCrm\Models\AdminReport;
+use MizoCrm\Models\Invoice;
 use MizoCrm\Models\User;
 use MizoCrm\View;
 
@@ -65,6 +66,8 @@ final class AdminController
 			'openAmount' => $openAmount,
 			'won' => $won,
 			'lost' => $lost,
+			'finance' => Invoice::summary(),
+			'margins' => Invoice::margins(),
 		]);
 	}
 

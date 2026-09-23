@@ -413,6 +413,91 @@ final class Database
 			$pdo->exec('PRAGMA user_version = 13');
 			$version = 13;
 		}
+
+		if ($version < 14) {
+			$stageCols = array_column($pdo->query('PRAGMA table_info(board_stages)')->fetchAll(), 'name');
+			if (!in_array('role', $stageCols, true)) {
+				$pdo->exec("ALTER TABLE board_stages ADD COLUMN role TEXT NOT NULL DEFAULT ''");
+			}
+			$dealCols = array_column($pdo->query('PRAGMA table_info(deals)')->fetchAll(), 'name');
+			if (!in_array('archived', $dealCols, true)) {
+				$pdo->exec('ALTER TABLE deals ADD COLUMN archived INTEGER NOT NULL DEFAULT 0');
+			}
+			$pdo->exec("UPDATE board_stages SET role = 'sent' WHERE slug = 'propuesta' AND (role IS NULL OR role = '')");
+			$pdo->exec("UPDATE board_stages SET label = 'Presupuesto enviado' WHERE slug = 'propuesta' AND label LIKE 'Propuesta / Cotiz%'");
+			$wanted = [
+				['accepted', 'presupuesto-aceptado', 'Presupuesto aceptado', '#1c9bd8'],
+				['invoiced', 'proyecto-facturado', 'Proyecto facturado', '#0b6ea8'],
+				['paid', 'factura-pagada', 'Factura pagada', '#1f8a4c'],
+			];
+			$missing = [];
+			$check = $pdo->prepare('SELECT id, role FROM board_stages WHERE role = ? OR slug = ? LIMIT 1');
+			$fillRole = $pdo->prepare("UPDATE board_stages SET role = ? WHERE slug = ? AND (role IS NULL OR role = '')");
+			foreach ($wanted as $row) {
+				$check->execute([$row[0], $row[1]]);
+				$found = $check->fetch();
+				if (!$found) {
+					$missing[] = $row;
+					continue;
+				}
+				$fillRole->execute([$row[0], $row[1]]);
+			}
+			if ($missing !== []) {
+				$base = (int) $pdo->query("SELECT position FROM board_stages WHERE slug = 'propuesta'")->fetchColumn();
+				if ($base > 0) {
+					$shift = $pdo->prepare('UPDATE board_stages SET position = position + ? WHERE position > ?');
+					$shift->execute([count($missing), $base]);
+					$pos = $base;
+				} else {
+					$pos = (int) $pdo->query('SELECT COALESCE(MAX(position), 0) FROM board_stages')->fetchColumn();
+				}
+				$insertStage = $pdo->prepare('INSERT INTO board_stages (slug, label, color, position, kind, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
+				$now = date('c');
+				foreach ($missing as $row) {
+					$pos++;
+					$insertStage->execute([$row[1], $row[2], $row[3], $pos, 'open', $row[0], $now]);
+				}
+			}
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS sales_invoices (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					number TEXT NOT NULL,
+					client_id INTEGER NOT NULL,
+					deal_id INTEGER NOT NULL,
+					quote_id INTEGER,
+					net INTEGER NOT NULL DEFAULT 0,
+					tax INTEGER NOT NULL DEFAULT 0,
+					total INTEGER NOT NULL DEFAULT 0,
+					status TEXT NOT NULL DEFAULT \'pending\',
+					issued_on TEXT NOT NULL,
+					paid_at TEXT,
+					created_by INTEGER,
+					created_at TEXT NOT NULL,
+					updated_at TEXT NOT NULL
+				)'
+			);
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS purchase_invoices (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					supplier TEXT NOT NULL,
+					number TEXT NOT NULL,
+					deal_id INTEGER,
+					net INTEGER NOT NULL DEFAULT 0,
+					tax INTEGER NOT NULL DEFAULT 0,
+					travel INTEGER NOT NULL DEFAULT 0,
+					operations INTEGER NOT NULL DEFAULT 0,
+					other_costs INTEGER NOT NULL DEFAULT 0,
+					issued_on TEXT NOT NULL,
+					created_by INTEGER,
+					created_at TEXT NOT NULL
+				)'
+			);
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_sales_deal ON sales_invoices(deal_id)');
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_sales_client ON sales_invoices(client_id)');
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_purchase_deal ON purchase_invoices(deal_id)');
+			$pdo->exec('PRAGMA user_version = 14');
+			$version = 14;
+		}
 	}
 
 	/** Garantiza columnas/tablas de correo y contactos aunque un deploy parcial deje el schema atrasado. */

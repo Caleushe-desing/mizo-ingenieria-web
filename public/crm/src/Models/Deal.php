@@ -61,7 +61,7 @@ final class Deal extends Record
 			FROM deals d
 			JOIN clients c ON c.id = d.client_id
 			LEFT JOIN users u ON u.id = COALESCE(d.owner_id, c.owner_id)
-			WHERE 1=1';
+			WHERE COALESCE(d.archived, 0) = 0';
 		$params = [];
 		if ($ownerId) {
 			$sql .= ' AND (c.owner_id = ? OR d.owner_id = ?)';

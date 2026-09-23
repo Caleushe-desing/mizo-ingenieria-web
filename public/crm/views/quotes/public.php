@@ -127,7 +127,7 @@ if ($reference === '' && $items) {
 		<form class="doc-actions" method="post" action="<?= h(Http::url('/q/' . $quote['token'])) ?>">
 			<?= Csrf::field() ?>
 			<p>Si esta propuesta se ajusta a lo requerido, puede aceptarla aquí. También puede responder el correo.</p>
-			<button class="doc-accept" name="decision" value="aceptada" type="submit">Aceptar cotización</button>
+			<button class="doc-accept" name="decision" value="aceptada" type="submit">Aceptar presupuesto</button>
 			<button class="doc-decline" name="decision" value="rechazada" type="submit">No por ahora</button>
 		</form>
 	<?php endif; ?>

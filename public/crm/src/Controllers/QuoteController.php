@@ -373,11 +373,7 @@ final class QuoteController
 			'updated_at' => date('c'),
 			'updated_by' => Auth::id(),
 		]);
-		Deal::update((int) $quote['deal_id'], [
-			'stage' => 'propuesta',
-			'job_status' => 'cotizado',
-			'updated_at' => date('c'),
-		]);
+		\MizoCrm\Models\Pipeline::onQuoteSent((int) $quote['deal_id']);
 		Activity::log(
 			'quote_sent',
 			'Cotización ' . $quote['number'] . ' enviada a ' . $to . '.',

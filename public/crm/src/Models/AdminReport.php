@@ -126,7 +126,7 @@ final class AdminReport extends Record
 	public static function pipeline(): array
 	{
 		$rows = self::pdo()->query(
-			'SELECT stage, COUNT(*) AS n, COALESCE(SUM(amount), 0) AS money FROM deals GROUP BY stage'
+			'SELECT stage, COUNT(*) AS n, COALESCE(SUM(amount), 0) AS money FROM deals WHERE COALESCE(archived, 0) = 0 GROUP BY stage'
 		)->fetchAll();
 		$by = [];
 		foreach ($rows as $row) {
@@ -160,8 +160,8 @@ final class AdminReport extends Record
 				(SELECT COUNT(*) FROM quotes q WHERE q.created_by = u.id AND q.sent_at IS NOT NULL AND q.sent_at != '') AS quotes_sent,
 				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($wonIn)) AS won,
 				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($lostIn)) AS lost,
-				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($openIn)) AS open_deals,
-				(SELECT COALESCE(SUM(d.amount), 0) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($openIn)) AS open_amount,
+				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($openIn) AND COALESCE(d.archived, 0) = 0) AS open_deals,
+				(SELECT COALESCE(SUM(d.amount), 0) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($openIn) AND COALESCE(d.archived, 0) = 0) AS open_amount,
 				(SELECT COUNT(*) FROM mail_messages m WHERE m.user_id = u.id AND m.folder = 'sent') AS mails,
 				(SELECT COUNT(*) FROM activities a WHERE a.user_id = u.id AND a.type = 'llamada') AS calls,
 				(SELECT COUNT(*) FROM activities a WHERE a.user_id = u.id AND a.type = 'stage' AND a.message LIKE '%Llamada realizada%') AS call_moves,

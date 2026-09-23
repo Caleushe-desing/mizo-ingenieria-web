@@ -55,7 +55,7 @@ final class PublicQuoteController
 			'updated_at' => date('c'),
 		]);
 		if ($decision === 'aceptada') {
-			Deal::update((int) $quote['deal_id'], ['stage' => 'ganado', 'amount' => (int) $quote['total'], 'updated_at' => date('c')]);
+			\MizoCrm\Models\Pipeline::onQuoteAccepted((int) $quote['deal_id'], (int) $quote['total']);
 			Activity::log('quote_accepted', 'El cliente aceptó ' . $quote['number'] . '.', null, (int) $quote['client_id'], (int) $quote['deal_id'], (int) $quote['id']);
 		} else {
 			Activity::log('quote_rejected', 'El cliente rechazó ' . $quote['number'] . '.', null, (int) $quote['client_id'], (int) $quote['deal_id'], (int) $quote['id']);
