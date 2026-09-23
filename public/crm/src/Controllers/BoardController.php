@@ -139,7 +139,7 @@ final class BoardController
 			Http::json(['ok' => false, 'error' => 'Ese proyecto no existe.'], 404);
 		}
 		$client = Client::find((int) $deal['client_id']);
-		if (!$client || !Auth::canAccessClient($client)) {
+		if (!$client || !Auth::ownsBoardCard($deal, $client)) {
 			Http::json(['ok' => false, 'error' => 'Ese proyecto no está a tu cargo.'], 403);
 		}
 		$service = (string) ($deal['service'] ?? 'otro');
@@ -259,7 +259,7 @@ final class BoardController
 			Http::json(['ok' => false, 'error' => 'Ese proyecto no existe.'], 404);
 		}
 		$client = Client::find((int) $deal['client_id']);
-		if (!$client || !Auth::canAccessClient($client)) {
+		if (!$client || !Auth::ownsBoardCard($deal, $client)) {
 			Http::json(['ok' => false, 'error' => 'Ese proyecto no está a tu cargo.'], 403);
 		}
 		$stage = Http::string('stage', 30);
@@ -302,7 +302,7 @@ final class BoardController
 			Http::json(['ok' => false, 'error' => 'Ese proyecto no existe.'], 404);
 		}
 		$client = Client::find((int) $deal['client_id']);
-		if (!$client || !Auth::canAccessClient($client)) {
+		if (!$client || !Auth::ownsBoardCard($deal, $client)) {
 			Http::json(['ok' => false, 'error' => 'Ese proyecto no está a tu cargo.'], 403);
 		}
 		$message = Http::text('message', 2000);

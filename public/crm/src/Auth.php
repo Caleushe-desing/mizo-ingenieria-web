@@ -71,6 +71,21 @@ final class Auth
 		return (int) ($deal['owner_id'] ?? 0) === self::id();
 	}
 
+	public static function ownsBoardCard(?array $deal, ?array $client): bool
+	{
+		if (!$deal || !$client) {
+			return false;
+		}
+		if (self::isAdmin()) {
+			return true;
+		}
+		$owner = (int) ($deal['owner_id'] ?? 0);
+		if ($owner < 1) {
+			$owner = (int) ($client['owner_id'] ?? 0);
+		}
+		return $owner > 0 && $owner === self::id();
+	}
+
 	public static function requireDeal(?array $deal): array
 	{
 		if (!self::canAccessDeal($deal)) {

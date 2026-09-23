@@ -140,7 +140,7 @@ final class Invoice extends Record
 			WHERE 1=1';
 		$params = [];
 		if ($ownerId) {
-			$sql .= ' AND (c.owner_id = ? OR d.owner_id = ?)';
+			$sql .= ' AND ((d.owner_id IS NOT NULL AND d.owner_id = ?) OR (d.owner_id IS NULL AND c.owner_id = ?))';
 			$params[] = $ownerId;
 			$params[] = $ownerId;
 		}
