@@ -37,7 +37,7 @@ $filterOpts = [
 	'adjuntos' => 'Con adjuntos',
 ];
 ?>
-<div class="gmail<?= $openClass ?>">
+<div class="gmail<?= $openClass ?>" data-gmail>
 	<?php require __DIR__ . '/nav.php'; ?>
 	<section class="gmail-main gmail-split">
 		<div class="gmail-list-pane" data-crm-scroll="mail-list">

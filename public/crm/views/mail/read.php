@@ -30,6 +30,7 @@ $listBack = $back . ($qs ? ('?' . http_build_query($qs)) : '');
 		<a class="gmail-back" href="<?= h(Http::url($listBack)) ?>">← Lista</a>
 		<h1><?= h($message['subject'] ?: '(sin asunto)') ?></h1>
 		<div class="gmail-read-actions">
+			<button type="button" class="gmail-icon-btn" data-mail-full title="Ver correo a pantalla completa">Pantalla completa</button>
 			<form method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/estado')) ?>">
 				<?= Csrf::field() ?>
 				<input type="hidden" name="action" value="<?= $isImportant ? 'unimportant' : 'important' ?>">

@@ -730,3 +730,86 @@
 		}, { passive: true });
 	});
 })();
+
+(function () {
+	const KEY = "mizo-crm-rail";
+	function loadState() {
+		try { return JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { return {}; }
+	}
+	function saveState(state) {
+		try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+	}
+	const state = loadState();
+	if (state.collapsed) document.body.classList.add("is-rail-collapsed");
+
+	document.querySelectorAll("[data-rail-panel]").forEach(function (panel) {
+		const id = panel.getAttribute("data-rail-panel");
+		if (state[id] === false) panel.open = false;
+		if (state[id] === true) panel.open = true;
+		panel.addEventListener("toggle", function () {
+			const next = loadState();
+			next[id] = panel.open;
+			saveState(next);
+		});
+	});
+
+	document.querySelectorAll("[data-rail-toggle]").forEach(function (btn) {
+		btn.addEventListener("click", function () {
+			document.body.classList.toggle("is-rail-collapsed");
+			const next = loadState();
+			next.collapsed = document.body.classList.contains("is-rail-collapsed");
+			saveState(next);
+		});
+	});
+
+	const q = document.querySelector("[data-rail-client-q]");
+	const empty = document.querySelector("[data-rail-client-empty]");
+	if (q) {
+		q.addEventListener("input", function () {
+			const term = (q.value || "").trim().toLowerCase();
+			let shown = 0;
+			document.querySelectorAll("[data-rail-client]").forEach(function (row) {
+				const hay = (row.getAttribute("data-hay") || "").toLowerCase();
+				const ok = term === "" || hay.indexOf(term) !== -1;
+				row.hidden = !ok;
+				if (ok) shown++;
+			});
+			if (empty) empty.hidden = shown > 0 || term === "";
+		});
+	}
+})();
+
+(function () {
+	const gmail = document.querySelector("[data-gmail]");
+	if (!gmail) return;
+	const FULL_KEY = "mizo-crm-mail-full";
+
+	function setFull(on) {
+		gmail.classList.toggle("is-mail-full", on);
+		document.body.classList.toggle("is-mail-full-active", on);
+		document.querySelectorAll("[data-mail-full]").forEach(function (btn) {
+			btn.textContent = on ? "Salir de pantalla completa" : "Pantalla completa";
+		});
+		try { sessionStorage.setItem(FULL_KEY, on ? "1" : "0"); } catch (e) {}
+		if (on) {
+			const url = new URL(location.href);
+			url.searchParams.set("full", "1");
+			history.replaceState(null, "", url.toString());
+		} else {
+			const url = new URL(location.href);
+			url.searchParams.delete("full");
+			history.replaceState(null, "", url.toString());
+		}
+	}
+
+	let wantFull = false;
+	try { wantFull = sessionStorage.getItem(FULL_KEY) === "1"; } catch (e) {}
+	if (new URL(location.href).searchParams.get("full") === "1") wantFull = true;
+	if (wantFull && gmail.classList.contains("has-open")) setFull(true);
+
+	document.querySelectorAll("[data-mail-full]").forEach(function (btn) {
+		btn.addEventListener("click", function () {
+			setFull(!gmail.classList.contains("is-mail-full"));
+		});
+	});
+})();

@@ -37,6 +37,25 @@ final class Client extends Record
 		return $stmt->fetchAll();
 	}
 
+	/** Lista liviana para el panel lateral (con nombres de contactos para buscar). */
+	public static function forRail(?int $ownerId, int $limit = 250): array
+	{
+		$limit = max(1, min(500, $limit));
+		$sql = "SELECT c.id, c.name, c.rut, c.contact_name, c.email, c.phone, c.city,
+			(SELECT GROUP_CONCAT(ct.name, ' ') FROM client_contacts ct WHERE ct.client_id = c.id) AS contact_names
+			FROM clients c
+			WHERE 1=1";
+		$params = [];
+		if ($ownerId) {
+			$sql .= ' AND c.owner_id = ?';
+			$params[] = $ownerId;
+		}
+		$sql .= " ORDER BY c.name ASC LIMIT {$limit}";
+		$stmt = self::pdo()->prepare($sql);
+		$stmt->execute($params);
+		return $stmt->fetchAll();
+	}
+
 	public static function findByEmail(string $email): ?array
 	{
 		$email = mb_strtolower(trim($email));

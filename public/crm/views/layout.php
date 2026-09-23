@@ -10,6 +10,7 @@ $unreadMail = !empty($user) ? MailMessage::unreadCount((int) $user['id']) : 0;
 $unreadChat = !empty($user) ? ChatMessage::unreadCount((int) $user['id']) : 0;
 $onMail = str_starts_with($path, '/correo');
 $onChat = str_starts_with($path, '/chat');
+$showRail = !empty($user);
 ?>
 <!doctype html>
 <html lang="es-CL">
@@ -18,9 +19,9 @@ $onChat = str_starts_with($path, '/chat');
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=14">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=15">
 </head>
-<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
+<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $showRail ? ' has-rail' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
 	<header class="titlebar">
 		<img src="/mizo-logo-footer.png" alt="Mizo">
 		<small>Clientes, cotizaciones y correo</small>
@@ -46,6 +47,9 @@ $onChat = str_starts_with($path, '/chat');
 		<div class="ribbon-actions">
 			<?php if (!empty($user)): ?>
 				<span class="who"><?= h($user['name']) ?></span>
+				<?php if ($showRail): ?>
+					<button type="button" class="btn-text rail-toggle" data-rail-toggle title="Mostrar u ocultar panel">Panel</button>
+				<?php endif; ?>
 				<form method="post" action="<?= h(Http::url('/logout')) ?>">
 					<?= Csrf::field() ?>
 					<button class="btn-text" type="submit">Salir</button>
@@ -60,12 +64,17 @@ $onChat = str_starts_with($path, '/chat');
 			<?php endif; ?>
 		</div>
 	</div>
-	<main class="workspace<?= $onMail ? ' workspace-mail' : '' ?><?= $onChat ? ' workspace-chat' : '' ?>">
-		<?php if (!empty($flash)): ?>
-			<div class="flash <?= h($flash['type']) ?>"><?= h($flash['message']) ?></div>
+	<div class="crm-shell<?= $showRail ? '' : ' no-rail' ?>">
+		<main class="workspace<?= $onMail ? ' workspace-mail' : '' ?><?= $onChat ? ' workspace-chat' : '' ?>">
+			<?php if (!empty($flash)): ?>
+				<div class="flash <?= h($flash['type']) ?>"><?= h($flash['message']) ?></div>
+			<?php endif; ?>
+			<?= $content ?>
+		</main>
+		<?php if ($showRail): ?>
+			<?php require __DIR__ . '/partials/rail.php'; ?>
 		<?php endif; ?>
-		<?= $content ?>
-	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=14"></script>
+	</div>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=15"></script>
 </body>
 </html>
