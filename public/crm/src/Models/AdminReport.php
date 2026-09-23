@@ -279,6 +279,154 @@ final class AdminReport extends Record
 		return mb_substr($text, 0, $max) . '…';
 	}
 
+	/** Actividad comercial, sin montos. @return array<string,mixed> */
+	public static function desk(): array
+	{
+		$stages = [];
+		$open = [];
+		foreach (Stage::rows() as $row) {
+			$stages[] = ['slug' => $row['slug'], 'label' => $row['label'], 'kind' => $row['kind']];
+			if ($row['kind'] === 'open') {
+				$open[$row['slug']] = true;
+			}
+		}
+		$people = [];
+		foreach (self::pdo()->query('SELECT id, name FROM users WHERE active = 1 ORDER BY name ASC') as $user) {
+			$people[(int) $user['id']] = self::blankPerson((int) $user['id'], (string) $user['name'], $stages);
+		}
+		$bucket = static function (int $id) use (&$people, $stages): int {
+			if ($id > 0 && isset($people[$id])) {
+				return $id;
+			}
+			if (!isset($people[0])) {
+				$people[0] = self::blankPerson(0, 'Sin asignar', $stages);
+			}
+			return 0;
+		};
+
+		$deals = self::pdo()->query(
+			'SELECT d.stage, d.owner_id, d.updated_at, c.owner_id AS client_owner
+			 FROM deals d JOIN clients c ON c.id = d.client_id
+			 WHERE d.archived IS NULL OR d.archived = 0'
+		)->fetchAll();
+		$now = time();
+		foreach ($deals as $deal) {
+			$owner = (int) ($deal['owner_id'] ?? 0);
+			if ($owner < 1) {
+				$owner = (int) ($deal['client_owner'] ?? 0);
+			}
+			$owner = $bucket($owner);
+			$slug = (string) $deal['stage'];
+			if (!isset($people[$owner]['stages'][$slug])) {
+				$people[$owner]['stages'][$slug] = 0;
+			}
+			$people[$owner]['stages'][$slug]++;
+			if (!isset($open[$slug])) {
+				continue;
+			}
+			$people[$owner]['prospects']++;
+			$stamp = strtotime((string) $deal['updated_at']);
+			if ($stamp) {
+				$people[$owner]['idle_sum'] += max(0, (int) floor(($now - $stamp) / 86400));
+				$people[$owner]['idle_n']++;
+			}
+		}
+
+		$quotes = self::pdo()->query(
+			"SELECT created_by, status, sent_at, responded_at FROM quotes WHERE status != 'borrador'"
+		)->fetchAll();
+		foreach ($quotes as $quote) {
+			$owner = $bucket((int) ($quote['created_by'] ?? 0));
+			$people[$owner]['quotes']++;
+			$status = (string) $quote['status'];
+			if ($status === 'aceptada') {
+				$people[$owner]['accepted']++;
+			} elseif ($status === 'rechazada') {
+				$people[$owner]['rejected']++;
+			} else {
+				$people[$owner]['silent']++;
+			}
+			$sent = strtotime((string) ($quote['sent_at'] ?? ''));
+			$answered = strtotime((string) ($quote['responded_at'] ?? ''));
+			if ($sent && $answered && $answered >= $sent) {
+				$people[$owner]['reply_sum'] += (int) floor(($answered - $sent) / 86400);
+				$people[$owner]['reply_n']++;
+			}
+		}
+
+		foreach (self::pdo()->query("SELECT user_id, COUNT(*) AS n FROM mail_messages WHERE folder = 'sent' GROUP BY user_id") as $row) {
+			$owner = $bucket((int) $row['user_id']);
+			$people[$owner]['mails'] += (int) $row['n'];
+		}
+		foreach (self::pdo()->query("SELECT user_id, COUNT(*) AS n FROM activities WHERE type = 'llamada' OR (type = 'stage' AND message LIKE '%Llamada realizada%') GROUP BY user_id") as $row) {
+			$owner = $bucket((int) $row['user_id']);
+			$people[$owner]['calls'] += (int) $row['n'];
+		}
+		foreach (self::pdo()->query("SELECT user_id, COUNT(*) AS n FROM activities WHERE type IN ('comentario','nota','note','recordatorio') GROUP BY user_id") as $row) {
+			$owner = $bucket((int) $row['user_id']);
+			$people[$owner]['notes'] += (int) $row['n'];
+		}
+
+		$list = [];
+		$totals = ['prospects' => 0, 'mails' => 0, 'quotes' => 0, 'accepted' => 0, 'rejected' => 0, 'silent' => 0, 'reply_sum' => 0, 'reply_n' => 0, 'idle_sum' => 0, 'idle_n' => 0];
+		foreach ($people as $person) {
+			$busy = $person['prospects'] + $person['quotes'] + $person['mails'] + $person['calls'] + $person['notes'] + array_sum($person['stages']);
+			if ($person['id'] === 0 && $busy === 0) {
+				continue;
+			}
+			$person['response_rate'] = $person['quotes'] > 0 ? (int) round(100 * ($person['accepted'] + $person['rejected']) / $person['quotes']) : null;
+			$person['accept_rate'] = $person['quotes'] > 0 ? (int) round(100 * $person['accepted'] / $person['quotes']) : null;
+			$person['avg_reply_days'] = $person['reply_n'] > 0 ? (int) round($person['reply_sum'] / $person['reply_n']) : null;
+			$person['avg_idle_days'] = $person['idle_n'] > 0 ? (int) round($person['idle_sum'] / $person['idle_n']) : null;
+			foreach ($totals as $key => $value) {
+				$totals[$key] += $person[$key];
+			}
+			unset($person['reply_sum'], $person['reply_n'], $person['idle_sum'], $person['idle_n']);
+			$list[] = $person;
+		}
+
+		return [
+			'stages' => $stages,
+			'people' => $list,
+			'prospects' => $totals['prospects'],
+			'mails' => $totals['mails'],
+			'quotes' => $totals['quotes'],
+			'accepted' => $totals['accepted'],
+			'rejected' => $totals['rejected'],
+			'silent' => $totals['silent'],
+			'response_rate' => $totals['quotes'] > 0 ? (int) round(100 * ($totals['accepted'] + $totals['rejected']) / $totals['quotes']) : null,
+			'accept_rate' => $totals['quotes'] > 0 ? (int) round(100 * $totals['accepted'] / $totals['quotes']) : null,
+			'avg_reply_days' => $totals['reply_n'] > 0 ? (int) round($totals['reply_sum'] / $totals['reply_n']) : null,
+			'avg_idle_days' => $totals['idle_n'] > 0 ? (int) round($totals['idle_sum'] / $totals['idle_n']) : null,
+		];
+	}
+
+	/** @param list<array{slug:string,label:string,kind:string}> $stages */
+	private static function blankPerson(int $id, string $name, array $stages): array
+	{
+		$counts = [];
+		foreach ($stages as $stage) {
+			$counts[$stage['slug']] = 0;
+		}
+		return [
+			'id' => $id,
+			'name' => $name,
+			'prospects' => 0,
+			'mails' => 0,
+			'calls' => 0,
+			'notes' => 0,
+			'quotes' => 0,
+			'accepted' => 0,
+			'rejected' => 0,
+			'silent' => 0,
+			'reply_sum' => 0,
+			'reply_n' => 0,
+			'idle_sum' => 0,
+			'idle_n' => 0,
+			'stages' => $counts,
+		];
+	}
+
 	private static function slugIn(array $slugs): string
 	{
 		$safe = [];

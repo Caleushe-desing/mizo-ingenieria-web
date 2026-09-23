@@ -2354,3 +2354,11 @@ body.is-clients .btn-word, body.is-clients .kb-enroll, .kb-enroll, .kb-go {
 .acct-filters { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
 .acct-filters label { display: grid; gap: 4px; font-size: 12px; color: #605e5c; }
 .acct-filters input, .acct-filters select { min-width: 120px; }
+.acct-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; }
+.acct-tabs a { text-decoration: none; color: #0b6ea8; background: #fff; border: 1px solid #d2d0ce; border-radius: 999px; padding: 8px 14px; font-size: 14px; font-weight: 700; }
+.acct-tabs a.is-on { background: #1c9bd8; border-color: #1c9bd8; color: #fff; }
+.tip { position: relative; display: inline-flex; vertical-align: middle; margin-left: 4px; }
+.tip-btn { width: 18px; height: 18px; border-radius: 50%; border: 1px solid #1c9bd8; background: #e8f6fc; color: #0b6ea8; font-size: 11px; font-weight: 800; line-height: 16px; padding: 0; cursor: help; }
+.tip-box { display: none; position: absolute; z-index: 30; left: 0; top: 24px; width: min(280px, 70vw); background: #1f2328; color: #fff; border-radius: 10px; padding: 10px 12px; font-size: 13px; font-weight: 400; line-height: 1.45; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.tip:hover .tip-box, .tip:focus-within .tip-box { display: block; }
+.stat-num { font-variant-numeric: tabular-nums; }

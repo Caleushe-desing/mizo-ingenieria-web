@@ -6,7 +6,6 @@ namespace MizoCrm\Controllers;
 use MizoCrm\Auth;
 use MizoCrm\Config;
 use MizoCrm\Models\AdminReport;
-use MizoCrm\Models\Invoice;
 use MizoCrm\Models\User;
 use MizoCrm\View;
 
@@ -39,35 +38,20 @@ final class AdminController
 	public function stats(): void
 	{
 		Auth::requireAdmin();
-		$pipeline = AdminReport::pipeline();
-		$openCount = 0;
-		$openAmount = 0;
-		$won = 0;
-		$lost = 0;
-		foreach ($pipeline as $row) {
-			if (($row['kind'] ?? '') === 'won') {
-				$won += $row['count'];
-				continue;
-			}
-			if (($row['kind'] ?? '') === 'lost') {
-				$lost += $row['count'];
-				continue;
-			}
-			$openCount += $row['count'];
-			$openAmount += $row['amount'];
+		$pipeline = [];
+		foreach (AdminReport::pipeline() as $row) {
+			$pipeline[] = [
+				'label' => $row['label'],
+				'kind' => $row['kind'],
+				'count' => $row['count'],
+			];
 		}
 		View::render('admin/stats', [
 			'title' => 'Estadísticas',
 			'pipeline' => $pipeline,
-			'executives' => AdminReport::executives(),
+			'desk' => AdminReport::desk(),
 			'web' => AdminReport::web(),
 			'trend' => AdminReport::trend(12),
-			'openCount' => $openCount,
-			'openAmount' => $openAmount,
-			'won' => $won,
-			'lost' => $lost,
-			'finance' => Invoice::summary(),
-			'margins' => Invoice::margins(),
 		]);
 	}
 

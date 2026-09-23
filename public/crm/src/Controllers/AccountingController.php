@@ -19,6 +19,7 @@ final class AccountingController
 		View::render('accounting/index', [
 			'title' => 'Contabilidad',
 			'report' => Accounting::report($year),
+			'vista' => self::vista(),
 		]);
 	}
 
@@ -33,7 +34,7 @@ final class AccountingController
 		} catch (RuntimeException $e) {
 			View::flash('error', $e->getMessage());
 		}
-		Http::redirect('/contabilidad?anio=' . $year);
+		Http::redirect(self::back());
 	}
 
 	public function saveCommissions(): void
@@ -55,7 +56,7 @@ final class AccountingController
 		} catch (RuntimeException $e) {
 			View::flash('error', $e->getMessage());
 		}
-		Http::redirect('/contabilidad?anio=' . $year);
+		Http::redirect(self::back());
 	}
 
 	public function storeObligation(): void
@@ -69,7 +70,7 @@ final class AccountingController
 		} catch (RuntimeException $e) {
 			View::flash('error', $e->getMessage());
 		}
-		Http::redirect('/contabilidad?anio=' . $year);
+		Http::redirect(self::back());
 	}
 
 	public function updateObligation(string $id): void
@@ -83,7 +84,7 @@ final class AccountingController
 		} catch (RuntimeException $e) {
 			View::flash('error', $e->getMessage());
 		}
-		Http::redirect('/contabilidad?anio=' . $year);
+		Http::redirect(self::back());
 	}
 
 	public function deleteObligation(string $id): void
@@ -98,7 +99,18 @@ final class AccountingController
 			Accounting::delete((int) $id);
 			View::flash('ok', 'Se eliminó «' . $row['concept'] . '».');
 		}
-		Http::redirect('/contabilidad?anio=' . $year);
+		Http::redirect(self::back());
+	}
+
+	private static function vista(): string
+	{
+		$vista = (string) ($_GET['vista'] ?? $_POST['vista'] ?? 'resumen');
+		return in_array($vista, ['resumen', 'iva', 'gastos', 'comisiones'], true) ? $vista : 'resumen';
+	}
+
+	private static function back(): string
+	{
+		return '/contabilidad?anio=' . self::year() . '&vista=' . self::vista();
 	}
 
 	private static function year(): int
