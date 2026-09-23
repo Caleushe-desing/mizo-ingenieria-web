@@ -216,8 +216,18 @@ final class Mailbox extends Record
 
 	private static function syncFolder(int $userId, Imap $imap, string $remote, string $folder, bool $notify = false): void
 	{
-		$uids = $imap->uids($remote, 50);
+		$uids = $imap->uids($remote, 0);
 		$known = MailMessage::uidsFor($userId, $folder);
+		$onServer = array_fill_keys($uids, true);
+		foreach ($known as $uid => $messageId) {
+			if (!isset($onServer[(int) $uid])) {
+				MailMessage::forget((int) $messageId);
+				unset($known[$uid]);
+			}
+		}
+		if (count($uids) > 50) {
+			$uids = array_slice($uids, -50);
+		}
 		$missing = [];
 		foreach ($uids as $uid) {
 			if (!isset($known[$uid])) {
@@ -296,16 +306,23 @@ final class Mailbox extends Record
 			}
 		}
 		try {
-			$flags = $imap->flags($remote, $uids);
+			$flagUids = array_map('intval', array_keys($known));
+			sort($flagUids, SORT_NUMERIC);
+			if (count($flagUids) > 80) {
+				$flagUids = array_slice($flagUids, -80);
+			}
+			$flags = $imap->flags($remote, $flagUids);
+			$seenStmt = self::pdo()->prepare('UPDATE mail_messages SET seen = ? WHERE user_id = ? AND folder = ? AND uid = ?');
 			foreach ($flags as $uid => $state) {
-				$important = is_array($state)
-					? (!empty($state['flagged']) ? 1 : 0)
-					: 0;
+				$seen = is_array($state) && !empty($state['seen']) ? 1 : 0;
+				$seenStmt->execute([$seen, $userId, $folder, $uid]);
+				if (!is_array($state)) {
+					continue;
+				}
 				try {
 					self::pdo()->prepare('UPDATE mail_messages SET important = ? WHERE user_id = ? AND folder = ? AND uid = ?')
-						->execute([$important, $userId, $folder, $uid]);
+						->execute([!empty($state['flagged']) ? 1 : 0, $userId, $folder, $uid]);
 				} catch (\Throwable) {
-					break;
 				}
 			}
 		} catch (\Throwable) {

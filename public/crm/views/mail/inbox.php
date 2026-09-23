@@ -73,7 +73,7 @@ $filterOpts = [
 					<button type="submit" name="action" value="read">Leídos</button>
 					<button type="submit" name="action" value="unread">No leídos</button>
 					<button type="submit" name="action" value="important">Importante</button>
-					<button type="submit" name="action" value="delete" onclick="return confirm('¿Quitar los seleccionados de la lista del CRM?');">Quitar</button>
+					<button type="submit" name="action" value="delete" onclick="return confirm('¿Eliminar los seleccionados de tu casilla? También se borran en el servidor de correo.');">Eliminar</button>
 				</div>
 			</form>
 

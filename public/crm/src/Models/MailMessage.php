@@ -199,8 +199,7 @@ final class MailMessage extends Record
 		if ((int) ($row['seen'] ?? 0) === $next) {
 			return;
 		}
-		self::update((int) $row['id'], ['seen' => $next]);
-		self::syncImapFlag($row, $seen ? 'seen' : 'unseen');
+		self::apply([$row], $seen ? 'seen' : 'unseen');
 	}
 
 	public static function setImportant(array $row, bool $important): void
@@ -209,35 +208,114 @@ final class MailMessage extends Record
 		if ((int) ($row['important'] ?? 0) === $next) {
 			return;
 		}
-		self::update((int) $row['id'], ['important' => $next]);
-		self::syncImapFlag($row, $important ? 'flag' : 'unflag');
+		self::apply([$row], $important ? 'flag' : 'unflag');
 	}
 
-	private static function syncImapFlag(array $row, string $action): void
+	/**
+	 * Aplica leído, no leído, importante o borrado en el servidor y recién entonces en el CRM.
+	 * @param list<array<string, mixed>> $rows
+	 */
+	public static function apply(array $rows, string $action): int
 	{
-		if (empty($row['uid'])) {
+		if ($rows === []) {
+			return 0;
+		}
+		$userId = (int) ($rows[0]['user_id'] ?? 0);
+		$done = array_fill_keys(self::push($userId, $rows, $action), true);
+		$n = 0;
+		foreach ($rows as $row) {
+			$id = (int) ($row['id'] ?? 0);
+			if ($id <= 0 || !isset($done[$id])) {
+				continue;
+			}
+			if ($action === 'delete') {
+				self::forget($id);
+			} elseif ($action === 'seen' || $action === 'unseen') {
+				self::update($id, ['seen' => $action === 'seen' ? 1 : 0]);
+			} elseif ($action === 'flag' || $action === 'unflag') {
+				self::update($id, ['important' => $action === 'flag' ? 1 : 0]);
+			}
+			$n++;
+		}
+		return $n;
+	}
+
+	/** Quita el correo del CRM porque ya no está en el servidor. */
+	public static function forget(int $id): void
+	{
+		if ($id <= 0) {
 			return;
 		}
+		foreach (MailAttachment::forMessage($id) as $att) {
+			$path = MailAttachment::absolutePath($att);
+			if (is_file($path)) {
+				@unlink($path);
+			}
+		}
+		self::delete($id);
+	}
+
+	/** @param list<array<string, mixed>> $rows @return list<int> */
+	private static function push(int $userId, array $rows, string $action): array
+	{
+		$done = [];
+		$pending = [];
+		foreach ($rows as $row) {
+			$id = (int) ($row['id'] ?? 0);
+			if ($id <= 0) {
+				continue;
+			}
+			if (empty($row['uid'])) {
+				if ($action !== 'delete') {
+					$done[] = $id;
+				}
+				continue;
+			}
+			$pending[] = $row;
+		}
+		if ($pending === []) {
+			return $done;
+		}
 		try {
-			$box = Mailbox::open((int) $row['user_id']);
-			$remote = ($row['folder'] ?? '') === 'sent'
-				? (string) ($box['sent_folder'] ?? 'Sent')
-				: 'INBOX';
+			$box = Mailbox::open($userId);
 			$imap = new \MizoCrm\Mail\Imap($box);
 			try {
-				$uid = (int) $row['uid'];
-				match ($action) {
-					'seen' => $imap->markSeen($remote, $uid),
-					'unseen' => $imap->markUnseen($remote, $uid),
-					'flag' => $imap->markFlagged($remote, $uid, true),
-					'unflag' => $imap->markFlagged($remote, $uid, false),
-					default => null,
-				};
+				$groups = [];
+				foreach ($pending as $row) {
+					$remote = ($row['folder'] ?? '') === 'sent'
+						? (string) ($box['sent_folder'] ?? 'Sent')
+						: 'INBOX';
+					$groups[$remote][] = $row;
+				}
+				foreach ($groups as $folder => $group) {
+					if ($action === 'delete') {
+						$imap->remove($folder, array_map(static fn(array $row): int => (int) $row['uid'], $group));
+						foreach ($group as $row) {
+							$done[] = (int) $row['id'];
+						}
+						continue;
+					}
+					foreach ($group as $row) {
+						$uid = (int) $row['uid'];
+						try {
+							match ($action) {
+								'seen' => $imap->markSeen($folder, $uid),
+								'unseen' => $imap->markUnseen($folder, $uid),
+								'flag' => $imap->markFlagged($folder, $uid, true),
+								'unflag' => $imap->markFlagged($folder, $uid, false),
+								default => null,
+							};
+							$done[] = (int) $row['id'];
+						} catch (\Throwable) {
+						}
+					}
+				}
 			} finally {
 				$imap->close();
 			}
 		} catch (\Throwable) {
 		}
+		return $done;
 	}
 
 	public static function clientIdFor(int $userId, string $email): ?int

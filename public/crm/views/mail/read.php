@@ -44,9 +44,9 @@ $listBack = $back . ($qs ? ('?' . http_build_query($qs)) : '');
 					<button class="gmail-icon-btn" type="submit"><?= $isUnread ? 'Marcar leído' : 'Marcar no leído' ?></button>
 				</form>
 			<?php endif; ?>
-			<form method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Quitar este correo de la lista del CRM?');">
+			<form method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Eliminar este correo de tu casilla? También se borra en el servidor de correo.');">
 				<?= Csrf::field() ?>
-				<button class="gmail-icon-btn" type="submit">Quitar</button>
+				<button class="gmail-icon-btn" type="submit">Eliminar</button>
 			</form>
 		</div>
 	</div>

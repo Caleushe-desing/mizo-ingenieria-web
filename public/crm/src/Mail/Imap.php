@@ -70,7 +70,7 @@ final class Imap
 			}
 		}
 		sort($uids, SORT_NUMERIC);
-		if (count($uids) > $limit) {
+		if ($limit > 0 && count($uids) > $limit) {
 			$uids = array_slice($uids, -$limit);
 		}
 		return $uids;
@@ -170,6 +170,23 @@ final class Imap
 		$this->select($folder);
 		$op = $flagged ? '+FLAGS' : '-FLAGS';
 		$this->command('UID STORE ' . $uid . ' ' . $op . ' (\\Flagged)');
+	}
+
+	/** Borra los mensajes en el servidor (papelera IMAP) y los expurga de la carpeta. */
+	public function remove(string $folder, array $uids): void
+	{
+		$uids = array_values(array_filter(array_map('intval', $uids), static fn(int $uid): bool => $uid > 0));
+		if ($uids === []) {
+			return;
+		}
+		$this->select($folder);
+		$set = implode(',', $uids);
+		$this->command('UID STORE ' . $set . ' +FLAGS (\\Deleted)');
+		try {
+			$this->command('UID EXPUNGE ' . $set);
+		} catch (RuntimeException) {
+			$this->command('EXPUNGE');
+		}
 	}
 
 	public function append(string $folder, string $rfc822): void

@@ -209,10 +209,11 @@ final class MailController
 		Csrf::check();
 		$user = Auth::requireUser();
 		$row = MailMessage::owned((int) $user['id'], (int) $id);
-		if ($row) {
-			MailMessage::delete((int) $row['id']);
+		if ($row && MailMessage::apply([$row], 'delete') === 0) {
+			View::flash('error', 'No se pudo borrar el correo en el servidor. Sigue en tu casilla.');
+			Http::redirect($row['folder'] === 'sent' ? '/correo/enviados' : '/correo');
 		}
-		View::flash('ok', 'Correo quitado de esta lista. Sigue en tu casilla de correo.');
+		View::flash('ok', 'Correo eliminado de tu casilla y del servidor.');
 		Http::redirect($row && $row['folder'] === 'sent' ? '/correo/enviados' : '/correo');
 	}
 
@@ -250,18 +251,26 @@ final class MailController
 			$ids = [];
 		}
 		$rows = MailMessage::bulkOwned((int) $user['id'], $ids);
-		foreach ($rows as $row) {
-			match ($action) {
-				'read' => MailMessage::setSeen($row, true),
-				'unread' => MailMessage::setSeen($row, false),
-				'important' => MailMessage::setImportant($row, true),
-				'unimportant' => MailMessage::setImportant($row, false),
-				'delete' => MailMessage::delete((int) $row['id']),
-				default => null,
-			};
+		$remote = match ($action) {
+			'read' => 'seen',
+			'unread' => 'unseen',
+			'important' => 'flag',
+			'unimportant' => 'unflag',
+			'delete' => 'delete',
+			default => '',
+		};
+		$n = $remote === '' || $rows === [] ? 0 : MailMessage::apply($rows, $remote);
+		if ($rows === []) {
+			View::flash('ok', 'No seleccionaste correos.');
+		} elseif ($action === 'delete' && $n < count($rows)) {
+			View::flash('error', $n === 0
+				? 'No se pudieron borrar en el servidor de correo.'
+				: "Se borraron {$n} correos. El resto sigue en el servidor.");
+		} elseif ($n === 0) {
+			View::flash('error', 'No se pudo actualizar el servidor de correo.');
+		} else {
+			View::flash('ok', "Listo: {$n} correo(s) quedaron igual en el servidor.");
 		}
-		$n = count($rows);
-		View::flash('ok', $n === 0 ? 'No seleccionaste correos.' : "Listo: {$n} correo(s) actualizados.");
 		$back = trim((string) ($_POST['back'] ?? '/correo'));
 		if ($back === '' || !str_starts_with($back, '/correo')) {
 			$back = '/correo';
