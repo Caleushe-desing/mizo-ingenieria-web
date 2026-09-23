@@ -67,9 +67,25 @@ jobs:
                       if not str(error).startswith("550"):
                           raise
 
+          # Datos vivos del VPS: clientes, proyectos, correos y claves.
+          # Nunca se suben ni se borran, aunque aparezcan en dist.
+          PROTECTED_DIRS = {"crm-data", "mail-files"}
+          PROTECTED_FILES = {"mail.key"}
+
+          def is_live_data(item):
+              name = item.name.lower()
+              if item.is_dir() and name in PROTECTED_DIRS:
+                  return True
+              if name in PROTECTED_FILES or name.startswith("crm.sqlite"):
+                  return True
+              return item.suffix.lower() in {".sqlite", ".sqlite-wal", ".sqlite-shm"}
+
           def upload_dir(ftp, local_dir, remote_dir):
               ensure_dir(ftp, remote_dir)
               for item in local_dir.iterdir():
+                  if is_live_data(item):
+                      print(f"Omitido (datos del VPS): {item}")
+                      continue
                   remote_path = f"{remote_dir.rstrip('/')}/{item.name}"
                   if item.is_dir():
                       upload_dir(ftp, item, remote_path)
@@ -79,6 +95,10 @@ jobs:
                       ftp.storbinary(f"STOR {remote_path}", file)
 
           def delete_path(ftp, remote_path):
+              base = remote_path.rstrip("/").split("/")[-1].lower()
+              if base in {"crm", "crm-data", "mail-files", "mail.key"} or base.startswith("crm.sqlite"):
+                  print(f"Conservado (datos del VPS): {remote_path}")
+                  return
               try:
                   ftp.delete(remote_path)
                   print(f"Eliminado archivo {remote_path}")

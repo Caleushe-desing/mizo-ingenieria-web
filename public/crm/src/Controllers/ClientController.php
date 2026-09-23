@@ -93,15 +93,10 @@ final class ClientController
 	public function show(string $id): void
 	{
 		$client = Auth::requireClient(Client::find((int) $id));
-		$owner = !empty($client['owner_id']) ? User::find((int) $client['owner_id']) : null;
 		View::render('clients/show', [
-			'title' => $client['name'],
+			'title' => 'Editar ' . $client['name'],
 			'client' => $client,
 			'contacts' => \MizoCrm\Models\ClientContact::forClient((int) $id),
-			'comments' => Activity::commentsForClient((int) $id),
-			'quotes' => Client::quotes((int) $id),
-			'mails' => \MizoCrm\Models\MailMessage::forClient(Auth::id(), (int) $id),
-			'owner' => $owner,
 			'team' => Auth::isAdmin() ? User::team() : [],
 		]);
 	}
@@ -114,15 +109,18 @@ final class ClientController
 		$rut = Http::string('rut', 20);
 		$city = Http::string('city', 80);
 		$contacts = self::contactsFromPost();
+		$back = Http::string('volver', 20) === 'ficha'
+			? '/tablero/cliente/' . $id . '/ficha'
+			: '/clientes/' . $id;
 		if ($name === '') {
 			View::flash('error', 'El cliente no puede quedar vacío.');
-			Http::redirect('/clientes/' . $id);
+			Http::redirect($back);
 		}
 		foreach ($contacts as $c) {
 			$email = (string) ($c['email'] ?? '');
 			if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 				View::flash('error', 'Hay un correo de contacto inválido.');
-				Http::redirect('/clientes/' . $id);
+				Http::redirect($back);
 			}
 		}
 		$primary = $contacts[0] ?? ['name' => '', 'email' => '', 'phone' => ''];
@@ -146,7 +144,7 @@ final class ClientController
 		Client::update((int) $id, $payload);
 		\MizoCrm\Models\ClientContact::replaceForClient((int) $id, $contacts);
 		View::flash('ok', 'Datos del cliente y contactos actualizados.');
-		Http::redirect('/clientes/' . $id);
+		Http::redirect($back);
 	}
 
 	public function comment(string $id): void
@@ -156,12 +154,13 @@ final class ClientController
 		$message = self::commentFromPost();
 		if ($message === '') {
 			View::flash('error', 'Escribe el comentario antes de guardar.');
-			Http::redirect('/clientes/' . $id);
+			Http::redirect('/tablero/cliente/' . $id . '/ficha');
 		}
-		Activity::log('comentario', $message, Auth::id(), (int) $id);
+		$type = Http::string('kind', 20) === 'recordatorio' ? 'recordatorio' : 'comentario';
+		Activity::log($type, $message, Auth::id(), (int) $id);
 		Client::update((int) $id, ['updated_at' => date('c')]);
 		View::flash('ok', 'Comentario guardado.');
-		Http::redirect('/clientes/' . $id);
+		Http::redirect('/tablero/cliente/' . $id . '/ficha');
 	}
 
 	public function fromDeal(string $id): void
@@ -171,7 +170,7 @@ final class ClientController
 			Http::redirect('/');
 		}
 		Auth::requireClient(Client::find((int) $deal['client_id']));
-		Http::redirect('/clientes/' . $deal['client_id']);
+		Http::redirect('/tablero/cliente/' . $deal['client_id'] . '/ficha');
 	}
 
 	public function destroy(string $id): void
@@ -191,12 +190,12 @@ final class ClientController
 		$note = Activity::find((int) $commentId);
 		if (!$note || (int) $note['client_id'] !== (int) $clientId) {
 			View::flash('error', 'Ese comentario ya no está.');
-			Http::redirect('/clientes/' . $clientId);
+			Http::redirect('/tablero/cliente/' . $clientId . '/ficha');
 		}
 		Activity::delete((int) $commentId);
 		Client::update((int) $clientId, ['updated_at' => date('c')]);
 		View::flash('ok', 'Comentario eliminado.');
-		Http::redirect('/clientes/' . $clientId);
+		Http::redirect('/tablero/cliente/' . $clientId . '/ficha');
 	}
 
 	private static function commentFromPost(): string

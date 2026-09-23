@@ -25,13 +25,46 @@ final class Config
 	public static function stages(): array
 	{
 		return [
-			'nuevo' => 'Nuevo',
-			'contactado' => 'Contactado',
-			'propuesta' => 'Propuesta',
-			'negociacion' => 'Negociación',
-			'ganado' => 'Ganado',
-			'perdido' => 'Perdido',
+			'nuevo' => 'Prospecto / Lead nuevo',
+			'contactado' => 'Contacto / Llamada realizada',
+			'negociacion' => 'Diagnóstico / Requerimiento',
+			'propuesta' => 'Propuesta / Cotización enviada',
+			'ganado' => 'Cierre ganado',
+			'perdido' => 'Descartado / En pausa',
 		];
+	}
+
+	/** Guion corto para leer en la llamada, según el servicio del negocio. */
+	public static function playbook(string $service): array
+	{
+		$all = [
+			'sonido' => [
+				'pregunta' => '¿En qué momento del día se nota más que el audio no se entiende?',
+				'beneficio' => 'Que el mensaje se escuche parejo en todo el recinto, sin gritar ni saturar.',
+				'cierre' => 'Te dejo una propuesta con zonas, potencia y calibración, para que compares con lo que tienes hoy.',
+			],
+			'video' => [
+				'pregunta' => '¿La imagen se usa para presentar, para operar o para que el público vea desde lejos?',
+				'beneficio' => 'Una imagen brillante y estable, del tamaño correcto, sin cables a la vista.',
+				'cierre' => 'Armamos la cotización con pantalla, montaje e instalación lista para usar.',
+			],
+			'cctv' => [
+				'pregunta' => '¿Qué zona te preocupa más: acceso, perímetro o interior?',
+				'beneficio' => 'Ver qué pasó, desde el celular, con grabación ordenada y cámaras donde sí importan.',
+				'cierre' => 'Te cotizo cámaras, grabador y cableado según los puntos que marcamos.',
+			],
+			'ti' => [
+				'pregunta' => '¿Lo que más se cae es internet, los equipos o el soporte cuando algo falla?',
+				'beneficio' => 'Una red estable y alguien que responde cuando el local no puede parar.',
+				'cierre' => 'Te propongo un alcance claro: qué queda cubierto y en qué plazo.',
+			],
+			'otro' => [
+				'pregunta' => '¿Qué resultado necesitas en el local en las próximas semanas?',
+				'beneficio' => 'Una solución a la medida, instalada y explicada, sin dejar el trabajo a medias.',
+				'cierre' => 'Con el requerimiento claro, la cotización sale con precio y plazo.',
+			],
+		];
+		return $all[$service] ?? $all['otro'];
 	}
 
 	public static function openStages(): array

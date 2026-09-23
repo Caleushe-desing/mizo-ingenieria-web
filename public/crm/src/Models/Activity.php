@@ -57,6 +57,37 @@ final class Activity extends Record
 		return $stmt->fetchAll();
 	}
 
+	/** Anotaciones del cliente, sin las notas de un proyecto. */
+	public static function notesForClient(int $clientId): array
+	{
+		$stmt = self::pdo()->prepare(
+			"SELECT a.*, u.name AS user_name
+			 FROM activities a
+			 LEFT JOIN users u ON u.id = a.user_id
+			 WHERE a.client_id = ?
+			   AND a.deal_id IS NULL
+			   AND a.type IN ('comentario','nota','recordatorio')
+			 ORDER BY a.id DESC LIMIT 80"
+		);
+		$stmt->execute([$clientId]);
+		return $stmt->fetchAll();
+	}
+
+	/** Notas de un proyecto, no las del cliente. */
+	public static function notesForDeal(int $dealId): array
+	{
+		$stmt = self::pdo()->prepare(
+			"SELECT a.*, u.name AS user_name
+			 FROM activities a
+			 LEFT JOIN users u ON u.id = a.user_id
+			 WHERE a.deal_id = ?
+			   AND a.type IN ('comentario','nota','recordatorio')
+			 ORDER BY a.id DESC LIMIT 40"
+		);
+		$stmt->execute([$dealId]);
+		return $stmt->fetchAll();
+	}
+
 	public static function commentsForClient(int $clientId): array
 	{
 		$stmt = self::pdo()->prepare(

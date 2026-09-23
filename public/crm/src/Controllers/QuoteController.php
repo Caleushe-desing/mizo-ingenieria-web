@@ -33,6 +33,45 @@ final class QuoteController
 		]);
 	}
 
+	public function createForDeal(string $dealId): void
+	{
+		$deal = Deal::find((int) $dealId);
+		if (!$deal) {
+			Http::redirect('/');
+		}
+		$client = Auth::requireClient(Client::find((int) $deal['client_id']));
+		View::render('quotes/form', [
+			'title' => 'Nueva cotización',
+			'client' => $client,
+			'project' => $deal,
+			'quote' => null,
+			'items' => [[
+				'description' => '',
+				'quantity' => 1,
+				'unit' => 'un',
+				'unit_price' => 0,
+			]],
+			'publicUrl' => '',
+		]);
+	}
+
+	public function storeForDeal(string $dealId): void
+	{
+		Csrf::check();
+		$deal = Deal::find((int) $dealId);
+		if (!$deal) {
+			Http::redirect('/');
+		}
+		$client = Auth::requireClient(Client::find((int) $deal['client_id']));
+		$quoteId = $this->saveQuote($client, null, (int) $deal['id']);
+		if (Http::string('intent', 20) === 'send') {
+			$this->deliver($quoteId);
+			return;
+		}
+		View::flash('ok', 'Cotización guardada en este proyecto.');
+		Http::redirect('/cotizaciones/' . $quoteId);
+	}
+
 	public function store(string $clientId): void
 	{
 		Csrf::check();
@@ -65,6 +104,7 @@ final class QuoteController
 		View::render('quotes/form', [
 			'title' => $quote['number'],
 			'client' => $client,
+			'project' => Deal::find((int) $quote['deal_id']),
 			'quote' => $quote,
 			'items' => $items,
 			'publicUrl' => App::absolute('/q/' . $quote['token']),
@@ -79,6 +119,13 @@ final class QuoteController
 			Http::redirect('/');
 		}
 		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
+		$sentAlready = !empty($quote['sent_at']) || (string) $quote['status'] === 'enviada' || (string) $quote['status'] === 'vista';
+		$locked = in_array((string) $quote['status'], ['aceptada', 'rechazada'], true);
+		if (Http::string('intent', 20) === 'send' && $sentAlready && !$locked) {
+			$newId = $this->forkRevision($client, $quote);
+			$this->deliver($newId);
+			return;
+		}
 		$this->saveQuote($client, $quote);
 		if (Http::string('intent', 20) === 'send') {
 			$this->deliver((int) $id);
@@ -105,7 +152,7 @@ final class QuoteController
 		$number = (string) $quote['number'];
 		Quote::purge((int) $id);
 		View::flash('ok', 'Se eliminó la cotización ' . $number . '.');
-		Http::redirect('/clientes/' . $client['id']);
+		Http::redirect('/tablero/cliente/' . $client['id'] . '/ficha');
 	}
 
 	public function preview(string $id): void
@@ -129,7 +176,40 @@ final class QuoteController
 		], 'public-layout');
 	}
 
-	private function saveQuote(array $client, ?array $quote): int
+	private function forkRevision(array $client, array $quote): int
+	{
+		$now = date('c');
+		$number = Quote::nextRevision((string) $quote['number']);
+		$id = Quote::insert([
+			'number' => $number,
+			'deal_id' => (int) $quote['deal_id'],
+			'client_id' => (int) $client['id'],
+			'status' => 'borrador',
+			'intro' => (string) ($quote['intro'] ?? ''),
+			'notes' => (string) ($quote['notes'] ?? ''),
+			'valid_until' => (string) ($quote['valid_until'] ?? ''),
+			'tax_rate' => 19,
+			'subtotal' => 0,
+			'tax' => 0,
+			'total' => 0,
+			'token' => bin2hex(random_bytes(16)),
+			'created_by' => Auth::id(),
+			'updated_by' => Auth::id(),
+			'created_at' => $now,
+			'updated_at' => $now,
+		]);
+		Activity::log(
+			'quote_created',
+			'Revisión ' . $number . ' a partir de ' . $quote['number'] . '.',
+			Auth::id(),
+			(int) $client['id'],
+			(int) $quote['deal_id'],
+			$id
+		);
+		return $id;
+	}
+
+	private function saveQuote(array $client, ?array $quote, ?int $attachDealId = null): int
 	{
 		$items = Quote::itemsFromPost();
 		$intro = trim((string) ($_POST['intro'] ?? ''));
@@ -147,6 +227,14 @@ final class QuoteController
 		}
 
 		if (!$quote) {
+			if ($attachDealId) {
+				$existing = Deal::find($attachDealId);
+				if (!$existing || (int) $existing['client_id'] !== $clientId) {
+					View::flash('error', 'Ese proyecto no corresponde a este cliente.');
+					Http::redirect('/tablero/cliente/' . $clientId . '/ficha');
+				}
+				$dealId = $attachDealId;
+			} else {
 			$dealId = Deal::insert([
 				'client_id' => $clientId,
 				'title' => $title,
@@ -163,6 +251,7 @@ final class QuoteController
 				'created_at' => $now,
 				'updated_at' => $now,
 			]);
+			}
 			$id = Quote::insert([
 				'number' => Quote::nextNumber(),
 				'deal_id' => $dealId,
@@ -183,7 +272,11 @@ final class QuoteController
 			]);
 			$totals = Quote::saveItems($id, $items);
 			Quote::update($id, [...$totals, 'updated_at' => $now, 'updated_by' => Auth::id()]);
-			Deal::update($dealId, ['amount' => $totals['total'], 'title' => $title, 'updated_at' => $now]);
+			$dealPatch = ['amount' => $totals['total'], 'updated_at' => $now];
+			if (!$attachDealId) {
+				$dealPatch['title'] = $title;
+			}
+			Deal::update($dealId, $dealPatch);
 			$created = Quote::find($id);
 			Activity::log('quote_created', 'Cotización ' . ($created['number'] ?? '') . ' creada.', Auth::id(), $clientId, $dealId, $id);
 			Client::update($clientId, ['updated_at' => $now]);
@@ -282,7 +375,7 @@ final class QuoteController
 			(int) $quote['id']
 		);
 		Client::update((int) $quote['client_id'], ['updated_at' => date('c')]);
-		View::flash('ok', 'Cotización enviada a ' . $to . '. Si responde, te llega a Correo.');
-		Http::redirect('/clientes/' . $quote['client_id']);
+		View::flash('ok', 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '. Si responde, te llega a Correo.');
+		Http::redirect('/tablero/cliente/' . $quote['client_id'] . '/ficha');
 	}
 }

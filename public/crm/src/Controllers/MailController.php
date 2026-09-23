@@ -82,15 +82,13 @@ final class MailController
 		$clientId = Http::int('client_id') ?: null;
 		$replyId = Http::string('in_reply_to', 200);
 		if ($toList === []) {
-			View::flash('error', 'Elige al menos un destinatario válido.');
-			Http::redirect('/correo/nuevo');
+			$this->finishMail(false, 'Elige al menos un destinatario válido.', '/correo/nuevo');
 		}
 		if ($subject === '') {
 			$subject = '(sin asunto)';
 		}
 		if ($body === '') {
-			View::flash('error', 'Escribe el mensaje.');
-			Http::redirect('/correo/nuevo');
+			$this->finishMail(false, 'Escribe el mensaje.', '/correo/nuevo');
 		}
 		if ($clientId) {
 			$client = Auth::requireClient(Client::find($clientId));
@@ -104,15 +102,13 @@ final class MailController
 		try {
 			$id = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, $replyId, $clientId, $cc);
 		} catch (RuntimeException $e) {
-			View::flash('error', $e->getMessage());
-			Http::redirect('/correo/nuevo');
+			$this->finishMail(false, $e->getMessage(), '/correo/nuevo');
 		}
 		if ($clientId) {
 			Activity::log('mail_sent', 'Correo enviado a ' . $to . ': ' . $subject, (int) $user['id'], $clientId);
 			Client::update($clientId, ['updated_at' => date('c')]);
 		}
-		View::flash('ok', 'Correo enviado. Si responden, te llega aquí a Bandeja.');
-		Http::redirect('/correo/' . $id);
+		$this->finishMail(true, 'Correo enviado. Si responden, te llega a Correo.', '/correo/' . $id);
 	}
 
 	public function show(string $id): void
@@ -383,6 +379,15 @@ final class MailController
 			'sort' => $sort,
 			'filter' => $filter,
 		]);
+	}
+
+	private function finishMail(bool $ok, string $message, string $redirect): void
+	{
+		if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch') {
+			Http::json(['ok' => $ok, 'message' => $message], $ok ? 200 : 422);
+		}
+		View::flash($ok ? 'ok' : 'error', $message);
+		Http::redirect($redirect);
 	}
 
 	private static function htmlFromText(string $text, array $user): string

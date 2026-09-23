@@ -518,6 +518,7 @@
 					const b = r.querySelector("[data-remove-contact]");
 					if (b) b.hidden = rows.querySelectorAll("[data-contact-row]").length <= 1;
 				});
+				form.dispatchEvent(new Event("input", { bubbles: true }));
 			};
 		}
 		rows.querySelectorAll("[data-contact-row]").forEach(bindRemove);
@@ -531,7 +532,51 @@
 			});
 			rows.appendChild(clone);
 			rows.querySelectorAll("[data-contact-row]").forEach(bindRemove);
+			form.dispatchEvent(new Event("input", { bubbles: true }));
 		});
+	});
+})();
+
+(function () {
+	const form = document.querySelector("[data-client-inline]");
+	if (!form) return;
+	const lockBtn = form.querySelector("[data-lock]");
+	const saveBtn = form.querySelector("[data-save]");
+	function fields() {
+		return form.querySelectorAll("input, select, textarea");
+	}
+	function applyLock() {
+		const locked = form.classList.contains("is-locked");
+		fields().forEach(function (el) {
+			if (el.type === "hidden") return;
+			if (el.tagName === "SELECT") el.disabled = locked;
+			else el.readOnly = locked;
+		});
+		if (lockBtn) lockBtn.textContent = locked ? "Desbloquear datos" : "Bloquear datos";
+	}
+	function snapshot() {
+		fields().forEach(function (el) { if (el.tagName === "SELECT") el.disabled = false; });
+		const value = new URLSearchParams(new FormData(form)).toString();
+		applyLock();
+		return value;
+	}
+	const initial = snapshot();
+	function paint() {
+		if (!saveBtn) return;
+		saveBtn.hidden = snapshot() === initial;
+	}
+	applyLock();
+	if (lockBtn) {
+		lockBtn.addEventListener("click", function () {
+			form.classList.toggle("is-locked");
+			applyLock();
+			paint();
+		});
+	}
+	form.addEventListener("input", paint);
+	form.addEventListener("change", paint);
+	form.addEventListener("submit", function () {
+		fields().forEach(function (el) { el.disabled = false; el.readOnly = false; });
 	});
 })();
 
@@ -624,7 +669,8 @@
 		if (path.indexOf("/correo") === 0) return "correo";
 		if (path.indexOf("/chat") === 0) return "chat";
 		if (path.indexOf("/equipo") === 0) return "equipo";
-		if (path === "/" || path.indexOf("/clientes") === 0 || path.indexOf("/cotizaciones") === 0) return "clientes";
+		if (path === "/" || path.indexOf("/tablero") === 0) return "tablero";
+		if (path.indexOf("/clientes") === 0 || path.indexOf("/cotizaciones") === 0) return "clientes";
 		return null;
 	}
 
@@ -695,9 +741,14 @@
 			const section = a.getAttribute("data-crm-section");
 			const home = a.getAttribute("data-crm-home") || a.getAttribute("href");
 			if (!section || !home) return;
+			if (a.hasAttribute("data-crm-fixed")) {
+				a.setAttribute("href", home);
+				a.removeAttribute("title");
+				return;
+			}
 			if (current === section) {
 				a.setAttribute("href", home);
-				a.title = "Ir al inicio de esta secciÃ³n";
+				a.title = "Ir al inicio de esta secciÃÂ³n";
 			} else if (places[section]) {
 				a.setAttribute("href", places[section]);
 				a.title = "Volver a donde lo dejaste";
@@ -728,6 +779,76 @@
 			clearTimeout(scrollTimer);
 			scrollTimer = setTimeout(saveScrolls, 200);
 		}, { passive: true });
+	});
+
+	const HIST_KEY = "mizo-crm-hist";
+	const HIST_NAV = "mizo-crm-hist-nav";
+	function loadHist() {
+		try { return JSON.parse(sessionStorage.getItem(HIST_KEY) || "{}") || {}; } catch (e) { return {}; }
+	}
+	function saveHist(data) {
+		try { sessionStorage.setItem(HIST_KEY, JSON.stringify(data)); } catch (e) {}
+	}
+	function histBucket() {
+		const section = sectionOf(location.pathname);
+		if (!section) return null;
+		const all = loadHist();
+		if (!all[section]) all[section] = { stack: [], index: -1 };
+		return { all: all, section: section, bucket: all[section] };
+	}
+	function paintHist() {
+		const back = document.querySelector("[data-hist='back']");
+		const forward = document.querySelector("[data-hist='forward']");
+		if (!back || !forward) return;
+		const found = histBucket();
+		const index = found ? found.bucket.index : -1;
+		const size = found ? found.bucket.stack.length : 0;
+		back.disabled = index <= 0;
+		forward.disabled = index < 0 || index >= size - 1;
+	}
+	function recordHist() {
+		const found = histBucket();
+		if (!found) return;
+		const url = location.pathname + location.search;
+		let marked = "";
+		try { marked = sessionStorage.getItem(HIST_NAV) || ""; } catch (e) {}
+		if (marked === url) {
+			try { sessionStorage.removeItem(HIST_NAV); } catch (e) {}
+			paintHist();
+			return;
+		}
+		const bucket = found.bucket;
+		if (bucket.stack[bucket.index] === url) {
+			paintHist();
+			return;
+		}
+		bucket.stack = bucket.stack.slice(0, bucket.index + 1);
+		bucket.stack.push(url);
+		if (bucket.stack.length > 40) {
+			bucket.stack.shift();
+		}
+		bucket.index = bucket.stack.length - 1;
+		found.all[found.section] = bucket;
+		saveHist(found.all);
+		paintHist();
+	}
+	function stepHist(delta) {
+		const found = histBucket();
+		if (!found) return;
+		const next = found.bucket.index + delta;
+		if (next < 0 || next >= found.bucket.stack.length) return;
+		found.bucket.index = next;
+		found.all[found.section] = found.bucket;
+		saveHist(found.all);
+		const url = found.bucket.stack[next];
+		try { sessionStorage.setItem(HIST_NAV, url); } catch (e) {}
+		location.href = url;
+	}
+	recordHist();
+	document.querySelectorAll("[data-hist]").forEach(function (btn) {
+		btn.addEventListener("click", function () {
+			stepHist(btn.getAttribute("data-hist") === "forward" ? 1 : -1);
+		});
 	});
 })();
 
@@ -994,4 +1115,343 @@
 			setFull(!gmail.classList.contains("is-mail-full"));
 		});
 	});
+})();
+
+(function () {
+	const board = document.querySelector("[data-board]");
+	if (!board) return;
+	const base = (document.body.getAttribute("data-crm-base") || "/crm").replace(/\/$/, "");
+	const moveUrl = board.getAttribute("data-move");
+	const csrf = board.getAttribute("data-csrf") || "";
+	const drawer = document.querySelector("[data-drawer]");
+	const drawerBody = document.querySelector("[data-drawer-body]");
+	const drawerTitle = document.querySelector("[data-drawer-title]");
+	const drawerKicker = document.querySelector("[data-drawer-kicker]");
+	let origin = null;
+	let dragged = null;
+	let moved = false;
+
+	function escapeHtml(text) {
+		return String(text)
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;");
+	}
+
+	function recount() {
+		board.querySelectorAll("[data-stage]").forEach(function (col) {
+			const visible = col.querySelectorAll(".kb-card:not([hidden])").length;
+			const badge = col.querySelector("[data-kb-count]");
+			if (badge) badge.textContent = String(visible);
+		});
+	}
+
+	function applyFilters() {
+		const q = (board.querySelector("[data-kb-q]") || {}).value || "";
+		const term = q.trim().toLowerCase();
+		const service = (board.querySelector("[data-kb-service]") || {}).value || "";
+		const owner = (board.querySelector("[data-kb-owner]") || {}).value || "";
+		const priority = (board.querySelector("[data-kb-priority]") || {}).value || "";
+		const when = (board.querySelector("[data-kb-when]") || {}).value || "";
+		board.querySelectorAll(".kb-card").forEach(function (card) {
+			const hay = (card.getAttribute("data-hay") || "").toLowerCase();
+			const age = Number(card.getAttribute("data-age") || 99);
+			let ok = true;
+			if (term && hay.indexOf(term) === -1) ok = false;
+			if (service && card.getAttribute("data-service") !== service) ok = false;
+			if (owner && card.getAttribute("data-owner") !== owner) ok = false;
+			if (priority && card.getAttribute("data-priority") !== priority) ok = false;
+			if (when === "7" && age > 7) ok = false;
+			if (when === "30" && age > 30) ok = false;
+			if (when === "stale" && age < 7) ok = false;
+			card.hidden = !ok;
+		});
+		recount();
+	}
+
+	board.querySelectorAll("[data-kb-q],[data-kb-service],[data-kb-owner],[data-kb-priority],[data-kb-when]").forEach(function (el) {
+		el.addEventListener("input", applyFilters);
+		el.addEventListener("change", applyFilters);
+	});
+
+	function bindCard(card) {
+		card.addEventListener("dragstart", function (event) {
+			dragged = card;
+			origin = card.parentElement;
+			moved = false;
+			card.classList.add("is-dragging");
+			if (event.dataTransfer) {
+				event.dataTransfer.effectAllowed = "move";
+				event.dataTransfer.setData("text/plain", card.getAttribute("data-client") || "");
+			}
+		});
+		card.addEventListener("drag", function () { moved = true; });
+		card.addEventListener("dragend", function () {
+			card.classList.remove("is-dragging");
+			board.querySelectorAll(".kb-drop").forEach(function (zone) { zone.classList.remove("is-over"); });
+		});
+		card.addEventListener("click", function () {
+			if (moved) {
+				moved = false;
+				return;
+			}
+			openDrawer(card);
+		});
+	}
+
+	board.querySelectorAll(".kb-card").forEach(bindCard);
+
+	board.querySelectorAll("[data-drop]").forEach(function (zone) {
+		zone.addEventListener("dragover", function (event) {
+			event.preventDefault();
+			zone.classList.add("is-over");
+		});
+		zone.addEventListener("dragleave", function () { zone.classList.remove("is-over"); });
+		zone.addEventListener("drop", function (event) {
+			event.preventDefault();
+			zone.classList.remove("is-over");
+			if (!dragged) return;
+			const stage = zone.getAttribute("data-drop");
+			const from = origin;
+			zone.appendChild(dragged);
+			recount();
+			const data = new FormData();
+			data.set("_csrf", csrf);
+			data.set("deal_id", dragged.getAttribute("data-deal") || "");
+			data.set("stage", stage || "");
+			const card = dragged;
+			fetch(moveUrl, {
+				method: "POST",
+				body: data,
+				credentials: "same-origin",
+				headers: { Accept: "application/json", "X-Requested-With": "fetch" },
+			})
+				.then(function (res) { return res.json(); })
+				.then(function (json) {
+					if (!json || !json.ok) throw new Error("fail");
+					if (json.deal_id) card.setAttribute("data-deal", String(json.deal_id));
+				})
+				.catch(function () {
+					if (from) from.appendChild(card);
+					recount();
+				});
+		});
+	});
+
+	const mailPop = document.querySelector("[data-mail-pop]");
+	const mailForm = document.querySelector("[data-mail-pop-form]");
+	const mailTo = mailForm ? mailForm.querySelector("[data-mail-to]") : null;
+	const mailWho = mailForm ? mailForm.querySelector("[data-mail-who]") : null;
+	const mailSubject = mailForm ? mailForm.querySelector("[data-mail-subject]") : null;
+	const mailBody = mailForm ? mailForm.querySelector("textarea") : null;
+	const mailStatus = mailForm ? mailForm.querySelector("[data-mail-status]") : null;
+	let mailClient = "";
+
+	function closeMail() {
+		if (mailPop) mailPop.hidden = true;
+	}
+	document.querySelectorAll("[data-mail-close]").forEach(function (btn) {
+		btn.addEventListener("click", closeMail);
+	});
+	if (mailForm) {
+		mailForm.addEventListener("submit", function (event) {
+			event.preventDefault();
+			const body = new FormData(mailForm);
+			body.set("_csrf", csrf);
+			body.set("client_id", mailClient || "");
+			if (mailStatus) mailStatus.textContent = "Enviando…";
+			fetch(base + "/correo", {
+				method: "POST",
+				body: body,
+				credentials: "same-origin",
+				headers: { Accept: "application/json", "X-Requested-With": "fetch" },
+			})
+				.then(function (res) { return res.json(); })
+				.then(function (json) {
+					if (!json || !json.ok) {
+						if (mailStatus) mailStatus.textContent = (json && json.message) || "No se pudo enviar.";
+						return;
+					}
+					if (mailStatus) mailStatus.textContent = json.message || "Correo enviado.";
+					if (mailBody) mailBody.value = "";
+				})
+				.catch(function () {
+					if (mailStatus) mailStatus.textContent = "No se pudo enviar.";
+				});
+		});
+	}
+
+	function closeDrawer() {
+		closeMail();
+		if (drawer) drawer.hidden = true;
+	}
+	document.querySelectorAll("[data-drawer-close]").forEach(function (el) {
+		el.addEventListener("click", closeDrawer);
+	});
+	document.addEventListener("keydown", function (event) {
+		if (event.key !== "Escape") return;
+		if (mailPop && !mailPop.hidden) {
+			closeMail();
+			return;
+		}
+		closeDrawer();
+	});
+
+	function contactLine(label, value) {
+		return "<div><dt>" + label + "</dt><dd>" + (value || "—") + "</dd></div>";
+	}
+
+	function paintPerson(person) {
+		const box = drawerBody.querySelector("[data-person]");
+		const mailBtn = drawerBody.querySelector("[data-open-mail]");
+		if (!box) return;
+		if (!person) {
+			box.innerHTML = "<p class=\"muted\">Elige quién está a cargo.</p>";
+			if (mailBtn) mailBtn.hidden = true;
+			return;
+		}
+		const phone = person.phone
+			? '<a href="tel:' + escapeHtml(person.phone) + '">' + escapeHtml(person.phone) + "</a>"
+			: "—";
+		box.innerHTML = ""
+			+ contactLine("Nombre", escapeHtml(person.name || "Contacto"))
+			+ contactLine("Cargo", escapeHtml(person.title || "—"))
+			+ contactLine("Teléfono", phone)
+			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "—");
+		if (mailBtn) {
+			mailBtn.hidden = false;
+			mailBtn.disabled = !person.email;
+			mailBtn.textContent = person.email ? "Enviar correo" : "Sin correo";
+		}
+	}
+
+	function contactPicker(dealId, contacts) {
+		if (!contacts.length) {
+			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. Agrégalos en sus datos.</p></section>';
+		}
+		const options = contacts.map(function (person) {
+			return '<option value="' + person.id + '"' + (person.on ? " selected" : "") + ">" + escapeHtml(person.name || "Contacto") + "</option>";
+		}).join("");
+		return '<section class="kb-block"><h3>Contacto a cargo</h3>'
+			+ '<form data-charge-form action="' + base + "/proyectos/" + dealId + '/contactos">'
+			+ '<select name="contact_id" data-charge>'
+			+ '<option value="">Sin contacto a cargo</option>' + options + "</select></form>"
+			+ '<dl class="kb-person" data-person></dl>'
+			+ '<button type="button" class="kb-mail-btn" data-open-mail hidden>Enviar correo</button></section>';
+	}
+
+	function renderDrawer(card, data) {
+		const client = data.client || {};
+		const deal = data.deal || {};
+		const id = deal.id;
+		if (drawerTitle) drawerTitle.textContent = deal.title || "Proyecto";
+		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " · " + (deal.stage_label || "Prospecto");
+		const notes = (data.notes || []).map(function (note) {
+			const prefix = note.type === "recordatorio" ? "Recordatorio: " : "";
+			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " · " + escapeHtml(note.when) + "</small></li>";
+		}).join("");
+		const quotes = (data.quotes || []).map(function (quote) {
+			return '<li><a href="' + base + "/cotizaciones/" + quote.id + '">' + escapeHtml(quote.number) + "</a>"
+				+ "<small>" + escapeHtml(quote.status) + "</small></li>";
+		}).join("");
+		drawerBody.innerHTML = ''
+			+ '<p class="muted">' + escapeHtml(deal.service_label || "") + "</p>"
+			+ contactPicker(id, data.contacts || [])
+			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavía.</p></li>") + "</ul>"
+			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotización</a>'
+			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
+			+ '<input type="hidden" name="_csrf" value="' + escapeHtml(csrf) + '">'
+			+ '<input type="hidden" name="volver" value="tablero">'
+			+ '<button type="submit" class="is-danger">Eliminar proyecto</button></form></div></section>'
+			+ '<section class="kb-block"><h3>Notas del proyecto</h3><ul class="kb-notes" data-project-notes>' + (notes || "<li><p>Sin notas de este proyecto.</p></li>") + "</ul>"
+			+ '<form class="kb-note-form" data-note-form><textarea name="message" required placeholder="Nota de este proyecto"></textarea><button type="submit">Guardar nota</button></form></section>';
+
+		const people = data.contacts || [];
+		const charge = drawerBody.querySelector("[data-charge]");
+		function selectedPerson() {
+			if (!charge) return null;
+			const picked = people.filter(function (person) { return String(person.id) === charge.value; })[0];
+			return picked || null;
+		}
+		paintPerson(selectedPerson());
+		if (charge) {
+			charge.addEventListener("change", function () {
+				paintPerson(selectedPerson());
+				const body = new FormData();
+				body.set("_csrf", csrf);
+				body.set("contact_id", charge.value || "");
+				body.set("volver", "tablero");
+				fetch(base + "/proyectos/" + id + "/contactos", {
+					method: "POST",
+					body: body,
+					credentials: "same-origin",
+					headers: { "X-Requested-With": "fetch" },
+				});
+			});
+		}
+		const openMail = drawerBody.querySelector("[data-open-mail]");
+		if (openMail) {
+			openMail.addEventListener("click", function () {
+				const person = selectedPerson();
+				if (!person || !person.email || !mailPop || !mailForm) return;
+				mailTo.value = person.email;
+				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " · " + person.phone : "");
+				mailSubject.value = deal.title ? deal.title : "";
+				mailBody.value = "";
+				mailStatus.textContent = "";
+				mailClient = client.id || "";
+				mailPop.hidden = false;
+				mailBody.focus();
+			});
+		}
+
+		const form = drawerBody.querySelector("[data-note-form]");
+		if (form) {
+			form.addEventListener("submit", function (event) {
+				event.preventDefault();
+				const area = form.querySelector("textarea");
+				const body = new FormData();
+				body.set("_csrf", csrf);
+				body.set("message", area.value || "");
+				fetch(base + "/tablero/proyecto/" + id + "/nota", {
+					method: "POST",
+					body: body,
+					credentials: "same-origin",
+					headers: { Accept: "application/json", "X-Requested-With": "fetch" },
+				})
+					.then(function (res) { return res.json(); })
+					.then(function (json) {
+						if (!json || !json.ok) return;
+						const list = drawerBody.querySelector("[data-project-notes]");
+						const li = document.createElement("li");
+						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " · " + escapeHtml(json.note.when) + "</small>";
+						const empty = list.querySelector("li");
+						if (empty && empty.textContent.indexOf("Sin notas") === 0) empty.remove();
+						list.prepend(li);
+						const snippet = card.querySelector(".kb-snippet");
+						if (snippet) snippet.textContent = json.note.message;
+						area.value = "";
+					});
+			});
+		}
+	}
+
+	function openDrawer(card) {
+		if (!drawer || !drawerBody) return;
+		drawer.hidden = false;
+		drawerBody.innerHTML = '<p class="muted">Cargando…</p>';
+		fetch(card.getAttribute("data-detail"), { credentials: "same-origin", headers: { Accept: "application/json" } })
+			.then(function (res) { return res.json(); })
+			.then(function (data) {
+				if (!data || !data.ok) {
+					drawerBody.innerHTML = '<p class="muted">No se pudo abrir esta tarjeta.</p>';
+					return;
+				}
+				renderDrawer(card, data);
+			})
+			.catch(function () {
+				drawerBody.innerHTML = '<p class="muted">No se pudo abrir esta tarjeta.</p>';
+			});
+	}
 })();

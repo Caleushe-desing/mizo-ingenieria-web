@@ -10,6 +10,8 @@ $unreadMail = !empty($user) ? MailMessage::unreadCount((int) $user['id']) : 0;
 $unreadChat = !empty($user) ? ChatMessage::unreadCount((int) $user['id']) : 0;
 $onMail = str_starts_with($path, '/correo');
 $onChat = str_starts_with($path, '/chat');
+$onBoard = $path === '/' || str_starts_with($path, '/tablero');
+$onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cotizaciones');
 ?>
 <!doctype html>
 <html lang="es-CL">
@@ -18,22 +20,29 @@ $onChat = str_starts_with($path, '/chat');
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=18">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=31">
 </head>
-<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
+<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
 	<header class="titlebar">
 		<img src="/mizo-logo-footer.png" alt="Mizo">
 		<small>Clientes, cotizaciones y correo</small>
 	</header>
 	<div class="ribbon">
+		<div class="ribbon-start">
+		<div class="crm-hist" data-crm-hist>
+			<button type="button" data-hist="back" aria-label="Atrás" disabled>‹</button>
+			<button type="button" data-hist="forward" aria-label="Adelante" disabled>›</button>
+		</div>
 		<nav class="ribbon-nav" data-crm-nav>
-			<a data-crm-section="clientes" data-crm-home="<?= h(Http::url('/')) ?>" class="<?= $path === '/' || str_starts_with($path, '/clientes') || str_starts_with($path, '/cotizaciones') ? 'is-on' : '' ?>" href="<?= h(Http::url('/')) ?>">Clientes</a>
+			<a data-crm-section="tablero" data-crm-fixed data-crm-home="<?= h(Http::url('/')) ?>" class="<?= $onBoard ? 'is-on' : '' ?>" href="<?= h(Http::url('/')) ?>">Tablero</a>
+			<a data-crm-section="clientes" data-crm-fixed data-crm-home="<?= h(Http::url('/clientes')) ?>" class="<?= $onClients ? 'is-on' : '' ?>" href="<?= h(Http::url('/clientes')) ?>">Clientes</a>
 			<a id="nav-mail" data-crm-section="correo" data-crm-home="<?= h(Http::url('/correo')) ?>" class="<?= $onMail ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo')) ?>">Correo <span class="mail-badge" id="mail-badge"<?= $unreadMail > 0 ? '' : ' hidden' ?>><?= (int) $unreadMail ?></span></a>
 			<a id="nav-chat" data-crm-section="chat" data-crm-home="<?= h(Http::url('/chat')) ?>" class="<?= $onChat ? 'is-on' : '' ?>" href="<?= h(Http::url('/chat')) ?>">Chat <span class="mail-badge" id="chat-badge"<?= $unreadChat > 0 ? '' : ' hidden' ?>><?= (int) $unreadChat ?></span></a>
 			<?php if (Auth::isAdmin()): ?>
 				<a data-crm-section="equipo" data-crm-home="<?= h(Http::url('/equipo')) ?>" class="<?= $path === '/equipo' ? 'is-on' : '' ?>" href="<?= h(Http::url('/equipo')) ?>">Equipo</a>
 			<?php endif; ?>
 		</nav>
+		</div>
 		<div class="ribbon-live" id="live-alert" data-live-url="<?= h(Http::url('/avisos')) ?>" hidden>
 			<a class="live-alert" href="#">
 				<span class="live-alert-dot"></span>
@@ -55,8 +64,8 @@ $onChat = str_starts_with($path, '/chat');
 				<a class="btn btn-word" href="<?= h(Http::url('/correo/nuevo')) ?>">Nuevo correo</a>
 			<?php elseif ($onChat): ?>
 				<a class="btn btn-word" href="<?= h(Http::url('/chat')) ?>">Chats</a>
-			<?php else: ?>
-				<a class="btn btn-excel" href="<?= h(Http::url('/clientes/nuevo')) ?>">Nuevo cliente</a>
+			<?php elseif ($onClients && $path !== '/clientes/nuevo'): ?>
+				<a class="btn btn-word" href="<?= h(Http::url('/clientes/nuevo')) ?>">Inscribir cliente</a>
 			<?php endif; ?>
 		</div>
 	</div>
@@ -66,6 +75,6 @@ $onChat = str_starts_with($path, '/chat');
 		<?php endif; ?>
 		<?= $content ?>
 	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=18"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=31"></script>
 </body>
 </html>

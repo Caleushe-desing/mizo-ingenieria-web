@@ -21,7 +21,6 @@ $tab = $deal ? 'actividad' : 'datos';
 ?>
 <div class="deal">
 	<header class="deal-hd">
-		<a class="back" href="<?= h(Http::url('/')) ?>">Tablero</a>
 		<div class="deal-title">
 			<h1><?= $deal ? h($client['name'] ?? 'Cliente') : 'Nuevo caso' ?></h1>
 			<p>

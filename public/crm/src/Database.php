@@ -342,6 +342,18 @@ final class Database
 			}
 			$pdo->exec('PRAGMA user_version = 8');
 		}
+
+		if ($version < 9) {
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS deal_contacts (
+					deal_id INTEGER NOT NULL,
+					contact_id INTEGER NOT NULL,
+					PRIMARY KEY (deal_id, contact_id)
+				)'
+			);
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_deal_contacts_contact ON deal_contacts(contact_id)');
+			$pdo->exec('PRAGMA user_version = 9');
+		}
 	}
 
 	/** Garantiza columnas/tablas de correo y contactos aunque un deploy parcial deje el schema atrasado. */

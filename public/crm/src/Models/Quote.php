@@ -55,14 +55,37 @@ final class Quote extends Record
 	public static function nextNumber(): string
 	{
 		$year = date('Y');
-		$stmt = self::pdo()->prepare("SELECT number FROM quotes WHERE number LIKE ? ORDER BY id DESC LIMIT 1");
+		$stmt = self::pdo()->prepare('SELECT number FROM quotes WHERE number LIKE ?');
 		$stmt->execute(['MZ-' . $year . '-%']);
-		$last = $stmt->fetchColumn();
-		$seq = 1;
-		if (is_string($last) && preg_match('/MZ-\d{4}-(\d+)/', $last, $m)) {
-			$seq = (int) $m[1] + 1;
+		$seq = 0;
+		foreach ($stmt->fetchAll(\PDO::FETCH_COLUMN) as $number) {
+			if (is_string($number) && preg_match('/^MZ-\d{4}-(\d+)/', $number, $m)) {
+				$seq = max($seq, (int) $m[1]);
+			}
 		}
-		return sprintf('MZ-%s-%03d', $year, $seq);
+		return sprintf('MZ-%s-%03d', $year, $seq + 1);
+	}
+
+	/** Siguiente letra de revisión: MZ-2026-001 → MZ-2026-001-A → MZ-2026-001-B. */
+	public static function nextRevision(string $number): string
+	{
+		$base = preg_match('/^(.*)-([A-Z])$/', $number, $cut) ? $cut[1] : $number;
+		$stmt = self::pdo()->prepare('SELECT number FROM quotes WHERE number = ? OR number LIKE ?');
+		$stmt->execute([$base, $base . '-%']);
+		$max = '@';
+		foreach ($stmt->fetchAll(\PDO::FETCH_COLUMN) as $existing) {
+			if (!is_string($existing)) {
+				continue;
+			}
+			if (preg_match('/^' . preg_quote($base, '/') . '-([A-Z])$/', $existing, $m) && $m[1] > $max) {
+				$max = $m[1];
+			}
+		}
+		$next = $max === '@' ? 'A' : chr(ord($max) + 1);
+		if ($next > 'Z') {
+			$next = 'Z';
+		}
+		return $base . '-' . $next;
 	}
 
 	public static function saveItems(int $quoteId, array $items): array

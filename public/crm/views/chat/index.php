@@ -60,7 +60,6 @@ $emojis = ['😀','😁','😂','😊','😉','😍','😎','🤩','🙂','😢'
 			</div>
 		<?php else: ?>
 			<div class="chat-thread-head">
-				<a class="chat-back" href="<?= h(Http::url('/chat')) ?>">← Chats</a>
 				<span class="gmail-avatar" style="background:<?= h(mail_avatar_color((string) $peer['name'])) ?>"><?= h(initials((string) $peer['name'])) ?></span>
 				<div>
 					<strong><?= h($peer['name']) ?></strong>
