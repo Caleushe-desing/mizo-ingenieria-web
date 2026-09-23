@@ -2225,3 +2225,27 @@ body.is-clients .btn-word, body.is-clients .kb-enroll, .kb-enroll, .kb-go {
 
 
 
+
+.admin-page { padding: 8px 4px 32px; }
+.admin-page .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.admin-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 8px 0 16px; }
+.admin-kpi { background: #fff; border: 1px solid #d2d0ce; border-top: 3px solid #1c9bd8; padding: 14px 16px; }
+.admin-kpi.is-orange { border-top-color: #f47b20; }
+.admin-kpi strong { display: block; font-size: 26px; line-height: 1.2; color: #252423; }
+.admin-kpi span { color: #605e5c; font-size: 13px; }
+.admin-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin: 0 0 16px; }
+.admin-card { background: #fff; border: 1px solid #d2d0ce; padding: 16px; margin: 0 0 16px; }
+.admin-card h2, .admin-audit h3 { margin: 18px 0 10px; font-size: 16px; color: #252423; }
+.admin-card h2 { margin-top: 0; }
+.admin-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; background: #fff; border: 1px solid #d2d0ce; padding: 12px; margin: 0 0 16px; }
+.admin-filters label { display: grid; gap: 4px; font-size: 12px; color: #605e5c; }
+.admin-filters input, .admin-filters select { min-width: 160px; padding: 8px; border: 1px solid #d2d0ce; background: #fff; }
+.audit-mail { border: 1px solid #e6e6e6; border-left: 3px solid #1c9bd8; padding: 12px; margin: 0 0 10px; background: #fff; }
+.audit-mail header { display: grid; gap: 2px; margin-bottom: 6px; }
+.audit-mail small, .admin-page .muted { color: #605e5c; }
+.audit-mail-html { max-height: 240px; overflow: auto; border-top: 1px solid #eee; margin-top: 8px; padding-top: 8px; }
+.admin-audit h3:first-of-type { margin-top: 8px; }
+@media (max-width: 900px) {
+	.admin-grid { grid-template-columns: 1fr; }
+	.admin-page .page-head { align-items: flex-start; flex-direction: column; }
+}

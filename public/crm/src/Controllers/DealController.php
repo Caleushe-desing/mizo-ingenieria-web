@@ -99,7 +99,8 @@ final class DealController
 			'updated_at' => date('c'),
 		]);
 		$label = Config::stages()[$stage];
-		Activity::log('stage', 'Etapa: ' . $label . ($lost ? ' — ' . $lost : ''), Auth::id(), (int) $deal['client_id'], (int) $id);
+		$fromLabel = Config::stages()[$deal['stage']] ?? (string) $deal['stage'];
+		Activity::log('stage', 'Movió «' . $deal['title'] . '» de «' . $fromLabel . '» a «' . $label . '»' . ($lost ? ' — ' . $lost : ''), Auth::id(), (int) $deal['client_id'], (int) $id);
 		View::flash('ok', 'Etapa actualizada a ' . $label . '.');
 		Http::redirect('/negocios/' . $id);
 	}

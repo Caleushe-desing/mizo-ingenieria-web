@@ -52,6 +52,7 @@ final class BoardController
 			'projects' => $projects,
 			'services' => Config::services(),
 			'team' => Auth::isAdmin() ? User::team() : [],
+			'audit' => Auth::isAdmin() ? \MizoCrm\Models\AdminReport::client((int) $client['id']) : null,
 		]);
 	}
 
@@ -264,13 +265,17 @@ final class BoardController
 			'stage' => $stage,
 			'updated_at' => $now,
 		]);
-		Activity::log(
-			'stage',
-			'Etapa: ' . Config::stages()[$stage],
-			Auth::id(),
-			(int) $client['id'],
-			(int) $deal['id']
-		);
+		$fromLabel = Config::stages()[$deal['stage']] ?? (string) $deal['stage'];
+		$toLabel = Config::stages()[$stage];
+		if ((string) $deal['stage'] !== $stage) {
+			Activity::log(
+				'stage',
+				'Movió «' . $deal['title'] . '» de «' . $fromLabel . '» a «' . $toLabel . '»',
+				Auth::id(),
+				(int) $client['id'],
+				(int) $deal['id']
+			);
+		}
 		Client::update((int) $client['id'], ['updated_at' => $now]);
 		Http::json([
 			'ok' => true,

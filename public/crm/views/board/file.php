@@ -35,6 +35,9 @@ if ($editContacts === []) {
 			<button type="button" data-file-tab="correos">Correos</button>
 			<button type="button" data-file-tab="notas">Anotaciones</button>
 			<button type="button" data-file-tab="cotizaciones">Cotizaciones</button>
+			<?php if (Auth::isAdmin()): ?>
+			<button type="button" data-file-tab="auditoria">Auditoría</button>
+			<?php endif; ?>
 		</nav>
 	</div>
 	<div class="file-stage">
@@ -259,6 +262,7 @@ if ($editContacts === []) {
 			<div class="form-actions">
 				<button class="btn btn-word" type="submit" name="kind" value="comentario">Guardar anotación</button>
 				<button class="btn btn-excel" type="submit" name="kind" value="recordatorio">Guardar recordatorio</button>
+				<button class="btn btn-word" type="submit" name="kind" value="llamada">Registrar llamada</button>
 			</div>
 		</form>
 		<?php if (!$comments): ?>
@@ -268,7 +272,7 @@ if ($editContacts === []) {
 				<?php foreach ($comments as $note): ?>
 					<li>
 						<div class="note-body">
-							<p><?= ($note['type'] ?? '') === 'recordatorio' ? 'Recordatorio: ' : '' ?><?= nl2br(h($note['message'])) ?></p>
+							<p><?php $noteKind = (string) ($note['type'] ?? ''); echo $noteKind === 'recordatorio' ? 'Recordatorio: ' : ($noteKind === 'llamada' ? 'Llamada: ' : ''); ?><?= nl2br(h($note['message'])) ?></p>
 							<small><?= h($note['user_name'] ?: 'Sistema') ?> · <?= h(when($note['created_at'])) ?></small>
 						</div>
 						<form method="post" action="<?= h(Http::url('/clientes/' . $client['id'] . '/comentarios/' . $note['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Eliminar este comentario?');">
@@ -337,5 +341,6 @@ if ($editContacts === []) {
 		<?php endif; ?>
 		</div>
 	</section>
+	<?php require __DIR__ . '/../admin/client.php'; ?>
 	</div>
 </div>

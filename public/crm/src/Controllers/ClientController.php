@@ -156,7 +156,12 @@ final class ClientController
 			View::flash('error', 'Escribe el comentario antes de guardar.');
 			Http::redirect('/tablero/cliente/' . $id . '/ficha');
 		}
-		$type = Http::string('kind', 20) === 'recordatorio' ? 'recordatorio' : 'comentario';
+		$kind = Http::string('kind', 20);
+		$type = match ($kind) {
+			'recordatorio' => 'recordatorio',
+			'llamada' => 'llamada',
+			default => 'comentario',
+		};
 		Activity::log($type, $message, Auth::id(), (int) $id);
 		Client::update((int) $id, ['updated_at' => date('c')]);
 		View::flash('ok', 'Comentario guardado.');

@@ -372,6 +372,17 @@ final class Database
 			} catch (\Throwable) {
 			}
 			$pdo->exec('PRAGMA user_version = 11');
+			$version = 11;
+		}
+
+		if ($version < 12) {
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_activities_client ON activities(client_id)');
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_activities_user ON activities(user_id)');
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_activities_type_created ON activities(type, created_at)');
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_quotes_author ON quotes(created_by)');
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_deals_owner ON deals(owner_id)');
+			$pdo->exec('PRAGMA user_version = 12');
+			$version = 12;
 		}
 	}
 

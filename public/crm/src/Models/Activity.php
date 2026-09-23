@@ -66,7 +66,7 @@ final class Activity extends Record
 			 LEFT JOIN users u ON u.id = a.user_id
 			 WHERE a.client_id = ?
 			   AND a.deal_id IS NULL
-			   AND a.type IN ('comentario','nota','recordatorio')
+			   AND a.type IN ('comentario','nota','recordatorio','llamada')
 			 ORDER BY a.id DESC LIMIT 80"
 		);
 		$stmt->execute([$clientId]);
@@ -81,7 +81,7 @@ final class Activity extends Record
 			 FROM activities a
 			 LEFT JOIN users u ON u.id = a.user_id
 			 WHERE a.deal_id = ?
-			   AND a.type IN ('comentario','nota','recordatorio')
+			   AND a.type IN ('comentario','nota','recordatorio','llamada')
 			 ORDER BY a.id DESC LIMIT 40"
 		);
 		$stmt->execute([$dealId]);

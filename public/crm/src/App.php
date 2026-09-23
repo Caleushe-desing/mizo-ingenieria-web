@@ -91,6 +91,8 @@ final class App
 			['POST', '#^/equipo/firma-imagen$#', [Controllers\TeamController::class, 'signatureImage']],
 			['POST', '#^/equipo/(\d+)/firma$#', [Controllers\TeamController::class, 'signature']],
 			['POST', '#^/equipo/(\d+)/eliminar$#', [Controllers\TeamController::class, 'destroy']],
+			['GET', '#^/admin/estadisticas$#', [Controllers\AdminController::class, 'stats']],
+			['GET', '#^/admin$#', [Controllers\AdminController::class, 'index']],
 			['GET', '#^/equipo$#', [Controllers\TeamController::class, 'index']],
 			['POST', '#^/equipo$#', [Controllers\TeamController::class, 'store']],
 			['GET', '#^/nueva$#', [Controllers\ClientController::class, 'create']],
