@@ -27,6 +27,7 @@ final class BoardController
 			'services' => Config::services(),
 			'cards' => Deal::board(Auth::ownerScope()),
 			'invoiceCards' => \MizoCrm\Models\Invoice::kanban(Auth::ownerScope()),
+			'execLimit' => Auth::isAdmin() ? '' : (\MizoCrm\Models\Pipeline::slug('sent') ?? ''),
 			'team' => Auth::isAdmin() ? User::team() : [],
 			'ownerFilter' => 0,
 		]);
@@ -264,6 +265,9 @@ final class BoardController
 		$stage = Http::string('stage', 30);
 		if (!isset(Config::stages()[$stage])) {
 			Http::json(['ok' => false, 'error' => 'Esa etapa no existe.'], 422);
+		}
+		if (!Auth::isAdmin() && !\MizoCrm\Models\Pipeline::withinExecutiveReach((string) $deal['stage'], $stage)) {
+			Http::json(['ok' => false, 'error' => 'Solo puedes mover la tarjeta hasta Presupuesto enviado.'], 422);
 		}
 		$now = date('c');
 		Deal::update((int) $deal['id'], [

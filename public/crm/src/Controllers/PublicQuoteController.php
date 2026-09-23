@@ -58,6 +58,7 @@ final class PublicQuoteController
 			\MizoCrm\Models\Pipeline::onQuoteAccepted((int) $quote['deal_id'], (int) $quote['total']);
 			Activity::log('quote_accepted', 'El cliente aceptó ' . $quote['number'] . '.', null, (int) $quote['client_id'], (int) $quote['deal_id'], (int) $quote['id']);
 		} else {
+			\MizoCrm\Models\Pipeline::onQuoteRejected((int) $quote['deal_id']);
 			Activity::log('quote_rejected', 'El cliente rechazó ' . $quote['number'] . '.', null, (int) $quote['client_id'], (int) $quote['deal_id'], (int) $quote['id']);
 		}
 		View::flash('ok', $decision === 'aceptada' ? 'Gracias. Un ingeniero Mizo te contactará para coordinar la instalación.' : 'Registramos tu respuesta. Si quieres ajustar el alcance, responde el correo.');

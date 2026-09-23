@@ -9,6 +9,7 @@ $services = $services ?? Config::services();
 $cards = $cards ?? [];
 $team = $team ?? [];
 $ownerFilter = (int) ($ownerFilter ?? 0);
+$execLimit = (string) ($execLimit ?? '');
 $grouped = [];
 foreach (array_keys($stages) as $key) {
 	$grouped[$key] = [];
@@ -38,7 +39,7 @@ foreach ($invoiceCards as $invoice) {
 	$grouped[$stage][] = $invoice;
 }
 ?>
-<div class="kb" data-board data-move="<?= h(Http::url('/tablero/mover')) ?>" data-csrf="<?= h(Csrf::token()) ?>">
+<div class="kb" data-board data-move="<?= h(Http::url('/tablero/mover')) ?>" data-csrf="<?= h(Csrf::token()) ?>"<?= $execLimit !== '' ? ' data-exec-limit="' . h($execLimit) . '"' : '' ?>>
 	<div class="kb-bar">
 		<div>
 			<h1>Tablero comercial</h1>
@@ -156,6 +157,9 @@ foreach ($invoiceCards as $invoice) {
 								<em class="kb-pri kb-pri-<?= h($priority) ?>"><?= h($priority) ?></em>
 							</div>
 							<p class="kb-note"><?= h($card['name']) ?></p>
+							<?php if (($card['quote_status'] ?? '') === 'rechazada'): ?>
+								<span class="kb-reject">Presupuesto no aceptado</span>
+							<?php endif; ?>
 							<?php if ($service !== '' && isset($services[$service]) && ($card['deal_id'] ?? null)): ?>
 								<span class="kb-tag kb-tag-<?= h($service) ?>"><?= h($services[$service]) ?></span>
 							<?php else: ?>

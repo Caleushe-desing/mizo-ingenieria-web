@@ -1122,6 +1122,15 @@
 	if (!board) return;
 	const base = (document.body.getAttribute("data-crm-base") || "/crm").replace(/\/$/, "");
 	const moveUrl = board.getAttribute("data-move");
+	const execLimit = board.getAttribute("data-exec-limit") || "";
+	function pastExecutive(node) {
+		if (!execLimit || !node) return false;
+		const cols = Array.from(board.querySelectorAll(".kb-col"));
+		const cap = board.querySelector('.kb-col[data-stage="' + execLimit + '"]');
+		const col = node.classList && node.classList.contains("kb-col") ? node : node.closest(".kb-col");
+		if (!cap || !col) return false;
+		return cols.indexOf(col) > cols.indexOf(cap);
+	}
 	const csrf = board.getAttribute("data-csrf") || "";
 	const drawer = document.querySelector("[data-drawer]");
 	const drawerBody = document.querySelector("[data-drawer-body]");
@@ -1177,7 +1186,7 @@
 
 	function bindCard(card) {
 		card.addEventListener("dragstart", function (event) {
-			if (card.hasAttribute("data-invoice")) {
+			if (card.hasAttribute("data-invoice") || pastExecutive(card)) {
 				event.preventDefault();
 				return;
 			}
@@ -1216,6 +1225,7 @@
 			event.preventDefault();
 			zone.classList.remove("is-over");
 			if (!dragged) return;
+			if (pastExecutive(zone)) return;
 			const stage = zone.getAttribute("data-drop");
 			const from = origin;
 			zone.appendChild(dragged);

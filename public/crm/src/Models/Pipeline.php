@@ -42,6 +42,35 @@ final class Pipeline extends Record
 		}
 	}
 
+	public static function onQuoteRejected(int $dealId): void
+	{
+		$deal = Deal::find($dealId);
+		if (!$deal || !empty($deal['archived'])) {
+			return;
+		}
+		if (self::rank(self::roleOf((string) $deal['stage'])) >= self::rank('accepted')) {
+			return;
+		}
+		self::move($deal, 'sent', 'El cliente no aceptó el presupuesto. La tarjeta sigue en Presupuesto enviado.');
+	}
+
+	public static function withinExecutiveReach(string $from, string $to): bool
+	{
+		$sent = self::slug('sent');
+		if ($sent === null) {
+			return false;
+		}
+		$positions = [];
+		foreach (self::pdo()->query('SELECT slug, position FROM board_stages')->fetchAll() as $row) {
+			$positions[(string) $row['slug']] = (int) $row['position'];
+		}
+		if (!isset($positions[$sent], $positions[$to])) {
+			return false;
+		}
+		$fromPos = $positions[$from] ?? 0;
+		return $fromPos <= $positions[$sent] && $positions[$to] <= $positions[$sent];
+	}
+
 	public static function onInvoicesChanged(int $dealId): void
 	{
 		self::reconcile($dealId);

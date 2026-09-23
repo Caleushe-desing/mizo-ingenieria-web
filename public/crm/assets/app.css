@@ -2319,3 +2319,16 @@ body.is-clients .btn-word, body.is-clients .kb-enroll, .kb-enroll, .kb-go {
 .kb-card-invoice { cursor: pointer; }
 .kb-card-invoice .kb-card-top strong { color: #0b6ea8; }
 .kb-card-invoice.is-paid .kb-card-top strong { color: #1f8a4c; }
+
+.kb-reject {
+	display: inline-flex;
+	align-items: center;
+	margin: 6px 0 2px;
+	padding: 3px 8px;
+	border-radius: 999px;
+	background: #fff1e6;
+	color: #9a3412;
+	border: 1px solid #f47b20;
+	font-size: 11px;
+	font-weight: 700;
+}
