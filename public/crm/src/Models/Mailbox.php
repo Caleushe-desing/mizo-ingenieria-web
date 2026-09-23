@@ -129,14 +129,15 @@ final class Mailbox extends Record
 		string $html,
 		string $replyToMessageId = '',
 		?int $clientId = null,
-		string $cc = ''
+		string $cc = '',
+		array $attachments = []
 	): int {
 		$box = self::open($userId);
 		$fromName = User::mailFromName($user);
 		$allRcpt = array_values(array_unique([...Mime::emailsFromString($to), ...Mime::emailsFromString($cc)]));
 		$toHeader = implode(', ', Mime::emailsFromString($to));
 		$ccHeader = implode(', ', Mime::emailsFromString($cc));
-		$rfc822 = Mime::build($fromName, (string) $box['email'], $toHeader, $subject, $html, $replyToMessageId, $ccHeader);
+		$rfc822 = Mime::build($fromName, (string) $box['email'], $toHeader, $subject, $html, $replyToMessageId, $ccHeader, $attachments);
 		Smtp::send($box, implode(',', $allRcpt), $rfc822);
 		try {
 			$imap = new Imap($box);
@@ -150,7 +151,7 @@ final class Mailbox extends Record
 		}
 
 		$parsed = Mime::parse($rfc822);
-		return MailMessage::store($userId, 'sent', [
+		$id = MailMessage::store($userId, 'sent', [
 			'uid' => null,
 			'message_id' => $parsed['message_id'],
 			'in_reply_to' => $parsed['in_reply_to'],
@@ -163,8 +164,16 @@ final class Mailbox extends Record
 			'body_html' => $html,
 			'sent_at' => date('c'),
 			'seen' => 1,
+			'has_attachments' => $attachments !== [] ? 1 : 0,
 			'client_id' => $clientId,
 		]);
+		if ($id > 0 && $attachments !== []) {
+			try {
+				MailAttachment::saveForMessage($userId, $id, $attachments);
+			} catch (\Throwable) {
+			}
+		}
+		return $id;
 	}
 
 	private static function saveBox(int $userId, array $box, string $sentFolder): void

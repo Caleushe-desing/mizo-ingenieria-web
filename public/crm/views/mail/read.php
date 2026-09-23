@@ -113,11 +113,15 @@ $listBack = $back . ($qs ? ('?' . http_build_query($qs)) : '');
 	<?php endif; ?>
 
 	<?php if ($message['folder'] === 'inbox'): ?>
-		<form class="gmail-reply" method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/responder')) ?>">
+		<form class="gmail-reply" method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/responder')) ?>" enctype="multipart/form-data">
 			<?= Csrf::field() ?>
 			<label>
 				<span>Responder a <?= h($peer) ?></span>
 				<textarea name="body" rows="6" required placeholder="Redacta tu respuesta"></textarea>
+			</label>
+			<label class="mail-attach">
+				<span>Adjuntos</span>
+				<input type="file" name="adjuntos[]" accept="application/pdf,image/jpeg,image/png,image/gif,image/webp" multiple>
 			</label>
 			<div class="gmail-reply-actions">
 				<button class="gmail-send" type="submit" name="mode" value="one">Responder</button>

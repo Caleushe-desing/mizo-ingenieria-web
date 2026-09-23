@@ -146,6 +146,11 @@ $accents = [
 				<label><span>Para</span><input type="email" name="to" required data-mail-to></label>
 				<label><span>Asunto</span><input name="subject" required data-mail-subject></label>
 				<label><span>Mensaje</span><textarea name="body" required rows="6" placeholder="Escribe el mensaje"></textarea></label>
+				<label class="mail-attach">
+					<span>Adjuntos</span>
+					<input type="file" name="adjuntos[]" accept="application/pdf,image/jpeg,image/png,image/gif,image/webp" multiple data-mail-files>
+					<small>PDF o imágenes.</small>
+				</label>
 				<p class="muted" data-mail-status></p>
 				<div class="kb-actions">
 					<button type="submit" class="is-primary">Enviar</button>

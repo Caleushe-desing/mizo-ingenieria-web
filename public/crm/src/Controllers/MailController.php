@@ -99,8 +99,9 @@ final class MailController
 		$html = self::htmlFromText($body, $user);
 		$to = implode(', ', $toList);
 		$cc = implode(', ', $ccList);
+		$attachments = $this->attachmentsFromPost('/correo/nuevo');
 		try {
-			$id = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, $replyId, $clientId, $cc);
+			$id = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, $replyId, $clientId, $cc, $attachments);
 		} catch (RuntimeException $e) {
 			$this->finishMail(false, $e->getMessage(), '/correo/nuevo');
 		}
@@ -190,8 +191,9 @@ final class MailController
 		}
 		$clientId = !empty($row['client_id']) ? (int) $row['client_id'] : MailMessage::clientIdFor((int) $user['id'], $to);
 		$html = self::htmlFromText($body, $user);
+		$attachments = $this->attachmentsFromPost('/correo/' . $id);
 		try {
-			$newId = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, (string) $row['message_id'], $clientId, $cc);
+			$newId = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, (string) $row['message_id'], $clientId, $cc, $attachments);
 		} catch (RuntimeException $e) {
 			View::flash('error', $e->getMessage());
 			Http::redirect('/correo/' . $id);
@@ -397,6 +399,92 @@ final class MailController
 		}
 		View::flash($ok ? 'ok' : 'error', $message);
 		Http::redirect($redirect);
+	}
+
+	/** @return list<array{filename:string,mime:string,content:string}> */
+	private function attachmentsFromPost(string $failRedirect): array
+	{
+		$bag = $_FILES['adjuntos'] ?? null;
+		if (!is_array($bag) || !isset($bag['name'])) {
+			return [];
+		}
+		$names = $bag['name'];
+		$tmp = $bag['tmp_name'] ?? [];
+		$errors = $bag['error'] ?? [];
+		$sizes = $bag['size'] ?? [];
+		if (!is_array($names)) {
+			$names = [$names];
+			$tmp = [$tmp];
+			$errors = [$errors];
+			$sizes = [$sizes];
+		}
+		$allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+		$out = [];
+		$total = 0;
+		foreach ($names as $i => $original) {
+			$err = (int) ($errors[$i] ?? UPLOAD_ERR_NO_FILE);
+			if ($err === UPLOAD_ERR_NO_FILE || (string) $original === '') {
+				continue;
+			}
+			if ($err !== UPLOAD_ERR_OK) {
+				$this->finishMail(false, 'No se pudo leer un adjunto. Prueba con un archivo más liviano.', $failRedirect);
+			}
+			if (count($out) >= 5) {
+				$this->finishMail(false, 'Puedes adjuntar hasta 5 archivos.', $failRedirect);
+			}
+			$size = (int) ($sizes[$i] ?? 0);
+			if ($size <= 0 || $size > 8 * 1024 * 1024) {
+				$this->finishMail(false, 'Cada adjunto puede pesar hasta 8 MB.', $failRedirect);
+			}
+			$total += $size;
+			if ($total > 15 * 1024 * 1024) {
+				$this->finishMail(false, 'Los adjuntos juntos superan 15 MB.', $failRedirect);
+			}
+			$path = (string) ($tmp[$i] ?? '');
+			$binary = is_file($path) ? (string) file_get_contents($path) : '';
+			if ($binary === '') {
+				$this->finishMail(false, 'No se pudo leer un adjunto.', $failRedirect);
+			}
+			$mime = strtolower((string) (new \finfo(FILEINFO_MIME_TYPE))->buffer($binary));
+			if ($mime === 'image/jpg' || $mime === 'image/pjpeg') {
+				$mime = 'image/jpeg';
+			} elseif ($mime === 'application/x-pdf') {
+				$mime = 'application/pdf';
+			}
+			if (!in_array($mime, $allowed, true)) {
+				$this->finishMail(false, 'Solo se pueden adjuntar PDF o imágenes (JPG, PNG, GIF o WebP).', $failRedirect);
+			}
+			$out[] = [
+				'filename' => self::safeUploadName((string) $original, $mime),
+				'mime' => $mime,
+				'content' => $binary,
+			];
+		}
+		return $out;
+	}
+
+	private static function safeUploadName(string $name, string $mime): string
+	{
+		$name = basename(str_replace('\\', '/', $name));
+		$name = preg_replace('/[^\p{L}\p{N}._ -]+/u', '', $name) ?? '';
+		$name = trim((string) $name, '. ');
+		$ext = match ($mime) {
+			'application/pdf' => 'pdf',
+			'image/jpeg' => 'jpg',
+			'image/png' => 'png',
+			'image/gif' => 'gif',
+			'image/webp' => 'webp',
+			default => 'bin',
+		};
+		if ($name === '') {
+			$name = 'archivo.' . $ext;
+		} elseif (!preg_match('/\.(pdf|jpe?g|png|gif|webp)$/i', $name)) {
+			$name .= '.' . $ext;
+		}
+		if (strlen($name) > 120) {
+			$name = substr($name, -120);
+		}
+		return $name;
 	}
 
 	private static function htmlFromText(string $text, array $user): string

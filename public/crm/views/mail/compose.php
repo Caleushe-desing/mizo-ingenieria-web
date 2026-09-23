@@ -14,7 +14,7 @@ $unread = (int) ($unread ?? 0);
 <div class="gmail">
 	<?php require __DIR__ . '/nav.php'; ?>
 	<section class="gmail-main">
-		<form class="gmail-window" method="post" action="<?= h(Http::url('/correo')) ?>" data-compose>
+		<form class="gmail-window" method="post" action="<?= h(Http::url('/correo')) ?>" enctype="multipart/form-data" data-compose>
 			<div class="gmail-window-head">Mensaje nuevo</div>
 			<?= Csrf::field() ?>
 			<?php if ($client): ?>
@@ -68,6 +68,11 @@ $unread = (int) ($unread ?? 0);
 				<p class="gmail-client-hint">Cliente: <a href="<?= h(Http::url('/clientes/' . $client['id'])) ?>"><?= h($client['name']) ?></a></p>
 			<?php endif; ?>
 			<textarea class="gmail-compose-body" name="body" required placeholder="Redacta tu mensaje de ventas o seguimiento"></textarea>
+			<label class="mail-attach">
+				<span>Adjuntos</span>
+				<input type="file" name="adjuntos[]" accept="application/pdf,image/jpeg,image/png,image/gif,image/webp" multiple>
+				<small>PDF o imágenes. Hasta 5 archivos, 8 MB cada uno.</small>
+			</label>
 			<div class="gmail-window-actions">
 				<button class="gmail-send" type="submit">Enviar</button>
 				<a href="<?= h(Http::url('/correo')) ?>">Descartar</a>

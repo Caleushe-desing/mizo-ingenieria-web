@@ -41,6 +41,7 @@ final class Mime
 		];
 	}
 
+	/** @param list<array{filename:string,mime:string,content:string}> $attachments */
 	public static function build(
 		string $fromName,
 		string $fromEmail,
@@ -49,10 +50,24 @@ final class Mime
 		string $html,
 		string $replyToMessageId = '',
 		string $cc = '',
+		array $attachments = [],
 	): string {
 		$plain = trim(html_entity_decode(strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $html)), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-		$boundary = 'mizo' . bin2hex(random_bytes(12));
+		$alt = 'mizoalt' . bin2hex(random_bytes(8));
 		$messageId = '<crm-' . bin2hex(random_bytes(12)) . '@mizo.cl>';
+		$alternative = '--' . $alt . "\r\n"
+			. "Content-Type: text/plain; charset=UTF-8\r\n"
+			. "Content-Transfer-Encoding: base64\r\n\r\n"
+			. chunk_split(base64_encode($plain !== '' ? $plain : strip_tags($html)))
+			. '--' . $alt . "\r\n"
+			. "Content-Type: text/html; charset=UTF-8\r\n"
+			. "Content-Transfer-Encoding: base64\r\n\r\n"
+			. chunk_split(base64_encode($html))
+			. '--' . $alt . "--\r\n";
+		$mixed = 'mizomix' . bin2hex(random_bytes(8));
+		$contentType = $attachments === []
+			? 'multipart/alternative; boundary="' . $alt . '"'
+			: 'multipart/mixed; boundary="' . $mixed . '"';
 		$headers = [
 			'From: ' . self::encodeMailbox($fromName, $fromEmail),
 			'To: ' . $to,
@@ -60,7 +75,7 @@ final class Mime
 			'Date: ' . date('r'),
 			'Message-ID: ' . $messageId,
 			'MIME-Version: 1.0',
-			'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
+			'Content-Type: ' . $contentType,
 		];
 		if (trim($cc) !== '') {
 			array_splice($headers, 2, 0, ['Cc: ' . $cc]);
@@ -69,15 +84,23 @@ final class Mime
 			$headers[] = 'In-Reply-To: <' . trim($replyToMessageId, '<>') . '>';
 			$headers[] = 'References: <' . trim($replyToMessageId, '<>') . '>';
 		}
-		$body = '--' . $boundary . "\r\n"
-			. "Content-Type: text/plain; charset=UTF-8\r\n"
-			. "Content-Transfer-Encoding: base64\r\n\r\n"
-			. chunk_split(base64_encode($plain !== '' ? $plain : strip_tags($html)))
-			. '--' . $boundary . "\r\n"
-			. "Content-Type: text/html; charset=UTF-8\r\n"
-			. "Content-Transfer-Encoding: base64\r\n\r\n"
-			. chunk_split(base64_encode($html))
-			. '--' . $boundary . "--\r\n";
+		if ($attachments === []) {
+			$body = $alternative;
+		} else {
+			$body = '--' . $mixed . "\r\n"
+				. 'Content-Type: multipart/alternative; boundary="' . $alt . "\"\r\n\r\n"
+				. $alternative;
+			foreach ($attachments as $file) {
+				$filename = str_replace(["\r", "\n", '"'], '', (string) ($file['filename'] ?? 'archivo'));
+				$mime = (string) ($file['mime'] ?? 'application/octet-stream');
+				$body .= '--' . $mixed . "\r\n"
+					. 'Content-Type: ' . $mime . '; name="' . $filename . "\"\r\n"
+					. "Content-Transfer-Encoding: base64\r\n"
+					. 'Content-Disposition: attachment; filename="' . $filename . "\"\r\n\r\n"
+					. chunk_split(base64_encode((string) ($file['content'] ?? '')));
+			}
+			$body .= '--' . $mixed . "--\r\n";
+		}
 
 		return implode("\r\n", $headers) . "\r\n\r\n" . $body;
 	}

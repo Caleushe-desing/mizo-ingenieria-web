@@ -1275,6 +1275,8 @@
 					}
 					if (mailStatus) mailStatus.textContent = json.message || "Correo enviado.";
 					if (mailBody) mailBody.value = "";
+					const files = mailForm.querySelector("[data-mail-files]");
+					if (files) files.value = "";
 				})
 				.catch(function () {
 					if (mailStatus) mailStatus.textContent = "No se pudo enviar.";
