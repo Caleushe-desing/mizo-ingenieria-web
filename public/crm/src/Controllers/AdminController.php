@@ -44,12 +44,12 @@ final class AdminController
 		$won = 0;
 		$lost = 0;
 		foreach ($pipeline as $row) {
-			if (in_array($row['stage'], ['ganado', 'perdido'], true)) {
-				if ($row['stage'] === 'ganado') {
-					$won = $row['count'];
-				} else {
-					$lost = $row['count'];
-				}
+			if (($row['kind'] ?? '') === 'won') {
+				$won += $row['count'];
+				continue;
+			}
+			if (($row['kind'] ?? '') === 'lost') {
+				$lost += $row['count'];
 				continue;
 			}
 			$openCount += $row['count'];

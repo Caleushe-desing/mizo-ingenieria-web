@@ -2249,3 +2249,69 @@ body.is-clients .btn-word, body.is-clients .kb-enroll, .kb-enroll, .kb-go {
 	.admin-grid { grid-template-columns: 1fr; }
 	.admin-page .page-head { align-items: flex-start; flex-direction: column; }
 }
+.kb-col {
+	background: color-mix(in srgb, var(--kb-accent, #1c9bd8) 8%, #f6f7f9);
+}
+.kb-col header span {
+	background: var(--kb-accent, #1c9bd8);
+	color: #fff;
+	border-color: transparent;
+}
+.kb-card {
+	border-left: 4px solid var(--kb-accent, #1c9bd8);
+}
+.kb-card:hover {
+	border-color: color-mix(in srgb, var(--kb-accent, #1c9bd8) 45%, #d0d7de);
+	box-shadow: 0 8px 18px rgba(31, 35, 40, .08);
+}
+.kb-drop.is-over {
+	background: color-mix(in srgb, var(--kb-accent, #1c9bd8) 14%, #fff);
+}
+.kb-stage-admin {
+	background: #fff;
+	border: 1px solid #e3e7ec;
+	border-radius: 12px;
+	padding: 12px 14px;
+	margin: 0 0 12px;
+}
+.kb-stage-admin summary {
+	cursor: pointer;
+	font-weight: 700;
+	color: #1f2328;
+}
+.kb-stage-admin > p { margin: 8px 0 12px; color: #605e5c; font-size: 13px; }
+.kb-stage-create, .kb-stage-list form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: flex-end;
+}
+.kb-stage-create { margin-bottom: 12px; }
+.kb-stage-create label, .kb-stage-list label { display: grid; gap: 4px; font-size: 12px; color: #605e5c; }
+.kb-stage-create input[type="text"], .kb-stage-create input:not([type="color"]), .kb-stage-list input[name="label"], .kb-stage-list select {
+	border: 1px solid #d0d7de;
+	border-radius: 8px;
+	padding: 8px 10px;
+	background: #fff;
+	min-width: 180px;
+}
+.kb-stage-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.kb-stage-list li {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	padding: 8px;
+	border-radius: 10px;
+	background: #f7f8fa;
+}
+.kb-stage-swatch { width: 14px; height: 36px; border-radius: 7px; flex: 0 0 auto; }
+.kb-stage-order { display: flex; gap: 4px; }
+.kb-stage-order button {
+	width: 32px;
+	height: 32px;
+	border: 1px solid #d0d7de;
+	border-radius: 8px;
+	background: #fff;
+	cursor: pointer;
+}

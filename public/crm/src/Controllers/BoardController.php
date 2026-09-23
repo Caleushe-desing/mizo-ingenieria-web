@@ -19,7 +19,10 @@ final class BoardController
 	{
 		View::render('board/index', [
 			'title' => 'Tablero',
-			'stages' => Config::stages(),
+			'stages' => \MizoCrm\Models\Stage::labels(),
+			'stageColors' => \MizoCrm\Models\Stage::colors(),
+			'stageRows' => \MizoCrm\Models\Stage::rows(),
+			'stageCounts' => Auth::isAdmin() ? \MizoCrm\Models\Stage::dealCounts() : [],
 			'services' => Config::services(),
 			'cards' => Deal::board(Auth::ownerScope()),
 			'team' => Auth::isAdmin() ? User::team() : [],
@@ -74,7 +77,7 @@ final class BoardController
 			'client_id' => (int) $client['id'],
 			'title' => $title,
 			'service' => $service,
-			'stage' => 'nuevo',
+			'stage' => \MizoCrm\Models\Stage::firstSlug(),
 			'amount' => 0,
 			'expected_close' => null,
 			'lost_reason' => null,
@@ -336,6 +339,64 @@ final class BoardController
 		]);
 	}
 
+
+	public function columnsStore(): void
+	{
+		Csrf::check();
+		Auth::requireAdmin();
+		try {
+			$slug = \MizoCrm\Models\Stage::create((string) ($_POST['label'] ?? ''), (string) ($_POST['color'] ?? ''), (string) ($_POST['kind'] ?? 'open'));
+			$label = \MizoCrm\Models\Stage::labels()[$slug] ?? $slug;
+			Activity::log('stage', 'Creó la columna «' . $label . '».', Auth::id());
+			View::flash('ok', 'Columna agregada al tablero.');
+		} catch (\RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+		}
+		Http::redirect('/');
+	}
+
+	public function columnsUpdate(string $slug): void
+	{
+		Csrf::check();
+		Auth::requireAdmin();
+		try {
+			\MizoCrm\Models\Stage::save($slug, (string) ($_POST['label'] ?? ''), (string) ($_POST['color'] ?? ''), (string) ($_POST['kind'] ?? 'open'));
+			View::flash('ok', 'Columna actualizada.');
+		} catch (\RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+		}
+		Http::redirect('/');
+	}
+
+	public function columnsShift(string $slug): void
+	{
+		Csrf::check();
+		Auth::requireAdmin();
+		\MizoCrm\Models\Stage::shift($slug, (($_POST['dir'] ?? '') === 'up') ? -1 : 1);
+		Http::redirect('/');
+	}
+
+	public function columnsDelete(string $slug): void
+	{
+		Csrf::check();
+		Auth::requireAdmin();
+		try {
+			$labels = \MizoCrm\Models\Stage::labels();
+			$from = $labels[$slug] ?? $slug;
+			$moveTo = (string) ($_POST['move_to'] ?? '');
+			$n = \MizoCrm\Models\Stage::remove($slug, $moveTo);
+			$to = \MizoCrm\Models\Stage::labels()[$moveTo] ?? $moveTo;
+			$message = 'Eliminó la columna «' . $from . '».';
+			if ($n > 0) {
+				$message .= ' Movió ' . $n . ' tarjetas a «' . $to . '».';
+			}
+			Activity::log('stage', $message, Auth::id());
+			View::flash('ok', $n > 0 ? 'Columna eliminada y tarjetas reubicadas.' : 'Columna eliminada.');
+		} catch (\RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+		}
+		Http::redirect('/');
+	}
 	/** @return list<int> */
 	private static function contactIdsFromPost(): array
 	{

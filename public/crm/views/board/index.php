@@ -16,18 +16,15 @@ foreach (array_keys($stages) as $key) {
 foreach ($cards as $card) {
 	$stage = (string) ($card['stage'] ?? 'nuevo');
 	if (!isset($grouped[$stage])) {
-		$stage = 'nuevo';
+		$fallback = array_key_first($grouped);
+		if ($fallback === null) {
+			continue;
+		}
+		$stage = (string) $fallback;
 	}
 	$grouped[$stage][] = $card;
 }
-$accents = [
-	'nuevo' => '#1c9bd8',
-	'contactado' => '#0b6ea8',
-	'negociacion' => '#f47b20',
-	'propuesta' => '#7c5cbf',
-	'ganado' => '#1f8a4c',
-	'perdido' => '#8a9099',
-];
+$stageColors = $stageColors ?? [];
 ?>
 <div class="kb" data-board data-move="<?= h(Http::url('/tablero/mover')) ?>" data-csrf="<?= h(Csrf::token()) ?>">
 	<div class="kb-bar">
@@ -67,9 +64,12 @@ $accents = [
 		</div>
 	</div>
 
+	<?php if (\MizoCrm\Auth::isAdmin()): ?>
+	<?php require __DIR__ . '/columns.php'; ?>
+	<?php endif; ?>
 	<div class="kb-columns">
 		<?php foreach ($stages as $key => $label): ?>
-			<section class="kb-col" data-stage="<?= h($key) ?>" style="--kb-accent: <?= h($accents[$key] ?? '#1c9bd8') ?>">
+			<section class="kb-col" data-stage="<?= h($key) ?>" style="--kb-accent: <?= h($stageColors[$key] ?? '#1c9bd8') ?>">
 				<header>
 					<strong><?= h($label) ?></strong>
 					<span data-kb-count><?= count($grouped[$key]) ?></span>

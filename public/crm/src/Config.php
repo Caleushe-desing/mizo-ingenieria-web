@@ -24,14 +24,7 @@ final class Config
 
 	public static function stages(): array
 	{
-		return [
-			'nuevo' => 'Prospecto / Lead nuevo',
-			'contactado' => 'Contacto / Llamada realizada',
-			'negociacion' => 'Diagnóstico / Requerimiento',
-			'propuesta' => 'Propuesta / Cotización enviada',
-			'ganado' => 'Cierre ganado',
-			'perdido' => 'Descartado / En pausa',
-		];
+		return Models\Stage::labels();
 	}
 
 	/** Guion corto para leer en la llamada, según el servicio del negocio. */
@@ -69,7 +62,7 @@ final class Config
 
 	public static function openStages(): array
 	{
-		return ['nuevo', 'contactado', 'propuesta', 'negociacion'];
+		return Models\Stage::openKeys();
 	}
 
 	public static function quoteStatuses(): array

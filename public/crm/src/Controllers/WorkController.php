@@ -348,7 +348,7 @@ final class WorkController
 				'client_id' => $clientId,
 				'title' => $title,
 				'service' => $service,
-				'stage' => 'nuevo',
+				'stage' => \MizoCrm\Models\Stage::firstSlug(),
 				'amount' => 0,
 				'expected_close' => null,
 				'lost_reason' => null,

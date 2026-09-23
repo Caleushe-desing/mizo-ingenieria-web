@@ -384,6 +384,35 @@ final class Database
 			$pdo->exec('PRAGMA user_version = 12');
 			$version = 12;
 		}
+
+		if ($version < 13) {
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS board_stages (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					slug TEXT NOT NULL UNIQUE,
+					label TEXT NOT NULL,
+					color TEXT NOT NULL DEFAULT \'#1c9bd8\',
+					position INTEGER NOT NULL DEFAULT 0,
+					kind TEXT NOT NULL DEFAULT \'open\',
+					created_at TEXT NOT NULL
+				)'
+			);
+			$insert = $pdo->prepare('INSERT INTO board_stages (slug, label, color, position, kind, created_at) VALUES (?, ?, ?, ?, ?, ?)');
+			$now = date('c');
+			$defaults = [
+				['nuevo', 'Prospecto / Lead nuevo', '#1c9bd8', 1, 'open'],
+				['contactado', 'Contacto / Llamada realizada', '#0b6ea8', 2, 'open'],
+				['negociacion', 'Diagnóstico / Requerimiento', '#5b6b8c', 3, 'open'],
+				['propuesta', 'Propuesta / Cotización enviada', '#f47b20', 4, 'open'],
+				['ganado', 'Cierre ganado', '#1f8a4c', 5, 'won'],
+				['perdido', 'Descartado / En pausa', '#8a9099', 6, 'lost'],
+			];
+			foreach ($defaults as $row) {
+				$insert->execute([$row[0], $row[1], $row[2], $row[3], $row[4], $now]);
+			}
+			$pdo->exec('PRAGMA user_version = 13');
+			$version = 13;
+		}
 	}
 
 	/** Garantiza columnas/tablas de correo y contactos aunque un deploy parcial deje el schema atrasado. */

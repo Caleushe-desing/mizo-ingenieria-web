@@ -132,11 +132,16 @@ final class AdminReport extends Record
 		foreach ($rows as $row) {
 			$by[(string) $row['stage']] = $row;
 		}
+		$kinds = [];
+		foreach (Stage::rows() as $stage) {
+			$kinds[$stage['slug']] = $stage['kind'];
+		}
 		$out = [];
 		foreach (Config::stages() as $key => $label) {
 			$out[] = [
 				'stage' => $key,
 				'label' => $label,
+				'kind' => $kinds[$key] ?? 'open',
 				'count' => (int) ($by[$key]['n'] ?? 0),
 				'amount' => (int) ($by[$key]['money'] ?? 0),
 			];
@@ -147,13 +152,16 @@ final class AdminReport extends Record
 	/** @return list<array<string,mixed>> */
 	public static function executives(): array
 	{
+		$wonIn = self::slugIn(Stage::slugs('won'));
+		$lostIn = self::slugIn(Stage::slugs('lost'));
+		$openIn = self::slugIn(Stage::slugs('open'));
 		$rows = self::pdo()->query(
 			"SELECT u.id, u.name,
 				(SELECT COUNT(*) FROM quotes q WHERE q.created_by = u.id AND q.sent_at IS NOT NULL AND q.sent_at != '') AS quotes_sent,
-				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage = 'ganado') AS won,
-				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage = 'perdido') AS lost,
-				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage NOT IN ('ganado','perdido')) AS open_deals,
-				(SELECT COALESCE(SUM(d.amount), 0) FROM deals d WHERE d.owner_id = u.id AND d.stage NOT IN ('ganado','perdido')) AS open_amount,
+				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($wonIn)) AS won,
+				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($lostIn)) AS lost,
+				(SELECT COUNT(*) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($openIn)) AS open_deals,
+				(SELECT COALESCE(SUM(d.amount), 0) FROM deals d WHERE d.owner_id = u.id AND d.stage IN ($openIn)) AS open_amount,
 				(SELECT COUNT(*) FROM mail_messages m WHERE m.user_id = u.id AND m.folder = 'sent') AS mails,
 				(SELECT COUNT(*) FROM activities a WHERE a.user_id = u.id AND a.type = 'llamada') AS calls,
 				(SELECT COUNT(*) FROM activities a WHERE a.user_id = u.id AND a.type = 'stage' AND a.message LIKE '%Llamada realizada%') AS call_moves,
@@ -269,6 +277,17 @@ final class AdminReport extends Record
 			return $text;
 		}
 		return mb_substr($text, 0, $max) . '…';
+	}
+
+	private static function slugIn(array $slugs): string
+	{
+		$safe = [];
+		foreach ($slugs as $slug) {
+			if (preg_match('/^[a-z0-9-]+$/', (string) $slug)) {
+				$safe[] = "'" . $slug . "'";
+			}
+		}
+		return $safe ? implode(',', $safe) : "''";
 	}
 
 	private static function weekIndex(int $start, string $stamp, int $weeks): ?int
