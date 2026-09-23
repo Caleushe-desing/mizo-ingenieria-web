@@ -697,7 +697,7 @@
 			if (!section || !home) return;
 			if (current === section) {
 				a.setAttribute("href", home);
-				a.title = "Ir al inicio de esta sección";
+				a.title = "Ir al inicio de esta secciÃ³n";
 			} else if (places[section]) {
 				a.setAttribute("href", places[section]);
 				a.title = "Volver a donde lo dejaste";
@@ -750,8 +750,32 @@
 			const next = loadState();
 			next[id] = panel.open;
 			saveState(next);
+			syncDock();
 		});
 	});
+
+	function syncDock() {
+		let any = false;
+		document.querySelectorAll("[data-panel-toggle]").forEach(function (btn) {
+			const id = btn.getAttribute("data-panel-toggle");
+			const panel = document.querySelector('[data-rail-panel="' + id + '"]');
+			const open = !!(panel && panel.open);
+			btn.classList.toggle("is-on", open);
+			btn.setAttribute("aria-pressed", open ? "true" : "false");
+			if (open) any = true;
+		});
+		document.body.classList.toggle("is-rail-empty", !any && !!document.querySelector("[data-crm-rail]"));
+	}
+
+	document.querySelectorAll("[data-panel-toggle]").forEach(function (btn) {
+		btn.addEventListener("click", function () {
+			const id = btn.getAttribute("data-panel-toggle");
+			const panel = document.querySelector('[data-rail-panel="' + id + '"]');
+			if (!panel) return;
+			panel.open = !panel.open;
+		});
+	});
+	syncDock();
 
 	const q = document.querySelector("[data-rail-client-q]");
 	const empty = document.querySelector("[data-rail-client-empty]");

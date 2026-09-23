@@ -154,6 +154,59 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .who { color: var(--muted); font-size: 13px; }
 .ribbon-actions { display: flex; align-items: center; gap: 12px; }
+.panel-dock {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 4px 4px 10px;
+	background: #f4f8fb;
+	border: 1px solid #d5e4f0;
+	border-bottom: 3px solid #1c9bd8;
+	border-radius: 14px 14px 6px 6px;
+	box-shadow: 0 8px 0 -6px rgba(28, 155, 216, .35);
+}
+.panel-dock-label {
+	font-size: 10px;
+	font-weight: 800;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	color: #6b7c8a;
+	padding-right: 4px;
+}
+.panel-dock-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border: 0;
+	background: transparent;
+	color: #3c4043;
+	font-weight: 700;
+	font-size: 13px;
+	padding: 7px 12px;
+	border-radius: 10px;
+	cursor: pointer;
+}
+.panel-dock-btn svg {
+	width: 16px;
+	height: 16px;
+	fill: currentColor;
+}
+.panel-dock-btn:hover { background: rgba(255, 255, 255, .8); }
+.panel-dock-btn.is-on.is-chat {
+	background: #1c9bd8;
+	color: #fff;
+	box-shadow: 0 2px 6px rgba(28, 155, 216, .35);
+}
+.panel-dock-btn.is-on.is-clients {
+	background: #f47b20;
+	color: #fff;
+	box-shadow: 0 2px 6px rgba(244, 123, 32, .35);
+}
+.panel-dock-btn .mail-badge {
+	background: #fff;
+	color: #1c9bd8;
+}
+.panel-dock-btn:not(.is-on) .mail-badge { background: #1c9bd8; color: #fff; }
 
 .signature-grid {
 	display: grid;
@@ -1370,6 +1423,7 @@ body.is-chat .flash {
 	.mail-layout { grid-template-columns: 1fr; }
 	.grid-2 { grid-template-columns: 1fr; }
 	.ribbon { flex-wrap: wrap; }
+	.panel-dock { order: 3; margin-left: auto; }
 	.page-head { align-items: flex-start; }
 	.quote-sheet { margin: 0; box-shadow: none; }
 	.totals { flex-direction: column; align-items: flex-end; gap: 8px; }
@@ -1469,7 +1523,9 @@ body.is-chat .flash {
 	align-items: stretch;
 	min-height: calc(100vh - 96px);
 }
-.crm-shell.no-rail { grid-template-columns: minmax(0, 1fr); }
+body.is-rail-empty .crm-shell { grid-template-columns: minmax(0, 1fr); }
+body.is-rail-empty .crm-rail,
+body.is-rail-empty .crm-split { display: none; }
 .crm-split {
 	cursor: col-resize;
 	background: linear-gradient(#e8eaed, #e8eaed) center / 2px 100% no-repeat;
