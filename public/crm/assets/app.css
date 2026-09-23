@@ -1464,12 +1464,19 @@ body.is-chat .flash {
 /* Shell + panel derecho */
 .crm-shell {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) 300px;
+	grid-template-columns: minmax(0, 1fr) 8px var(--rail-w, 320px);
 	gap: 0;
 	align-items: stretch;
 	min-height: calc(100vh - 96px);
 }
 .crm-shell.no-rail { grid-template-columns: minmax(0, 1fr); }
+.crm-split {
+	cursor: col-resize;
+	background: linear-gradient(#e8eaed, #e8eaed) center / 2px 100% no-repeat;
+	touch-action: none;
+}
+.crm-split:hover, body.is-rail-dragging .crm-split { background-color: #d2e3fc; }
+body.is-rail-dragging { cursor: col-resize; user-select: none; }
 body.has-rail .workspace {
 	max-width: none;
 	margin: 0;
@@ -1480,7 +1487,7 @@ body.is-chat.has-rail .workspace.workspace-chat {
 	padding: 0 0 20px;
 }
 .crm-rail {
-	border-left: 1px solid var(--line);
+	border-left: 0;
 	background: #f8f9fb;
 	display: flex;
 	flex-direction: column;
@@ -1488,13 +1495,7 @@ body.is-chat.has-rail .workspace.workspace-chat {
 	position: sticky;
 	top: 0;
 	overflow: hidden;
-}
-body.is-rail-collapsed .crm-shell { grid-template-columns: minmax(0, 1fr); }
-body.is-rail-collapsed .crm-rail { display: none; }
-.rail-toggle {
-	border: 1px solid var(--line) !important;
-	border-radius: 4px;
-	padding: 4px 10px !important;
+	min-width: 0;
 }
 .rail-panel {
 	border-bottom: 1px solid var(--line);
@@ -1574,6 +1575,12 @@ body.is-rail-collapsed .crm-rail { display: none; }
 	border-radius: 8px;
 	text-decoration: none;
 	color: inherit;
+	width: 100%;
+	border: 0;
+	background: transparent;
+	text-align: left;
+	cursor: pointer;
+	font: inherit;
 }
 .rail-client-list a {
 	grid-template-columns: minmax(0, 1fr);
@@ -1611,6 +1618,48 @@ body.is-rail-collapsed .crm-rail { display: none; }
 	font-weight: 600;
 	color: #0b57d0;
 }
+.rail-chat { display: flex; flex-direction: column; min-height: 180px; }
+.rail-thread {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	flex: 1;
+	gap: 8px;
+}
+.rail-thread-head { display: flex; align-items: center; gap: 8px; }
+.rail-back {
+	border: 0;
+	background: #e8eaed;
+	border-radius: 6px;
+	padding: 4px 8px;
+	cursor: pointer;
+	font-weight: 700;
+}
+.rail-msgs {
+	flex: 1;
+	min-height: 140px;
+	max-height: 280px;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 4px;
+	background: #f6f8fc;
+	border-radius: 8px;
+}
+.rail-msgs .chat-bubble { max-width: 92%; font-size: 13px; }
+.rail-compose { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: end; }
+.rail-compose textarea {
+	width: 100%;
+	resize: vertical;
+	min-height: 44px;
+	max-height: 120px;
+	border: 1px solid #dadce0;
+	border-radius: 8px;
+	padding: 8px;
+	font: inherit;
+}
+.rail-compose .btn { padding: 8px 10px; }
 
 /* Correo a pantalla completa */
 .gmail.is-mail-full {
@@ -1625,7 +1674,8 @@ body.is-rail-collapsed .crm-rail { display: none; }
 }
 .gmail.is-mail-full .gmail-back { display: inline-block; }
 .gmail.is-mail-full [data-mail-full]::after { content: none; }
-body.is-mail-full-active .crm-rail { display: none; }
+body.is-mail-full-active .crm-rail,
+body.is-mail-full-active .crm-split { display: none; }
 body.is-mail-full-active .crm-shell { grid-template-columns: minmax(0, 1fr); }
 
 @media (max-width: 720px) {
@@ -1634,12 +1684,12 @@ body.is-mail-full-active .crm-shell { grid-template-columns: minmax(0, 1fr); }
 	.gmail-search select { max-width: none; width: 100%; }
 	.mail-att-frame { height: 280px; }
 	.crm-shell { grid-template-columns: 1fr; }
+	.crm-split { display: none; }
 	.crm-rail {
 		position: static;
 		max-height: none;
 		border-left: 0;
 		border-top: 1px solid var(--line);
 	}
-	body.is-rail-collapsed .crm-rail { display: none; }
 }
 

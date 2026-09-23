@@ -697,7 +697,7 @@
 			if (!section || !home) return;
 			if (current === section) {
 				a.setAttribute("href", home);
-				a.title = "Ir al inicio de esta sección";
+				a.title = "Ir al inicio de esta secciÃ³n";
 			} else if (places[section]) {
 				a.setAttribute("href", places[section]);
 				a.title = "Volver a donde lo dejaste";
@@ -733,6 +733,7 @@
 
 (function () {
 	const KEY = "mizo-crm-rail";
+	const WIDTH_KEY = "mizo-crm-rail-w";
 	function loadState() {
 		try { return JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { return {}; }
 	}
@@ -740,7 +741,6 @@
 		try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
 	}
 	const state = loadState();
-	if (state.collapsed) document.body.classList.add("is-rail-collapsed");
 
 	document.querySelectorAll("[data-rail-panel]").forEach(function (panel) {
 		const id = panel.getAttribute("data-rail-panel");
@@ -749,15 +749,6 @@
 		panel.addEventListener("toggle", function () {
 			const next = loadState();
 			next[id] = panel.open;
-			saveState(next);
-		});
-	});
-
-	document.querySelectorAll("[data-rail-toggle]").forEach(function (btn) {
-		btn.addEventListener("click", function () {
-			document.body.classList.toggle("is-rail-collapsed");
-			const next = loadState();
-			next.collapsed = document.body.classList.contains("is-rail-collapsed");
 			saveState(next);
 		});
 	});
@@ -776,6 +767,173 @@
 			});
 			if (empty) empty.hidden = shown > 0 || term === "";
 		});
+	}
+
+	const handle = document.querySelector("[data-crm-split]");
+	function applyWidth(px) {
+		const min = 240;
+		const max = Math.min(560, Math.round(window.innerWidth * 0.5));
+		const next = Math.max(min, Math.min(max, px));
+		document.documentElement.style.setProperty("--rail-w", next + "px");
+		return next;
+	}
+	try {
+		const saved = parseInt(localStorage.getItem(WIDTH_KEY) || "", 10);
+		if (saved) applyWidth(saved);
+	} catch (e) {}
+	if (handle) {
+		handle.addEventListener("pointerdown", function (event) {
+			event.preventDefault();
+			handle.setPointerCapture(event.pointerId);
+			document.body.classList.add("is-rail-dragging");
+			function move(ev) {
+				const width = window.innerWidth - ev.clientX;
+				applyWidth(width);
+			}
+			function up(ev) {
+				handle.releasePointerCapture(ev.pointerId);
+				document.body.classList.remove("is-rail-dragging");
+				handle.removeEventListener("pointermove", move);
+				handle.removeEventListener("pointerup", up);
+				const current = getComputedStyle(document.documentElement).getPropertyValue("--rail-w");
+				const n = parseInt(current, 10);
+				if (n) {
+					try { localStorage.setItem(WIDTH_KEY, String(n)); } catch (e) {}
+				}
+			}
+			handle.addEventListener("pointermove", move);
+			handle.addEventListener("pointerup", up);
+		});
+	}
+
+	const chat = document.querySelector("[data-rail-chat]");
+	if (!chat) return;
+	const base = chat.getAttribute("data-chat-base") || "";
+	const peers = chat.querySelector("[data-rail-peers]");
+	const thread = chat.querySelector("[data-rail-thread]");
+	const msgs = chat.querySelector("[data-rail-msgs]");
+	const form = chat.querySelector("[data-rail-chat-form]");
+	const input = chat.querySelector("[data-rail-chat-input]");
+	const nameEl = chat.querySelector("[data-rail-thread-name]");
+	if (!peers || !thread || !msgs || !form) return;
+
+	let peerId = 0;
+	let last = 0;
+	let sending = false;
+	let timer = null;
+
+	function escapeHtml(text) {
+		return String(text)
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;");
+	}
+
+	function appendMessage(msg) {
+		if (!msg || msgs.querySelector('[data-id="' + msg.id + '"]')) return;
+		const el = document.createElement("div");
+		el.className = "chat-bubble " + (msg.from_me ? "is-mine" : "is-theirs");
+		el.setAttribute("data-id", String(msg.id));
+		el.innerHTML = '<div class="chat-bubble-body">' + escapeHtml(msg.body).replace(/\n/g, "<br>")
+			+ "</div><time>" + escapeHtml(msg.created_at || "") + "</time>";
+		msgs.appendChild(el);
+		msgs.scrollTop = msgs.scrollHeight;
+		last = Math.max(last, Number(msg.id) || 0);
+	}
+
+	function tick() {
+		if (!peerId || document.hidden) return;
+		const requested = peerId;
+		const after = last;
+		fetch(base + requested + "/mensajes?despues=" + after, {
+			credentials: "same-origin",
+			headers: { Accept: "application/json" },
+		})
+			.then(function (res) { return res.ok ? res.json() : null; })
+			.then(function (data) {
+				if (requested !== peerId) return;
+				if (!data || !data.ok || !Array.isArray(data.messages)) return;
+				data.messages.forEach(appendMessage);
+			})
+			.catch(function () {});
+	}
+
+	function openPeer(id, name) {
+		peerId = id;
+		last = 0;
+		msgs.innerHTML = "";
+		if (nameEl) nameEl.textContent = name || "Chat";
+		peers.hidden = true;
+		thread.hidden = false;
+		try { sessionStorage.setItem("mizo-crm-rail-peer", String(id)); } catch (e) {}
+		tick();
+		if (timer) clearInterval(timer);
+		timer = setInterval(tick, 2500);
+		if (input) input.focus();
+	}
+
+	function closePeer() {
+		peerId = 0;
+		thread.hidden = true;
+		peers.hidden = false;
+		if (timer) clearInterval(timer);
+		try { sessionStorage.removeItem("mizo-crm-rail-peer"); } catch (e) {}
+	}
+
+	peers.querySelectorAll("[data-rail-peer]").forEach(function (btn) {
+		btn.addEventListener("click", function () {
+			openPeer(Number(btn.getAttribute("data-rail-peer")), btn.getAttribute("data-rail-peer-name") || "");
+		});
+	});
+	const back = chat.querySelector("[data-rail-back]");
+	if (back) back.addEventListener("click", closePeer);
+
+	function sendNow() {
+		if (!peerId || !input || sending) return;
+		const body = String(input.value || "").trim();
+		if (!body) return;
+		sending = true;
+		const data = new FormData(form);
+		data.set("body", body);
+		fetch(base + peerId, {
+			method: "POST",
+			body: data,
+			credentials: "same-origin",
+			headers: { Accept: "application/json", "X-Requested-With": "fetch" },
+		})
+			.then(function (res) { return res.json(); })
+			.then(function (json) {
+				if (json && json.ok && json.message) {
+					appendMessage(json.message);
+					input.value = "";
+					input.focus();
+				}
+			})
+			.catch(function () {})
+			.finally(function () { sending = false; });
+	}
+
+	if (input) {
+		input.addEventListener("keydown", function (event) {
+			if (event.key !== "Enter" || event.shiftKey) return;
+			event.preventDefault();
+			sendNow();
+		});
+	}
+	form.addEventListener("submit", function (event) {
+		event.preventDefault();
+		sendNow();
+	});
+
+	let restore = "";
+	try { restore = sessionStorage.getItem("mizo-crm-rail-peer") || ""; } catch (e) {}
+	const buttons = peers.querySelectorAll("[data-rail-peer]");
+	if (buttons.length === 1) {
+		openPeer(Number(buttons[0].getAttribute("data-rail-peer")), buttons[0].getAttribute("data-rail-peer-name") || "");
+	} else if (restore) {
+		const match = peers.querySelector('[data-rail-peer="' + restore + '"]');
+		if (match) openPeer(Number(restore), match.getAttribute("data-rail-peer-name") || "");
 	}
 })();
 

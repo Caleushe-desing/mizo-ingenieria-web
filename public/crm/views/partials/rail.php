@@ -1,5 +1,6 @@
 <?php
 use MizoCrm\Auth;
+use MizoCrm\Csrf;
 use MizoCrm\Http;
 use MizoCrm\Models\ChatMessage;
 use MizoCrm\Models\Client;
@@ -20,11 +21,11 @@ $railChatUnread = (int) ($unreadChat ?? ChatMessage::unreadCount((int) $railUser
 				<em class="rail-badge"><?= $railChatUnread ?></em>
 			<?php endif; ?>
 		</summary>
-		<div class="rail-body">
+		<div class="rail-body rail-chat" data-rail-chat data-chat-base="<?= h(Http::url('/chat/')) ?>">
 			<?php if (!$railPeers): ?>
 				<p class="rail-empty"><?= Auth::isAdmin() ? 'No hay ejecutivos para chatear.' : 'No hay administrador disponible.' ?></p>
 			<?php else: ?>
-				<ul class="rail-chat-list">
+				<ul class="rail-chat-list" data-rail-peers>
 					<?php foreach ($railPeers as $peerRow): ?>
 						<?php
 						$preview = trim((string) ($peerRow['last_body'] ?? ''));
@@ -35,7 +36,7 @@ $railChatUnread = (int) ($unreadChat ?? ChatMessage::unreadCount((int) $railUser
 						}
 						?>
 						<li>
-							<a class="rail-chat-item<?= !empty($peerRow['unread']) ? ' is-unread' : '' ?>" href="<?= h(Http::url('/chat/' . $peerRow['id'])) ?>">
+							<button type="button" class="rail-chat-item<?= !empty($peerRow['unread']) ? ' is-unread' : '' ?>" data-rail-peer="<?= (int) $peerRow['id'] ?>" data-rail-peer-name="<?= h($peerRow['name']) ?>">
 								<span class="gmail-avatar" style="background:<?= h(mail_avatar_color((string) $peerRow['name'])) ?>"><?= h(initials((string) $peerRow['name'])) ?></span>
 								<span class="rail-chat-copy">
 									<strong><?= h($peerRow['name']) ?></strong>
@@ -44,12 +45,23 @@ $railChatUnread = (int) ($unreadChat ?? ChatMessage::unreadCount((int) $railUser
 								<?php if (!empty($peerRow['unread'])): ?>
 									<em class="rail-badge"><?= (int) $peerRow['unread'] ?></em>
 								<?php endif; ?>
-							</a>
+							</button>
 						</li>
 					<?php endforeach; ?>
 				</ul>
+				<div class="rail-thread" data-rail-thread hidden>
+					<div class="rail-thread-head">
+						<button type="button" class="rail-back" data-rail-back>←</button>
+						<strong data-rail-thread-name></strong>
+					</div>
+					<div class="rail-msgs" data-rail-msgs></div>
+					<form class="rail-compose" data-rail-chat-form>
+						<?= Csrf::field() ?>
+						<textarea name="body" rows="2" required placeholder="Escribe y pulsa Enter…" maxlength="4000" data-rail-chat-input></textarea>
+						<button class="btn btn-word" type="submit">Enviar</button>
+					</form>
+				</div>
 			<?php endif; ?>
-			<a class="rail-more" href="<?= h(Http::url('/chat')) ?>">Abrir chat completo</a>
 		</div>
 	</details>
 

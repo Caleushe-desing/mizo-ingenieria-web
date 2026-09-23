@@ -19,7 +19,7 @@ $showRail = !empty($user);
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=15">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=16">
 </head>
 <body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $showRail ? ' has-rail' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
 	<header class="titlebar">
@@ -47,9 +47,6 @@ $showRail = !empty($user);
 		<div class="ribbon-actions">
 			<?php if (!empty($user)): ?>
 				<span class="who"><?= h($user['name']) ?></span>
-				<?php if ($showRail): ?>
-					<button type="button" class="btn-text rail-toggle" data-rail-toggle title="Mostrar u ocultar panel">Panel</button>
-				<?php endif; ?>
 				<form method="post" action="<?= h(Http::url('/logout')) ?>">
 					<?= Csrf::field() ?>
 					<button class="btn-text" type="submit">Salir</button>
@@ -72,9 +69,10 @@ $showRail = !empty($user);
 			<?= $content ?>
 		</main>
 		<?php if ($showRail): ?>
+			<div class="crm-split" data-crm-split title="Arrastra para ajustar el panel"></div>
 			<?php require __DIR__ . '/partials/rail.php'; ?>
 		<?php endif; ?>
 	</div>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=15"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=16"></script>
 </body>
 </html>
