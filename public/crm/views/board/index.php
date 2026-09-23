@@ -148,8 +148,8 @@ $accents = [
 				<label><span>Mensaje</span><textarea name="body" required rows="6" placeholder="Escribe el mensaje"></textarea></label>
 				<label class="mail-attach">
 					<span>Adjuntos</span>
-					<input type="file" name="adjuntos[]" accept="application/pdf,image/jpeg,image/png,image/gif,image/webp" multiple data-mail-files>
-					<small>PDF o imágenes.</small>
+					<input type="file" name="adjuntos[]" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.xml,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rtf" multiple data-mail-files>
+					<small>PDF, imágenes, XML, Excel, Word o ZIP.</small>
 				</label>
 				<p class="muted" data-mail-status></p>
 				<div class="kb-actions">

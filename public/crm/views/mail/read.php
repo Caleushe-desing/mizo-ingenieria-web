@@ -121,7 +121,7 @@ $listBack = $back . ($qs ? ('?' . http_build_query($qs)) : '');
 			</label>
 			<label class="mail-attach">
 				<span>Adjuntos</span>
-				<input type="file" name="adjuntos[]" accept="application/pdf,image/jpeg,image/png,image/gif,image/webp" multiple>
+				<input type="file" name="adjuntos[]" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.xml,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rtf" multiple>
 			</label>
 			<div class="gmail-reply-actions">
 				<button class="gmail-send" type="submit" name="mode" value="one">Responder</button>

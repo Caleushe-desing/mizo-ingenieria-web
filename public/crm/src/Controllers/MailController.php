@@ -418,7 +418,6 @@ final class MailController
 			$errors = [$errors];
 			$sizes = [$sizes];
 		}
-		$allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 		$out = [];
 		$total = 0;
 		foreach ($names as $i => $original) {
@@ -445,40 +444,86 @@ final class MailController
 			if ($binary === '') {
 				$this->finishMail(false, 'No se pudo leer un adjunto.', $failRedirect);
 			}
-			$mime = strtolower((string) (new \finfo(FILEINFO_MIME_TYPE))->buffer($binary));
-			if ($mime === 'image/jpg' || $mime === 'image/pjpeg') {
-				$mime = 'image/jpeg';
-			} elseif ($mime === 'application/x-pdf') {
-				$mime = 'application/pdf';
+			$ext = self::uploadExtension((string) $original);
+			$types = self::uploadTypes();
+			if (!isset($types[$ext])) {
+				$this->finishMail(false, 'Puedes adjuntar PDF, imágenes, XML, Excel, Word, PowerPoint, TXT, CSV o ZIP.', $failRedirect);
 			}
-			if (!in_array($mime, $allowed, true)) {
-				$this->finishMail(false, 'Solo se pueden adjuntar PDF o imágenes (JPG, PNG, GIF o WebP).', $failRedirect);
+			$mime = strtolower((string) (new \finfo(FILEINFO_MIME_TYPE))->buffer($binary));
+			if (self::blockedUpload($mime, $binary)) {
+				$this->finishMail(false, 'Ese archivo no se puede adjuntar.', $failRedirect);
+			}
+			if (in_array($mime, ['application/octet-stream', 'text/plain', 'application/zip', 'application/x-empty'], true)) {
+				$mime = $types[$ext];
 			}
 			$out[] = [
-				'filename' => self::safeUploadName((string) $original, $mime),
-				'mime' => $mime,
+				'filename' => self::safeUploadName((string) $original, $ext),
+				'mime' => $mime !== '' ? $mime : $types[$ext],
 				'content' => $binary,
 			];
 		}
 		return $out;
 	}
 
-	private static function safeUploadName(string $name, string $mime): string
+	/** @return array<string,string> */
+	private static function uploadTypes(): array
+	{
+		return [
+			'pdf' => 'application/pdf',
+			'jpg' => 'image/jpeg',
+			'jpeg' => 'image/jpeg',
+			'png' => 'image/png',
+			'gif' => 'image/gif',
+			'webp' => 'image/webp',
+			'xml' => 'application/xml',
+			'txt' => 'text/plain',
+			'csv' => 'text/csv',
+			'doc' => 'application/msword',
+			'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			'xls' => 'application/vnd.ms-excel',
+			'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			'ppt' => 'application/vnd.ms-powerpoint',
+			'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+			'zip' => 'application/zip',
+			'rtf' => 'application/rtf',
+		];
+	}
+
+	private static function uploadExtension(string $name): string
+	{
+		$name = basename(str_replace('\\', '/', $name));
+		$ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+		return preg_match('/^[a-z0-9]{1,8}$/', $ext) ? $ext : '';
+	}
+
+	private static function blockedUpload(string $mime, string $binary): bool
+	{
+		$blocked = [
+			'text/html',
+			'application/javascript',
+			'text/javascript',
+			'application/x-httpd-php',
+			'application/x-php',
+			'application/x-executable',
+			'application/x-dosexec',
+			'application/x-msdownload',
+			'application/x-sh',
+		];
+		if (in_array($mime, $blocked, true)) {
+			return true;
+		}
+		$head = ltrim(substr($binary, 0, 64));
+		return str_starts_with(strtolower($head), '<?php');
+	}
+
+	private static function safeUploadName(string $name, string $ext): string
 	{
 		$name = basename(str_replace('\\', '/', $name));
 		$name = preg_replace('/[^\p{L}\p{N}._ -]+/u', '', $name) ?? '';
 		$name = trim((string) $name, '. ');
-		$ext = match ($mime) {
-			'application/pdf' => 'pdf',
-			'image/jpeg' => 'jpg',
-			'image/png' => 'png',
-			'image/gif' => 'gif',
-			'image/webp' => 'webp',
-			default => 'bin',
-		};
 		if ($name === '') {
 			$name = 'archivo.' . $ext;
-		} elseif (!preg_match('/\.(pdf|jpe?g|png|gif|webp)$/i', $name)) {
+		} elseif (!preg_match('/\.' . preg_quote($ext, '/') . '$/i', $name)) {
 			$name .= '.' . $ext;
 		}
 		if (strlen($name) > 120) {
