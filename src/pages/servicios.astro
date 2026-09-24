@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import ConversionCta from '../components/ConversionCta.astro';
 import Layout from '../layouts/Layout.astro';
 import imgSonido from '../assets/servicio-sonido.jpg';
 import imgVideo from '../assets/servicio-video.jpg';
@@ -97,13 +98,8 @@ const jsonLd = graphSchema([
 		</section>
 	))}
 
-	<section class="bg-charcoal py-14">
-		<div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-			<div>
-				<h2 class="text-2xl font-extrabold">¿Cuál de estas líneas necesitas?</h2>
-				<p class="mt-2 max-w-xl text-white/65">Cuéntanos el recinto y te proponemos la instalación adecuada.</p>
-			</div>
-			<a href="/contacto" class="mizo-btn">Solicitar cotización</a>
-		</div>
-	</section>
+	<ConversionCta
+		title="¿Cuál de estas líneas necesitas?"
+		text="Cuéntanos el recinto y te proponemos la instalación adecuada."
+	/>
 </Layout>
