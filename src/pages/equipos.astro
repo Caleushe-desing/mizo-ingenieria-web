@@ -23,7 +23,7 @@ const description =
 			<p class="mizo-kicker">Equipos</p>
 			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] sm:text-5xl">Componentes de grado profesional, elegidos para integrar.</h1>
 			<p class="mt-4 max-w-2xl text-lg leading-8 text-white/65">
-				Esta vitrina muestra el hardware con el que diseñamos. No es una tienda: no hay precios ni carrito. Cotizas el equipo con el equipo de Mizo.
+				Tres equipos por fila. La primera foto es la principal; las demás se recorren en el mismo cuadro.
 			</p>
 		</div>
 	</section>
@@ -64,27 +64,56 @@ const description =
 		return element;
 	}
 
-	function card(item, phone) {
-		const article = node('article', 'flex flex-col bg-charcoal');
-		const photos = Array.isArray(item.imagenes) ? item.imagenes.filter((src) => typeof src === 'string' && src.startsWith('/crm/uploads/productos/')) : [];
-		if (photos.length) {
-			const gallery = node('div', photos.length > 1 ? 'grid grid-cols-2 gap-px bg-white/10' : 'grid');
-			for (const src of photos) {
-				const img = document.createElement('img');
-				img.src = src;
-				img.alt = item.nombre || item.sku || 'Equipo';
-				img.className = 'aspect-[4/3] h-full w-full object-cover';
-				img.loading = 'lazy';
-				gallery.append(img);
-			}
-			article.append(gallery);
+	function gallery(photos, alt) {
+		const frame = node('div', 'relative aspect-square overflow-hidden bg-white touch-pan-y');
+		const img = document.createElement('img');
+		img.className = 'h-full w-full object-contain';
+		img.alt = alt;
+		img.src = photos[0];
+		frame.append(img);
+		if (photos.length < 2) return frame;
+
+		let index = 0;
+		const counter = node('span', 'pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 bg-charcoal/80 px-2 py-1 text-xs font-semibold text-white', '1 / ' + photos.length);
+		function show(next) {
+			index = (next + photos.length) % photos.length;
+			img.src = photos[index];
+			counter.textContent = index + 1 + ' / ' + photos.length;
 		}
-		const body = node('div', 'flex flex-1 flex-col px-6 py-7');
+		const prev = node('button', 'absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-charcoal/85 text-xl leading-none text-white', '‹');
+		prev.type = 'button';
+		prev.setAttribute('aria-label', 'Foto anterior');
+		prev.addEventListener('click', () => show(index - 1));
+		const next = node('button', 'absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-charcoal/85 text-xl leading-none text-white', '›');
+		next.type = 'button';
+		next.setAttribute('aria-label', 'Foto siguiente');
+		next.addEventListener('click', () => show(index + 1));
+		frame.append(prev, next, counter);
+
+		let startX = 0;
+		frame.addEventListener('pointerdown', (event) => {
+			startX = event.clientX;
+		});
+		frame.addEventListener('pointerup', (event) => {
+			if (event.target.closest('button')) return;
+			const delta = event.clientX - startX;
+			if (delta > 40) show(index - 1);
+			else if (delta < -40) show(index + 1);
+		});
+		return frame;
+	}
+
+	function card(item, phone) {
+		const article = node('article', 'flex flex-col border border-white/10 bg-charcoal');
+		const photos = Array.isArray(item.imagenes) ? item.imagenes.filter((src) => typeof src === 'string' && src.startsWith('/crm/uploads/productos/')) : [];
+		const alt = item.nombre || item.sku || 'Equipo';
+		if (photos.length) article.append(gallery(photos, alt));
+		const body = node('div', 'flex flex-1 flex-col px-5 py-5');
 		body.append(node('p', 'text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Equipo'));
-		body.append(node('h3', 'mt-3 text-xl font-extrabold leading-snug', item.nombre || item.sku));
+		body.append(node('h3', 'mt-2 text-lg font-extrabold leading-snug', item.nombre || item.sku));
 		if (item.sku) body.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
-		if (item.descripcion) body.append(node('p', 'mt-4 line-clamp-5 text-sm leading-6 text-white/65', item.descripcion));
-		const quote = node('a', 'mizo-btn mt-6 w-fit', 'Cotizar este equipo');
+		if (item.descripcion) body.append(node('p', 'mt-3 line-clamp-3 text-sm leading-6 text-white/65', item.descripcion));
+		const quote = node('a', 'mizo-btn mt-5 w-full text-center', 'Cotizar este equipo');
 		const message = `Hola Mizo, quiero cotizar el equipo ${item.nombre || ''} (SKU ${item.sku || ''}).`;
 		quote.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 		quote.target = '_blank';
@@ -108,20 +137,9 @@ const description =
 					return;
 				}
 				status.hidden = true;
-				const groups = new Map();
-				for (const item of products) {
-					const category = item.categoria || 'Equipos';
-					if (!groups.has(category)) groups.set(category, []);
-					groups.get(category).push(item);
-				}
-				for (const [category, items] of groups) {
-					const block = node('section', groups.size > 1 ? 'mt-10 first:mt-0' : '');
-					if (groups.size > 1) block.append(node('h2', 'text-2xl font-extrabold', category));
-					const grid = node('div', 'mt-6 grid gap-px bg-white/10 sm:grid-cols-2 lg:grid-cols-3');
-					for (const item of items) grid.append(card(item, phone));
-					block.append(grid);
-					list.append(block);
-				}
+				const grid = node('div', 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3');
+				for (const item of products) grid.append(card(item, phone));
+				list.append(grid);
 			})
 			.catch(() => {
 				status.textContent = 'No se pudo cargar el catálogo. Escríbenos y te proponemos el equipo.';
