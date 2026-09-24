@@ -100,6 +100,8 @@ const fieldClass =
 
 					<form id="contacto-form" class="p-5 sm:p-7" novalidate>
 						<input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
+						<input type="hidden" name="sku" value="" />
+						<p id="contacto-sku" class="mb-5 hidden border border-white/10 px-4 py-3 text-sm text-white/80"></p>
 						<div class="grid gap-5 sm:grid-cols-2">
 							<label class="block">
 								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white/70">Nombre</span>
@@ -160,7 +162,17 @@ const fieldClass =
 
 			const params = new URLSearchParams(window.location.search);
 			const mensaje = params.get('mensaje');
+			const sku = params.get('sku');
 			const field = form.querySelector('[name="mensaje"]');
+			const skuField = form.querySelector('[name="sku"]');
+			const skuNote = document.getElementById('contacto-sku');
+			if (sku && skuField instanceof HTMLInputElement) {
+				skuField.value = sku;
+			}
+			if (sku && skuNote) {
+				skuNote.textContent = 'Equipo SKU ' + sku;
+				skuNote.classList.remove('hidden');
+			}
 			if (mensaje && field instanceof HTMLTextAreaElement && field.value === '') {
 				field.value = mensaje;
 			}

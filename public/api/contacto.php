@@ -37,6 +37,7 @@ $telefono = clean($input['telefono'] ?? '', 40);
 $correo = clean($input['correo'] ?? '', 160);
 $servicio = clean($input['servicio'] ?? '', 160);
 $mensaje = clean($input['mensaje'] ?? '', 4000);
+$sku = clean($input['sku'] ?? '', 80);
 
 if ($nombre === '' || $telefono === '' || $correo === '' || $servicio === '' || $mensaje === '') {
     respond(422, ['ok' => false, 'error' => 'Completa todos los campos.']);
@@ -47,8 +48,15 @@ if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
 }
 
 $to = 'ventas@mizo.cl';
-$subject = 'Nueva cotización Mizo: ' . $servicio;
-$body = "Nombre: {$nombre}\nTeléfono: {$telefono}\nCorreo: {$correo}\nServicio: {$servicio}\n\nMensaje:\n{$mensaje}\n";
+$subject = $sku !== '' ? 'Nueva cotización Mizo: SKU ' . $sku : 'Nueva cotización Mizo: ' . $servicio;
+$body = "Nombre: {$nombre}\nTeléfono: {$telefono}\nCorreo: {$correo}\nServicio: {$servicio}\n";
+if ($sku !== '') {
+    $body .= "SKU: {$sku}\n";
+    if (!str_contains($mensaje, $sku)) {
+        $mensaje = 'SKU: ' . $sku . "\n" . $mensaje;
+    }
+}
+$body .= "\nMensaje:\n{$mensaje}\n";
 $headers = [
     'MIME-Version: 1.0',
     'Content-Type: text/plain; charset=UTF-8',

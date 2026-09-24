@@ -74,19 +74,26 @@ const description =
 		if (photos.length < 2) return frame;
 
 		let index = 0;
-		const counter = node('span', 'pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 bg-charcoal/80 px-2 py-1 text-xs font-semibold text-white', '1 / ' + photos.length);
+		const counter = node('span', 'pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 text-[11px] tracking-[0.18em] text-charcoal/50', '1 / ' + photos.length);
 		function show(next) {
 			index = (next + photos.length) % photos.length;
 			img.src = photos[index];
 			counter.textContent = index + 1 + ' / ' + photos.length;
 		}
-		const prev = node('button', 'absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-charcoal/85 text-xl leading-none text-white', '‹');
-		prev.type = 'button';
-		prev.setAttribute('aria-label', 'Foto anterior');
+		function arrow(label, symbol) {
+			const button = node('button', 'absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/80 text-charcoal/70 backdrop-blur-sm transition hover:bg-white hover:text-charcoal');
+			button.type = 'button';
+			button.setAttribute('aria-label', label);
+			button.innerHTML = symbol;
+			return button;
+		}
+		const chevron = (direction) =>
+			`<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="${direction}" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+		const prev = arrow('Foto anterior', chevron('M8.5 3.5 5 7l3.5 3.5'));
+		prev.classList.add('left-3');
 		prev.addEventListener('click', () => show(index - 1));
-		const next = node('button', 'absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-charcoal/85 text-xl leading-none text-white', '›');
-		next.type = 'button';
-		next.setAttribute('aria-label', 'Foto siguiente');
+		const next = arrow('Foto siguiente', chevron('M5.5 3.5 9 7l-3.5 3.5'));
+		next.classList.add('right-3');
 		next.addEventListener('click', () => show(index + 1));
 		frame.append(prev, next, counter);
 
@@ -113,11 +120,15 @@ const description =
 		body.append(node('h3', 'mt-2 text-lg font-extrabold leading-snug', item.nombre || item.sku));
 		if (item.sku) body.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
 		if (item.descripcion) body.append(node('p', 'mt-3 line-clamp-3 text-sm leading-6 text-white/65', item.descripcion));
-		const quote = node('a', 'mizo-btn mt-5 w-full text-center', 'Cotizar este equipo');
-		const message = `Hola Mizo, quiero cotizar el equipo ${item.nombre || ''} (SKU ${item.sku || ''}).`;
-		quote.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-		quote.target = '_blank';
-		quote.rel = 'noopener noreferrer';
+		const quote = node('div', 'mt-5 grid grid-cols-2 gap-2');
+		const message = `Quiero cotizar el equipo ${item.nombre || ''} (SKU ${item.sku || ''}).`;
+		const formLink = node('a', 'inline-flex items-center justify-center bg-orange px-3 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-orange-hover', 'Formulario');
+		formLink.href = `/contacto?sku=${encodeURIComponent(item.sku || '')}&mensaje=${encodeURIComponent(message)}`;
+		const whatsapp = node('a', 'inline-flex items-center justify-center border border-white/20 px-3 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:border-orange hover:text-orange', 'WhatsApp');
+		whatsapp.href = `https://wa.me/${phone}?text=${encodeURIComponent('Hola Mizo, ' + message)}`;
+		whatsapp.target = '_blank';
+		whatsapp.rel = 'noopener noreferrer';
+		quote.append(formLink, whatsapp);
 		body.append(quote);
 		article.append(body);
 		return article;
