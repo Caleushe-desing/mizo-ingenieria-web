@@ -2,6 +2,7 @@
 import ConversionCta from '../../components/ConversionCta.astro';
 import Layout from '../../layouts/Layout.astro';
 import PhotoSlot from '../../components/PhotoSlot.astro';
+import TechStandards from '../../components/TechStandards.astro';
 import { INDUSTRIES, industryPath } from '../../lib/industries';
 import { industryMedia } from '../../lib/industry-images';
 import { absoluteUrl, graphSchema, organizationSchema, webPageSchema } from '../../lib/seo';
@@ -51,6 +52,8 @@ const jsonLd = graphSchema([
 			))}
 		</div>
 	</section>
+
+	<TechStandards variant="teaser" />
 
 	<ConversionCta />
 </Layout>

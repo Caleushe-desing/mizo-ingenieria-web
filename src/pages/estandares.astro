@@ -1,0 +1,37 @@
+---
+import ConversionCta from '../components/ConversionCta.astro';
+import Layout from '../layouts/Layout.astro';
+import TechStandards from '../components/TechStandards.astro';
+import { absoluteUrl, graphSchema, organizationSchema, webPageSchema } from '../lib/seo';
+
+const title = 'Estándares | Mizo — Hardware de grado profesional';
+const description =
+	'Estándares tecnológicos de Mizo: redes de audio Dante, procesamiento DSP, audio de intemperie y visuales de gran formato. Hardware elegido para cada recinto.';
+---
+
+<Layout
+	title={title}
+	description={description}
+	jsonLd={graphSchema([
+		organizationSchema(),
+		webPageSchema({ name: title, description, url: absoluteUrl('/estandares') }),
+	])}
+>
+	<section class="relative overflow-hidden border-b border-white/10 bg-charcoal pt-28 text-white sm:pt-32">
+		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
+		<div class="relative mx-auto max-w-6xl px-4 pb-14 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Estándares</p>
+			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] sm:text-5xl">Hardware de grado profesional, elegido para el recinto.</h1>
+			<p class="mt-4 max-w-2xl text-lg leading-8 text-white/65">
+				Dante, DSP, audio de intemperie y visuales de gran formato entran al proyecto cuando el espacio lo exige. El criterio es la ingeniería del recinto.
+			</p>
+		</div>
+	</section>
+
+	<TechStandards />
+
+	<ConversionCta
+		title="Definamos el estándar de tu recinto."
+		text="Cuéntanos el espacio. Un especialista de Mizo propone el hardware que corresponde, sin un catálogo de por medio."
+	/>
+</Layout>

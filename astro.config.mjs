@@ -19,7 +19,7 @@ export default defineConfig({
 				const priority =
 					pathname === '/'
 						? 1
-						: ['/contacto', '/nosotros', '/industrias'].includes(pathname) || pathname.startsWith('/industrias/')
+						: ['/contacto', '/nosotros', '/industrias', '/estandares'].includes(pathname) || pathname.startsWith('/industrias/')
 							? 0.9
 							: 0.4;
 				return {
