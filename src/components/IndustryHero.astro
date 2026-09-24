@@ -1,13 +1,15 @@
 ---
+import type { ImageMetadata } from 'astro';
 import PhotoSlot from './PhotoSlot.astro';
 
 interface Props {
 	title: string;
 	lead: string;
 	imageLabel: string;
+	image: ImageMetadata;
 }
 
-const { title, lead, imageLabel } = Astro.props;
+const { title, lead, imageLabel, image } = Astro.props;
 ---
 
 <section class="relative overflow-hidden border-b border-white/10 bg-charcoal pt-28 text-white sm:pt-32">
@@ -18,6 +20,6 @@ const { title, lead, imageLabel } = Astro.props;
 			<h1 class="mt-3 text-4xl font-extrabold leading-[1.08] sm:text-5xl">{title}</h1>
 			<p class="mt-5 max-w-xl text-lg leading-8 text-white/70">{lead}</p>
 		</div>
-		<PhotoSlot label={imageLabel} />
+		<PhotoSlot label={imageLabel} image={image} eager />
 	</div>
 </section>

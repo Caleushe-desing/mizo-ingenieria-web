@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { mailUrl, SERVICES, SITE, telUrl, whatsappUrl } from '../lib/site';
+import { mailUrl, SITE, telUrl, whatsappUrl } from '../lib/site';
+import { INDUSTRIES } from '../lib/industries';
 import { absoluteUrl, graphSchema, localBusinessSchema, organizationSchema, webPageSchema } from '../lib/seo';
 
 const title = 'Contacto | Mizo — Cotiza instalación en Chile';
@@ -113,11 +114,11 @@ const fieldClass =
 								<input name="correo" type="email" required class={fieldClass} />
 							</label>
 							<label class="block sm:col-span-2">
-								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white/70">Servicio requerido</span>
+								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white/70">Rubro</span>
 								<select name="servicio" required class={`${fieldClass} bg-charcoal`}>
-									<option value="">Selecciona una línea</option>
-									{SERVICES.map((service) => (
-										<option value={service.title}>{service.title}</option>
+									<option value="">Selecciona un rubro</option>
+									{INDUSTRIES.map((industry) => (
+										<option value={industry.title}>{industry.title}</option>
 									))}
 								</select>
 							</label>

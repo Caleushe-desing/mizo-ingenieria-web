@@ -1,12 +1,14 @@
 ---
+import type { ImageMetadata } from 'astro';
 import PhotoSlot from './PhotoSlot.astro';
 import type { IndustrySolution } from '../lib/industries';
 
 interface Props {
 	solutions: readonly IndustrySolution[];
+	images: Record<string, ImageMetadata>;
 }
 
-const { solutions } = Astro.props;
+const { solutions, images } = Astro.props;
 const columns = solutions.length === 4 ? 'lg:grid-cols-2' : 'lg:grid-cols-3';
 ---
 
@@ -28,7 +30,7 @@ const columns = solutions.length === 4 ? 'lg:grid-cols-2' : 'lg:grid-cols-3';
 		<div class:list={['mt-10 grid gap-px bg-white/10', columns]}>
 			{solutions.map((solution) => (
 				<article id={solution.id} class="scroll-mt-36 flex flex-col bg-charcoal">
-					<PhotoSlot label={solution.imageLabel} />
+					<PhotoSlot label={solution.imageLabel} image={images[solution.id]} />
 					<div class="flex flex-1 flex-col p-6 sm:p-7">
 						<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">{solution.eyebrow}</p>
 						<h3 class="mt-2 text-xl font-extrabold leading-snug">{solution.title}</h3>

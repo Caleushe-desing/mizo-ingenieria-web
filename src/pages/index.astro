@@ -1,22 +1,12 @@
 ---
 import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-import heroImage from '../assets/hero-instalacion.jpg';
-import imgSonido from '../assets/servicio-sonido.jpg';
-import imgVideo from '../assets/servicio-video.jpg';
-import imgCctv from '../assets/servicio-cctv.jpg';
-import imgTi from '../assets/servicio-ti.jpg';
 import ConversionCta from '../components/ConversionCta.astro';
+import heroImage from '../assets/hero-instalacion.jpg';
 import { INDUSTRIES, industryPath } from '../lib/industries';
-import { BRANDS, SERVICES, SITE, whatsappUrl } from '../lib/site';
+import { industryMedia } from '../lib/industry-images';
+import { BRANDS, SITE } from '../lib/site';
 import { absoluteUrl, graphSchema, localBusinessSchema, organizationSchema, webPageSchema, websiteSchema } from '../lib/seo';
-
-const serviceImages = {
-	sonido: imgSonido,
-	video: imgVideo,
-	cctv: imgCctv,
-	ti: imgTi,
-} as const;
 
 const jsonLd = graphSchema([
 	organizationSchema(),
@@ -28,13 +18,15 @@ const jsonLd = graphSchema([
 		url: absoluteUrl('/'),
 	}),
 ]);
+
+const [featured, ...rest] = INDUSTRIES;
 ---
 
 <Layout title={SITE.title} description={SITE.description} jsonLd={jsonLd}>
-	<section class="relative isolate overflow-hidden bg-charcoal pt-28 text-white sm:pt-32">
+	<section class="relative isolate min-h-[70vh] overflow-hidden bg-charcoal pt-28 text-white sm:pt-32">
 		<Image
 			src={heroImage}
-			alt="Instalación profesional de audio y video en un recinto en Chile"
+			alt="Instalación profesional de audio y video en un recinto"
 			class="absolute inset-0 h-full w-full object-cover"
 			widths={[640, 960, 1280, 1920]}
 			sizes="100vw"
@@ -43,131 +35,77 @@ const jsonLd = graphSchema([
 			loading="eager"
 			fetchpriority="high"
 		/>
-		<div class="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/80 to-charcoal/35"></div>
-		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.08]"></div>
-		<div class="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
-			<p class="mizo-kicker">Ingeniería y tecnología en Chile</p>
-			<h1 class="mt-4 max-w-3xl text-4xl font-extrabold leading-[1.08] sm:text-5xl lg:text-[3.4rem]">
-				Sonido, video, seguridad y soporte TI.<br class="hidden sm:block" /> Instalado y respaldado.
-			</h1>
-			<p class="mt-5 max-w-2xl text-lg leading-8 text-white/70">
-				Diseñamos e instalamos soluciones profesionales para empresas, instituciones y recintos en Frutillar, Santiago y el sur de Chile.
+		<div class="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/75 to-charcoal/20"></div>
+		<div class="relative mx-auto flex min-h-[52vh] max-w-6xl flex-col justify-end px-4 pb-16 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Mizo</p>
+			<h1 class="mt-4 max-w-3xl text-4xl font-extrabold leading-[1.05] sm:text-6xl">El recinto define la instalación.</h1>
+			<p class="mt-5 max-w-xl text-lg leading-8 text-white/75">
+				Audio, imagen y control en {SITE.areas.join(', ')}. Elige el rubro y abre su página.
 			</p>
-			<div class="mt-8 flex flex-col gap-3 sm:flex-row">
-				<a href="/contacto" class="mizo-btn">Solicitar cotización</a>
-				<a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" class="mizo-btn-ghost">WhatsApp</a>
-			</div>
-			<div class="mt-10 grid grid-cols-1 gap-px bg-white/10 sm:grid-cols-3">
-				<div class="bg-charcoal/80 px-5 py-4 backdrop-blur-sm">
-					<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/40">Cobertura</p>
-					<p class="mt-2 text-sm font-semibold">Frutillar, Santiago y sur de Chile</p>
-				</div>
-				<div class="bg-charcoal/80 px-5 py-4 backdrop-blur-sm">
-					<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/40">Enfoque</p>
-					<p class="mt-2 text-sm font-semibold">Instalación, calibración y soporte</p>
-				</div>
-				<div class="bg-charcoal/80 px-5 py-4 backdrop-blur-sm">
-					<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/40">Contacto</p>
-					<p class="mt-2 text-sm font-semibold">{SITE.phoneDisplay}</p>
-				</div>
-			</div>
+			<a href="/industrias" class="mizo-btn mt-8 w-fit">Ver soluciones</a>
 		</div>
 	</section>
 
-	<section class="relative border-t border-white/10 bg-charcoal py-16 sm:py-20" aria-labelledby="servicios-heading">
-		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.05]"></div>
-		<div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<div class="max-w-2xl">
-				<p class="mizo-kicker">Servicios</p>
-				<h2 id="servicios-heading" class="mt-3 text-3xl font-extrabold sm:text-4xl">Cuatro líneas. Un solo equipo técnico.</h2>
-				<p class="mt-4 text-base leading-7 text-white/65">
-					Elige el servicio que necesitas. Cada proyecto se dimensiona, instala y deja operativo.
-				</p>
+	<section class="bg-charcoal" aria-label="Rubros">
+		<a href={industryPath(featured.slug)} class="group relative block min-h-[28rem] overflow-hidden">
+			<Image
+				src={industryMedia[featured.slug].hero}
+				alt={featured.imageLabel}
+				class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+				widths={[800, 1200, 1920]}
+				sizes="100vw"
+				format="webp"
+				quality={74}
+				loading="eager"
+			/>
+			<div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/20 to-transparent"></div>
+			<div class="relative flex min-h-[28rem] items-end px-4 py-10 sm:px-8">
+				<div>
+					<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">{featured.nav}</p>
+					<h2 class="mt-2 text-3xl font-extrabold sm:text-5xl">{featured.title}</h2>
+				</div>
 			</div>
-
-			<div class="mt-10 grid gap-px bg-white/10 lg:grid-cols-2">
-				{SERVICES.map((service) => (
-					<a href={service.href} class="group flex flex-col bg-charcoal transition hover:bg-charcoal-light">
-						<div class="aspect-[16/9] overflow-hidden">
-							<Image
-								src={serviceImages[service.id]}
-								alt={service.title}
-								class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-								widths={[400, 720, 960]}
-								sizes="(min-width: 1024px) 50vw, 100vw"
-								format="webp"
-								quality={72}
-								loading="lazy"
-							/>
+		</a>
+		<div class="grid sm:grid-cols-2">
+			{rest.map((industry) => (
+				<a href={industryPath(industry.slug)} class="group relative block min-h-72 overflow-hidden">
+					<Image
+						src={industryMedia[industry.slug].hero}
+						alt={industry.imageLabel}
+						class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+						widths={[640, 960, 1280]}
+						sizes="(min-width: 640px) 50vw, 100vw"
+						format="webp"
+						quality={72}
+						loading="lazy"
+					/>
+					<div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/15 to-transparent"></div>
+					<div class="relative flex min-h-72 items-end p-6">
+						<div>
+							<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange">{industry.nav}</p>
+							<h2 class="mt-1 text-2xl font-extrabold">{industry.title}</h2>
 						</div>
-						<div class="flex flex-1 flex-col p-6">
-							<h3 class="text-xl font-bold group-hover:text-orange">{service.title}</h3>
-							<p class="mt-2 text-sm leading-6 text-white/60">{service.short}</p>
-							<ul class="mt-4 space-y-2 text-sm text-white/80">
-								{service.works.map((work) => (
-									<li class="flex gap-3">
-										<span class="mt-2 h-1.5 w-1.5 shrink-0 bg-orange"></span>
-										<span>{work}</span>
-									</li>
-								))}
-							</ul>
-							<span class="mt-auto pt-5 inline-flex text-sm font-bold uppercase tracking-[0.12em] text-orange">Ver servicio</span>
-						</div>
-					</a>
-				))}
-			</div>
+					</div>
+				</a>
+			))}
 		</div>
 	</section>
 
-	<section class="border-t border-white/10 bg-charcoal py-16 sm:py-20" aria-labelledby="industrias-heading">
-		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-				<div class="max-w-2xl">
-					<p class="mizo-kicker">Soluciones</p>
-					<h2 id="industrias-heading" class="mt-3 text-3xl font-extrabold sm:text-4xl">Soluciones según el rubro.</h2>
-					<p class="mt-4 text-base leading-7 text-white/65">
-						Cada recinto tiene su página. Compártela con el prospecto y llega directo a lo que instala Mizo en ese tipo de espacio.
-					</p>
-				</div>
-				<a href="/industrias" class="text-sm font-bold uppercase tracking-[0.12em] text-orange">Ver todas</a>
-			</div>
-			<div class="mt-10 grid gap-px bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
-				{INDUSTRIES.map((industry) => (
-					<a href={industryPath(industry.slug)} class="group flex flex-col bg-charcoal p-6 transition hover:bg-charcoal-light">
-						<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">{industry.nav}</p>
-						<h3 class="mt-2 text-xl font-bold group-hover:text-orange">{industry.title}</h3>
-						<p class="mt-2 text-sm leading-6 text-white/60">{industry.short}</p>
-						<span class="mt-auto pt-5 text-sm font-bold uppercase tracking-[0.12em] text-orange">Abrir página</span>
-					</a>
-				))}
-			</div>
-		</div>
-	</section>
-
-	<section class="border-t border-white/10 bg-charcoal-light/30 py-14" aria-labelledby="marcas-heading">
-		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<div>
-				<p class="mizo-kicker">Confianza</p>
-				<h2 id="marcas-heading" class="mt-3 text-2xl font-extrabold sm:text-3xl">Integramos marcas de prestigio</h2>
-				<p class="mt-3 max-w-2xl text-sm leading-6 text-white/60">
-					Trabajamos con tecnología profesional de audio, video y proyección para instalaciones duraderas.
-				</p>
-			</div>
-			<ul class="mt-10 grid grid-cols-2 gap-px bg-white/10 sm:grid-cols-4 lg:grid-cols-7">
-				{BRANDS.map((brand) => (
-					<li class="flex h-20 items-center justify-center bg-charcoal px-4">
-						<img
-							src={`/images/marcas/${brand.slug}.svg`}
-							alt={brand.name}
-							class="max-h-8 max-w-[110px] object-contain brightness-0 invert opacity-80"
-							width="110"
-							height="32"
-							loading="lazy"
-						/>
-					</li>
-				))}
-			</ul>
-		</div>
+	<section class="border-t border-white/10 bg-charcoal py-12" aria-label="Marcas">
+		<ul class="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-white/10 sm:grid-cols-4 lg:grid-cols-7">
+			{BRANDS.map((brand) => (
+				<li class="flex h-20 items-center justify-center bg-charcoal px-4">
+					<img
+						src={`/images/marcas/${brand.slug}.svg`}
+						alt={brand.name}
+						class="max-h-8 max-w-[110px] object-contain brightness-0 invert opacity-80"
+						width="110"
+						height="32"
+						loading="lazy"
+					/>
+				</li>
+			))}
+		</ul>
 	</section>
 
 	<ConversionCta />

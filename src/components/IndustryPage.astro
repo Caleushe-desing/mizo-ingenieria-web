@@ -4,6 +4,7 @@ import IndustryHero from './IndustryHero.astro';
 import IndustrySolutions from './IndustrySolutions.astro';
 import Layout from '../layouts/Layout.astro';
 import { industryPath, industryQuoteUrl, industryWhatsapp, type Industry } from '../lib/industries';
+import { industryMedia } from '../lib/industry-images';
 import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 }
 
 const { industry } = Astro.props;
+const media = industryMedia[industry.slug];
 const path = industryPath(industry.slug);
 const title = `${industry.title} | Mizo`;
 const description = industry.short;
@@ -29,8 +31,8 @@ const jsonLd = graphSchema([
 ---
 
 <Layout title={title} description={description} jsonLd={jsonLd}>
-	<IndustryHero title={industry.title} lead={industry.lead} imageLabel={industry.imageLabel} />
-	<IndustrySolutions solutions={industry.solutions} />
+	<IndustryHero title={industry.title} lead={industry.lead} imageLabel={industry.imageLabel} image={media.hero} />
+	<IndustrySolutions solutions={industry.solutions} images={media.solutions} />
 	<ConversionCta
 		title="¿Este es el recinto que quieres equipar?"
 		text={`Cuéntanos el espacio y armamos una propuesta de instalación para ${industry.title.toLowerCase()}.`}

@@ -7,6 +7,9 @@ export default defineConfig({
 	site: 'https://mizo.cl',
 	output: 'static',
 	compressHTML: true,
+	redirects: {
+		'/servicios': '/industrias',
+	},
 	integrations: [
 		tailwind(),
 		sitemap({
@@ -16,7 +19,7 @@ export default defineConfig({
 				const priority =
 					pathname === '/'
 						? 1
-						: ['/servicios', '/contacto', '/nosotros', '/industrias'].includes(pathname) || pathname.startsWith('/industrias/')
+						: ['/contacto', '/nosotros', '/industrias'].includes(pathname) || pathname.startsWith('/industrias/')
 							? 0.9
 							: 0.4;
 				return {

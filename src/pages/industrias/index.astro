@@ -3,6 +3,7 @@ import ConversionCta from '../../components/ConversionCta.astro';
 import Layout from '../../layouts/Layout.astro';
 import PhotoSlot from '../../components/PhotoSlot.astro';
 import { INDUSTRIES, industryPath } from '../../lib/industries';
+import { industryMedia } from '../../lib/industry-images';
 import { SITE } from '../../lib/site';
 import { absoluteUrl, graphSchema, organizationSchema, webPageSchema } from '../../lib/seo';
 
@@ -32,7 +33,7 @@ const jsonLd = graphSchema([
 		<div class="mx-auto grid max-w-6xl gap-px bg-white/10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
 			{INDUSTRIES.map((industry) => (
 				<article class="flex flex-col bg-charcoal">
-					<PhotoSlot label={industry.imageLabel} />
+					<PhotoSlot label={industry.imageLabel} image={industryMedia[industry.slug].hero} />
 					<div class="flex flex-1 flex-col p-6 sm:p-7">
 						<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange">{industry.nav}</p>
 						<h2 class="mt-2 text-2xl font-extrabold leading-snug">{industry.title}</h2>
