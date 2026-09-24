@@ -162,11 +162,15 @@ final class MailController
 			Http::redirect('/correo');
 		}
 		$body = Http::text('body', 20000);
+		$mode = Http::string('mode', 20);
+		if ($mode === 'forward') {
+			$this->forward($user, $row, $body);
+			return;
+		}
 		if ($body === '') {
 			View::flash('error', 'Escribe la respuesta.');
 			Http::redirect('/correo/' . $id);
 		}
-		$mode = Http::string('mode', 20);
 		$myEmail = mb_strtolower((string) (Mailbox::forUser((int) $user['id'])['email'] ?? $user['email']));
 		$to = $row['folder'] === 'inbox' ? (string) $row['from_email'] : (string) $row['to_email'];
 		$cc = '';
@@ -530,6 +534,92 @@ final class MailController
 			$name = substr($name, -120);
 		}
 		return $name;
+	}
+
+	/** @param array<string,mixed> $user @param array<string,mixed> $row */
+	private function forward(array $user, array $row, string $body): void
+	{
+		$id = (int) $row['id'];
+		$recipients = Mime::emailsFromString(Http::string('forward_to', 500));
+		if ($recipients === []) {
+			View::flash('error', 'Indica el correo de quien debe recibir el reenvío.');
+			Http::redirect('/correo/' . $id);
+		}
+		$subject = (string) $row['subject'];
+		$lower = mb_strtolower($subject);
+		if (!str_starts_with($lower, 'fwd:') && !str_starts_with($lower, 'fw:')) {
+			$subject = 'Fwd: ' . $subject;
+		}
+		$to = implode(', ', $recipients);
+		$clientId = MailMessage::clientIdFor((int) $user['id'], $recipients[0]);
+		$html = self::forwardHtml($body, $user, $row);
+		$attachments = array_merge($this->storedAttachments($row), $this->attachmentsFromPost('/correo/' . $id));
+		if (count($attachments) > 5) {
+			View::flash('error', 'El reenvío junto con los archivos nuevos supera 5 adjuntos.');
+			Http::redirect('/correo/' . $id);
+		}
+		$total = 0;
+		foreach ($attachments as $file) {
+			$total += strlen((string) ($file['content'] ?? ''));
+		}
+		if ($total > 15 * 1024 * 1024) {
+			View::flash('error', 'Los adjuntos del reenvío superan 15 MB.');
+			Http::redirect('/correo/' . $id);
+		}
+		try {
+			$newId = Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, '', $clientId, '', $attachments);
+		} catch (RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+			Http::redirect('/correo/' . $id);
+		}
+		if ($clientId) {
+			Activity::log('mail_sent', 'Reenvío enviado a ' . $to . ': ' . $subject, (int) $user['id'], $clientId);
+			Client::update($clientId, ['updated_at' => date('c')]);
+		}
+		View::flash('ok', 'Correo reenviado.');
+		Http::redirect('/correo/' . $newId);
+	}
+
+	/** @param array<string,mixed> $row @return list<array{filename:string,mime:string,content:string}> */
+	private function storedAttachments(array $row): array
+	{
+		$out = [];
+		foreach (MailAttachment::forMessage((int) $row['id']) as $att) {
+			$path = MailAttachment::absolutePath($att);
+			if (!is_file($path)) {
+				continue;
+			}
+			$content = (string) file_get_contents($path);
+			if ($content === '') {
+				continue;
+			}
+			$out[] = [
+				'filename' => (string) $att['filename'],
+				'mime' => (string) ($att['mime'] ?: 'application/octet-stream'),
+				'content' => $content,
+			];
+		}
+		return $out;
+	}
+
+	/** @param array<string,mixed> $user @param array<string,mixed> $row */
+	private static function forwardHtml(string $note, array $user, array $row): string
+	{
+		$fromName = trim((string) ($row['from_name'] ?? ''));
+		$fromEmail = (string) ($row['from_email'] ?? '');
+		$who = $fromName !== '' ? h($fromName) . ' &lt;' . h($fromEmail) . '&gt;' : h($fromEmail);
+		$original = trim((string) ($row['body_html'] ?? ''));
+		$original = $original !== '' ? Mime::safeHtml($original) : nl2br(h((string) ($row['body_text'] ?? '')), false);
+		$noteHtml = trim($note) !== '' ? nl2br(h($note), false) . '<br><br>' : '';
+		return '<div style="font-family:Segoe UI,Arial,sans-serif;font-size:15px;line-height:1.5;color:#222;">'
+			. $noteHtml
+			. \MizoCrm\Models\User::signatureHtml($user)
+			. '<div style="margin-top:16px;border-left:3px solid #dadce0;padding-left:12px;color:#444;">'
+			. '<p><strong>Mensaje reenviado</strong><br>De: ' . $who
+			. '<br>Fecha: ' . h(when((string) ($row['sent_at'] ?? ''), 'd-m-Y H:i'))
+			. '<br>Asunto: ' . h((string) ($row['subject'] ?? ''))
+			. '<br>Para: ' . h((string) ($row['to_email'] ?? ''))
+			. '</p>' . $original . '</div></div>';
 	}
 
 	private static function htmlFromText(string $text, array $user): string

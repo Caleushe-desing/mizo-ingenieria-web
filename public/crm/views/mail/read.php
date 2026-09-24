@@ -113,12 +113,18 @@ $listBack = $back . ($qs ? ('?' . http_build_query($qs)) : '');
 	<?php endif; ?>
 
 	<?php if ($message['folder'] === 'inbox'): ?>
-		<form class="gmail-reply" method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/responder')) ?>" enctype="multipart/form-data">
+		<form class="gmail-reply" method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/responder')) ?>" enctype="multipart/form-data" data-reply-form>
 			<?= Csrf::field() ?>
 			<label>
 				<span>Responder a <?= h($peer) ?></span>
 				<textarea name="body" rows="6" required placeholder="Redacta tu respuesta"></textarea>
 			</label>
+			<div class="gmail-forward-to" data-forward-box hidden>
+				<label>
+					<span>Reenviar a</span>
+					<input type="text" name="forward_to" placeholder="correo@ejemplo.cl" autocomplete="off">
+				</label>
+			</div>
 			<label class="mail-attach">
 				<span>Adjuntos</span>
 				<input type="file" name="adjuntos[]" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.xml,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rtf" multiple>
@@ -126,7 +132,31 @@ $listBack = $back . ($qs ? ('?' . http_build_query($qs)) : '');
 			<div class="gmail-reply-actions">
 				<button class="gmail-send" type="submit" name="mode" value="one">Responder</button>
 				<button class="gmail-send gmail-send-secondary" type="submit" name="mode" value="all">Responder a todos</button>
+				<button class="gmail-send gmail-send-secondary" type="button" data-forward>Reenviar</button>
 			</div>
 		</form>
+		<script>
+		(function () {
+			var form = document.querySelector("[data-reply-form]");
+			var open = document.querySelector("[data-forward]");
+			if (!form || !open) return;
+			open.addEventListener("click", function (event) {
+				if (open.type !== "submit") event.preventDefault();
+				var box = form.querySelector("[data-forward-box]");
+				var input = form.querySelector("[name=forward_to]");
+				var note = form.querySelector("textarea");
+				if (box) box.hidden = false;
+				if (note) note.required = false;
+				if (input) {
+					input.required = true;
+					input.focus();
+				}
+				open.type = "submit";
+				open.name = "mode";
+				open.value = "forward";
+				open.textContent = "Enviar reenvío";
+			});
+		})();
+		</script>
 	<?php endif; ?>
 </div>

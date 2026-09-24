@@ -1145,6 +1145,8 @@ body.is-gmail .flash { margin: 12px 18px 0; }
 	border-radius: 8px;
 }
 .gmail-reply label span { display: block; margin-bottom: 8px; color: #5f6368; font-size: 13px; }
+.gmail-forward-to { margin-top: 8px; }
+.gmail-forward-to input { width: 100%; border: 0; border-bottom: 1px solid #dadce0; outline: none; font: 14px/1.5 Arial, Helvetica, sans-serif; padding: 8px 0; }
 .gmail-reply textarea {
 	width: 100%;
 	border: 0;
