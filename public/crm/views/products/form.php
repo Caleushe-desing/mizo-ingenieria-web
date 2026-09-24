@@ -16,6 +16,16 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 
 <form class="paper form" method="post" action="<?= h($action) ?>" style="max-width:720px">
 	<?= Csrf::field() ?>
+	<?php
+		$imageList = $product['imagenes'] ?? [];
+		if (is_string($imageList)) {
+			$imageList = json_decode($imageList, true) ?: [];
+		}
+		if (!is_array($imageList)) {
+			$imageList = [];
+		}
+	?>
+	<input type="hidden" name="imagenes" value="<?= h(json_encode(array_values($imageList), JSON_UNESCAPED_SLASHES)) ?>">
 	<label>
 		<span>SKU</span>
 		<input name="sku" required maxlength="80" value="<?= h($product['sku'] ?? '') ?>" autocomplete="off"<?= !empty($imported) ? ' autofocus' : '' ?>>

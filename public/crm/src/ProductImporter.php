@@ -20,7 +20,54 @@ final class ProductImporter
 		if ($parsed['nombre'] === '' && $parsed['descripcion'] === '') {
 			throw new RuntimeException('No se pudo leer el nombre ni la descripción. Prueba con la URL directa de la ficha.');
 		}
+		$parsed['imagenes'] = self::downloadImages(self::extractImageUrls($html, $url), 'imp-' . substr(hash('sha256', $url), 0, 16));
 		return $parsed;
+	}
+
+	/** @return list<string> Rutas públicas /crm/uploads/productos/... */
+	public static function saveImagesFromPage(string $pageUrl, string $folder): array
+	{
+		try {
+			$pageUrl = self::publicUrl($pageUrl);
+			$html = self::fetch($pageUrl);
+			return self::downloadImages(self::extractImageUrls($html, $pageUrl), $folder);
+		} catch (RuntimeException) {
+			return [];
+		}
+	}
+
+	/** @return list<string> */
+	public static function extractImageUrls(string $html, string $pageUrl): array
+	{
+		$dom = new \DOMDocument();
+		$previous = libxml_use_internal_errors(true);
+		$dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_NOWARNING | LIBXML_NOERROR);
+		libxml_clear_errors();
+		libxml_use_internal_errors($previous);
+		$xpath = new \DOMXPath($dom);
+		$found = self::productFromJsonLd($xpath);
+		$candidates = [];
+		foreach ($found['images'] ?? [] as $image) {
+			if (is_string($image)) {
+				$candidates[] = $image;
+			}
+		}
+		if ($candidates === []) {
+			foreach (['og:image', 'twitter:image'] as $key) {
+				$value = self::meta($xpath, $key);
+				if ($value !== '') {
+					$candidates[] = $value;
+				}
+			}
+		}
+		$absolute = [];
+		foreach ($candidates as $candidate) {
+			$resolved = self::absoluteUrl($candidate, $pageUrl);
+			if ($resolved !== null && self::looksLikePhoto($resolved)) {
+				$absolute[] = $resolved;
+			}
+		}
+		return self::preferLarge(array_values(array_unique($absolute)));
 	}
 
 	/** @return array{nombre: string, descripcion: string, proveedor_empresa: string, proveedor_link: string} */
@@ -215,24 +262,28 @@ final class ProductImporter
 				continue;
 			}
 			self::walkJsonLd($data, $found);
-			if (!empty($found['name']) && !empty($found['description'])) {
-				break;
-			}
 		}
 		return $found;
 	}
 
 	private static function walkJsonLd(mixed $node, array &$found): void
 	{
-		if (!is_array($node) || (!empty($found['name']) && !empty($found['description']))) {
+		if (!is_array($node)) {
 			return;
 		}
 		$type = $node['@type'] ?? '';
 		$types = is_array($type) ? $type : [$type];
 		$isProduct = false;
+		$isOffer = false;
 		foreach ($types as $item) {
-			if (is_string($item) && strcasecmp($item, 'Product') === 0) {
+			if (!is_string($item)) {
+				continue;
+			}
+			if (strcasecmp($item, 'Product') === 0) {
 				$isProduct = true;
+			}
+			if (strcasecmp($item, 'Offer') === 0) {
+				$isOffer = true;
 			}
 		}
 		if ($isProduct) {
@@ -241,6 +292,12 @@ final class ProductImporter
 			}
 			if (empty($found['description']) && !empty($node['description']) && is_string($node['description'])) {
 				$found['description'] = self::plain($node['description']);
+			}
+		}
+		if (($isProduct || $isOffer) && !empty($node['image'])) {
+			$images = self::jsonImages($node['image']);
+			if (count($images) > count($found['images'] ?? [])) {
+				$found['images'] = $images;
 			}
 		}
 		foreach ($node as $child) {
@@ -300,5 +357,178 @@ final class ProductImporter
 	private static function clip(string $value, int $max): string
 	{
 		return function_exists('mb_substr') ? mb_substr($value, 0, $max, 'UTF-8') : substr($value, 0, $max);
+	}
+
+	/** @return list<string> */
+	private static function jsonImages(mixed $image): array
+	{
+		$urls = [];
+		$walk = static function (mixed $node) use (&$urls, &$walk): void {
+			if (is_string($node)) {
+				$urls[] = $node;
+				return;
+			}
+			if (!is_array($node)) {
+				return;
+			}
+			foreach (['url', 'contentUrl'] as $key) {
+				if (!empty($node[$key]) && is_string($node[$key])) {
+					$urls[] = $node[$key];
+					return;
+				}
+			}
+			foreach ($node as $child) {
+				$walk($child);
+			}
+		};
+		$walk($image);
+		return $urls;
+	}
+
+	private static function absoluteUrl(string $value, string $pageUrl): ?string
+	{
+		$value = trim(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+		if ($value === '' || str_starts_with($value, 'data:')) {
+			return null;
+		}
+		if (str_starts_with($value, '//')) {
+			$value = 'https:' . $value;
+		} elseif (str_starts_with($value, '/')) {
+			$parts = parse_url($pageUrl);
+			$value = ($parts['scheme'] ?? 'https') . '://' . ($parts['host'] ?? '') . $value;
+		} elseif (!preg_match('#^https?://#i', $value)) {
+			$base = preg_replace('#/[^/]*$#', '/', $pageUrl) ?? $pageUrl;
+			$value = $base . $value;
+		}
+		$parts = parse_url($value);
+		if (!is_array($parts) || empty($parts['host'])) {
+			return null;
+		}
+		$scheme = strtolower((string) ($parts['scheme'] ?? ''));
+		if (!in_array($scheme, ['http', 'https'], true)) {
+			return null;
+		}
+		return $scheme . '://' . strtolower((string) $parts['host']) . ($parts['path'] ?? '/') . (isset($parts['query']) ? '?' . $parts['query'] : '');
+	}
+
+	private static function looksLikePhoto(string $url): bool
+	{
+		$path = strtolower((string) parse_url($url, PHP_URL_PATH));
+		if ($path === '' || str_contains($path, 'logo') || str_contains($path, 'icon') || str_contains($path, 'sprite') || str_contains($path, 'placeholder') || str_contains($path, 'cl-default') || str_ends_with($path, '.svg')) {
+			return false;
+		}
+		return (bool) preg_match('/\.(jpe?g|png|webp|gif)(\?|$)/', $path . (parse_url($url, PHP_URL_QUERY) ? '' : ''));
+	}
+
+	/** @param list<string> $urls @return list<string> */
+	private static function preferLarge(array $urls): array
+	{
+		$best = [];
+		foreach ($urls as $url) {
+			$key = preg_replace('/-(?:large|home|cart|small|medium|thickbox)_default(?=\.)/', '', (string) parse_url($url, PHP_URL_PATH)) ?? $url;
+			$key = preg_replace('/-\d+x\d+(?=\.)/', '', $key) ?? $key;
+			$score = 500000;
+			if (preg_match('/-(\d+)x(\d+)\./', $url, $match)) {
+				$score = (int) $match[1] * (int) $match[2];
+			} elseif (str_contains($url, 'large_default') || str_contains($url, 'thickbox')) {
+				$score = 1000000;
+			} elseif (str_contains($url, 'small_default') || str_contains($url, 'cart_default')) {
+				$score = 10000;
+			}
+			if (!isset($best[$key]) || $score > $best[$key]['score']) {
+				$best[$key] = ['url' => $url, 'score' => $score];
+			}
+		}
+		$picked = [];
+		foreach ($best as $item) {
+			$picked[] = $item['url'];
+			if (count($picked) >= 8) {
+				break;
+			}
+		}
+		return $picked;
+	}
+
+	/** @param list<string> $urls @return list<string> */
+	private static function downloadImages(array $urls, string $folder): array
+	{
+		if (!preg_match('/^[a-z0-9-]{1,40}$/', $folder)) {
+			return [];
+		}
+		$dir = dirname(__DIR__) . '/uploads/productos/' . $folder;
+		if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+			return [];
+		}
+		$saved = [];
+		$index = 1;
+		foreach ($urls as $url) {
+			if ($index > 8) {
+				break;
+			}
+			$file = self::downloadImage($url, $dir, $index);
+			if ($file === null) {
+				continue;
+			}
+			$saved[] = '/crm/uploads/productos/' . $folder . '/' . basename($file);
+			$index++;
+		}
+		return $saved;
+	}
+
+	private static function downloadImage(string $url, string $dir, int $index): ?string
+	{
+		if (!function_exists('curl_init')) {
+			return null;
+		}
+		try {
+			$url = self::publicUrl($url);
+		} catch (RuntimeException) {
+			return null;
+		}
+		$parts = parse_url($url);
+		$host = (string) ($parts['host'] ?? '');
+		$scheme = strtolower((string) ($parts['scheme'] ?? ''));
+		$port = (int) ($parts['port'] ?? ($scheme === 'https' ? 443 : 80));
+		try {
+			$ip = self::publicIp($host);
+		} catch (RuntimeException) {
+			return null;
+		}
+		$ch = curl_init($url);
+		if ($ch === false) {
+			return null;
+		}
+		curl_setopt_array($ch, [
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_FOLLOWLOCATION => false,
+			CURLOPT_CONNECTTIMEOUT => 5,
+			CURLOPT_TIMEOUT => 12,
+			CURLOPT_USERAGENT => 'MizoCRM/1.0 (+https://mizo.cl)',
+			CURLOPT_HTTPHEADER => ['Accept: image/avif,image/webp,image/*,*/*'],
+			CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+			CURLOPT_RESOLVE => [$host . ':' . $port . ':' . $ip],
+		]);
+		$body = curl_exec($ch);
+		$code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+		curl_close($ch);
+		if (!is_string($body) || $code < 200 || $code >= 300 || strlen($body) < 800 || strlen($body) > 5000000) {
+			return null;
+		}
+		$mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($body);
+		$ext = match ($mime) {
+			'image/jpeg' => 'jpg',
+			'image/png' => 'png',
+			'image/webp' => 'webp',
+			'image/gif' => 'gif',
+			default => '',
+		};
+		if ($ext === '') {
+			return null;
+		}
+		$path = $dir . '/' . $index . '.' . $ext;
+		if (file_put_contents($path, $body) === false) {
+			return null;
+		}
+		return $path;
 	}
 }

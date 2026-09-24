@@ -52,6 +52,9 @@ final class ProductController
 					$product[$key] = $draft[$key];
 				}
 			}
+			if (isset($draft['imagenes']) && is_array($draft['imagenes'])) {
+				$product['imagenes'] = $draft['imagenes'];
+			}
 		}
 		View::render('products/form', [
 			'title' => 'Nuevo producto',
@@ -65,17 +68,22 @@ final class ProductController
 		Auth::requireAdmin();
 		Csrf::check();
 		$data = $this->input();
+		$images = $this->postedImages();
 		$error = $this->validate($data, null);
 		if ($error !== null) {
 			View::render('products/form', [
 				'title' => 'Nuevo producto',
-				'product' => $data,
+				'product' => $data + ['imagenes' => $images],
 				'error' => $error,
 			]);
 			return;
 		}
 		$now = date('c');
-		Product::insert($data + ['created_at' => $now, 'updated_at' => $now]);
+		$extra = ['created_at' => $now, 'updated_at' => $now];
+		if ($images !== []) {
+			$extra['imagenes'] = json_encode($images, JSON_UNESCAPED_SLASHES);
+		}
+		Product::insert($data + $extra);
 		View::flash('ok', 'Producto ' . $data['sku'] . ' agregado al catálogo.');
 		Http::redirect('/catalogo');
 	}
@@ -143,6 +151,26 @@ final class ProductController
 			View::flash('ok', 'Producto ' . $product['sku'] . ' eliminado del catálogo.');
 		}
 		Http::redirect('/catalogo');
+	}
+
+	private function postedImages(): array
+	{
+		$decoded = json_decode((string) ($_POST['imagenes'] ?? ''), true);
+		if (!is_array($decoded)) {
+			return [];
+		}
+		$root = dirname(__DIR__, 2);
+		$saved = [];
+		foreach ($decoded as $path) {
+			if (!is_string($path) || !preg_match('#^/crm/uploads/productos/[a-z0-9-]+/\d+\.(jpg|png|webp|gif)$#', $path)) {
+				continue;
+			}
+			$file = $root . substr($path, 4);
+			if (is_file($file)) {
+				$saved[] = $path;
+			}
+		}
+		return $saved;
 	}
 
 	private function blank(): array

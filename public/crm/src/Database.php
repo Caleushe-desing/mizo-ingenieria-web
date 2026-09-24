@@ -559,6 +559,15 @@ final class Database
 			);
 			$pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku ON products(sku COLLATE NOCASE)');
 			$pdo->exec('PRAGMA user_version = 17');
+			$version = 17;
+		}
+
+		if ($version < 18) {
+			$productCols = array_column($pdo->query('PRAGMA table_info(products)')->fetchAll(), 'name');
+			if ($productCols !== [] && !in_array('imagenes', $productCols, true)) {
+				$pdo->exec('ALTER TABLE products ADD COLUMN imagenes TEXT');
+			}
+			$pdo->exec('PRAGMA user_version = 18');
 		}
 	}
 

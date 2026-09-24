@@ -64,37 +64,33 @@ const description =
 		return element;
 	}
 
-	function publicLink(value) {
-		try {
-			const url = new URL(value);
-			if (url.protocol === 'https:' || url.protocol === 'http:') return url.href;
-		} catch {
-			return '';
-		}
-		return '';
-	}
-
 	function card(item, phone) {
-		const article = node('article', 'flex flex-col bg-charcoal px-6 py-7');
-		article.append(node('p', 'text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Equipo'));
-		article.append(node('h3', 'mt-3 text-xl font-extrabold leading-snug', item.nombre || item.sku));
-		if (item.sku) article.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
-		if (item.descripcion) article.append(node('p', 'mt-4 line-clamp-5 text-sm leading-6 text-white/65', item.descripcion));
-		if (item.proveedor_empresa) article.append(node('p', 'mt-4 text-sm text-white/80', item.proveedor_empresa));
-		const ficha = publicLink(item.proveedor_link);
-		if (ficha) {
-			const spec = node('a', 'mt-2 inline-block text-xs font-semibold uppercase tracking-[0.12em] text-white/45', 'Ficha del proveedor');
-			spec.href = ficha;
-			spec.target = '_blank';
-			spec.rel = 'noopener noreferrer';
-			article.append(spec);
+		const article = node('article', 'flex flex-col bg-charcoal');
+		const photos = Array.isArray(item.imagenes) ? item.imagenes.filter((src) => typeof src === 'string' && src.startsWith('/crm/uploads/productos/')) : [];
+		if (photos.length) {
+			const gallery = node('div', photos.length > 1 ? 'grid grid-cols-2 gap-px bg-white/10' : 'grid');
+			for (const src of photos) {
+				const img = document.createElement('img');
+				img.src = src;
+				img.alt = item.nombre || item.sku || 'Equipo';
+				img.className = 'aspect-[4/3] h-full w-full object-cover';
+				img.loading = 'lazy';
+				gallery.append(img);
+			}
+			article.append(gallery);
 		}
+		const body = node('div', 'flex flex-1 flex-col px-6 py-7');
+		body.append(node('p', 'text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Equipo'));
+		body.append(node('h3', 'mt-3 text-xl font-extrabold leading-snug', item.nombre || item.sku));
+		if (item.sku) body.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
+		if (item.descripcion) body.append(node('p', 'mt-4 line-clamp-5 text-sm leading-6 text-white/65', item.descripcion));
 		const quote = node('a', 'mizo-btn mt-6 w-fit', 'Cotizar este equipo');
 		const message = `Hola Mizo, quiero cotizar el equipo ${item.nombre || ''} (SKU ${item.sku || ''}).`;
 		quote.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 		quote.target = '_blank';
 		quote.rel = 'noopener noreferrer';
-		article.append(quote);
+		body.append(quote);
+		article.append(body);
 		return article;
 	}
 
