@@ -6,7 +6,7 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 <div class="page-head">
 	<div>
 		<h1><?= $isEdit ? 'Editar producto' : 'Nuevo producto' ?></h1>
-		<p>Ficha interna del equipo y del distribuidor en Chile. No es una tienda: no hay precio ni carrito.</p>
+		<p><?= !empty($imported) ? 'Revisa los datos importados, asigna el SKU y guarda.' : 'Ficha interna del equipo y del distribuidor en Chile. No es una tienda: no hay precio ni carrito.' ?></p>
 	</div>
 </div>
 
@@ -18,7 +18,7 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 	<?= Csrf::field() ?>
 	<label>
 		<span>SKU</span>
-		<input name="sku" required maxlength="80" value="<?= h($product['sku'] ?? '') ?>" autocomplete="off">
+		<input name="sku" required maxlength="80" value="<?= h($product['sku'] ?? '') ?>" autocomplete="off"<?= !empty($imported) ? ' autofocus' : '' ?>>
 	</label>
 	<label>
 		<span>Nombre</span>

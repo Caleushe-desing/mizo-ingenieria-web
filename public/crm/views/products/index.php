@@ -7,6 +7,19 @@
 	<a class="btn btn-word" href="<?= h(Http::url('/catalogo/nuevo')) ?>">Nuevo producto</a>
 </div>
 
+<form class="paper form" method="post" action="<?= h(Http::url('/catalogo/importar')) ?>" style="margin-bottom:16px;max-width:720px">
+	<h2 class="section-title word">Importar desde URL</h2>
+	<?= Csrf::field() ?>
+	<label>
+		<span>URL de la ficha</span>
+		<input type="url" name="url" required maxlength="500" placeholder="https://proveedor.cl/producto">
+	</label>
+	<p class="muted">Pega la página del producto. Se completan el nombre, la descripción y el proveedor. El SKU lo asignas tú.</p>
+	<div class="form-actions">
+		<button class="btn btn-word" type="submit">Importar desde URL</button>
+	</div>
+</form>
+
 <form class="paper form" method="get" action="<?= h(Http::url('/catalogo')) ?>" style="margin-bottom:16px;max-width:520px">
 	<label>
 		<span>Buscar</span>

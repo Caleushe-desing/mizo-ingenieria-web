@@ -7,7 +7,9 @@ use MizoCrm\Auth;
 use MizoCrm\Csrf;
 use MizoCrm\Http;
 use MizoCrm\Models\Product;
+use MizoCrm\ProductImporter;
 use MizoCrm\View;
+use RuntimeException;
 
 final class ProductController
 {
@@ -22,12 +24,39 @@ final class ProductController
 		]);
 	}
 
+	public function import(): void
+	{
+		Auth::requireAdmin();
+		Csrf::check();
+		try {
+			$_SESSION['_product_draft'] = ProductImporter::fromUrl(Http::string('url', 500));
+		} catch (RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+			Http::redirect('/catalogo');
+		}
+		View::flash('ok', 'Datos leídos. Asigna el SKU, revisa la ficha y guarda.');
+		Http::redirect('/catalogo/nuevo');
+	}
+
 	public function create(): void
 	{
 		Auth::requireAdmin();
+		$draft = $_SESSION['_product_draft'] ?? null;
+		unset($_SESSION['_product_draft']);
+		$product = $this->blank();
+		$imported = false;
+		if (is_array($draft)) {
+			$imported = true;
+			foreach (['nombre', 'descripcion', 'proveedor_empresa', 'proveedor_link'] as $key) {
+				if (isset($draft[$key]) && is_string($draft[$key])) {
+					$product[$key] = $draft[$key];
+				}
+			}
+		}
 		View::render('products/form', [
 			'title' => 'Nuevo producto',
-			'product' => $this->blank(),
+			'product' => $product,
+			'imported' => $imported,
 		]);
 	}
 

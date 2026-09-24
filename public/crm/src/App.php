@@ -111,6 +111,7 @@ final class App
 			['POST', '#^/facturas/venta$#', [Controllers\InvoiceController::class, 'storeSale']],
 			['POST', '#^/facturas/compra$#', [Controllers\InvoiceController::class, 'storePurchase']],
 			['GET', '#^/catalogo/nuevo$#', [Controllers\ProductController::class, 'create']],
+			['POST', '#^/catalogo/importar$#', [Controllers\ProductController::class, 'import']],
 			['POST', '#^/catalogo/(\d+)/visibilidad$#', [Controllers\ProductController::class, 'visibility']],
 			['POST', '#^/catalogo/(\d+)/eliminar$#', [Controllers\ProductController::class, 'destroy']],
 			['GET', '#^/catalogo/(\d+)$#', [Controllers\ProductController::class, 'edit']],
