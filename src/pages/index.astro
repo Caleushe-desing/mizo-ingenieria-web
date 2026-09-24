@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import ConversionCta from '../components/ConversionCta.astro';
 import heroImage from '../assets/hero-instalacion.jpg';
-import { INDUSTRIES, industryPath } from '../lib/industries';
+import { INDUSTRIES } from '../lib/industries';
 import { industryMedia } from '../lib/industry-images';
 import { BRANDS, SITE } from '../lib/site';
 import { absoluteUrl, graphSchema, localBusinessSchema, organizationSchema, webPageSchema, websiteSchema } from '../lib/seo';
@@ -47,11 +47,11 @@ const [featured, ...rest] = INDUSTRIES;
 	</section>
 
 	<section class="bg-charcoal lg:mx-auto lg:max-w-6xl" aria-label="Rubros">
-		<a href={industryPath(featured.slug)} class="group relative block min-h-[28rem] overflow-hidden lg:min-h-[20rem]">
+		<div class="relative block min-h-[28rem] overflow-hidden lg:min-h-[20rem]">
 			<Image
 				src={industryMedia[featured.slug].hero}
 				alt={featured.imageLabel}
-				class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+				class="absolute inset-0 h-full w-full object-cover"
 				widths={[800, 1200, 1920]}
 				sizes="100vw"
 				format="webp"
@@ -65,14 +65,14 @@ const [featured, ...rest] = INDUSTRIES;
 					<h2 class="mt-2 text-3xl font-extrabold sm:text-5xl lg:text-4xl">{featured.title}</h2>
 				</div>
 			</div>
-		</a>
+		</div>
 		<div class="grid sm:grid-cols-2 lg:grid-cols-4">
 			{rest.map((industry) => (
-				<a href={industryPath(industry.slug)} class="group relative block min-h-72 overflow-hidden lg:min-h-52">
+				<div class="relative block min-h-72 overflow-hidden lg:min-h-52">
 					<Image
 						src={industryMedia[industry.slug].hero}
 						alt={industry.imageLabel}
-						class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+						class="absolute inset-0 h-full w-full object-cover"
 						widths={[640, 960, 1280]}
 						sizes="(min-width: 640px) 50vw, 100vw"
 						format="webp"
@@ -86,7 +86,7 @@ const [featured, ...rest] = INDUSTRIES;
 							<h2 class="mt-1 text-2xl font-extrabold lg:text-lg">{industry.title}</h2>
 						</div>
 					</div>
-				</a>
+				</div>
 			))}
 		</div>
 	</section>

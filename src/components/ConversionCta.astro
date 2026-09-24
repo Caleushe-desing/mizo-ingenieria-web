@@ -1,6 +1,11 @@
 ---
+import { Image } from 'astro:assets';
 import { SUPPORT_PROMISES } from '../lib/industries';
 import { whatsappUrl } from '../lib/site';
+import soporteLocal from '../assets/soporte/soporte-local.jpg';
+import postventa from '../assets/soporte/postventa.jpg';
+import respuestaRapida from '../assets/soporte/respuesta-rapida.jpg';
+import pagoTarjeta from '../assets/soporte/pago-tarjeta.jpg';
 
 interface Props {
 	title?: string;
@@ -15,6 +20,13 @@ const {
 	quoteHref = '/contacto',
 	whatsappHref = whatsappUrl(),
 } = Astro.props;
+
+const supportPhotos = {
+	'Soporte técnico local': soporteLocal,
+	'Postventa garantizada': postventa,
+	'Respuesta rápida': respuestaRapida,
+	'Pago con tarjeta': pagoTarjeta,
+} as const;
 ---
 
 <section class="border-t border-white/10 bg-charcoal py-16" aria-label="Cotizar">
@@ -28,11 +40,23 @@ const {
 			<a href={whatsappHref} target="_blank" rel="noopener noreferrer" class="mizo-btn-ghost">WhatsApp</a>
 		</div>
 	</div>
-	<ul class="mx-auto mt-10 grid max-w-6xl gap-px bg-white/10 px-4 sm:grid-cols-3 sm:px-6 lg:px-8">
+	<ul class="mx-auto mt-10 grid max-w-6xl gap-px bg-white/10 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
 		{SUPPORT_PROMISES.map((item) => (
-			<li class="bg-charcoal px-5 py-5">
-				<p class="text-sm font-extrabold text-white">{item.title}</p>
-				<p class="mt-2 text-sm leading-6 text-white/60">{item.detail}</p>
+			<li class="bg-charcoal">
+				<Image
+					src={supportPhotos[item.title]}
+					alt={item.title}
+					class="aspect-[4/3] w-full object-cover"
+					widths={[480, 800, 1200]}
+					sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+					format="webp"
+					quality={74}
+					loading="lazy"
+				/>
+				<div class="px-5 py-5">
+					<p class="text-sm font-extrabold text-white">{item.title}</p>
+					<p class="mt-2 text-sm leading-6 text-white/60">{item.detail}</p>
+				</div>
 			</li>
 		))}
 	</ul>

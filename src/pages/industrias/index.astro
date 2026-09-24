@@ -4,7 +4,6 @@ import Layout from '../../layouts/Layout.astro';
 import PhotoSlot from '../../components/PhotoSlot.astro';
 import { INDUSTRIES, industryPath } from '../../lib/industries';
 import { industryMedia } from '../../lib/industry-images';
-import { SITE } from '../../lib/site';
 import { absoluteUrl, graphSchema, organizationSchema, webPageSchema } from '../../lib/seo';
 
 const title = 'Soluciones | Mizo — Páginas por industria';
@@ -38,7 +37,6 @@ const jsonLd = graphSchema([
 						<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange">{industry.nav}</p>
 						<h2 class="mt-2 text-2xl font-extrabold leading-snug">{industry.title}</h2>
 						<p class="mt-3 text-sm leading-7 text-white/65">{industry.short}</p>
-						<p class="mt-4 font-mono text-xs text-accent">{SITE.url.replace('https://', '')}{industryPath(industry.slug)}</p>
 						<ul class="mt-5 space-y-2 text-sm text-white/80">
 							{industry.solutions.map((solution) => (
 								<li class="flex gap-3">

@@ -298,6 +298,7 @@ export const SUPPORT_PROMISES = [
 	{ title: 'Soporte técnico local', detail: 'Quien instala en Chile es quien responde después.' },
 	{ title: 'Postventa garantizada', detail: 'La instalación queda cubierta cuando el sistema ya está en uso.' },
 	{ title: 'Respuesta rápida', detail: 'Cotización y WhatsApp directos, sin un call center de por medio.' },
+	{ title: 'Pago con tarjeta', detail: 'Puedes pagar con tarjetas de crédito.' },
 ] as const;
 
 export function industryPath(slug: string): string {
