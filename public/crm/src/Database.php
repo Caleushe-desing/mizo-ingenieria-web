@@ -539,6 +539,26 @@ final class Database
 				)'
 			);
 			$pdo->exec('PRAGMA user_version = 16');
+			$version = 16;
+		}
+
+		if ($version < 17) {
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS products (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					sku TEXT NOT NULL,
+					nombre TEXT NOT NULL,
+					descripcion TEXT NOT NULL,
+					categoria TEXT NOT NULL,
+					proveedor_empresa TEXT NOT NULL,
+					proveedor_link TEXT NOT NULL,
+					activo INTEGER NOT NULL DEFAULT 1,
+					created_at TEXT NOT NULL,
+					updated_at TEXT NOT NULL
+				)'
+			);
+			$pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku ON products(sku COLLATE NOCASE)');
+			$pdo->exec('PRAGMA user_version = 17');
 		}
 	}
 

@@ -12,6 +12,7 @@ $onMail = str_starts_with($path, '/correo');
 $onChat = str_starts_with($path, '/chat');
 $onBoard = $path === '/' || str_starts_with($path, '/tablero');
 $onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cotizaciones');
+$onCatalog = str_starts_with($path, '/catalogo');
 ?>
 <!doctype html>
 <html lang="es-CL">
@@ -41,6 +42,7 @@ $onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cot
 			<?php if (Auth::isAdmin()): ?>
 				<a data-crm-section="facturas" data-crm-home="<?= h(Http::url('/facturas')) ?>" class="<?= str_starts_with($path, '/facturas') ? 'is-on' : '' ?>" href="<?= h(Http::url('/facturas')) ?>">Facturas</a>
 				<a data-crm-section="contabilidad" data-crm-home="<?= h(Http::url('/contabilidad')) ?>" class="<?= str_starts_with($path, '/contabilidad') ? 'is-on' : '' ?>" href="<?= h(Http::url('/contabilidad')) ?>">Contabilidad</a>
+				<a data-crm-section="catalogo" data-crm-home="<?= h(Http::url('/catalogo')) ?>" class="<?= $onCatalog ? 'is-on' : '' ?>" href="<?= h(Http::url('/catalogo')) ?>">Catálogo</a>
 				<a data-crm-section="control" data-crm-home="<?= h(Http::url('/admin')) ?>" class="<?= str_starts_with($path, '/admin') ? 'is-on' : '' ?>" href="<?= h(Http::url('/admin')) ?>">Control</a>
 				<a data-crm-section="equipo" data-crm-home="<?= h(Http::url('/equipo')) ?>" class="<?= $path === '/equipo' ? 'is-on' : '' ?>" href="<?= h(Http::url('/equipo')) ?>">Equipo</a>
 			<?php endif; ?>
@@ -69,6 +71,8 @@ $onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cot
 				<a class="btn btn-word" href="<?= h(Http::url('/chat')) ?>">Chats</a>
 			<?php elseif ($onClients && $path !== '/clientes/nuevo'): ?>
 				<a class="btn btn-word" href="<?= h(Http::url('/clientes/nuevo')) ?>">Inscribir cliente</a>
+			<?php elseif ($onCatalog && $path === '/catalogo'): ?>
+				<a class="btn btn-word" href="<?= h(Http::url('/catalogo/nuevo')) ?>">Nuevo producto</a>
 			<?php endif; ?>
 		</div>
 	</div>
