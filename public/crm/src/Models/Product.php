@@ -40,4 +40,15 @@ final class Product extends Record
 		$row = $stmt->fetch();
 		return $row ?: null;
 	}
+
+	public static function visible(): array
+	{
+		$stmt = static::pdo()->query(
+			'SELECT sku, nombre, descripcion, categoria, proveedor_empresa, proveedor_link
+			 FROM products
+			 WHERE activo = 1
+			 ORDER BY categoria COLLATE NOCASE, nombre COLLATE NOCASE, sku COLLATE NOCASE'
+		);
+		return $stmt->fetchAll();
+	}
 }

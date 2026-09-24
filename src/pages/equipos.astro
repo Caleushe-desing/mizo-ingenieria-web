@@ -1,0 +1,134 @@
+---
+import ConversionCta from '../components/ConversionCta.astro';
+import Layout from '../layouts/Layout.astro';
+import { SITE, whatsappUrl } from '../lib/site';
+import { absoluteUrl, graphSchema, organizationSchema, webPageSchema } from '../lib/seo';
+
+const title = 'Equipos | Mizo — Hardware de grado profesional';
+const description =
+	'Equipos de audio, video y automatización que Mizo integra en cada recinto. Referencia técnica, sin precios de tienda.';
+---
+
+<Layout
+	title={title}
+	description={description}
+	jsonLd={graphSchema([
+		organizationSchema(),
+		webPageSchema({ name: title, description, url: absoluteUrl('/equipos') }),
+	])}
+>
+	<section class="relative overflow-hidden border-b border-white/10 bg-charcoal pt-28 text-white sm:pt-32">
+		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
+		<div class="relative mx-auto max-w-6xl px-4 pb-14 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Equipos</p>
+			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] sm:text-5xl">Componentes de grado profesional, elegidos para integrar.</h1>
+			<p class="mt-4 max-w-2xl text-lg leading-8 text-white/65">
+				Esta vitrina muestra el hardware con el que diseñamos. No es una tienda: no hay precios ni carrito. Cotizas el equipo con el equipo de Mizo.
+			</p>
+		</div>
+	</section>
+
+	<section
+		id="vitrina"
+		class="bg-charcoal py-16 sm:py-20"
+		data-endpoint="/crm/api/productos-visibles.php"
+		data-whatsapp={SITE.whatsapp}
+		aria-labelledby="vitrina-heading"
+	>
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<h2 id="vitrina-heading" class="sr-only">Equipos visibles</h2>
+			<p id="vitrina-estado" class="text-sm text-white/60">Cargando equipos…</p>
+			<div id="vitrina-lista"></div>
+			<noscript>
+				<p class="text-sm text-white/60">Para ver los equipos activos, abre esta página con JavaScript o escríbenos por WhatsApp.</p>
+			</noscript>
+		</div>
+	</section>
+
+	<ConversionCta
+		title="¿El equipo depende del recinto?"
+		text="Cuéntanos el espacio. Te proponemos el componente que corresponde y lo dejamos instalado."
+		whatsappHref={whatsappUrl('Hola Mizo, quiero cotizar un equipo para mi recinto.')}
+	/>
+</Layout>
+
+<script>
+	const root = document.getElementById('vitrina');
+	const status = document.getElementById('vitrina-estado');
+	const list = document.getElementById('vitrina-lista');
+
+	function node(tag, className, text) {
+		const element = document.createElement(tag);
+		if (className) element.className = className;
+		if (text) element.textContent = text;
+		return element;
+	}
+
+	function publicLink(value) {
+		try {
+			const url = new URL(value);
+			if (url.protocol === 'https:' || url.protocol === 'http:') return url.href;
+		} catch {
+			return '';
+		}
+		return '';
+	}
+
+	function card(item, phone) {
+		const article = node('article', 'flex flex-col bg-charcoal px-6 py-7');
+		article.append(node('p', 'text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Equipo'));
+		article.append(node('h3', 'mt-3 text-xl font-extrabold leading-snug', item.nombre || item.sku));
+		if (item.sku) article.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
+		if (item.descripcion) article.append(node('p', 'mt-4 line-clamp-5 text-sm leading-6 text-white/65', item.descripcion));
+		if (item.proveedor_empresa) article.append(node('p', 'mt-4 text-sm text-white/80', item.proveedor_empresa));
+		const ficha = publicLink(item.proveedor_link);
+		if (ficha) {
+			const spec = node('a', 'mt-2 inline-block text-xs font-semibold uppercase tracking-[0.12em] text-white/45', 'Ficha del proveedor');
+			spec.href = ficha;
+			spec.target = '_blank';
+			spec.rel = 'noopener noreferrer';
+			article.append(spec);
+		}
+		const quote = node('a', 'mizo-btn mt-6 w-fit', 'Cotizar este equipo');
+		const message = `Hola Mizo, quiero cotizar el equipo ${item.nombre || ''} (SKU ${item.sku || ''}).`;
+		quote.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+		quote.target = '_blank';
+		quote.rel = 'noopener noreferrer';
+		article.append(quote);
+		return article;
+	}
+
+	if (root && status && list) {
+		const phone = root.dataset.whatsapp || '';
+		fetch(root.dataset.endpoint || '/crm/api/productos-visibles.php', { headers: { Accept: 'application/json' } })
+			.then((response) => {
+				if (!response.ok) throw new Error('catalogo');
+				return response.json();
+			})
+			.then((data) => {
+				const products = Array.isArray(data.productos) ? data.productos : [];
+				if (products.length === 0) {
+					status.textContent = 'Todavía no hay equipos publicados. Cuéntanos el recinto y te proponemos el hardware.';
+					return;
+				}
+				status.hidden = true;
+				const groups = new Map();
+				for (const item of products) {
+					const category = item.categoria || 'Equipos';
+					if (!groups.has(category)) groups.set(category, []);
+					groups.get(category).push(item);
+				}
+				for (const [category, items] of groups) {
+					const block = node('section', groups.size > 1 ? 'mt-10 first:mt-0' : '');
+					if (groups.size > 1) block.append(node('h2', 'text-2xl font-extrabold', category));
+					const grid = node('div', 'mt-6 grid gap-px bg-white/10 sm:grid-cols-2 lg:grid-cols-3');
+					for (const item of items) grid.append(card(item, phone));
+					block.append(grid);
+					list.append(block);
+				}
+			})
+			.catch(() => {
+				status.textContent = 'No se pudo cargar el catálogo. Escríbenos y te proponemos el equipo.';
+			});
+	}
+</script>
