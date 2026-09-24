@@ -55,9 +55,7 @@ final class MailAttachment extends Record
 		}
 		try {
 			$box = Mailbox::open($userId);
-			$folder = (($message['folder'] ?? '') === 'sent')
-				? (string) ($box['sent_folder'] ?? 'Sent')
-				: 'INBOX';
+			$folder = Mailbox::remoteFolder($box, (string) ($message['folder'] ?? ''));
 			$imap = new \MizoCrm\Mail\Imap($box);
 			try {
 				$parsed = $imap->fetch($folder, $uid);

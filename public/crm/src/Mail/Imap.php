@@ -9,6 +9,7 @@ final class Imap
 {
 	private $fp;
 	private int $n = 0;
+	private string $lastOk = '';
 
 	public function __construct(array $mailbox)
 	{
@@ -52,6 +53,60 @@ final class Imap
 			}
 		}
 		return $fallback;
+	}
+
+	public function findJunkFolder(): string
+	{
+		$lines = $this->command('LIST "" "*"');
+		$fallback = '';
+		foreach ($lines as $line) {
+			if (!preg_match('/^\* LIST \((.*)\) ".*" (.+)$/', $line, $matches)) {
+				continue;
+			}
+			$attrs = strtoupper($matches[1]);
+			$name = trim($matches[2], '"');
+			if (str_contains($attrs, '\\JUNK') || str_contains($attrs, '\\SPAM')) {
+				return $name;
+			}
+			if ($fallback === '' && preg_match('/spam|junk|no deseado|bulk/i', $name)) {
+				$fallback = $name;
+			}
+		}
+		if ($fallback !== '') {
+			return $fallback;
+		}
+		foreach (['Junk', 'Spam', 'INBOX.Junk', 'INBOX.Spam'] as $name) {
+			try {
+				$this->command('CREATE ' . self::quote($name));
+				return $name;
+			} catch (RuntimeException) {
+			}
+		}
+		throw new RuntimeException('La casilla no tiene carpeta de correo no deseado.');
+	}
+
+	/** Mueve un mensaje. Devuelve el UID nuevo si el servidor lo informa. */
+	public function moveUid(string $from, string $to, int $uid): ?int
+	{
+		if ($uid <= 0 || $from === '' || $to === '' || $from === $to) {
+			throw new RuntimeException('No se pudo mover el correo.');
+		}
+		$this->select($from);
+		try {
+			$this->command('UID MOVE ' . $uid . ' ' . self::quote($to));
+		} catch (RuntimeException) {
+			$this->command('UID COPY ' . $uid . ' ' . self::quote($to));
+			$this->command('UID STORE ' . $uid . ' +FLAGS (\\Deleted \\Seen)');
+			try {
+				$this->command('UID EXPUNGE ' . $uid);
+			} catch (RuntimeException) {
+				$this->command('EXPUNGE');
+			}
+		}
+		if (preg_match('/\[COPYUID \d+ \S+ (\d+)\]/', $this->lastOk, $matches)) {
+			return (int) $matches[1];
+		}
+		return null;
 	}
 
 	public function uids(string $folder, int $limit = 80): array
@@ -242,6 +297,7 @@ final class Imap
 		while (true) {
 			$line = $this->readLine();
 			if (str_starts_with($line, $tag . ' ')) {
+				$this->lastOk = $line;
 				if (!str_contains($line, ' OK')) {
 					throw new RuntimeException('El servidor de correo rechazó la operación.');
 				}

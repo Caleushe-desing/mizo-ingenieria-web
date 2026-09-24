@@ -18,7 +18,11 @@ $peer = $message['folder'] === 'sent'
 	: (string) ($message['from_name'] ?: $message['from_email']);
 $html = trim((string) ($message['body_html'] ?? ''));
 $text = trim((string) ($message['body_text'] ?? ''));
-$back = $message['folder'] === 'sent' ? '/correo/enviados' : '/correo';
+$back = match ($message['folder']) {
+	'sent' => '/correo/enviados',
+	'spam' => '/correo/spam',
+	default => '/correo',
+};
 $isUnread = (int) ($message['seen'] ?? 0) === 0;
 $isImportant = (int) ($message['important'] ?? 0) === 1;
 $qs = array_filter(['q' => $query ?: null, 'orden' => $sort !== 'fecha' ? $sort : null, 'filtro' => $filter !== 'todos' ? $filter : null]);
@@ -36,6 +40,14 @@ $listBack = $back . ($qs ? ('?' . http_build_query($qs)) : '');
 				<input type="hidden" name="back" value="<?= h($here) ?>">
 				<button class="gmail-icon-btn<?= $isImportant ? ' is-important' : '' ?>" type="submit"><?= $isImportant ? '★ Importante' : '☆ Importante' ?></button>
 			</form>
+			<?php if ($message['folder'] === 'inbox' || $message['folder'] === 'spam'): ?>
+				<form method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/estado')) ?>">
+					<?= Csrf::field() ?>
+					<input type="hidden" name="action" value="<?= $message['folder'] === 'spam' ? 'unspam' : 'spam' ?>">
+					<input type="hidden" name="back" value="<?= h($here) ?>">
+					<button class="gmail-icon-btn" type="submit"><?= $message['folder'] === 'spam' ? 'No es spam' : 'No deseado' ?></button>
+				</form>
+			<?php endif; ?>
 			<?php if ($message['folder'] === 'inbox'): ?>
 				<form method="post" action="<?= h(Http::url('/correo/' . $message['id'] . '/estado')) ?>">
 					<?= Csrf::field() ?>

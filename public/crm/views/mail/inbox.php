@@ -13,7 +13,21 @@ $sort = (string) ($sort ?? 'fecha');
 $filter = (string) ($filter ?? 'todos');
 $selectedId = $message ? (int) $message['id'] : 0;
 $openClass = $message ? ' has-open' : '';
-$folderPath = '/correo' . ($folder === 'sent' ? '/enviados' : '');
+$folderPath = match ($folder) {
+	'sent' => '/correo/enviados',
+	'spam' => '/correo/spam',
+	default => '/correo',
+};
+$folderTitle = match ($folder) {
+	'sent' => 'Enviados',
+	'spam' => 'No deseado',
+	default => 'Recibidos',
+};
+$emptyText = match ($folder) {
+	'sent' => 'No hay correos enviados.',
+	'spam' => 'No hay correo no deseado.',
+	default => 'La bandeja está vacía.',
+};
 $folderUrl = Http::url($folderPath);
 $qs = [];
 if ($query !== '') $qs['q'] = $query;
@@ -42,7 +56,7 @@ $filterOpts = [
 	<section class="gmail-main gmail-split">
 		<div class="gmail-list-pane" data-crm-scroll="mail-list">
 			<div class="gmail-toolbar">
-				<strong><?= $folder === 'sent' ? 'Enviados' : 'Recibidos' ?></strong>
+				<strong><?= h($folderTitle) ?></strong>
 				<span class="gmail-toolbar-mail"><?= h($mailbox['email'] ?? '') ?></span>
 				<a href="<?= h($folderUrl . '?sync=1' . ($amp !== '' ? $amp : '')) ?>">Actualizar</a>
 			</div>
@@ -72,6 +86,11 @@ $filterOpts = [
 					<label class="gmail-check-all"><input type="checkbox" data-check-all> Todos</label>
 					<button type="submit" name="action" value="read">Leídos</button>
 					<button type="submit" name="action" value="unread">No leídos</button>
+					<?php if ($folder === 'spam'): ?>
+						<button type="submit" name="action" value="unspam">No es spam</button>
+					<?php elseif ($folder === 'inbox'): ?>
+						<button type="submit" name="action" value="spam">No deseado</button>
+					<?php endif; ?>
 					<button type="submit" name="action" value="important">Importante</button>
 					<button type="submit" name="action" value="delete" onclick="return confirm('¿Eliminar los seleccionados de tu casilla? También se borran en el servidor de correo.');">Eliminar</button>
 				</div>
@@ -83,7 +102,7 @@ $filterOpts = [
 						<p>No hay correos con ese criterio.</p>
 						<p><a href="<?= h($folderUrl) ?>">Ver todos</a></p>
 					<?php else: ?>
-						<p><?= $folder === 'sent' ? 'No hay correos enviados.' : 'La bandeja está vacía.' ?></p>
+						<p><?= h($emptyText) ?></p>
 					<?php endif; ?>
 				</div>
 			<?php else: ?>

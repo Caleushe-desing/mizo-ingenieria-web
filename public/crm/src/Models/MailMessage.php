@@ -97,6 +97,13 @@ final class MailMessage extends Record
 		return (int) $stmt->fetchColumn();
 	}
 
+	public static function countIn(int $userId, string $folder): int
+	{
+		$stmt = self::pdo()->prepare('SELECT COUNT(*) FROM mail_messages WHERE user_id = ? AND folder = ?');
+		$stmt->execute([$userId, $folder]);
+		return (int) $stmt->fetchColumn();
+	}
+
 	public static function unreadPeek(int $userId, int $limit = 8): array
 	{
 		$limit = max(1, min(20, $limit));
@@ -282,9 +289,7 @@ final class MailMessage extends Record
 			try {
 				$groups = [];
 				foreach ($pending as $row) {
-					$remote = ($row['folder'] ?? '') === 'sent'
-						? (string) ($box['sent_folder'] ?? 'Sent')
-						: 'INBOX';
+					$remote = Mailbox::remoteFolder($box, (string) ($row['folder'] ?? ''));
 					$groups[$remote][] = $row;
 				}
 				foreach ($groups as $folder => $group) {
@@ -316,6 +321,55 @@ final class MailMessage extends Record
 		} catch (\Throwable) {
 		}
 		return $done;
+	}
+
+	/** Mueve correos entre Recibidos y No deseado en el servidor y en el CRM. */
+	public static function relocate(array $rows, string $destination): int
+	{
+		$destination = $destination === 'spam' ? 'spam' : 'inbox';
+		$rows = array_values(array_filter($rows, static function (array $row) use ($destination): bool {
+			$folder = (string) ($row['folder'] ?? '');
+			$uid = (int) ($row['uid'] ?? 0);
+			if ($uid <= 0) {
+				return false;
+			}
+			return $destination === 'spam' ? $folder === 'inbox' : $folder === 'spam';
+		}));
+		if ($rows === []) {
+			return 0;
+		}
+		$userId = (int) ($rows[0]['user_id'] ?? 0);
+		$moved = [];
+		try {
+			$box = Mailbox::open($userId);
+			$imap = new \MizoCrm\Mail\Imap($box);
+			try {
+				$junk = Mailbox::ensureJunkFolder($box, $imap);
+				foreach ($rows as $row) {
+					$from = $destination === 'spam' ? 'INBOX' : $junk;
+					$to = $destination === 'spam' ? $junk : 'INBOX';
+					try {
+						$newUid = $imap->moveUid($from, $to, (int) $row['uid']);
+					} catch (\Throwable) {
+						continue;
+					}
+					$moved[] = [(int) $row['id'], $newUid];
+				}
+			} finally {
+				$imap->close();
+			}
+		} catch (\Throwable) {
+			return 0;
+		}
+		foreach ($moved as [$id, $newUid]) {
+			$fields = ['folder' => $destination];
+			$fields['uid'] = $newUid ?: null;
+			if ($destination === 'spam') {
+				$fields['seen'] = 1;
+			}
+			self::update($id, $fields);
+		}
+		return count($moved);
 	}
 
 	public static function clientIdFor(int $userId, string $email): ?int

@@ -64,6 +64,7 @@ final class App
 			['POST', '#^/correo/cuenta/desconectar$#', [Controllers\MailController::class, 'disconnect']],
 			['GET', '#^/correo/nuevo$#', [Controllers\MailController::class, 'compose']],
 			['GET', '#^/correo/enviados$#', [Controllers\MailController::class, 'sent']],
+			['GET', '#^/correo/spam$#', [Controllers\MailController::class, 'spam']],
 			['POST', '#^/correo/(\d+)/responder$#', [Controllers\MailController::class, 'reply']],
 			['POST', '#^/correo/(\d+)/eliminar$#', [Controllers\MailController::class, 'destroy']],
 			['POST', '#^/correo/(\d+)/estado$#', [Controllers\MailController::class, 'status']],

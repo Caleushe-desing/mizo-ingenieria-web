@@ -114,11 +114,57 @@ final class Mailbox extends Record
 						self::syncFolder($userId, $imap, $sent, 'sent', false);
 					}
 				}
+				try {
+					$junk = self::ensureJunkFolder($box, $imap);
+					self::syncFolder($userId, $imap, $junk, 'spam', false);
+				} catch (RuntimeException) {
+				}
 			}
 		} finally {
 			$imap->close();
 		}
 		self::pdo()->prepare('UPDATE mailboxes SET last_sync = ? WHERE user_id = ?')->execute([date('c'), $userId]);
+	}
+
+	public static function syncSpam(int $userId, bool $force = false): void
+	{
+		$box = self::open($userId);
+		$last = strtotime((string) ($box['last_sync'] ?? '')) ?: 0;
+		if (!$force && $last > time() - 180 && trim((string) ($box['junk_folder'] ?? '')) !== '') {
+			return;
+		}
+		@set_time_limit(60);
+		$imap = new Imap($box);
+		try {
+			$junk = self::ensureJunkFolder($box, $imap);
+			self::syncFolder($userId, $imap, $junk, 'spam', false);
+		} finally {
+			$imap->close();
+		}
+		self::pdo()->prepare('UPDATE mailboxes SET last_sync = ? WHERE user_id = ?')->execute([date('c'), $userId]);
+	}
+
+	public static function remoteFolder(array $box, string $local): string
+	{
+		return match ($local) {
+			'sent' => (string) (($box['sent_folder'] ?? '') !== '' ? $box['sent_folder'] : 'Sent'),
+			'spam' => (string) (($box['junk_folder'] ?? '') !== '' ? $box['junk_folder'] : 'Junk'),
+			default => 'INBOX',
+		};
+	}
+
+	public static function ensureJunkFolder(array $box, Imap $imap): string
+	{
+		$junk = trim((string) ($box['junk_folder'] ?? ''));
+		if ($junk !== '') {
+			return $junk;
+		}
+		$junk = $imap->findJunkFolder();
+		$userId = (int) ($box['user_id'] ?? 0);
+		if ($userId > 0) {
+			self::pdo()->prepare('UPDATE mailboxes SET junk_folder = ? WHERE user_id = ?')->execute([$junk, $userId]);
+		}
+		return $junk;
 	}
 
 	public static function deliver(

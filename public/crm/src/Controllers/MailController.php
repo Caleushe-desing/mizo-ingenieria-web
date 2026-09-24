@@ -28,6 +28,11 @@ final class MailController
 		$this->folder('sent');
 	}
 
+	public function spam(): void
+	{
+		$this->folder('spam');
+	}
+
 	public function compose(): void
 	{
 		$user = Auth::requireUser();
@@ -126,7 +131,11 @@ final class MailController
 		if ($client && !Auth::canAccessClient($client)) {
 			$client = null;
 		}
-		$folder = ($row['folder'] ?? '') === 'sent' ? 'sent' : 'inbox';
+		$folder = match ((string) ($row['folder'] ?? '')) {
+			'sent' => 'sent',
+			'spam' => 'spam',
+			default => 'inbox',
+		};
 		$box = Mailbox::forUser((int) $user['id']);
 		if (!$box) {
 			Http::redirect('/correo/cuenta');
@@ -217,10 +226,10 @@ final class MailController
 		$row = MailMessage::owned((int) $user['id'], (int) $id);
 		if ($row && MailMessage::apply([$row], 'delete') === 0) {
 			View::flash('error', 'No se pudo borrar el correo en el servidor. Sigue en tu casilla.');
-			Http::redirect($row['folder'] === 'sent' ? '/correo/enviados' : '/correo');
+			Http::redirect(self::mailList($row['folder'] ?? ''));
 		}
 		View::flash('ok', 'Correo eliminado de tu casilla y del servidor.');
-		Http::redirect($row && $row['folder'] === 'sent' ? '/correo/enviados' : '/correo');
+		Http::redirect(self::mailList($row['folder'] ?? ''));
 	}
 
 	public function status(string $id): void
@@ -233,6 +242,15 @@ final class MailController
 			Http::redirect('/correo');
 		}
 		$action = Http::string('action', 20);
+		if ($action === 'spam' || $action === 'unspam') {
+			$n = MailMessage::relocate([$row], $action === 'spam' ? 'spam' : 'inbox');
+			if ($n === 0) {
+				View::flash('error', 'No se pudo mover el correo en el servidor.');
+				Http::redirect('/correo/' . (int) $row['id']);
+			}
+			View::flash('ok', $action === 'spam' ? 'El correo quedó en No deseado.' : 'El correo volvió a Recibidos.');
+			Http::redirect('/correo/' . (int) $row['id']);
+		}
 		match ($action) {
 			'read' => MailMessage::setSeen($row, true),
 			'unread' => MailMessage::setSeen($row, false),
@@ -257,6 +275,23 @@ final class MailController
 			$ids = [];
 		}
 		$rows = MailMessage::bulkOwned((int) $user['id'], $ids);
+		if ($action === 'spam' || $action === 'unspam') {
+			$n = $rows === [] ? 0 : MailMessage::relocate($rows, $action === 'spam' ? 'spam' : 'inbox');
+			if ($rows === []) {
+				View::flash('ok', 'No seleccionaste correos.');
+			} elseif ($n === 0) {
+				View::flash('error', 'No se pudieron mover en el servidor de correo.');
+			} else {
+				View::flash('ok', $action === 'spam'
+					? "{$n} correo(s) quedaron en No deseado."
+					: "{$n} correo(s) volvieron a Recibidos.");
+			}
+			$back = trim((string) ($_POST['back'] ?? '/correo'));
+			if ($back === '' || !str_starts_with($back, '/correo')) {
+				$back = '/correo';
+			}
+			Http::redirect($back);
+		}
 		$remote = match ($action) {
 			'read' => 'seen',
 			'unread' => 'unseen',
@@ -355,6 +390,15 @@ final class MailController
 		Http::redirect('/correo/cuenta');
 	}
 
+	private static function mailList(string $folder): string
+	{
+		return match ($folder) {
+			'sent' => '/correo/enviados',
+			'spam' => '/correo/spam',
+			default => '/correo',
+		};
+	}
+
 	private function folder(string $folder): void
 	{
 		$user = Auth::requireUser();
@@ -371,7 +415,11 @@ final class MailController
 		$error = '';
 		$forceSync = Http::string('sync', 8) === '1';
 		try {
-			Mailbox::sync((int) $user['id'], $forceSync, !$forceSync);
+			if ($folder === 'spam') {
+				Mailbox::syncSpam((int) $user['id'], $forceSync);
+			} else {
+				Mailbox::sync((int) $user['id'], $forceSync, !$forceSync);
+			}
 		} catch (\Throwable $e) {
 			$error = $e->getMessage() !== ''
 				? $e->getMessage()
@@ -385,7 +433,11 @@ final class MailController
 		$filter = Http::string('filtro', 20) ?: 'todos';
 		$messages = MailMessage::list((int) $user['id'], $folder, null, $query, $sort, $filter);
 		View::render('mail/inbox', [
-			'title' => $folder === 'sent' ? 'Enviados' : 'Bandeja de entrada',
+			'title' => match ($folder) {
+				'sent' => 'Enviados',
+				'spam' => 'No deseado',
+				default => 'Bandeja de entrada',
+			},
 			'folder' => $folder,
 			'mailbox' => $box,
 			'messages' => $messages,

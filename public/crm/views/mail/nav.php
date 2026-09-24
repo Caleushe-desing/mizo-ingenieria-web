@@ -1,8 +1,11 @@
 <?php
+use MizoCrm\Auth;
 use MizoCrm\Http;
+use MizoCrm\Models\MailMessage;
 
 $folder = $folder ?? 'inbox';
 $unread = (int) ($unread ?? 0);
+$spamCount = Auth::id() > 0 ? MailMessage::countIn(Auth::id(), 'spam') : 0;
 ?>
 <aside class="gmail-nav">
 	<a class="gmail-compose-btn" href="<?= h(Http::url('/correo/nuevo')) ?>">
@@ -12,6 +15,10 @@ $unread = (int) ($unread ?? 0);
 	<a class="<?= $folder === 'inbox' ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo')) ?>">
 		<span>Recibidos</span>
 		<?php if ($unread > 0): ?><span class="gmail-count"><?= $unread ?></span><?php endif; ?>
+	</a>
+	<a class="<?= $folder === 'spam' ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo/spam')) ?>">
+		<span>No deseado</span>
+		<?php if ($spamCount > 0): ?><span class="gmail-count"><?= $spamCount ?></span><?php endif; ?>
 	</a>
 	<a class="<?= $folder === 'sent' ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo/enviados')) ?>">Enviados</a>
 	<a class="<?= $folder === 'account' ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo/cuenta')) ?>">Configuración</a>

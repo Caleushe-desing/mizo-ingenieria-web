@@ -560,6 +560,11 @@ final class Database
 			if (!in_array('has_attachments', $names, true)) {
 				$pdo->exec('ALTER TABLE mail_messages ADD COLUMN has_attachments INTEGER NOT NULL DEFAULT 0');
 			}
+			$boxCols = $pdo->query('PRAGMA table_info(mailboxes)')->fetchAll();
+			$boxNames = array_column($boxCols, 'name');
+			if ($boxNames !== [] && !in_array('junk_folder', $boxNames, true)) {
+				$pdo->exec("ALTER TABLE mailboxes ADD COLUMN junk_folder TEXT NOT NULL DEFAULT ''");
+			}
 			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mail_important ON mail_messages(user_id, folder, important, sent_at)');
 			$pdo->exec(
 				<<<'SQL'
