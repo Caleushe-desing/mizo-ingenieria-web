@@ -1,0 +1,47 @@
+---
+import { ENGINEERING_STANDARDS, ENGINEERING_STEPS } from '../lib/industries';
+
+interface Props {
+	block: 'standards' | 'method';
+}
+
+const { block } = Astro.props;
+---
+
+{block === 'standards' && (
+	<section class="border-b border-white/10 bg-charcoal-light/25 py-14" aria-labelledby="estandar-heading">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Estándar</p>
+			<h2 id="estandar-heading" class="mt-3 max-w-2xl text-3xl font-extrabold">Tecnología de nivel profesional, elegida para este recinto.</h2>
+			<p class="mt-4 max-w-2xl text-sm leading-7 text-white/65">
+				Cada solución se diseña a medida. Se usa el protocolo, la calibración y la marca que el espacio exige.
+			</p>
+			<ul class="mt-8 grid gap-px bg-white/10 sm:grid-cols-2 lg:grid-cols-5">
+				{ENGINEERING_STANDARDS.map((item) => (
+					<li class="bg-charcoal px-5 py-5">
+						<p class="text-sm font-extrabold text-white">{item.label}</p>
+						<p class="mt-2 text-sm leading-6 text-white/60">{item.detail}</p>
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+)}
+
+{block === 'method' && (
+	<section class="border-t border-white/10 bg-charcoal py-14" aria-labelledby="metodo-heading">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Acompañamiento</p>
+			<h2 id="metodo-heading" class="mt-3 max-w-2xl text-3xl font-extrabold">De la asesoría a la puesta en marcha, con el mismo equipo.</h2>
+			<ol class="mt-8 grid gap-px bg-white/10 md:grid-cols-3">
+				{ENGINEERING_STEPS.map((step, index) => (
+					<li class="bg-charcoal px-6 py-6">
+						<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange">{String(index + 1).padStart(2, '0')}</p>
+						<h3 class="mt-3 text-xl font-extrabold">{step.title}</h3>
+						<p class="mt-2 text-sm leading-6 text-white/65">{step.detail}</p>
+					</li>
+				))}
+			</ol>
+		</div>
+	</section>
+)}

@@ -1,5 +1,6 @@
 ---
 import ConversionCta from './ConversionCta.astro';
+import IndustryAssurance from './IndustryAssurance.astro';
 import IndustryHero from './IndustryHero.astro';
 import IndustrySolutions from './IndustrySolutions.astro';
 import Layout from '../layouts/Layout.astro';
@@ -32,7 +33,9 @@ const jsonLd = graphSchema([
 
 <Layout title={title} description={description} jsonLd={jsonLd}>
 	<IndustryHero title={industry.title} lead={industry.lead} imageLabel={industry.imageLabel} image={media.hero} />
+	<IndustryAssurance block="standards" />
 	<IndustrySolutions solutions={industry.solutions} images={media.solutions} />
+	<IndustryAssurance block="method" />
 	<ConversionCta
 		title="¿Este es el recinto que quieres equipar?"
 		text={`Cuéntanos el espacio y armamos una propuesta de instalación para ${industry.title.toLowerCase()}.`}

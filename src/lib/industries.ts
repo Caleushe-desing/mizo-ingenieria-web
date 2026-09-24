@@ -25,7 +25,7 @@ export const INDUSTRIES: readonly Industry[] = [
 		nav: 'Restaurantes',
 		title: 'Restaurantes y locales gastronómicos',
 		short: 'Sonido por zonas, pantallas de alta definición y karaoke para que cada ambiente del local tenga su propia atmósfera.',
-		lead: 'Diseñamos el audio y la imagen de restaurantes, bares y locales gastronómicos para que el comedor, la terraza y la barra convivan sin competir. El cliente escucha con claridad, ve con nitidez y el local mantiene el ambiente que el dueño quiere.',
+		lead: 'El comedor, la terraza y la barra se diseñan como zonas independientes de alta fidelidad, con el volumen que cada una admite. Un ingeniero de Mizo define el sistema para ese local y lo acompaña hasta la puesta en marcha.',
 		imageLabel: 'Comedor, terraza y barra de un local gastronómico',
 		solutions: [
 			{
@@ -74,7 +74,7 @@ export const INDUSTRIES: readonly Industry[] = [
 		nav: 'Educación',
 		title: 'Instituciones educativas',
 		short: 'Sonido para salones y patios, proyección de gran formato e intercomunicación para que el colegio se escuche y se vea con claridad.',
-		lead: 'Equipamos colegios, institutos y universidades para ceremonias, clases y avisos diarios. El patio, el auditorio y la sala de clases dejan de depender de un parlante improvisado o de un proyector que no alcanza a verse.',
+		lead: 'Patio, auditorio y sala de clases se dimensionan para que la palabra se entienda y la imagen se lea. El proyecto se asesora, se instala y se deja operando, con soporte local después de la entrega.',
 		imageLabel: 'Patio, auditorio y sala de clases',
 		solutions: [
 			{
@@ -123,7 +123,7 @@ export const INDUSTRIES: readonly Industry[] = [
 		nav: 'Auditorios',
 		title: 'Auditorios y centros de eventos',
 		short: 'Audio digital Dante, procesamiento DSP, sonorización de concierto y video de gran escala para recintos que cambian de formato cada semana.',
-		lead: 'Un auditorio o centro de eventos tiene que pasar de una conferencia a un show sin rehacer el cableado. Implementamos la red de audio, el procesamiento y la imagen para que el recinto sea flexible, estable y de alta gama.',
+		lead: 'El recinto pasa de conferencia a show sobre una red Dante, con DSP, calibración y video de gran formato. El diseño es de ese auditorio: asesoría, instalación y puesta en marcha con el mismo equipo.',
 		imageLabel: 'Auditorio con audio y pantalla de gran formato',
 		solutions: [
 			{
@@ -185,7 +185,7 @@ export const INDUSTRIES: readonly Industry[] = [
 		nav: 'Gimnasios',
 		title: 'Centros de entrenamiento y gimnasios',
 		short: 'Audio de alto rendimiento por zonas, micrófonos para clases grupales y pantallas para rutinas, cronómetros y contenido del centro.',
-		lead: 'Un gimnasio suena muchas horas al día y cada sala pide un volumen distinto. Instalamos audio resistente, comunicación clara para el instructor y pantallas donde el alumno ve la rutina sin adivinar.',
+		lead: 'Cada sala lleva audio multizona de alta fidelidad, dimensionado para horas de uso continuo. El instructor se escucha con claridad y el sistema queda calibrado, con soporte local cuando el centro ya está operando.',
 		imageLabel: 'Sala de entrenamiento y clase grupal',
 		solutions: [
 			{
@@ -234,7 +234,7 @@ export const INDUSTRIES: readonly Industry[] = [
 		nav: 'Residencial',
 		title: 'Entretenimiento residencial y quinchos',
 		short: 'Cine en casa, audio de exterior para quincho y terraza, y domótica para iluminación, cortinas y equipos desde un toque o la voz.',
-		lead: 'Proyectamos la casa como un solo sistema: la sala de cine, el quincho y la terraza se encienden juntos o por separado, con imagen de cine, audio que resiste el exterior y control simple para quien vive ahí.',
+		lead: 'La sala se calibra a Dolby Atmos o DTS:X y el quincho lleva audio de intemperie en su propia zona. Es un diseño para esa casa, acompañado desde la asesoría hasta dejar el control en manos de quien vive ahí.',
 		imageLabel: 'Sala de cine, quincho y terraza',
 		solutions: [
 			{
@@ -279,6 +279,26 @@ export const INDUSTRIES: readonly Industry[] = [
 		],
 	},
 ];
+
+export const ENGINEERING_STANDARDS = [
+	{ label: 'Dante', detail: 'Audio sobre IP cuando el recinto necesita latencia imperceptible y cambios de montaje.' },
+	{ label: 'Multizona', detail: 'Alta fidelidad con volumen y programa independientes en cada ambiente.' },
+	{ label: 'Calibración', detail: 'Ajuste acústico real de la sala, no un nivel dejado al azar.' },
+	{ label: 'Dolby Atmos', detail: 'Envolvente de cine, con DTS:X, calibrado a la geometría de la sala.' },
+	{ label: 'Marcas', detail: 'Integramos Sony, Sennheiser, JBL, Bose, Shure, Epson y BenQ.' },
+] as const;
+
+export const ENGINEERING_STEPS = [
+	{ title: 'Asesoría', detail: 'Un ingeniero revisa el recinto y define el alcance antes de proponer equipo de más.' },
+	{ title: 'Diseño a medida', detail: 'El sistema se dimensiona para ese espacio. No hay un paquete genérico.' },
+	{ title: 'Puesta en marcha', detail: 'Queda calibrado, operando y explicado a quien lo va a usar.' },
+] as const;
+
+export const SUPPORT_PROMISES = [
+	{ title: 'Soporte técnico local', detail: 'Quien instala en Chile es quien responde después.' },
+	{ title: 'Postventa garantizada', detail: 'La instalación queda cubierta cuando el sistema ya está en uso.' },
+	{ title: 'Respuesta rápida', detail: 'Cotización y WhatsApp directos, sin un call center de por medio.' },
+] as const;
 
 export function industryPath(slug: string): string {
 	return `/industrias/${slug}`;
