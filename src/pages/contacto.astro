@@ -157,6 +157,13 @@ const fieldClass =
 			const error = document.getElementById('contacto-error');
 			if (!form) return;
 
+			const params = new URLSearchParams(window.location.search);
+			const mensaje = params.get('mensaje');
+			const field = form.querySelector('[name="mensaje"]');
+			if (mensaje && field instanceof HTMLTextAreaElement && field.value === '') {
+				field.value = mensaje;
+			}
+
 			form.addEventListener('submit', async (event) => {
 				event.preventDefault();
 				error.classList.add('hidden');

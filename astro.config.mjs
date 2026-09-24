@@ -14,7 +14,11 @@ export default defineConfig({
 			serialize(item) {
 				const pathname = new URL(item.url).pathname.replace(/\/$/, '') || '/';
 				const priority =
-					pathname === '/' ? 1 : ['/servicios', '/contacto', '/nosotros'].includes(pathname) ? 0.9 : 0.4;
+					pathname === '/'
+						? 1
+						: ['/servicios', '/contacto', '/nosotros', '/industrias'].includes(pathname) || pathname.startsWith('/industrias/')
+							? 0.9
+							: 0.4;
 				return {
 					...item,
 					priority,

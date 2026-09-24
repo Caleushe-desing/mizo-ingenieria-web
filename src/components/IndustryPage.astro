@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PhotoSlot from './PhotoSlot.astro';
+import {
+	INDUSTRIES,
+	industryPath,
+	industryQuoteUrl,
+	industryWhatsapp,
+	type Industry,
+} from '../lib/industries';
+import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
+
+interface Props {
+	industry: Industry;
+}
+
+const { industry } = Astro.props;
+const path = industryPath(industry.slug);
+const title = `${industry.title} | Mizo`;
+const description = industry.short;
+const others = INDUSTRIES.filter((item) => item.slug !== industry.slug);
+const columns = industry.solutions.length === 4 ? 'lg:grid-cols-2' : 'lg:grid-cols-3';
+
+const jsonLd = graphSchema([
+	organizationSchema(),
+	webPageSchema({ name: title, description, url: absoluteUrl(path) }),
+	...industry.solutions.map((solution) =>
+		serviceSchema({
+			name: `${solution.title} — ${industry.title}`,
+			description: solution.description,
+			url: absoluteUrl(`${path}#${solution.id}`),
+		}),
+	),
+]);
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+	<section class="relative overflow-hidden border-b border-white/10 bg-charcoal pt-28 text-white sm:pt-32">
+		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
+		<div class="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-14 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8">
+			<div>
+				<p class="mizo-kicker">Industrias</p>
+				<h1 class="mt-3 text-4xl font-extrabold leading-[1.08] sm:text-5xl">{industry.title}</h1>
+				<p class="mt-5 max-w-xl text-lg leading-8 text-white/70">{industry.lead}</p>
+				<div class="mt-8 flex flex-col gap-3 sm:flex-row">
+					<a href={industryQuoteUrl(industry)} class="mizo-btn">Cotizar este rubro</a>
+					<a href={industryWhatsapp(industry)} target="_blank" rel="noopener noreferrer" class="mizo-btn-ghost">WhatsApp</a>
+				</div>
+			</div>
+			<PhotoSlot label={industry.imageLabel} />
+		</div>
+	</section>
+
+	<nav class="border-b border-white/10 bg-charcoal-light/40" aria-label="Soluciones de esta industria">
+		<div class="mx-auto flex max-w-6xl gap-px overflow-x-auto bg-white/10 px-4 sm:px-6 lg:px-8">
+			{industry.solutions.map((solution, index) => (
+				<a
+					href={`#${solution.id}`}
+					class="shrink-0 bg-charcoal px-4 py-4 text-sm font-semibold text-white/75 transition hover:text-white"
+				>
+					<span class="mr-2 text-[0.65rem] text-orange">{String(index + 1).padStart(2, '0')}</span>
+					{solution.title}
+				</a>
+			))}
+		</div>
+	</nav>
+
+	<section class="bg-charcoal py-16 sm:py-20" aria-labelledby="soluciones-heading">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Soluciones</p>
+			<h2 id="soluciones-heading" class="mt-3 max-w-2xl text-3xl font-extrabold sm:text-4xl">Qué instalamos en este tipo de recinto.</h2>
+			<div class:list={['mt-10 grid gap-px bg-white/10', columns]}>
+				{industry.solutions.map((solution) => (
+					<article id={solution.id} class="scroll-mt-36 flex flex-col bg-charcoal">
+						<PhotoSlot label={solution.imageLabel} />
+						<div class="flex flex-1 flex-col p-6 sm:p-7">
+							<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">{solution.eyebrow}</p>
+							<h3 class="mt-2 text-xl font-extrabold leading-snug">{solution.title}</h3>
+							<p class="mt-3 text-sm leading-7 text-white/65">{solution.description}</p>
+							<ul class="mt-5 space-y-2 border-t border-white/10 pt-5 text-sm text-white/85">
+								{solution.points.map((point) => (
+									<li class="flex gap-3">
+										<span class="mt-2 h-1.5 w-1.5 shrink-0 bg-orange"></span>
+										<span>{point}</span>
+									</li>
+								))}
+							</ul>
+						</div>
+					</article>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="border-t border-white/10 bg-charcoal-light/25 py-14">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Otros rubros</p>
+			<h2 class="mt-3 text-2xl font-extrabold">También diseñamos para estos recintos.</h2>
+			<ul class="mt-8 grid gap-px bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+				{others.map((item) => (
+					<li>
+						<a href={industryPath(item.slug)} class="block h-full bg-charcoal px-5 py-5 transition hover:bg-charcoal-light">
+							<p class="text-base font-bold text-white">{item.nav}</p>
+							<p class="mt-2 text-sm leading-6 text-white/55">{item.title}</p>
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+
+	<section class="border-t border-white/10 bg-charcoal py-16">
+		<div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+			<div>
+				<h2 class="text-2xl font-extrabold sm:text-3xl">¿Este es el recinto que quieres equipar?</h2>
+				<p class="mt-2 max-w-xl text-white/65">Cuéntanos el espacio y armamos una propuesta de instalación para {industry.title.toLowerCase()}.</p>
+			</div>
+			<div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+				<a href={industryQuoteUrl(industry)} class="mizo-btn">Solicitar cotización</a>
+				<a href={industryWhatsapp(industry)} target="_blank" rel="noopener noreferrer" class="mizo-btn-ghost">WhatsApp</a>
+			</div>
+		</div>
+	</section>
+</Layout>

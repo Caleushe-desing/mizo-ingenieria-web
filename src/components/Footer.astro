@@ -1,4 +1,5 @@
 ---
+import { INDUSTRIES, industryPath } from '../lib/industries';
 import { mailUrl, NAV, SERVICES, SITE, telUrl, whatsappUrl } from '../lib/site';
 
 const year = new Date().getFullYear();
@@ -6,7 +7,7 @@ const year = new Date().getFullYear();
 
 <footer class="mt-auto border-t border-white/10 bg-charcoal text-white/65">
 	<div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-		<div class="grid gap-10 md:grid-cols-4">
+		<div class="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
 			<div class="md:col-span-1">
 				<a href="/" class="inline-block" aria-label="Mizo — Inicio">
 					<img src={SITE.logoFooter} alt="Mizo" class="h-12 w-auto" width="210" height="56" />
@@ -21,6 +22,15 @@ const year = new Date().getFullYear();
 				<ul class="mt-4 space-y-2 text-sm">
 					{NAV.map((item) => (
 						<li><a href={item.href} class="transition hover:text-white">{item.title}</a></li>
+					))}
+				</ul>
+			</div>
+
+			<div>
+				<h2 class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Industrias</h2>
+				<ul class="mt-4 space-y-2 text-sm">
+					{INDUSTRIES.map((industry) => (
+						<li><a href={industryPath(industry.slug)} class="transition hover:text-white">{industry.nav}</a></li>
 					))}
 				</ul>
 			</div>

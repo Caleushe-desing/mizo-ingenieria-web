@@ -1,0 +1,20 @@
+---
+import IndustryPage from '../../components/IndustryPage.astro';
+import { INDUSTRIES, industryBySlug } from '../../lib/industries';
+
+export function getStaticPaths() {
+	return INDUSTRIES.map((industry) => ({
+		params: { slug: industry.slug },
+		props: { slug: industry.slug },
+	}));
+}
+
+const { slug } = Astro.props;
+const industry = industryBySlug(slug);
+
+if (!industry) {
+	throw new Error(`Industria no encontrada: ${slug}`);
+}
+---
+
+<IndustryPage industry={industry} />
