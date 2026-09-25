@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import ConversionCta from '../components/ConversionCta.astro';
 import heroImage from '../assets/hero-instalacion.jpg';
-import { INDUSTRIES } from '../lib/industries';
+import { INDUSTRIES, industryPath } from '../lib/industries';
 import { industryMedia } from '../lib/industry-images';
 import { BRANDS, SITE } from '../lib/site';
 import { absoluteUrl, graphSchema, localBusinessSchema, organizationSchema, webPageSchema, websiteSchema } from '../lib/seo';
@@ -53,11 +53,14 @@ const jsonLd = graphSchema([
 			</h2>
 			<div class="mt-14 grid gap-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3 lg:gap-8">
 				{INDUSTRIES.map((industry) => (
-					<article class="mizo-card group overflow-hidden rounded-sm border border-white/10 bg-charcoal hover:border-accent/50">
+					<a
+						href={industryPath(industry.slug)}
+						class="mizo-card group relative flex h-full flex-col overflow-hidden rounded-sm border border-white/10 bg-charcoal hover:-translate-y-1 hover:border-accent/70"
+					>
 						<div class="relative aspect-[4/3] overflow-hidden">
 							<Image
 								src={industryMedia[industry.slug].hero}
-								alt={industry.imageLabel}
+								alt=""
 								class="absolute inset-0 h-full w-full object-cover transition-all duration-300 group-hover:scale-[1.03]"
 								widths={[640, 960, 1280]}
 								sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
@@ -71,7 +74,8 @@ const jsonLd = graphSchema([
 							<h3 class="mt-3 text-xl font-extrabold leading-snug text-white">{industry.title}</h3>
 							<p class="mt-3 text-sm leading-7 text-white/80">{industry.short}</p>
 						</div>
-					</article>
+						<span class="pointer-events-none absolute inset-0 bg-accent/0 transition-all duration-300 group-hover:bg-accent/10" aria-hidden="true"></span>
+					</a>
 				))}
 			</div>
 		</div>

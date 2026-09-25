@@ -32,8 +32,11 @@ const jsonLd = graphSchema([
 	<section class="bg-charcoal py-20 sm:py-28">
 		<div class="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8">
 			{INDUSTRIES.map((industry) => (
-				<article class="mizo-card flex flex-col border border-white/10 bg-charcoal hover:border-accent/50">
-					<PhotoSlot label={industry.imageLabel} image={industryMedia[industry.slug].hero} />
+				<a
+					href={industryPath(industry.slug)}
+					class="mizo-card group relative flex h-full flex-col overflow-hidden border border-white/10 bg-charcoal hover:-translate-y-1 hover:border-accent/70"
+				>
+					<PhotoSlot label="" image={industryMedia[industry.slug].hero} class="transition-all duration-300 group-hover:brightness-110" />
 					<div class="flex flex-1 flex-col p-6 sm:p-7">
 						<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange">{industry.nav}</p>
 						<h2 class="mt-2 text-2xl font-extrabold leading-snug">{industry.title}</h2>
@@ -46,9 +49,9 @@ const jsonLd = graphSchema([
 								</li>
 							))}
 						</ul>
-						<a href={industryPath(industry.slug)} class="mt-auto pt-6 text-sm font-bold uppercase tracking-[0.12em] text-orange transition-all duration-300 hover:text-white">Abrir página</a>
 					</div>
-				</article>
+					<span class="pointer-events-none absolute inset-0 bg-accent/0 transition-all duration-300 group-hover:bg-accent/10" aria-hidden="true"></span>
+				</a>
 			))}
 		</div>
 	</section>
