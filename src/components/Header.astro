@@ -11,8 +11,8 @@ const isActive = (href: string) => {
 };
 
 const linkClass = (active: boolean) =>
-	`px-3 py-2 text-sm font-semibold transition ${
-		active ? 'text-accent' : 'text-white/75 hover:text-white'
+	`px-3 py-2 text-sm font-semibold transition-all duration-300 ${
+		active ? 'text-accent' : 'text-white/80 hover:text-white'
 	}`;
 ---
 
@@ -33,20 +33,20 @@ const linkClass = (active: boolean) =>
 							{INDUSTRIES.map((industry) => (
 								<a
 									href={industryPath(industry.slug)}
-									class="block px-4 py-2.5 text-sm font-semibold text-white/75 transition hover:bg-white/5 hover:text-white"
+									class="block px-4 py-2.5 text-sm font-semibold text-white/80 transition-all duration-300 hover:bg-accent/10 hover:text-white"
 								>
 									{industry.nav}
 								</a>
 							))}
 							<a
 								href="/estandares"
-								class="block border-t border-white/10 px-4 py-2.5 text-sm font-semibold text-white/75 transition hover:bg-white/5 hover:text-white"
+								class="block border-t border-white/10 px-4 py-2.5 text-sm font-semibold text-white/80 transition-all duration-300 hover:bg-accent/10 hover:text-white"
 							>
 								Estándares
 							</a>
 							<a
 								href="/equipos"
-								class="block px-4 py-2.5 text-sm font-semibold text-white/75 transition hover:bg-white/5 hover:text-white"
+								class="block px-4 py-2.5 text-sm font-semibold text-white/80 transition-all duration-300 hover:bg-accent/10 hover:text-white"
 							>
 								Equipos
 							</a>
@@ -65,11 +65,11 @@ const linkClass = (active: boolean) =>
 				href={whatsappUrl()}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="inline-flex h-10 items-center bg-[#25D366] px-4 text-sm font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-[#1ebe5d]"
+				class="inline-flex h-10 items-center bg-[#25D366] px-4 text-sm font-semibold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:bg-[#1ebe5d] hover:shadow-glow"
 			>
 				WhatsApp
 			</a>
-			<a href="/contacto" class="inline-flex h-10 items-center bg-orange px-5 text-sm font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-orange-hover">
+			<a href="/contacto" class="inline-flex h-10 items-center bg-orange px-5 text-sm font-semibold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:bg-orange-hover hover:shadow-glow-orange">
 				Cotizar
 			</a>
 		</div>

@@ -27,6 +27,8 @@ export default {
 			},
 			boxShadow: {
 				card: '0 8px 30px rgba(15, 17, 20, 0.08)',
+				glow: '0 0 0 1px rgba(28, 155, 216, 0.45), 0 16px 48px rgba(28, 155, 216, 0.16)',
+				'glow-orange': '0 0 0 1px rgba(244, 123, 32, 0.45), 0 14px 40px rgba(244, 123, 32, 0.22)',
 			},
 		},
 	},

@@ -32,11 +32,15 @@
 	}
 
 	.mizo-btn {
-		@apply inline-flex items-center justify-center bg-orange px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white transition hover:bg-orange-hover;
+		@apply inline-flex items-center justify-center bg-orange px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white transition-all duration-300 hover:bg-orange-hover hover:shadow-glow-orange;
 	}
 
 	.mizo-btn-ghost {
-		@apply inline-flex items-center justify-center border border-white/20 px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white transition hover:border-orange hover:text-orange;
+		@apply inline-flex items-center justify-center border border-white/25 px-7 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white transition-all duration-300 hover:border-accent/80 hover:text-white hover:shadow-glow;
+	}
+
+	.mizo-card {
+		@apply transition-all duration-300 hover:shadow-glow;
 	}
 }
 

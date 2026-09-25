@@ -64,12 +64,12 @@ const fieldClass =
 								href={channel.href}
 								target={channel.external ? '_blank' : undefined}
 								rel={channel.external ? 'noopener noreferrer' : undefined}
-								class="group grid grid-cols-[7.5rem_1fr] items-center gap-4 py-5 transition hover:bg-white/[0.03]"
+								class="group grid grid-cols-[7.5rem_1fr] items-center gap-4 py-6 transition-all duration-300 hover:bg-accent/10"
 							>
 								<dt class="text-[0.7rem] font-bold uppercase tracking-[0.18em] text-accent">{channel.label}</dt>
 								<dd>
 									<p class="text-lg font-bold text-white group-hover:text-orange">{channel.value}</p>
-									<p class="mt-1 text-sm text-white/55">{channel.detail}</p>
+									<p class="mt-1 text-sm text-white/75">{channel.detail}</p>
 								</dd>
 							</a>
 						</div>
@@ -130,7 +130,7 @@ const fieldClass =
 							</label>
 						</div>
 						<div class="mt-7 flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-							<button type="submit" class="inline-flex items-center justify-center bg-orange px-8 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-white transition hover:bg-orange-hover">
+							<button type="submit" class="mizo-btn">
 								Enviar solicitud
 							</button>
 							<p class="text-xs leading-5 text-white/45">Respuesta en horario hábil · Frutillar y Santiago</p>

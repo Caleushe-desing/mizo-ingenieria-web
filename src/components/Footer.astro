@@ -5,14 +5,14 @@ import { mailUrl, NAV, SITE, telUrl, whatsappUrl } from '../lib/site';
 const year = new Date().getFullYear();
 ---
 
-<footer class="mt-auto border-t border-white/10 bg-charcoal text-white/65">
-	<div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+<footer class="mt-auto border-t border-white/10 bg-charcoal text-white/75">
+	<div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
 		<div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
 			<div class="md:col-span-1">
 				<a href="/" class="inline-block" aria-label="Mizo — Inicio">
 					<img src={SITE.logoFooter} alt="Mizo" class="h-12 w-auto" width="210" height="56" />
 				</a>
-				<p class="mt-4 max-w-xs text-sm leading-6 text-white/50">
+				<p class="mt-4 max-w-xs text-sm leading-6 text-white/70">
 					Ingeniería e instalación de sonido, video, seguridad y soporte TI en Chile.
 				</p>
 			</div>
@@ -21,7 +21,7 @@ const year = new Date().getFullYear();
 				<h2 class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Sitio</h2>
 				<ul class="mt-4 space-y-2 text-sm">
 					{NAV.map((item) => (
-						<li><a href={item.href} class="transition hover:text-white">{item.title}</a></li>
+						<li><a href={item.href} class="transition-all duration-300 hover:text-white">{item.title}</a></li>
 					))}
 				</ul>
 			</div>
@@ -30,26 +30,26 @@ const year = new Date().getFullYear();
 				<h2 class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Soluciones</h2>
 				<ul class="mt-4 space-y-2 text-sm">
 					{INDUSTRIES.map((industry) => (
-						<li><a href={industryPath(industry.slug)} class="transition hover:text-white">{industry.nav}</a></li>
+						<li><a href={industryPath(industry.slug)} class="transition-all duration-300 hover:text-white">{industry.nav}</a></li>
 					))}
-					<li><a href="/estandares" class="transition hover:text-white">Estándares</a></li>
-					<li><a href="/equipos" class="transition hover:text-white">Equipos</a></li>
+					<li><a href="/estandares" class="transition-all duration-300 hover:text-white">Estándares</a></li>
+					<li><a href="/equipos" class="transition-all duration-300 hover:text-white">Equipos</a></li>
 				</ul>
 			</div>
 
 			<div>
 				<h2 class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Contacto</h2>
 				<ul class="mt-4 space-y-2 text-sm">
-					<li><a href={mailUrl()} class="transition hover:text-white">{SITE.email}</a></li>
-					<li><a href={telUrl()} class="transition hover:text-white">{SITE.phoneDisplay}</a></li>
-					<li><a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" class="transition hover:text-white">WhatsApp</a></li>
+					<li><a href={mailUrl()} class="transition-all duration-300 hover:text-white">{SITE.email}</a></li>
+					<li><a href={telUrl()} class="transition-all duration-300 hover:text-white">{SITE.phoneDisplay}</a></li>
+					<li><a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" class="transition-all duration-300 hover:text-white">WhatsApp</a></li>
 					<li>{SITE.address}</li>
 					<li>{SITE.hours}</li>
 				</ul>
 			</div>
 		</div>
 
-		<div class="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-white/40 sm:flex-row sm:items-center sm:justify-between">
+		<div class="mt-12 flex flex-col gap-3 border-t border-white/10 pt-8 text-sm text-white/60 sm:flex-row sm:items-center sm:justify-between">
 			<p>© {year} Mizo. Todos los derechos reservados.</p>
 			<div class="flex gap-4">
 				<a href="/politica-privacidad" class="hover:text-white">Política de privacidad</a>

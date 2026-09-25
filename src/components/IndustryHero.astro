@@ -14,11 +14,11 @@ const { title, lead, imageLabel, image } = Astro.props;
 
 <section class="relative overflow-hidden border-b border-white/10 bg-charcoal pt-28 text-white sm:pt-32">
 	<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
-	<div class="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-14 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8">
+	<div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:pb-24">
 		<div>
 			<p class="mizo-kicker">Soluciones</p>
 			<h1 class="mt-3 text-4xl font-extrabold leading-[1.08] sm:text-5xl">{title}</h1>
-			<p class="mt-5 max-w-xl text-lg leading-8 text-white/70">{lead}</p>
+			<p class="mt-5 max-w-xl text-lg leading-8 text-white/85">{lead}</p>
 		</div>
 		<PhotoSlot label={imageLabel} image={image} eager />
 	</div>
