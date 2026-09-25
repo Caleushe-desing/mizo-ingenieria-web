@@ -124,23 +124,48 @@ const description =
 	function openViewer(photos, alt, start, onIndex) {
 		let index = start;
 		const { overlay, close, keys } = mountOverlay(alt);
+		const sheet = node('div', 'flex w-full max-w-6xl flex-col items-center');
+		const stage = node('div', 'relative flex h-[min(68vh,48rem)] w-full items-center justify-center bg-white');
 		const img = document.createElement('img');
-		img.className = 'max-h-[82vh] max-w-[92vw] bg-white object-contain';
+		img.className = 'h-full w-full object-contain';
 		img.alt = alt;
-		const counter = node('span', 'pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 text-[11px] tracking-[0.18em] text-white/55');
+		stage.append(img);
+		const counter = node('p', 'mt-3 text-[11px] tracking-[0.18em] text-white/60');
+		const thumbOn = 'flex h-20 w-20 shrink-0 items-center justify-center border border-orange bg-white p-1';
+		const thumbOff = 'flex h-20 w-20 shrink-0 items-center justify-center border border-white/20 bg-white p-1';
+		const thumbs = node('div', 'mt-3 flex w-full gap-2 overflow-x-auto');
+		const thumbButtons = [];
 		function show(next) {
 			index = (next + photos.length) % photos.length;
 			img.src = photos[index];
 			counter.textContent = index + 1 + ' / ' + photos.length;
 			counter.hidden = photos.length < 2;
+			thumbButtons.forEach((button, position) => {
+				button.className = position === index ? thumbOn : thumbOff;
+			});
 			onIndex?.(index);
 		}
+		photos.forEach((src, position) => {
+			const button = node('button', position === start ? thumbOn : thumbOff);
+			button.type = 'button';
+			button.setAttribute('aria-label', 'Foto ' + (position + 1));
+			const thumb = document.createElement('img');
+			thumb.className = 'h-full w-full object-contain';
+			thumb.alt = '';
+			thumb.src = src;
+			button.append(thumb);
+			button.addEventListener('click', () => show(position));
+			thumbs.append(button);
+			thumbButtons.push(button);
+		});
 		show(start);
+		sheet.append(stage, counter);
+		if (photos.length > 1) sheet.append(thumbs);
 		const closeBtn = node('button', 'absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl font-light leading-none text-white/80 transition hover:bg-white hover:text-charcoal', '×');
 		closeBtn.type = 'button';
 		closeBtn.setAttribute('aria-label', 'Cerrar');
 		closeBtn.addEventListener('click', close);
-		overlay.append(img, closeBtn, counter);
+		overlay.append(sheet, closeBtn);
 		if (photos.length > 1) {
 			const ghost = 'absolute top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white/80 backdrop-blur-sm transition hover:bg-white hover:text-charcoal';
 			const prev = roundButton('Foto anterior', chevron('M8.5 3.5 5 7l3.5 3.5'), ghost + ' left-3 sm:left-6');
@@ -153,12 +178,10 @@ const description =
 				if (event.key === 'ArrowRight') show(index + 1);
 			};
 			let startX = 0;
-			overlay.addEventListener('pointerdown', (event) => {
-				if (event.target.closest('button')) return;
+			stage.addEventListener('pointerdown', (event) => {
 				startX = event.clientX;
 			});
-			overlay.addEventListener('pointerup', (event) => {
-				if (event.target.closest('button')) return;
+			stage.addEventListener('pointerup', (event) => {
 				const delta = event.clientX - startX;
 				if (delta > 40) show(index - 1);
 				else if (delta < -40) show(index + 1);
