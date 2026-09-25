@@ -351,17 +351,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 	max-height: 520px;
 	object-fit: contain;
 }
-.product-gallery-thumbs { display: flex; flex-wrap: wrap; gap: 8px; }
-.product-gallery-thumbs button {
-	width: 92px;
-	height: 92px;
-	padding: 6px;
-	background: #fff;
-	border: 1px solid var(--line);
-	cursor: pointer;
-}
-.product-gallery-thumbs button.is-on { border-color: #1c9bd8; box-shadow: inset 0 0 0 1px #1c9bd8; }
-.product-gallery-thumbs img { width: 100%; height: 100%; object-fit: contain; }
+.product-gallery-nav { display: flex; gap: 8px; }
 
 .btn, .btn-excel, .btn-word, .btn-text {
 	display: inline-flex;

@@ -131,36 +131,15 @@ const description =
 		img.alt = alt;
 		stage.append(img);
 		const counter = node('p', 'mt-3 text-[11px] tracking-[0.18em] text-white/60');
-		const thumbOn = 'flex h-20 w-20 shrink-0 items-center justify-center border border-orange bg-white p-1';
-		const thumbOff = 'flex h-20 w-20 shrink-0 items-center justify-center border border-white/20 bg-white p-1';
-		const thumbs = node('div', 'mt-3 flex w-full gap-2 overflow-x-auto');
-		const thumbButtons = [];
 		function show(next) {
 			index = (next + photos.length) % photos.length;
 			img.src = photos[index];
 			counter.textContent = index + 1 + ' / ' + photos.length;
 			counter.hidden = photos.length < 2;
-			thumbButtons.forEach((button, position) => {
-				button.className = position === index ? thumbOn : thumbOff;
-			});
 			onIndex?.(index);
 		}
-		photos.forEach((src, position) => {
-			const button = node('button', position === start ? thumbOn : thumbOff);
-			button.type = 'button';
-			button.setAttribute('aria-label', 'Foto ' + (position + 1));
-			const thumb = document.createElement('img');
-			thumb.className = 'h-full w-full object-contain';
-			thumb.alt = '';
-			thumb.src = src;
-			button.append(thumb);
-			button.addEventListener('click', () => show(position));
-			thumbs.append(button);
-			thumbButtons.push(button);
-		});
 		show(start);
 		sheet.append(stage, counter);
-		if (photos.length > 1) sheet.append(thumbs);
 		const closeBtn = node('button', 'absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl font-light leading-none text-white/80 transition hover:bg-white hover:text-charcoal', '×');
 		closeBtn.type = 'button';
 		closeBtn.setAttribute('aria-label', 'Cerrar');
@@ -238,30 +217,10 @@ const description =
 		let index = 0;
 		let startX = 0;
 		let suppressClick = false;
-		const thumbOn = 'aspect-square border border-orange bg-white p-1';
-		const thumbOff = 'aspect-square border border-black/10 bg-white p-1';
-		const thumbs = node('div', 'grid grid-cols-4 gap-1.5 bg-white px-3 pb-3');
-		const thumbButtons = [];
-		photos.forEach((src, position) => {
-			const button = node('button', position === 0 ? thumbOn : thumbOff);
-			button.type = 'button';
-			button.setAttribute('aria-label', 'Foto ' + (position + 1));
-			const thumb = document.createElement('img');
-			thumb.className = 'h-full w-full object-contain';
-			thumb.alt = '';
-			thumb.src = src;
-			button.append(thumb);
-			button.addEventListener('click', () => show(position));
-			thumbs.append(button);
-			thumbButtons.push(button);
-		});
 		const counter = node('span', 'pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[11px] tracking-[0.18em] text-charcoal/50');
 		function show(next) {
 			index = (next + photos.length) % photos.length;
 			img.src = photos[index];
-			thumbButtons.forEach((button, position) => {
-				button.className = position === index ? thumbOn : thumbOff;
-			});
 			if (photos.length > 1) counter.textContent = index + 1 + ' / ' + photos.length;
 		}
 		show(0);
@@ -288,7 +247,6 @@ const description =
 		next.classList.add('right-3');
 		next.addEventListener('click', () => show(index + 1));
 		frame.append(prev, next, counter);
-		wrap.append(thumbs);
 
 		frame.addEventListener('pointerdown', (event) => {
 			const hit = event.target.closest('button');

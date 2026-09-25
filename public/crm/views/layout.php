@@ -21,7 +21,7 @@ $onCatalog = str_starts_with($path, '/catalogo');
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=47">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=48">
 </head>
 <body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
 	<header class="titlebar">

@@ -27,18 +27,15 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 	?>
 	<input type="hidden" name="imagenes" value="<?= h(json_encode(array_values($imageList), JSON_UNESCAPED_SLASHES)) ?>">
 	<?php if ($imageList !== []): ?>
-		<div class="product-gallery" data-product-gallery>
+		<div class="product-gallery" data-product-gallery data-photos="<?= h(json_encode(array_values($imageList), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>">
 			<p class="product-gallery-label"><?= count($imageList) === 1 ? '1 foto' : count($imageList) . ' fotos' ?></p>
 			<div class="product-gallery-stage">
 				<img data-gallery-main src="<?= h($imageList[0]) ?>" alt="<?= h($product['nombre'] ?? 'Foto del producto') ?>">
 			</div>
 			<?php if (count($imageList) > 1): ?>
-				<div class="product-gallery-thumbs">
-					<?php foreach ($imageList as $index => $src): ?>
-						<button type="button" class="<?= $index === 0 ? 'is-on' : '' ?>" data-gallery-thumb data-src="<?= h($src) ?>" aria-label="Foto <?= $index + 1 ?>">
-							<img src="<?= h($src) ?>" alt="">
-						</button>
-					<?php endforeach; ?>
+				<div class="product-gallery-nav">
+					<button type="button" class="btn" data-gallery-prev>Anterior</button>
+					<button type="button" class="btn" data-gallery-next>Siguiente</button>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -86,13 +83,17 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 	var root = document.querySelector('[data-product-gallery]');
 	if (!root) return;
 	var main = root.querySelector('[data-gallery-main]');
-	root.querySelectorAll('[data-gallery-thumb]').forEach(function (button) {
-		button.addEventListener('click', function () {
-			main.src = button.getAttribute('data-src');
-			root.querySelectorAll('[data-gallery-thumb]').forEach(function (item) {
-				item.classList.toggle('is-on', item === button);
-			});
-		});
-	});
+	var photos = [];
+	try { photos = JSON.parse(root.getAttribute('data-photos') || '[]'); } catch (error) { photos = []; }
+	var index = 0;
+	function show(next) {
+		if (!photos.length || !main) return;
+		index = (next + photos.length) % photos.length;
+		main.src = photos[index];
+	}
+	var prev = root.querySelector('[data-gallery-prev]');
+	var next = root.querySelector('[data-gallery-next]');
+	if (prev) prev.addEventListener('click', function () { show(index - 1); });
+	if (next) next.addEventListener('click', function () { show(index + 1); });
 })();
 </script>
