@@ -23,7 +23,7 @@ const description =
 			<p class="mizo-kicker">Equipos</p>
 			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] sm:text-5xl">Componentes de grado profesional, elegidos para integrar.</h1>
 			<p class="mt-4 max-w-2xl text-lg leading-8 text-white/65">
-				Tres equipos por fila. La primera foto es la principal; las demás se recorren en el mismo cuadro.
+				Tres equipos por fila. Toca la foto para verla en grande y abre Información completa para leer la ficha.
 			</p>
 		</div>
 	</section>
@@ -64,31 +64,164 @@ const description =
 		return element;
 	}
 
+	let closeActive = null;
+
+	function mountOverlay(label) {
+		if (closeActive) closeActive();
+		const overlay = node('div', 'fixed inset-0 z-[70] flex items-center justify-center bg-charcoal/95 p-4');
+		overlay.setAttribute('role', 'dialog');
+		overlay.setAttribute('aria-modal', 'true');
+		overlay.setAttribute('aria-label', label);
+		const previous = document.activeElement;
+		const keys = { fn: null };
+		document.body.style.overflow = 'hidden';
+		function close() {
+			document.removeEventListener('keydown', onKey);
+			overlay.remove();
+			document.body.style.overflow = '';
+			if (closeActive === close) closeActive = null;
+			if (previous instanceof HTMLElement) previous.focus();
+		}
+		function onKey(event) {
+			if (event.key === 'Escape') close();
+			else keys.fn?.(event);
+		}
+		overlay.addEventListener('click', (event) => {
+			if (event.target === overlay) close();
+		});
+		document.addEventListener('keydown', onKey);
+		document.body.append(overlay);
+		closeActive = close;
+		return { overlay, close, keys };
+	}
+
+	function chevron(direction) {
+		return `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="${direction}" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+	}
+
+	function roundButton(label, symbol, className) {
+		const button = node('button', className);
+		button.type = 'button';
+		button.setAttribute('aria-label', label);
+		button.innerHTML = symbol;
+		return button;
+	}
+
+	function openViewer(photos, alt, start, onIndex) {
+		let index = start;
+		const { overlay, close, keys } = mountOverlay(alt);
+		const img = document.createElement('img');
+		img.className = 'max-h-[82vh] max-w-[92vw] bg-white object-contain';
+		img.alt = alt;
+		const counter = node('span', 'pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 text-[11px] tracking-[0.18em] text-white/55');
+		function show(next) {
+			index = (next + photos.length) % photos.length;
+			img.src = photos[index];
+			counter.textContent = index + 1 + ' / ' + photos.length;
+			counter.hidden = photos.length < 2;
+			onIndex?.(index);
+		}
+		show(start);
+		const closeBtn = node('button', 'absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl font-light leading-none text-white/80 transition hover:bg-white hover:text-charcoal', '×');
+		closeBtn.type = 'button';
+		closeBtn.setAttribute('aria-label', 'Cerrar');
+		closeBtn.addEventListener('click', close);
+		overlay.append(img, closeBtn, counter);
+		if (photos.length > 1) {
+			const ghost = 'absolute top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white/80 backdrop-blur-sm transition hover:bg-white hover:text-charcoal';
+			const prev = roundButton('Foto anterior', chevron('M8.5 3.5 5 7l3.5 3.5'), ghost + ' left-3 sm:left-6');
+			const next = roundButton('Foto siguiente', chevron('M5.5 3.5 9 7l-3.5 3.5'), ghost + ' right-3 sm:right-6');
+			prev.addEventListener('click', () => show(index - 1));
+			next.addEventListener('click', () => show(index + 1));
+			overlay.append(prev, next);
+			keys.fn = (event) => {
+				if (event.key === 'ArrowLeft') show(index - 1);
+				if (event.key === 'ArrowRight') show(index + 1);
+			};
+			let startX = 0;
+			overlay.addEventListener('pointerdown', (event) => {
+				if (event.target.closest('button')) return;
+				startX = event.clientX;
+			});
+			overlay.addEventListener('pointerup', (event) => {
+				if (event.target.closest('button')) return;
+				const delta = event.clientX - startX;
+				if (delta > 40) show(index - 1);
+				else if (delta < -40) show(index + 1);
+			});
+		}
+		closeBtn.focus();
+	}
+
+	function quoteLinks(item, phone) {
+		const quote = node('div', 'grid grid-cols-2 gap-2');
+		const message = `Quiero cotizar el equipo ${item.nombre || ''} (SKU ${item.sku || ''}).`;
+		const formLink = node('a', 'inline-flex items-center justify-center bg-orange px-3 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-orange-hover', 'Formulario');
+		formLink.href = `/contacto?sku=${encodeURIComponent(item.sku || '')}&mensaje=${encodeURIComponent(message)}`;
+		const whatsapp = node('a', 'inline-flex items-center justify-center border border-white/20 px-3 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:border-orange hover:text-orange', 'WhatsApp');
+		whatsapp.href = `https://wa.me/${phone}?text=${encodeURIComponent('Hola Mizo, ' + message)}`;
+		whatsapp.target = '_blank';
+		whatsapp.rel = 'noopener noreferrer';
+		quote.append(formLink, whatsapp);
+		return quote;
+	}
+
+	function openInfo(item, phone) {
+		const { overlay, close } = mountOverlay(item.nombre || 'Información del equipo');
+		const panel = node('div', 'relative max-h-[min(80vh,40rem)] w-full max-w-xl overflow-y-auto border border-white/10 bg-charcoal px-6 py-6 sm:px-8');
+		const closeBtn = node('button', 'absolute right-4 top-4 text-xs font-bold uppercase tracking-[0.14em] text-white/50 transition hover:text-white', 'Cerrar');
+		closeBtn.type = 'button';
+		closeBtn.addEventListener('click', close);
+		panel.append(closeBtn);
+		panel.append(node('p', 'pr-16 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Equipo'));
+		panel.append(node('h3', 'mt-2 pr-16 text-2xl font-extrabold leading-snug', item.nombre || item.sku));
+		if (item.sku) panel.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
+		if (item.descripcion) panel.append(node('p', 'mt-5 whitespace-pre-wrap text-sm leading-7 text-white/75', item.descripcion));
+		const quote = quoteLinks(item, phone);
+		quote.classList.add('mt-6');
+		panel.append(quote);
+		overlay.append(panel);
+		closeBtn.focus();
+	}
+
 	function gallery(photos, alt) {
 		const frame = node('div', 'relative aspect-square overflow-hidden bg-white touch-pan-y');
 		const img = document.createElement('img');
 		img.className = 'h-full w-full object-contain';
 		img.alt = alt;
 		img.src = photos[0];
-		frame.append(img);
-		if (photos.length < 2) return frame;
+		const zoom = node('button', 'absolute inset-0 cursor-zoom-in');
+		zoom.type = 'button';
+		zoom.setAttribute('aria-label', 'Ver foto en grande');
+		zoom.append(img);
+		frame.append(zoom);
 
 		let index = 0;
-		const counter = node('span', 'pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 text-[11px] tracking-[0.18em] text-charcoal/50', '1 / ' + photos.length);
+		let startX = 0;
+		let suppressClick = false;
+		const counter = node('span', 'pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[11px] tracking-[0.18em] text-charcoal/50');
 		function show(next) {
 			index = (next + photos.length) % photos.length;
 			img.src = photos[index];
-			counter.textContent = index + 1 + ' / ' + photos.length;
+			if (photos.length > 1) counter.textContent = index + 1 + ' / ' + photos.length;
 		}
+		show(0);
+		zoom.addEventListener('click', () => {
+			if (suppressClick) {
+				suppressClick = false;
+				return;
+			}
+			openViewer(photos, alt, index, show);
+		});
+		if (photos.length < 2) return frame;
+
 		function arrow(label, symbol) {
-			const button = node('button', 'absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/80 text-charcoal/70 backdrop-blur-sm transition hover:bg-white hover:text-charcoal');
+			const button = node('button', 'absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/80 text-charcoal/70 backdrop-blur-sm transition hover:bg-white hover:text-charcoal');
 			button.type = 'button';
 			button.setAttribute('aria-label', label);
 			button.innerHTML = symbol;
 			return button;
 		}
-		const chevron = (direction) =>
-			`<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="${direction}" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 		const prev = arrow('Foto anterior', chevron('M8.5 3.5 5 7l3.5 3.5'));
 		prev.classList.add('left-3');
 		prev.addEventListener('click', () => show(index - 1));
@@ -97,15 +230,19 @@ const description =
 		next.addEventListener('click', () => show(index + 1));
 		frame.append(prev, next, counter);
 
-		let startX = 0;
 		frame.addEventListener('pointerdown', (event) => {
+			const hit = event.target.closest('button');
+			if (hit && hit !== zoom) return;
 			startX = event.clientX;
 		});
 		frame.addEventListener('pointerup', (event) => {
-			if (event.target.closest('button')) return;
+			const hit = event.target.closest('button');
+			if (hit && hit !== zoom) return;
 			const delta = event.clientX - startX;
-			if (delta > 40) show(index - 1);
-			else if (delta < -40) show(index + 1);
+			if (Math.abs(delta) > 40) {
+				suppressClick = true;
+				show(delta > 0 ? index - 1 : index + 1);
+			}
 		});
 		return frame;
 	}
@@ -119,16 +256,15 @@ const description =
 		body.append(node('p', 'text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Equipo'));
 		body.append(node('h3', 'mt-2 text-lg font-extrabold leading-snug', item.nombre || item.sku));
 		if (item.sku) body.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
-		if (item.descripcion) body.append(node('p', 'mt-3 line-clamp-3 text-sm leading-6 text-white/65', item.descripcion));
-		const quote = node('div', 'mt-5 grid grid-cols-2 gap-2');
-		const message = `Quiero cotizar el equipo ${item.nombre || ''} (SKU ${item.sku || ''}).`;
-		const formLink = node('a', 'inline-flex items-center justify-center bg-orange px-3 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-orange-hover', 'Formulario');
-		formLink.href = `/contacto?sku=${encodeURIComponent(item.sku || '')}&mensaje=${encodeURIComponent(message)}`;
-		const whatsapp = node('a', 'inline-flex items-center justify-center border border-white/20 px-3 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:border-orange hover:text-orange', 'WhatsApp');
-		whatsapp.href = `https://wa.me/${phone}?text=${encodeURIComponent('Hola Mizo, ' + message)}`;
-		whatsapp.target = '_blank';
-		whatsapp.rel = 'noopener noreferrer';
-		quote.append(formLink, whatsapp);
+		if (item.descripcion) {
+			body.append(node('p', 'mt-3 line-clamp-3 text-sm leading-6 text-white/65', item.descripcion));
+			const more = node('button', 'mt-3 self-start text-xs font-bold uppercase tracking-[0.14em] text-orange transition hover:text-white', 'Información completa');
+			more.type = 'button';
+			more.addEventListener('click', () => openInfo(item, phone));
+			body.append(more);
+		}
+		const quote = quoteLinks(item, phone);
+		quote.classList.add('mt-5');
 		body.append(quote);
 		article.append(body);
 		return article;
