@@ -37,6 +37,20 @@ const description =
 	>
 		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
 			<h2 id="vitrina-heading" class="sr-only">Equipos visibles</h2>
+			<div id="vitrina-filtros" class="mb-8 hidden">
+				<label class="block">
+					<span class="sr-only">Buscar equipos</span>
+					<input
+						id="vitrina-buscar"
+						type="search"
+						placeholder="Buscar por nombre, SKU o descripción"
+						autocomplete="off"
+						class="w-full border border-white/15 bg-transparent px-4 py-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-orange"
+					/>
+				</label>
+				<div id="vitrina-categorias" class="mt-4 flex flex-wrap gap-2" role="group" aria-label="Categorías"></div>
+				<p id="vitrina-conteo" class="mt-4 text-xs tracking-[0.14em] text-white/40" aria-live="polite"></p>
+			</div>
 			<p id="vitrina-estado" class="text-sm text-white/60">Cargando equipos…</p>
 			<div id="vitrina-lista"></div>
 			<noscript>
@@ -270,23 +284,92 @@ const description =
 		return article;
 	}
 
+	function fold(value) {
+		return String(value || '')
+			.normalize('NFD')
+			.replace(/\p{M}/gu, '')
+			.toLowerCase();
+	}
+
 	if (root && status && list) {
 		const phone = root.dataset.whatsapp || '';
+		const filters = document.getElementById('vitrina-filtros');
+		const search = document.getElementById('vitrina-buscar');
+		const categories = document.getElementById('vitrina-categorias');
+		const count = document.getElementById('vitrina-conteo');
+		const chipOn = 'border border-orange bg-orange px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white';
+		const chipOff = 'border border-white/15 bg-transparent px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white/70 transition hover:border-white/40 hover:text-white';
+		let products = [];
+		let query = '';
+		let category = '';
+
+		function matches(item) {
+			if (category && fold(item.categoria) !== category) return false;
+			if (!query) return true;
+			const haystack = fold([item.nombre, item.sku, item.descripcion, item.categoria].filter(Boolean).join(' '));
+			return query.split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
+		}
+
+		function render() {
+			const visible = products.filter(matches);
+			list.replaceChildren();
+			if (count) {
+				count.textContent = visible.length === 1 ? '1 equipo' : visible.length + ' equipos';
+			}
+			if (visible.length === 0) {
+				status.hidden = false;
+				status.textContent = 'Ningún equipo coincide con esa búsqueda.';
+				return;
+			}
+			status.hidden = true;
+			const grid = node('div', 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3');
+			for (const item of visible) grid.append(card(item, phone));
+			list.append(grid);
+		}
+
+		function paintChips(names) {
+			if (!categories) return;
+			categories.replaceChildren();
+			const options = ['', ...names];
+			for (const name of options) {
+				const button = node('button', name === category || (name === '' && category === '') ? chipOn : chipOff, name || 'Todos');
+				button.type = 'button';
+				button.setAttribute('aria-pressed', name === category || (name === '' && category === '') ? 'true' : 'false');
+				button.addEventListener('click', () => {
+					category = fold(name);
+					for (const chip of categories.querySelectorAll('button')) {
+						const on = chip === button;
+						chip.className = on ? chipOn : chipOff;
+						chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+					}
+					render();
+				});
+				categories.append(button);
+			}
+		}
+
 		fetch(root.dataset.endpoint || '/crm/api/productos-visibles.php', { headers: { Accept: 'application/json' } })
 			.then((response) => {
 				if (!response.ok) throw new Error('catalogo');
 				return response.json();
 			})
 			.then((data) => {
-				const products = Array.isArray(data.productos) ? data.productos : [];
+				products = Array.isArray(data.productos) ? data.productos : [];
 				if (products.length === 0) {
 					status.textContent = 'Todavía no hay equipos publicados. Cuéntanos el recinto y te proponemos el hardware.';
 					return;
 				}
-				status.hidden = true;
-				const grid = node('div', 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3');
-				for (const item of products) grid.append(card(item, phone));
-				list.append(grid);
+				const names = [...new Set(products.map((item) => String(item.categoria || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+				if (names.length > 1) paintChips(names);
+				else categories?.remove();
+				if (filters) filters.classList.remove('hidden');
+				if (search instanceof HTMLInputElement) {
+					search.addEventListener('input', () => {
+						query = fold(search.value.trim());
+						render();
+					});
+				}
+				render();
 			})
 			.catch(() => {
 				status.textContent = 'No se pudo cargar el catálogo. Escríbenos y te proponemos el equipo.';
