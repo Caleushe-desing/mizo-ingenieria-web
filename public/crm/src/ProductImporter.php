@@ -14,13 +14,12 @@ final class ProductImporter
 	/** @return array{nombre: string, descripcion: string, proveedor_empresa: string, proveedor_link: string} */
 	public static function fromUrl(string $url): array
 	{
-		$url = self::publicUrl($url);
-		$html = self::fetch($url);
-		$parsed = self::parse($html, $url);
+		$loaded = self::fetch($url);
+		$parsed = self::parse($loaded['body'], $loaded['url']);
 		if ($parsed['nombre'] === '' && $parsed['descripcion'] === '') {
 			throw new RuntimeException('No se pudo leer el nombre ni la descripción. Prueba con la URL directa de la ficha.');
 		}
-		$parsed['imagenes'] = self::downloadImages(self::extractImageUrls($html, $url), 'imp-' . substr(hash('sha256', $url), 0, 16));
+		$parsed['imagenes'] = self::downloadImages(self::extractImageUrls($loaded['body'], $loaded['url']), 'imp-' . substr(hash('sha256', $loaded['url']), 0, 16));
 		return $parsed;
 	}
 
@@ -28,9 +27,8 @@ final class ProductImporter
 	public static function saveImagesFromPage(string $pageUrl, string $folder): array
 	{
 		try {
-			$pageUrl = self::publicUrl($pageUrl);
-			$html = self::fetch($pageUrl);
-			return self::downloadImages(self::extractImageUrls($html, $pageUrl), $folder);
+			$loaded = self::fetch($pageUrl);
+			return self::downloadImages(self::extractImageUrls($loaded['body'], $loaded['url']), $folder);
 		} catch (RuntimeException) {
 			return [];
 		}
@@ -60,6 +58,9 @@ final class ProductImporter
 				}
 			}
 		}
+		if ($candidates === []) {
+			$candidates = self::galleryImages($xpath);
+		}
 		$absolute = [];
 		foreach ($candidates as $candidate) {
 			$resolved = self::absoluteUrl($candidate, $pageUrl);
@@ -82,35 +83,38 @@ final class ProductImporter
 		$xpath = new \DOMXPath($dom);
 
 		$json = self::productFromJsonLd($xpath);
-		$name = $json['name'] ?? '';
-		$description = $json['description'] ?? '';
+		$name = self::usefulTitle($json['name'] ?? '', $host) ? self::plain($json['name']) : '';
 		if ($name === '') {
-			$name = self::meta($xpath, 'og:title') ?: self::meta($xpath, 'twitter:title');
-		}
-		if ($name === '') {
-			$h1 = $xpath->query('//h1');
-			if ($h1 instanceof \DOMNodeList && $h1->length > 0) {
-				$name = self::plain($h1->item(0)?->textContent ?? '');
-			}
-		}
-		if ($name === '') {
-			$title = $xpath->query('//title');
-			if ($title instanceof \DOMNodeList && $title->length > 0) {
-				$name = self::plain($title->item(0)?->textContent ?? '');
-			}
+			$name = self::firstUseful([
+				self::meta($xpath, 'og:title'),
+				self::meta($xpath, 'twitter:title'),
+				self::headingText($xpath, '//h1'),
+				self::productHeading($xpath),
+				self::headingText($xpath, '//title'),
+			], $host);
 		}
 		$name = self::cleanTitle($name, $host);
 
+		$description = self::usefulBlurb($json['description'] ?? '') ? self::plain($json['description']) : '';
 		if ($description === '') {
-			$description = self::meta($xpath, 'og:description')
-				?: self::meta($xpath, 'description')
-				?: self::meta($xpath, 'twitter:description');
+			$parts = array_values(array_filter([
+				self::sectionAfterLabel($xpath, 'Descripción del producto'),
+				self::sectionAfterLabel($xpath, 'Características del producto'),
+			], static fn (string $part): bool => $part !== ''));
+			if ($parts !== []) {
+				$description = implode(' ', $parts);
+			}
 		}
-		if ($description === '') {
+		if (!self::usefulBlurb($description)) {
 			$block = $xpath->query('//*[@itemprop="description"]');
 			if ($block instanceof \DOMNodeList && $block->length > 0) {
 				$description = self::plain($block->item(0)?->textContent ?? '');
 			}
+		}
+		if (!self::usefulBlurb($description)) {
+			$description = self::meta($xpath, 'og:description')
+				?: self::meta($xpath, 'description')
+				?: self::meta($xpath, 'twitter:description');
 		}
 		$description = self::clip($description, 4000);
 
@@ -122,57 +126,80 @@ final class ProductImporter
 		];
 	}
 
-	private static function fetch(string $url): string
+	/** @return array{body: string, url: string} */
+	private static function fetch(string $url): array
 	{
 		if (!function_exists('curl_init')) {
 			throw new RuntimeException('El servidor no puede leer páginas externas en este momento.');
 		}
-		$current = $url;
-		for ($hop = 0; $hop <= self::MAX_REDIRECTS; $hop++) {
-			$current = self::publicUrl($current);
-			$parts = parse_url($current);
-			$host = (string) ($parts['host'] ?? '');
-			$scheme = strtolower((string) ($parts['scheme'] ?? ''));
-			$port = (int) ($parts['port'] ?? ($scheme === 'https' ? 443 : 80));
-			$ip = self::publicIp($host);
-			$ch = curl_init($current);
-			if ($ch === false) {
-				throw new RuntimeException('No se pudo leer esa página.');
-			}
-			curl_setopt_array($ch, [
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_FOLLOWLOCATION => false,
-				CURLOPT_CONNECTTIMEOUT => 5,
-				CURLOPT_TIMEOUT => 12,
-				CURLOPT_USERAGENT => 'MizoCRM/1.0 (+https://mizo.cl)',
-				CURLOPT_HTTPHEADER => ['Accept: text/html,application/xhtml+xml'],
-				CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
-				CURLOPT_RESOLVE => [$host . ':' . $port . ':' . $ip],
-			]);
-			$body = curl_exec($ch);
-			$code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-			$next = (string) curl_getinfo($ch, CURLINFO_REDIRECT_URL);
-			$type = strtolower((string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
-			curl_close($ch);
-			if (!is_string($body)) {
-				throw new RuntimeException('No se pudo leer esa página. Revisa que la URL sea la ficha pública del producto.');
-			}
-			if (strlen($body) > self::MAX_BYTES) {
-				$body = substr($body, 0, self::MAX_BYTES);
-			}
-			if ($code >= 300 && $code < 400 && $next !== '') {
-				$current = $next;
-				continue;
-			}
-			if ($code < 200 || $code >= 300) {
-				throw new RuntimeException('La página del proveedor no respondió. Prueba de nuevo con la URL de la ficha.');
-			}
-			if ($type !== '' && !str_contains($type, 'html') && !str_contains($type, 'xml') && !str_contains($type, 'text/plain')) {
-				throw new RuntimeException('Esa URL no es una ficha de producto en HTML.');
-			}
-			return $body;
+		$cookie = tempnam(sys_get_temp_dir(), 'mizoimp');
+		if ($cookie === false) {
+			throw new RuntimeException('No se pudo leer esa página.');
 		}
-		throw new RuntimeException('La página redirige demasiadas veces. Pega la URL final de la ficha.');
+		try {
+			$current = $url;
+			$referer = '';
+			for ($hop = 0; $hop <= self::MAX_REDIRECTS; $hop++) {
+				$current = self::publicUrl($current);
+				$parts = parse_url($current);
+				$host = (string) ($parts['host'] ?? '');
+				$scheme = strtolower((string) ($parts['scheme'] ?? ''));
+				$port = (int) ($parts['port'] ?? ($scheme === 'https' ? 443 : 80));
+				$ip = self::publicIp($host);
+				if ($referer === '') {
+					$referer = $scheme . '://' . $host . '/';
+				}
+				$ch = curl_init($current);
+				if ($ch === false) {
+					throw new RuntimeException('No se pudo leer esa página.');
+				}
+				curl_setopt_array($ch, [
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_FOLLOWLOCATION => false,
+					CURLOPT_SSL_VERIFYPEER => true,
+					CURLOPT_SSL_VERIFYHOST => 2,
+					CURLOPT_ENCODING => '',
+					CURLOPT_CONNECTTIMEOUT => 8,
+					CURLOPT_TIMEOUT => 20,
+					CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+					CURLOPT_HTTPHEADER => [
+						'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+						'Accept-Language: es-CL,es;q=0.9,en;q=0.8',
+						'Referer: ' . $referer,
+					],
+					CURLOPT_COOKIEFILE => $cookie,
+					CURLOPT_COOKIEJAR => $cookie,
+					CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+					CURLOPT_RESOLVE => [$host . ':' . $port . ':' . $ip],
+				]);
+				$body = curl_exec($ch);
+				$code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+				$next = (string) curl_getinfo($ch, CURLINFO_REDIRECT_URL);
+				$type = strtolower((string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
+				curl_close($ch);
+				if (!is_string($body)) {
+					throw new RuntimeException('No se pudo leer esa página. Revisa que la URL sea la ficha pública del producto.');
+				}
+				if (strlen($body) > self::MAX_BYTES) {
+					$body = substr($body, 0, self::MAX_BYTES);
+				}
+				if ($code >= 300 && $code < 400 && $next !== '') {
+					$referer = $current;
+					$current = $next;
+					continue;
+				}
+				if ($code < 200 || $code >= 300) {
+					throw new RuntimeException('La página del proveedor no respondió. Prueba de nuevo con la URL de la ficha.');
+				}
+				if ($type !== '' && !str_contains($type, 'html') && !str_contains($type, 'xml') && !str_contains($type, 'text/plain')) {
+					throw new RuntimeException('Esa URL no es una ficha de producto en HTML.');
+				}
+				return ['body' => $body, 'url' => $current];
+			}
+			throw new RuntimeException('La página redirige demasiadas veces. Pega la URL final de la ficha.');
+		} finally {
+			@unlink($cookie);
+		}
 	}
 
 	private static function publicUrl(string $url): string
@@ -317,6 +344,116 @@ final class ProductImporter
 		return self::plain($nodes->item(0)?->nodeValue ?? '');
 	}
 
+	/** @param list<string> $candidates */
+	private static function firstUseful(array $candidates, string $host): string
+	{
+		foreach ($candidates as $candidate) {
+			if (self::usefulTitle($candidate, $host)) {
+				return self::plain($candidate);
+			}
+		}
+		return '';
+	}
+
+	private static function usefulTitle(string $title, string $host): bool
+	{
+		$title = self::plain($title);
+		if (mb_strlen($title) < 8) {
+			return false;
+		}
+		$head = mb_strtolower(trim(explode(' - ', $title)[0]));
+		$brand = mb_strtolower((string) (preg_replace('/\..*$/', '', $host) ?: ''));
+		return !in_array($head, [$brand, 'intcomex', 'store'], true);
+	}
+
+	private static function usefulBlurb(string $text): bool
+	{
+		$text = self::plain($text);
+		if (mb_strlen($text) < 24) {
+			return false;
+		}
+		return !in_array(mb_strtolower($text), ['store intcomex', 'intcomex'], true);
+	}
+
+	private static function headingText(\DOMXPath $xpath, string $query): string
+	{
+		$nodes = $xpath->query($query);
+		if (!$nodes instanceof \DOMNodeList || $nodes->length < 1) {
+			return '';
+		}
+		return self::plain($nodes->item(0)?->textContent ?? '');
+	}
+
+	private static function productHeading(\DOMXPath $xpath): string
+	{
+		$nodes = $xpath->query('//*[contains(concat(" ", normalize-space(@class), " "), " js-productAreaDetail ")]//*[@data-productname]');
+		if (!$nodes instanceof \DOMNodeList || $nodes->length < 1) {
+			return '';
+		}
+		$value = '';
+		$node = $nodes->item(0);
+		if ($node instanceof \DOMElement) {
+			$value = $node->getAttribute('data-productname');
+		}
+		return self::plain($value);
+	}
+
+	private static function sectionAfterLabel(\DOMXPath $xpath, string $label): string
+	{
+		$nodes = $xpath->query('//*[normalize-space()="' . str_replace('"', '', $label) . '"]');
+		if (!$nodes instanceof \DOMNodeList || $nodes->length < 1) {
+			return '';
+		}
+		$sibling = $nodes->item(0)?->nextSibling;
+		while ($sibling instanceof \DOMNode && $sibling->nodeType !== XML_ELEMENT_NODE) {
+			$sibling = $sibling->nextSibling;
+		}
+		return $sibling instanceof \DOMNode ? self::blockText($sibling) : '';
+	}
+
+	private static function blockText(\DOMNode $node): string
+	{
+		if ($node instanceof \DOMElement) {
+			$items = $node->getElementsByTagName('li');
+			if ($items->length > 0) {
+				$lines = [];
+				foreach ($items as $item) {
+					$raw = $item->ownerDocument?->saveHTML($item) ?? ($item->textContent ?? '');
+					$line = self::plain(preg_replace('/<br\s*\/?>/i', ' ', $raw) ?? '');
+					if ($line !== '') {
+						$lines[] = $line;
+					}
+				}
+				if ($lines !== []) {
+					return implode(' ', $lines);
+				}
+			}
+		}
+		return self::plain($node->textContent ?? '');
+	}
+
+	/** @return list<string> */
+	private static function galleryImages(\DOMXPath $xpath): array
+	{
+		$nodes = $xpath->query('//*[contains(concat(" ", normalize-space(@class), " "), " js-pictureAreaDetail ")]//img');
+		if (!$nodes instanceof \DOMNodeList) {
+			return [];
+		}
+		$urls = [];
+		foreach ($nodes as $node) {
+			if (!$node instanceof \DOMElement) {
+				continue;
+			}
+			foreach (['src', 'rel'] as $attribute) {
+				$value = trim($node->getAttribute($attribute));
+				if ($value !== '' && $value !== '...') {
+					$urls[] = $value;
+				}
+			}
+		}
+		return $urls;
+	}
+
 	private static function cleanTitle(string $title, string $host): string
 	{
 		$title = self::plain($title);
@@ -335,8 +472,11 @@ final class ProductImporter
 	private static function hostLabel(string $host): string
 	{
 		$host = strtolower($host);
-		if (str_starts_with($host, 'www.')) {
-			$host = substr($host, 4);
+		foreach (['www.', 'store.', 'shop.', 'tienda.'] as $prefix) {
+			if (str_starts_with($host, $prefix)) {
+				$host = substr($host, strlen($prefix));
+				break;
+			}
 		}
 		if (function_exists('idn_to_utf8')) {
 			$unicode = idn_to_utf8($host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
@@ -503,7 +643,9 @@ final class ProductImporter
 			CURLOPT_FOLLOWLOCATION => false,
 			CURLOPT_CONNECTTIMEOUT => 5,
 			CURLOPT_TIMEOUT => 12,
-			CURLOPT_USERAGENT => 'MizoCRM/1.0 (+https://mizo.cl)',
+			CURLOPT_SSL_VERIFYPEER => true,
+			CURLOPT_SSL_VERIFYHOST => 2,
+			CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
 			CURLOPT_HTTPHEADER => ['Accept: image/avif,image/webp,image/*,*/*'],
 			CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
 			CURLOPT_RESOLVE => [$host . ':' . $port . ':' . $ip],
