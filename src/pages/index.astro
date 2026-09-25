@@ -23,7 +23,7 @@ const [featured, ...rest] = INDUSTRIES;
 ---
 
 <Layout title={SITE.title} description={SITE.description} jsonLd={jsonLd}>
-	<section class="relative isolate min-h-[70vh] overflow-hidden bg-charcoal pt-28 text-white sm:pt-32 lg:min-h-0">
+	<section class="relative isolate min-h-[70vh] overflow-hidden bg-charcoal pt-36 text-white sm:pt-44 lg:min-h-0 lg:pt-48">
 		<Image
 			src={heroImage}
 			alt="Instalación profesional de audio y video en un recinto"
@@ -36,7 +36,7 @@ const [featured, ...rest] = INDUSTRIES;
 			fetchpriority="high"
 		/>
 		<div class="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/75 to-charcoal/20"></div>
-		<div class="relative mx-auto flex min-h-[52vh] max-w-6xl flex-col justify-end px-4 pb-16 sm:px-6 lg:min-h-[24rem] lg:px-8 lg:pb-12">
+		<div class="relative mx-auto flex min-h-[52vh] max-w-6xl flex-col justify-end px-4 pb-20 sm:px-6 sm:pb-24 lg:min-h-[32rem] lg:px-8 lg:pb-20">
 			<p class="mizo-kicker">Mizo</p>
 			<h1 class="mt-4 max-w-3xl text-4xl font-extrabold leading-[1.05] sm:text-6xl lg:text-5xl">El recinto define la instalación.</h1>
 			<p class="mt-5 max-w-xl text-lg leading-8 text-white/85">
@@ -46,7 +46,7 @@ const [featured, ...rest] = INDUSTRIES;
 		</div>
 	</section>
 
-	<section class="bg-charcoal lg:mx-auto lg:max-w-6xl" aria-label="Rubros">
+	<section class="bg-charcoal pt-24 sm:pt-32 lg:mx-auto lg:max-w-6xl lg:pt-36" aria-label="Rubros">
 		<div class="relative block min-h-[28rem] overflow-hidden lg:min-h-[20rem]">
 			<Image
 				src={industryMedia[featured.slug].hero}
