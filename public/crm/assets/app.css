@@ -334,6 +334,34 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .form textarea { resize: vertical; min-height: 84px; }
 .grid-2 { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .form-actions { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+.product-gallery { display: grid; gap: 10px; }
+.product-gallery-label { margin: 0; font-size: 12px; font-weight: 600; color: var(--muted); }
+.product-gallery-stage {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 420px;
+	padding: 16px;
+	background: #fff;
+	border: 1px solid var(--line);
+}
+.product-gallery-stage img {
+	width: auto;
+	max-width: 100%;
+	max-height: 520px;
+	object-fit: contain;
+}
+.product-gallery-thumbs { display: flex; flex-wrap: wrap; gap: 8px; }
+.product-gallery-thumbs button {
+	width: 92px;
+	height: 92px;
+	padding: 6px;
+	background: #fff;
+	border: 1px solid var(--line);
+	cursor: pointer;
+}
+.product-gallery-thumbs button.is-on { border-color: #1c9bd8; box-shadow: inset 0 0 0 1px #1c9bd8; }
+.product-gallery-thumbs img { width: 100%; height: 100%; object-fit: contain; }
 
 .btn, .btn-excel, .btn-word, .btn-text {
 	display: inline-flex;

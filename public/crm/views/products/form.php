@@ -14,7 +14,7 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 	<div class="flash error"><?= h($error) ?></div>
 <?php endif; ?>
 
-<form class="paper form" method="post" action="<?= h($action) ?>" style="max-width:720px">
+<form class="paper form" method="post" action="<?= h($action) ?>" style="max-width:920px">
 	<?= Csrf::field() ?>
 	<?php
 		$imageList = $product['imagenes'] ?? [];
@@ -26,6 +26,23 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 		}
 	?>
 	<input type="hidden" name="imagenes" value="<?= h(json_encode(array_values($imageList), JSON_UNESCAPED_SLASHES)) ?>">
+	<?php if ($imageList !== []): ?>
+		<div class="product-gallery" data-product-gallery>
+			<p class="product-gallery-label"><?= count($imageList) === 1 ? '1 foto' : count($imageList) . ' fotos' ?></p>
+			<div class="product-gallery-stage">
+				<img data-gallery-main src="<?= h($imageList[0]) ?>" alt="<?= h($product['nombre'] ?? 'Foto del producto') ?>">
+			</div>
+			<?php if (count($imageList) > 1): ?>
+				<div class="product-gallery-thumbs">
+					<?php foreach ($imageList as $index => $src): ?>
+						<button type="button" class="<?= $index === 0 ? 'is-on' : '' ?>" data-gallery-thumb data-src="<?= h($src) ?>" aria-label="Foto <?= $index + 1 ?>">
+							<img src="<?= h($src) ?>" alt="">
+						</button>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	<?php endif; ?>
 	<label>
 		<span>SKU</span>
 		<input name="sku" required maxlength="80" value="<?= h($product['sku'] ?? '') ?>" autocomplete="off"<?= !empty($imported) ? ' autofocus' : '' ?>>
@@ -64,3 +81,18 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 		<a class="btn" href="<?= h(Http::url('/catalogo')) ?>">Volver</a>
 	</div>
 </form>
+<script>
+(function () {
+	var root = document.querySelector('[data-product-gallery]');
+	if (!root) return;
+	var main = root.querySelector('[data-gallery-main]');
+	root.querySelectorAll('[data-gallery-thumb]').forEach(function (button) {
+		button.addEventListener('click', function () {
+			main.src = button.getAttribute('data-src');
+			root.querySelectorAll('[data-gallery-thumb]').forEach(function (item) {
+				item.classList.toggle('is-on', item === button);
+			});
+		});
+	});
+})();
+</script>

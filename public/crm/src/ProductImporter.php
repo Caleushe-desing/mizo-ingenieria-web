@@ -10,6 +10,7 @@ final class ProductImporter
 {
 	private const MAX_BYTES = 1500000;
 	private const MAX_REDIRECTS = 4;
+	private const MAX_IMAGES = 12;
 
 	/** @return array{nombre: string, descripcion: string, proveedor_empresa: string, proveedor_link: string} */
 	public static function fromUrl(string $url): array
@@ -44,9 +45,9 @@ final class ProductImporter
 		libxml_use_internal_errors($previous);
 		$xpath = new \DOMXPath($dom);
 		$found = self::productFromJsonLd($xpath);
-		$candidates = [];
+		$candidates = self::galleryImages($xpath);
 		foreach ($found['images'] ?? [] as $image) {
-			if (is_string($image)) {
+			if (is_string($image) && !in_array($image, $candidates, true)) {
 				$candidates[] = $image;
 			}
 		}
@@ -57,9 +58,6 @@ final class ProductImporter
 					$candidates[] = $value;
 				}
 			}
-		}
-		if ($candidates === []) {
-			$candidates = self::galleryImages($xpath);
 		}
 		$absolute = [];
 		foreach ($candidates as $candidate) {
@@ -435,23 +433,101 @@ final class ProductImporter
 	/** @return list<string> */
 	private static function galleryImages(\DOMXPath $xpath): array
 	{
-		$nodes = $xpath->query('//*[contains(concat(" ", normalize-space(@class), " "), " js-pictureAreaDetail ")]//img');
+		$nodes = $xpath->query('//img');
 		if (!$nodes instanceof \DOMNodeList) {
 			return [];
 		}
 		$urls = [];
 		foreach ($nodes as $node) {
-			if (!$node instanceof \DOMElement) {
+			if (!$node instanceof \DOMElement || !self::insideGallery($node)) {
 				continue;
 			}
-			foreach (['src', 'rel'] as $attribute) {
-				$value = trim($node->getAttribute($attribute));
-				if ($value !== '' && $value !== '...') {
-					$urls[] = $value;
-				}
+			foreach (self::imageCandidates($node) as $value) {
+				$urls[] = $value;
 			}
 		}
 		return $urls;
+	}
+
+	private static function insideGallery(\DOMElement $node): bool
+	{
+		$current = $node->parentNode;
+		while ($current instanceof \DOMElement) {
+			$token = strtolower($current->getAttribute('class') . ' ' . $current->getAttribute('id'));
+			if (self::containsAny($token, ['header', 'footer', 'nav', 'crosssell', 'cross-sell', 'related', 'recommend', 'menu'])) {
+				return false;
+			}
+			if (self::containsAny($token, [
+				'picturearea',
+				'picture-area',
+				'product-gallery',
+				'productgallery',
+				'woocommerce-product-gallery',
+				'gallery',
+				'product-image',
+				'productimage',
+				'product-images',
+				'magiczoom',
+				'fotorama',
+				'zoomwindow',
+				'image-gallery',
+			])) {
+				return true;
+			}
+			$current = $current->parentNode instanceof \DOMElement ? $current->parentNode : null;
+		}
+		return $node->hasAttribute('data-zoom-image') || $node->hasAttribute('data-large-image');
+	}
+
+	/** @return list<string> */
+	private static function imageCandidates(\DOMElement $node): array
+	{
+		$values = [];
+		$srcset = trim($node->getAttribute('srcset') ?: $node->getAttribute('data-srcset'));
+		if ($srcset !== '') {
+			$best = '';
+			$bestWidth = -1;
+			foreach (preg_split('/\s*,\s*/', $srcset) ?: [] as $part) {
+				$bits = preg_split('/\s+/', trim($part)) ?: [];
+				$url = $bits[0] ?? '';
+				$width = 0;
+				if (isset($bits[1]) && preg_match('/(\d+)w/', $bits[1], $match)) {
+					$width = (int) $match[1];
+				}
+				if ($url !== '' && $width >= $bestWidth) {
+					$best = $url;
+					$bestWidth = $width;
+				}
+			}
+			if ($best !== '') {
+				$values[] = $best;
+			}
+		}
+		foreach (['data-zoom-image', 'data-large-image', 'data-large', 'data-full', 'data-image', 'data-original', 'data-src', 'data-lazy', 'src', 'rel'] as $attribute) {
+			$value = trim(html_entity_decode($node->getAttribute($attribute), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+			if ($value !== '' && !str_starts_with($value, 'data:')) {
+				$values[] = $value;
+			}
+		}
+		$parent = $node->parentNode;
+		if ($parent instanceof \DOMElement && strtolower($parent->tagName) === 'a') {
+			$href = trim($parent->getAttribute('href'));
+			if ($href !== '' && !str_starts_with($href, 'javascript:')) {
+				$values[] = $href;
+			}
+		}
+		return $values;
+	}
+
+	/** @param list<string> $needles */
+	private static function containsAny(string $haystack, array $needles): bool
+	{
+		foreach ($needles as $needle) {
+			if (str_contains($haystack, $needle)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static function cleanTitle(string $title, string $host): string
@@ -554,7 +630,7 @@ final class ProductImporter
 	private static function looksLikePhoto(string $url): bool
 	{
 		$path = strtolower((string) parse_url($url, PHP_URL_PATH));
-		if ($path === '' || str_contains($path, 'logo') || str_contains($path, 'icon') || str_contains($path, 'sprite') || str_contains($path, 'placeholder') || str_contains($path, 'cl-default') || str_ends_with($path, '.svg')) {
+		if ($path === '' || self::containsAny($path, ['logo', 'icon', 'sprite', 'placeholder', 'cl-default', 'spinner', 'loading', 'pixel', 'blank']) || str_ends_with($path, '.svg')) {
 			return false;
 		}
 		return (bool) preg_match('/\.(jpe?g|png|webp|gif)(\?|$)/', $path . (parse_url($url, PHP_URL_QUERY) ? '' : ''));
@@ -582,7 +658,7 @@ final class ProductImporter
 		$picked = [];
 		foreach ($best as $item) {
 			$picked[] = $item['url'];
-			if (count($picked) >= 8) {
+			if (count($picked) >= self::MAX_IMAGES) {
 				break;
 			}
 		}
@@ -602,7 +678,7 @@ final class ProductImporter
 		$saved = [];
 		$index = 1;
 		foreach ($urls as $url) {
-			if ($index > 8) {
+			if ($index > self::MAX_IMAGES) {
 				break;
 			}
 			$file = self::downloadImage($url, $dir, $index);
