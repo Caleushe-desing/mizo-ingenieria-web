@@ -20,7 +20,12 @@ const MIME = {
 };
 
 function send(res, status, body, type = 'text/plain; charset=utf-8') {
-	const data = typeof body === 'string' ? body : JSON.stringify(body);
+	let data = body;
+	if (Buffer.isBuffer(body)) {
+		data = body;
+	} else if (typeof body !== 'string') {
+		data = JSON.stringify(body);
+	}
 	res.writeHead(status, {
 		'Content-Type': type,
 		'Cache-Control': 'no-store',
@@ -53,7 +58,8 @@ function serveStatic(reqPath, res) {
 		return;
 	}
 	const ext = path.extname(filePath);
-	send(res, 200, fs.readFileSync(filePath), MIME[ext] || 'application/octet-stream');
+	const encoding = MIME[ext]?.includes('charset') ? 'utf8' : null;
+	send(res, 200, fs.readFileSync(filePath, encoding), MIME[ext] || 'application/octet-stream');
 }
 
 const server = http.createServer(async (req, res) => {
