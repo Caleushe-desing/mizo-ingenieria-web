@@ -34,6 +34,8 @@ final class QuoteController
 				'description' => '',
 				'quantity' => 1,
 				'unit' => 'un',
+				'cost_price' => 0,
+				'margin_percent' => 0,
 				'unit_price' => 0,
 			]],
 			'publicUrl' => '',
@@ -57,6 +59,8 @@ final class QuoteController
 				'description' => '',
 				'quantity' => 1,
 				'unit' => 'un',
+				'cost_price' => 0,
+				'margin_percent' => 0,
 				'unit_price' => 0,
 			]],
 			'publicUrl' => '',
@@ -112,6 +116,8 @@ final class QuoteController
 				'description' => '',
 				'quantity' => 1,
 				'unit' => 'un',
+				'cost_price' => 0,
+				'margin_percent' => 0,
 				'unit_price' => 0,
 			]];
 		}

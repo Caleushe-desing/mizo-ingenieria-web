@@ -2164,9 +2164,29 @@ body.is-clients .quote-sheet [data-add-item] {
 	font-size: 13px;
 }
 .quote-work .section-title { margin-top: 8px; }
-.quote-lines th:nth-child(1), .quote-lines td:nth-child(1) { width: 42%; }
+.sheet-edit textarea {
+	width: 100%;
+	min-height: 4.5rem;
+	border: 0;
+	padding: 10px 12px;
+	resize: vertical;
+	font: inherit;
+	line-height: 1.4;
+	background: transparent;
+}
+.sheet-edit textarea:focus { outline: 2px solid #2b88d8; outline-offset: -2px; }
+.quote-lines th:nth-child(1), .quote-lines td:nth-child(1) { width: 28%; min-width: 180px; }
 .quote-lines th:nth-child(2), .quote-lines td:nth-child(2),
-.quote-lines th:nth-child(3), .quote-lines td:nth-child(3) { width: 10%; }
+.quote-lines th:nth-child(3), .quote-lines td:nth-child(3) { width: 7%; }
+.quote-lines th:nth-child(4), .quote-lines td:nth-child(4),
+.quote-lines th:nth-child(5), .quote-lines td:nth-child(5),
+.quote-lines th:nth-child(6), .quote-lines td:nth-child(6),
+.quote-lines th:nth-child(7), .quote-lines td:nth-child(7) { width: 10%; }
+.quote-lines input[data-sale-net][readonly] {
+	background: #f4f7fa;
+	color: #0f1114;
+	font-weight: 600;
+}
 .quote-totals {
 	margin-top: 8px;
 	padding: 12px;

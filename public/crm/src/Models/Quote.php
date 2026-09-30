@@ -88,14 +88,41 @@ final class Quote extends Record
 		return $base . '-' . $next;
 	}
 
+	/** Venta neta unitaria desde costo con IVA y margen %. */
+	public static function netSaleFromCost(int $costWithIva, float $marginPercent): int
+	{
+		if ($costWithIva <= 0) {
+			return 0;
+		}
+		$factor = 1 + (Config::TAX_RATE / 100);
+		$costNet = $costWithIva / $factor;
+		return (int) round($costNet * (1 + ($marginPercent / 100)));
+	}
+
+	private static function parseMoneyValue(mixed $raw): int
+	{
+		$value = (string) $raw;
+		$value = str_replace(['$', ' '], '', $value);
+		$value = str_replace('.', '', $value);
+		$value = str_replace(',', '.', $value);
+		return (int) round((float) $value);
+	}
+
+	private static function parsePercentValue(mixed $raw): float
+	{
+		$value = str_replace(['%', ' '], '', (string) $raw);
+		$value = str_replace(',', '.', $value);
+		return max(0.0, (float) $value);
+	}
+
 	public static function saveItems(int $quoteId, array $items): array
 	{
 		self::pdo()->prepare('DELETE FROM quote_items WHERE quote_id = ?')->execute([$quoteId]);
 		$subtotal = 0;
 		$position = 0;
 		$insert = self::pdo()->prepare(
-			'INSERT INTO quote_items (quote_id, position, description, quantity, unit, unit_price, total)
-			 VALUES (?, ?, ?, ?, ?, ?, ?)'
+			'INSERT INTO quote_items (quote_id, position, description, quantity, unit, cost_price, margin_percent, unit_price, total)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
 		);
 		foreach ($items as $item) {
 			$description = trim((string) ($item['description'] ?? ''));
@@ -107,9 +134,14 @@ final class Quote extends Record
 				$qty = 1;
 			}
 			$unit = trim((string) ($item['unit'] ?? 'un')) ?: 'un';
-			$price = (int) round((float) str_replace(['.', ' '], ['', ''], (string) ($item['unit_price'] ?? 0)));
+			$cost = self::parseMoneyValue($item['cost_price'] ?? 0);
+			$margin = self::parsePercentValue($item['margin_percent'] ?? 0);
+			$price = self::parseMoneyValue($item['unit_price'] ?? 0);
+			if ($cost > 0) {
+				$price = self::netSaleFromCost($cost, $margin);
+			}
 			$total = (int) round($qty * $price);
-			$insert->execute([$quoteId, $position, $description, $qty, $unit, $price, $total]);
+			$insert->execute([$quoteId, $position, $description, $qty, $unit, $cost, $margin, $price, $total]);
 			$subtotal += $total;
 			$position++;
 		}
@@ -169,20 +201,21 @@ final class Quote extends Record
 		$descriptions = $_POST['item_description'] ?? [];
 		$quantities = $_POST['item_quantity'] ?? [];
 		$units = $_POST['item_unit'] ?? [];
+		$costs = $_POST['item_cost'] ?? [];
+		$margins = $_POST['item_margin'] ?? [];
 		$prices = $_POST['item_price'] ?? [];
 		$items = [];
 		if (!is_array($descriptions)) {
 			return $items;
 		}
 		foreach ($descriptions as $i => $description) {
-			$rawPrice = (string) ($prices[$i] ?? '0');
-			$rawPrice = str_replace(['$', ' ', '.'], '', $rawPrice);
-			$rawPrice = str_replace(',', '.', $rawPrice);
 			$items[] = [
 				'description' => $description,
 				'quantity' => $quantities[$i] ?? 1,
 				'unit' => $units[$i] ?? 'un',
-				'unit_price' => $rawPrice,
+				'cost_price' => $costs[$i] ?? 0,
+				'margin_percent' => $margins[$i] ?? 0,
+				'unit_price' => $prices[$i] ?? 0,
 			];
 		}
 		return $items;

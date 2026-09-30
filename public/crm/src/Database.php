@@ -136,6 +136,8 @@ final class Database
 					description TEXT NOT NULL,
 					quantity REAL NOT NULL DEFAULT 1,
 					unit TEXT NOT NULL DEFAULT 'un',
+					cost_price INTEGER NOT NULL DEFAULT 0,
+					margin_percent REAL NOT NULL DEFAULT 0,
 					unit_price INTEGER NOT NULL DEFAULT 0,
 					total INTEGER NOT NULL DEFAULT 0,
 					FOREIGN KEY (quote_id) REFERENCES quotes(id) ON DELETE CASCADE
@@ -568,6 +570,18 @@ final class Database
 				$pdo->exec('ALTER TABLE products ADD COLUMN imagenes TEXT');
 			}
 			$pdo->exec('PRAGMA user_version = 18');
+			$version = 18;
+		}
+
+		if ($version < 19) {
+			$itemCols = array_column($pdo->query('PRAGMA table_info(quote_items)')->fetchAll(), 'name');
+			if ($itemCols !== [] && !in_array('cost_price', $itemCols, true)) {
+				$pdo->exec('ALTER TABLE quote_items ADD COLUMN cost_price INTEGER NOT NULL DEFAULT 0');
+			}
+			if ($itemCols !== [] && !in_array('margin_percent', $itemCols, true)) {
+				$pdo->exec('ALTER TABLE quote_items ADD COLUMN margin_percent REAL NOT NULL DEFAULT 0');
+			}
+			$pdo->exec('PRAGMA user_version = 19');
 		}
 	}
 

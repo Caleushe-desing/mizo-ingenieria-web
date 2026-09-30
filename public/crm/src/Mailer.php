@@ -43,7 +43,7 @@ final class Mailer
 			$qty = rtrim(rtrim(number_format((float) $item['quantity'], 2, ',', '.'), '0'), ',');
 			$rows .= '<tr>
 				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;color:#666;font-size:12px;">' . $n . '</td>
-				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;color:#1a1a1a;">' . h($item['description']) . '</td>
+				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;color:#1a1a1a;">' . nl2br(h((string) $item['description'])) . '</td>
 				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;text-align:right;white-space:nowrap;">' . h($qty) . ' ' . h((string) $item['unit']) . '</td>
 				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;text-align:right;white-space:nowrap;">' . money((int) $item['unit_price']) . '</td>
 				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;text-align:right;white-space:nowrap;font-weight:600;">' . money((int) $item['total']) . '</td>

@@ -87,7 +87,7 @@ if ($reference === '' && $items) {
 			<?php foreach ($items as $i => $item): ?>
 				<tr>
 					<td class="is-num"><?= (int) $i + 1 ?></td>
-					<td><?= h($item['description']) ?></td>
+					<td><?= nl2br(h($item['description'])) ?></td>
 					<td class="is-num"><?= h(rtrim(rtrim(number_format((float) $item['quantity'], 2, ',', '.'), '0'), ',')) ?></td>
 					<td><?= h($item['unit']) ?></td>
 					<td class="is-num"><?= money((int) $item['unit_price']) ?></td>

@@ -141,25 +141,37 @@ $tab = $deal ? 'actividad' : 'datos';
 						<button class="btn-ghost" type="button" data-add-item>Agregar</button>
 					<?php endif; ?>
 				</div>
-				<table class="sheet quote-sheet">
+				<table class="sheet quote-sheet quote-lines" data-tax-rate="19">
 					<thead>
 						<tr>
 							<th>Descripción</th>
 							<th>Cant.</th>
 							<th>Un.</th>
-							<th>Neto</th>
+							<th>Costo c/IVA</th>
+							<th>Margen %</th>
+							<th>Venta neta</th>
 							<th>Total</th>
 							<th></th>
 						</tr>
 					</thead>
 					<tbody data-items>
 					<?php foreach ($items as $item): ?>
+						<?php
+						$cost = (int) ($item['cost_price'] ?? 0);
+						$margin = (float) ($item['margin_percent'] ?? 0);
+						$price = (int) ($item['unit_price'] ?? 0);
+						if ($cost > 0) {
+							$price = \MizoCrm\Models\Quote::netSaleFromCost($cost, $margin);
+						}
+						?>
 						<tr data-item-row>
-							<td><input name="item_description[]" value="<?= h($item['description'] ?? '') ?>" placeholder="Equipo, instalación…" <?= $quoteLocked ? 'readonly' : '' ?>></td>
+							<td><textarea name="item_description[]" rows="2" placeholder="Equipo o servicio + detalle…" <?= $quoteLocked ? 'readonly' : '' ?>><?= h($item['description'] ?? '') ?></textarea></td>
 							<td><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
 							<td><input name="item_unit[]" value="<?= h($item['unit'] ?? 'un') ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
-							<td><input name="item_price[]" value="<?= h((string) ($item['unit_price'] ?? '')) ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
-							<td data-line><?= money((int) ($item['total'] ?? 0)) ?></td>
+							<td><input name="item_cost[]" value="<?= $cost > 0 ? h((string) $cost) : '' ?>" placeholder="0" <?= $quoteLocked ? 'readonly' : '' ?>></td>
+							<td><input name="item_margin[]" value="<?= $margin > 0 ? h(rtrim(rtrim(number_format($margin, 2, '.', ''), '0'), '.')) : '' ?>" placeholder="0" <?= $quoteLocked ? 'readonly' : '' ?>></td>
+							<td><input name="item_price[]" data-sale-net value="<?= h((string) $price) ?>" <?= $quoteLocked || $cost > 0 ? 'readonly' : '' ?>></td>
+							<td data-line><?= money((int) round(((float) ($item['quantity'] ?? 1)) * $price)) ?></td>
 							<td><?php if (!$quoteLocked): ?><button class="btn-ghost" type="button" data-remove>×</button><?php endif; ?></td>
 						</tr>
 					<?php endforeach; ?>

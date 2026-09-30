@@ -3,6 +3,8 @@
 	if (!list) return;
 
 	const addBtn = document.querySelector('[data-add-item]');
+	const table = list.closest('table');
+	const taxRate = Number((table && table.getAttribute('data-tax-rate')) || 19) || 19;
 	const totals = {
 		neto: document.querySelector('[data-neto]'),
 		iva: document.querySelector('[data-iva]'),
@@ -21,9 +23,35 @@
 		return Number(String(value).replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
 	}
 
+	function parsePercent(value) {
+		return Number(String(value).replace('%', '').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
+	}
+
+	function saleNetFromCost(costWithIva, marginPercent) {
+		if (costWithIva <= 0) return 0;
+		const costNet = costWithIva / (1 + taxRate / 100);
+		return Math.round(costNet * (1 + marginPercent / 100));
+	}
+
+	function syncRowPrice(row) {
+		const costInput = row.querySelector('[name="item_cost[]"]');
+		const marginInput = row.querySelector('[name="item_margin[]"]');
+		const priceInput = row.querySelector('[name="item_price[]"]');
+		if (!priceInput) return;
+		const cost = costInput ? parseMoney(costInput.value) : 0;
+		const margin = marginInput ? parsePercent(marginInput.value) : 0;
+		if (cost > 0) {
+			priceInput.value = String(saleNetFromCost(cost, margin));
+			priceInput.readOnly = true;
+		} else if (!priceInput.hasAttribute('data-locked')) {
+			priceInput.readOnly = false;
+		}
+	}
+
 	function recalc() {
 		let neto = 0;
 		rows().forEach(function (row) {
+			syncRowPrice(row);
 			const qtyInput = row.querySelector('[name="item_quantity[]"]');
 			const priceInput = row.querySelector('[name="item_price[]"]');
 			const lineEl = row.querySelector('[data-line]');
@@ -34,14 +62,14 @@
 			neto += line;
 			lineEl.textContent = formatMoney(line);
 		});
-		const iva = Math.round(neto * 0.19);
+		const iva = Math.round(neto * (taxRate / 100));
 		if (totals.neto) totals.neto.textContent = formatMoney(neto);
 		if (totals.iva) totals.iva.textContent = formatMoney(iva);
 		if (totals.total) totals.total.textContent = formatMoney(neto + iva);
 	}
 
 	function bindRow(row) {
-		row.querySelectorAll('input').forEach(function (input) {
+		row.querySelectorAll('input, textarea').forEach(function (input) {
 			input.addEventListener('input', recalc);
 		});
 		const remove = row.querySelector('[data-remove]');
@@ -62,11 +90,12 @@
 			const first = list.querySelector('[data-item-row]');
 			if (!first) return;
 			const row = first.cloneNode(true);
-			row.querySelectorAll('input').forEach(function (input) {
+			row.querySelectorAll('input, textarea').forEach(function (input) {
 				const name = input.getAttribute('name') || '';
 				if (name === 'item_quantity[]') input.value = '1';
 				else if (name === 'item_unit[]') input.value = 'un';
 				else input.value = '';
+				if (name === 'item_price[]') input.readOnly = false;
 			});
 			const line = row.querySelector('[data-line]');
 			if (line) line.textContent = '$0';
@@ -74,6 +103,7 @@
 			bindRow(row);
 			const focus = row.querySelector('[name="item_description[]"]');
 			if (focus) focus.focus();
+			recalc();
 		});
 	}
 })();
