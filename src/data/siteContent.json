@@ -2,7 +2,7 @@
   "site": {
     "name": "Mizo",
     "title": "Mizo | Ingeniería en sonido, video, CCTV y soporte TI en Chile",
-    "description": "Instalación profesional de sistemas de sonido, videoproyección, cámaras de seguridad y soporte TI en Frutillar, Santiago y el sur de Chile.",
+    "description": "Instalación profesional de sistemas de sonido, videoproyección, cámaras de seguridad , domotica residencia y soporte TI en Frutillar, Santiago y el sur de Chile.",
     "email": "ventas@mizo.cl",
     "phoneDisplay": "+56 9 9439 0870",
     "whatsappMessage": "Hola Mizo, quiero cotizar un servicio profesional.",
@@ -10,8 +10,22 @@
     "hours": "Lunes a viernes, 9:00 a 18:00 hrs.",
     "areas": [
       "Frutillar",
+      "Puerto Varas",
+      "Puerto Montt",
+      "Osorno",
+      "Valdivia",
+      "Temuco",
+      "Concepción",
+      "Talca",
+      "Rancagua",
       "Santiago",
-      "Sur de Chile"
+      "La Serena",
+      "Copiapo",
+      "Antofagasta",
+      "Iquique",
+      "Arica",
+      "Coyaique",
+      "Punta Arenas."
     ]
   },
   "nav": [
@@ -35,7 +49,7 @@
   "pages": {
     "home": {
       "kicker": "Mizo",
-      "title": "El recinto define la instalación.",
+      "title": "Para cada espacio, existe una solución",
       "lead": "Audio, imagen y control en {areas}. Elige el rubro y abre su página.",
       "ctaLabel": "Ver soluciones",
       "heroImageAlt": "Instalación profesional de audio y video en un recinto",
