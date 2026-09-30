@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { SUPPORT_PROMISES } from '../lib/industries';
+import { content } from '../lib/content';
 import { whatsappUrl } from '../lib/site';
 import soporteLocal from '../assets/soporte/soporte-local.jpg';
 import postventa from '../assets/soporte/postventa.jpg';
@@ -15,18 +16,13 @@ interface Props {
 }
 
 const {
-	title = '¿Tienes un recinto que equipar?',
-	text = 'Cuéntanos el espacio y te respondemos con una propuesta clara.',
+	title = content.cta.title,
+	text = content.cta.text,
 	quoteHref = '/contacto',
 	whatsappHref = whatsappUrl(),
 } = Astro.props;
 
-const supportPhotos = {
-	'Soporte técnico local': soporteLocal,
-	'Postventa garantizada': postventa,
-	'Respuesta rápida': respuestaRapida,
-	'Pago con tarjeta': pagoTarjeta,
-} as const;
+const supportPhotos = [soporteLocal, postventa, respuestaRapida, pagoTarjeta];
 ---
 
 <section class="border-t border-white/10 bg-charcoal py-20 sm:py-28" aria-label="Cotizar">
@@ -36,15 +32,15 @@ const supportPhotos = {
 			<p class="mt-3 max-w-xl text-base leading-7 text-white/80">{text}</p>
 		</div>
 		<div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-			<a href={quoteHref} class="mizo-btn">Solicitar cotización</a>
-			<a href={whatsappHref} target="_blank" rel="noopener noreferrer" class="mizo-btn-ghost">WhatsApp</a>
+			<a href={quoteHref} class="mizo-btn">{content.cta.quoteLabel}</a>
+			<a href={whatsappHref} target="_blank" rel="noopener noreferrer" class="mizo-btn-ghost">{content.cta.whatsappLabel}</a>
 		</div>
 	</div>
 	<ul class="mx-auto mt-16 grid max-w-6xl gap-3 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
-		{SUPPORT_PROMISES.map((item) => (
+		{SUPPORT_PROMISES.map((item, index) => (
 			<li class="mizo-card border border-white/10 bg-charcoal">
 				<Image
-					src={supportPhotos[item.title]}
+					src={supportPhotos[index]}
 					alt={item.title}
 					class="aspect-[4/3] w-full object-cover"
 					widths={[480, 800, 1200]}

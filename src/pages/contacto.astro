@@ -1,17 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { content } from '../lib/content';
 import { mailUrl, SITE, telUrl, whatsappUrl } from '../lib/site';
 import { INDUSTRIES } from '../lib/industries';
 import { absoluteUrl, graphSchema, localBusinessSchema, organizationSchema, webPageSchema } from '../lib/seo';
 
-const title = 'Contacto | Mizo — Cotiza instalación en Chile';
-const description = `Contacta a Mizo: ${SITE.email}, ${SITE.phoneDisplay} o WhatsApp. Cotizaciones de sonido, video, CCTV y soporte TI.`;
+const page = content.pages.contacto;
+const title = page.seoTitle;
+const description = `${page.seoDescription} ${SITE.email}, ${SITE.phoneDisplay}.`;
 
 const channels = [
 	{
 		label: 'WhatsApp',
 		value: SITE.phoneDisplay,
-		detail: 'Canal directo de cotización',
+		detail: page.whatsappDetail,
 		href: whatsappUrl(),
 		external: true,
 	},
@@ -51,10 +53,10 @@ const fieldClass =
 
 		<div class="relative mx-auto grid max-w-6xl lg:grid-cols-[0.9fr_1.1fr]">
 			<div class="border-white/10 px-4 pb-10 sm:px-6 lg:border-r lg:px-8 lg:pb-16">
-				<p class="mizo-kicker">Contacto</p>
-				<h1 class="mt-4 max-w-md text-4xl font-extrabold leading-[1.1] sm:text-5xl">Solicita una propuesta técnica.</h1>
+				<p class="mizo-kicker">{page.kicker}</p>
+				<h1 class="mt-4 max-w-md text-4xl font-extrabold leading-[1.1] sm:text-5xl">{page.title}</h1>
 				<p class="mt-5 max-w-md text-base leading-7 text-white/70">
-					Un ingeniero revisa tu requerimiento y te responde con alcance e instalación según tu recinto.
+					{page.lead}
 				</p>
 
 				<dl class="mt-10 divide-y divide-white/10 border-y border-white/10">

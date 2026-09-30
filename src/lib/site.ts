@@ -1,31 +1,27 @@
+import { content } from './content';
+
 export const SITE = {
-	name: 'Mizo',
-	legalName: 'Mizo',
+	name: content.site.name,
+	legalName: content.site.name,
 	url: 'https://mizo.cl',
-	title: 'Mizo | Ingeniería en sonido, video, CCTV y soporte TI en Chile',
-	description:
-		'Instalación profesional de sistemas de sonido, videoproyección, cámaras de seguridad y soporte TI en Frutillar, Santiago y el sur de Chile.',
-	email: 'ventas@mizo.cl',
+	title: content.site.title,
+	description: content.site.description,
+	email: content.site.email,
 	phone: '+56994390870',
-	phoneDisplay: '+56 9 9439 0870',
+	phoneDisplay: content.site.phoneDisplay,
 	whatsapp: '56994390870',
-	whatsappMessage: 'Hola Mizo, quiero cotizar un servicio profesional.',
-	address: 'Frutillar y Santiago, Chile',
-	hours: 'Lunes a viernes, 9:00 a 18:00 hrs.',
+	whatsappMessage: content.site.whatsappMessage,
+	address: content.site.address,
+	hours: content.site.hours,
 	locale: 'es_CL',
 	language: 'es-CL',
 	ogImage: '/mizo-social-preview.jpg.png',
 	logo: '/mizo-logo.png',
 	logoFooter: '/mizo-logo-footer.png',
-	areas: ['Frutillar', 'Santiago', 'Sur de Chile'],
+	areas: content.site.areas,
 } as const;
 
-export const NAV = [
-	{ title: 'Inicio', href: '/' },
-	{ title: 'Soluciones', href: '/industrias' },
-	{ title: 'Nosotros', href: '/nosotros' },
-	{ title: 'Contacto', href: '/contacto' },
-] as const;
+export const NAV = content.nav;
 
 export const BRANDS = [
 	{ name: 'Sony', slug: 'sony' },

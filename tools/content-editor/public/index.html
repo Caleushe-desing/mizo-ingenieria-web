@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Mizo — Editor de textos</title>
+	<style>
+		:root {
+			--bg: #0f1114;
+			--panel: #1c1f26;
+			--line: rgba(255, 255, 255, 0.12);
+			--text: #ffffff;
+			--muted: rgba(255, 255, 255, 0.7);
+			--accent: #1c9bd8;
+			--orange: #f47b20;
+		}
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			font-family: Helvetica, Arial, sans-serif;
+			background: var(--bg);
+			color: var(--text);
+			min-height: 100vh;
+		}
+		header {
+			position: sticky;
+			top: 0;
+			z-index: 10;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1rem;
+			padding: 1rem 1.5rem;
+			border-bottom: 1px solid var(--line);
+			background: rgba(15, 17, 20, 0.95);
+			backdrop-filter: blur(8px);
+		}
+		header h1 {
+			margin: 0;
+			font-size: 1.05rem;
+			letter-spacing: 0.04em;
+		}
+		header p {
+			margin: 0.2rem 0 0;
+			color: var(--muted);
+			font-size: 0.8rem;
+		}
+		.actions { display: flex; gap: 0.6rem; align-items: center; }
+		button {
+			border: 0;
+			cursor: pointer;
+			font: inherit;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.12em;
+			font-size: 0.72rem;
+			padding: 0.85rem 1.2rem;
+		}
+		#save {
+			background: var(--orange);
+			color: #fff;
+		}
+		#save:hover { filter: brightness(1.05); }
+		#reload {
+			background: transparent;
+			color: #fff;
+			border: 1px solid var(--line);
+		}
+		#status {
+			font-size: 0.78rem;
+			color: var(--muted);
+			min-width: 12rem;
+			text-align: right;
+		}
+		#status.ok { color: #7ddea8; }
+		#status.err { color: #ff8f8f; }
+		main {
+			max-width: 960px;
+			margin: 0 auto;
+			padding: 1.5rem;
+			display: grid;
+			gap: 1.25rem;
+		}
+		section {
+			border: 1px solid var(--line);
+			background: var(--panel);
+			padding: 1.25rem;
+		}
+		section h2 {
+			margin: 0 0 1rem;
+			font-size: 0.78rem;
+			text-transform: uppercase;
+			letter-spacing: 0.22em;
+			color: var(--orange);
+		}
+		.grid {
+			display: grid;
+			gap: 0.9rem;
+		}
+		.grid.two { grid-template-columns: 1fr; }
+		@media (min-width: 800px) {
+			.grid.two { grid-template-columns: 1fr 1fr; }
+		}
+		label {
+			display: grid;
+			gap: 0.35rem;
+			font-size: 0.78rem;
+			color: var(--muted);
+		}
+		label span { letter-spacing: 0.04em; }
+		input, textarea {
+			width: 100%;
+			border: 1px solid var(--line);
+			background: var(--bg);
+			color: var(--text);
+			font: inherit;
+			padding: 0.75rem 0.85rem;
+			outline: none;
+		}
+		input:focus, textarea:focus { border-color: var(--accent); }
+		textarea { min-height: 5.5rem; resize: vertical; line-height: 1.45; }
+		.card {
+			border: 1px solid var(--line);
+			padding: 1rem;
+			display: grid;
+			gap: 0.8rem;
+			background: rgba(15, 17, 20, 0.55);
+		}
+		.card h3 {
+			margin: 0;
+			font-size: 0.95rem;
+		}
+		.hint {
+			margin: 0;
+			color: var(--muted);
+			font-size: 0.8rem;
+			line-height: 1.5;
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<div>
+			<h1>Mizo · Editor de textos</h1>
+			<p>Edita el JSON local del proyecto. Guardar sobrescribe <code>src/data/siteContent.json</code>.</p>
+		</div>
+		<div class="actions">
+			<div id="status">Cargando…</div>
+			<button type="button" id="reload">Recargar</button>
+			<button type="button" id="save">Guardar cambios</button>
+		</div>
+	</header>
+	<main id="app"></main>
+	<script>
+		let data = null;
+		const app = document.getElementById('app');
+		const statusEl = document.getElementById('status');
+
+		function setStatus(text, kind = '') {
+			statusEl.textContent = text;
+			statusEl.className = kind;
+		}
+
+		function field(label, value, path, multiline = false) {
+			const id = path.join('.');
+			const wrap = document.createElement('label');
+			const caption = document.createElement('span');
+			caption.textContent = label;
+			const input = multiline ? document.createElement('textarea') : document.createElement('input');
+			input.value = value ?? '';
+			input.dataset.path = id;
+			input.addEventListener('input', () => {
+				setByPath(path, input.value);
+				setStatus('Cambios sin guardar');
+			});
+			wrap.append(caption, input);
+			return wrap;
+		}
+
+		function setByPath(path, value) {
+			let cursor = data;
+			for (let i = 0; i < path.length - 1; i++) cursor = cursor[path[i]];
+			cursor[path[path.length - 1]] = value;
+		}
+
+		function section(title, nodes) {
+			const el = document.createElement('section');
+			const h = document.createElement('h2');
+			h.textContent = title;
+			el.append(h, ...nodes);
+			return el;
+		}
+
+		function render() {
+			app.innerHTML = '';
+			const siteGrid = document.createElement('div');
+			siteGrid.className = 'grid two';
+			siteGrid.append(
+				field('Nombre', data.site.name, ['site', 'name']),
+				field('Título SEO', data.site.title, ['site', 'title']),
+				field('Descripción SEO', data.site.description, ['site', 'description'], true),
+				field('Correo', data.site.email, ['site', 'email']),
+				field('Teléfono visible', data.site.phoneDisplay, ['site', 'phoneDisplay']),
+				field('Mensaje WhatsApp', data.site.whatsappMessage, ['site', 'whatsappMessage'], true),
+				field('Dirección / cobertura', data.site.address, ['site', 'address']),
+				field('Horario', data.site.hours, ['site', 'hours']),
+			);
+			const areasLabel = document.createElement('label');
+			areasLabel.innerHTML = '<span>Áreas (separadas por coma)</span>';
+			const areasInput = document.createElement('input');
+			areasInput.value = (data.site.areas || []).join(', ');
+			areasInput.addEventListener('input', () => {
+				data.site.areas = areasInput.value.split(',').map((s) => s.trim()).filter(Boolean);
+				setStatus('Cambios sin guardar');
+			});
+			areasLabel.append(areasInput);
+			siteGrid.append(areasLabel);
+
+			app.append(section('Sitio y contacto', [siteGrid]));
+
+			const home = data.pages.home;
+			const homeGrid = document.createElement('div');
+			homeGrid.className = 'grid';
+			homeGrid.append(
+				field('Kicker', home.kicker, ['pages', 'home', 'kicker']),
+				field('Título principal', home.title, ['pages', 'home', 'title'], true),
+				field('Bajada (usa {areas})', home.lead, ['pages', 'home', 'lead'], true),
+				field('Botón CTA', home.ctaLabel, ['pages', 'home', 'ctaLabel']),
+				field('Título de rubros', home.rubrosTitle, ['pages', 'home', 'rubrosTitle'], true),
+			);
+			app.append(section('Portada', [homeGrid]));
+
+			for (const key of ['soluciones', 'nosotros', 'contacto', 'estandares', 'equipos']) {
+				const page = data.pages[key];
+				const grid = document.createElement('div');
+				grid.className = 'grid';
+				grid.append(
+					field('Kicker', page.kicker, ['pages', key, 'kicker']),
+					field('Título', page.title, ['pages', key, 'title'], true),
+					field('Bajada', page.lead, ['pages', key, 'lead'], true),
+				);
+				if (page.seoTitle) grid.append(field('SEO título', page.seoTitle, ['pages', key, 'seoTitle'], true));
+				if (page.seoDescription) grid.append(field('SEO descripción', page.seoDescription, ['pages', key, 'seoDescription'], true));
+				if (page.ctaTitle) grid.append(field('CTA título', page.ctaTitle, ['pages', key, 'ctaTitle'], true));
+				if (page.ctaText) grid.append(field('CTA texto', page.ctaText, ['pages', key, 'ctaText'], true));
+				app.append(section(`Página · ${key}`, [grid]));
+
+				if (key === 'nosotros' && Array.isArray(page.pillars)) {
+					const pillars = document.createElement('div');
+					pillars.className = 'grid';
+					page.pillars.forEach((pillar, index) => {
+						const card = document.createElement('div');
+						card.className = 'card';
+						card.append(
+							Object.assign(document.createElement('h3'), { textContent: `Pilar ${pillar.n || index + 1}` }),
+							field('Título', pillar.title, ['pages', 'nosotros', 'pillars', index, 'title']),
+							field('Texto', pillar.text, ['pages', 'nosotros', 'pillars', index, 'text'], true),
+						);
+						pillars.append(card);
+					});
+					app.append(section('Pilares · Nosotros', [pillars]));
+				}
+			}
+
+			const ctaGrid = document.createElement('div');
+			ctaGrid.className = 'grid two';
+			ctaGrid.append(
+				field('Título CTA', data.cta.title, ['cta', 'title'], true),
+				field('Texto CTA', data.cta.text, ['cta', 'text'], true),
+				field('Botón cotización', data.cta.quoteLabel, ['cta', 'quoteLabel']),
+				field('Botón WhatsApp', data.cta.whatsappLabel, ['cta', 'whatsappLabel']),
+			);
+			app.append(section('Bloque de cotización', [ctaGrid]));
+
+			const support = document.createElement('div');
+			support.className = 'grid';
+			data.supportPromises.forEach((item, index) => {
+				const card = document.createElement('div');
+				card.className = 'card';
+				card.append(
+					Object.assign(document.createElement('h3'), { textContent: `Promesa ${index + 1}` }),
+					field('Título', item.title, ['supportPromises', index, 'title']),
+					field('Detalle', item.detail, ['supportPromises', index, 'detail'], true),
+				);
+				support.append(card);
+			});
+			app.append(section('Promesas de soporte', [support]));
+
+			const industries = document.createElement('div');
+			industries.className = 'grid';
+			data.industries.forEach((item, index) => {
+				const card = document.createElement('div');
+				card.className = 'card';
+				card.append(
+					Object.assign(document.createElement('h3'), { textContent: item.nav || item.slug }),
+					field('Nombre corto (nav)', item.nav, ['industries', index, 'nav']),
+					field('Título', item.title, ['industries', index, 'title'], true),
+					field('Resumen tarjeta', item.short, ['industries', index, 'short'], true),
+					field('Lead de página', item.lead, ['industries', index, 'lead'], true),
+					field('Etiqueta de imagen', item.imageLabel, ['industries', index, 'imageLabel']),
+				);
+				industries.append(card);
+			});
+			app.append(section('Rubros / industrias', [industries]));
+
+			const tech = document.createElement('div');
+			tech.className = 'grid';
+			data.techStandards.forEach((item, index) => {
+				const card = document.createElement('div');
+				card.className = 'card';
+				card.append(
+					Object.assign(document.createElement('h3'), { textContent: item.id }),
+					field('Kicker', item.kicker, ['techStandards', index, 'kicker']),
+					field('Título', item.title, ['techStandards', index, 'title']),
+					field('Lead', item.lead, ['techStandards', index, 'lead'], true),
+					field('Detalle', item.detail, ['techStandards', index, 'detail'], true),
+				);
+				tech.append(card);
+			});
+			app.append(section('Estándares tecnológicos', [tech]));
+
+			const tip = document.createElement('p');
+			tip.className = 'hint';
+			tip.textContent = 'Tras guardar, si tienes npm run dev abierto, Astro recarga solo. Para publicar en mizo.cl hay que hacer commit y push como siempre.';
+			app.append(tip);
+		}
+
+		async function load() {
+			setStatus('Cargando…');
+			const res = await fetch('/api/content');
+			if (!res.ok) throw new Error('No se pudo leer siteContent.json');
+			data = await res.json();
+			render();
+			setStatus('Listo', 'ok');
+		}
+
+		async function save() {
+			setStatus('Guardando…');
+			const res = await fetch('/api/content', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			});
+			const json = await res.json();
+			if (!res.ok || !json.ok) throw new Error(json.error || 'Error al guardar');
+			setStatus(`Guardado ${new Date(json.savedAt).toLocaleTimeString('es-CL')}`, 'ok');
+		}
+
+		document.getElementById('save').addEventListener('click', () => {
+			save().catch((err) => setStatus(err.message, 'err'));
+		});
+		document.getElementById('reload').addEventListener('click', () => {
+			load().catch((err) => setStatus(err.message, 'err'));
+		});
+
+		load().catch((err) => setStatus(err.message, 'err'));
+	</script>
+</body>
+</html>
