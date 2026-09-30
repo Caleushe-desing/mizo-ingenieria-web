@@ -6,7 +6,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 const isActive = (href: string) => {
 	if (href === '/') return currentPath === '/';
-	if (href === '/industrias' && (currentPath === '/estandares' || currentPath === '/equipos')) return true;
+	if (href === '/industrias' && currentPath === '/equipos') return true;
 	return currentPath === href || currentPath.startsWith(`${href}/`);
 };
 
@@ -39,14 +39,8 @@ const linkClass = (active: boolean) =>
 								</a>
 							))}
 							<a
-								href="/estandares"
-								class="block border-t border-white/10 px-4 py-2.5 text-sm font-semibold text-white/80 transition-all duration-300 hover:bg-accent/10 hover:text-white"
-							>
-								Estándares
-							</a>
-							<a
 								href="/equipos"
-								class="block px-4 py-2.5 text-sm font-semibold text-white/80 transition-all duration-300 hover:bg-accent/10 hover:text-white"
+								class="block border-t border-white/10 px-4 py-2.5 text-sm font-semibold text-white/80 transition-all duration-300 hover:bg-accent/10 hover:text-white"
 							>
 								Equipos
 							</a>
@@ -101,7 +95,6 @@ const linkClass = (active: boolean) =>
 											{industry.nav}
 										</a>
 									))}
-									<a href="/estandares" class="block px-3 py-2 text-sm text-white/70 hover:text-white">Estándares</a>
 									<a href="/equipos" class="block px-3 py-2 text-sm text-white/70 hover:text-white">Equipos</a>
 								</div>
 							)}

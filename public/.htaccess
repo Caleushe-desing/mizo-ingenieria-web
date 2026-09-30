@@ -9,6 +9,7 @@ RedirectMatch 301 ^/proyectos/?$ /servicios
 RedirectMatch 301 ^/about/?$ /nosotros
 RedirectMatch 301 ^/testimonios/?$ /nosotros
 RedirectMatch 301 ^/equipamiento/?$ /servicios
+RedirectMatch 301 ^/estandares(/.*)?$ /industrias
 RedirectMatch 301 ^/productos(/.*)?$ /
 RedirectMatch 301 ^/carrito/?$ /
 RedirectMatch 301 ^/configurador/?$ /

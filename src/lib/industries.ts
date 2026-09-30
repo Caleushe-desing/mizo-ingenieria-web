@@ -246,8 +246,6 @@ export const INDUSTRIES: readonly Industry[] = content.industries.map((item) => 
 	solutions: INDUSTRY_SOLUTIONS[item.slug] ?? [],
 }));
 
-export const ENGINEERING_STANDARDS = content.engineeringStandards;
-
 export const ENGINEERING_STEPS = content.engineeringSteps;
 
 export const SUPPORT_PROMISES = content.supportPromises;

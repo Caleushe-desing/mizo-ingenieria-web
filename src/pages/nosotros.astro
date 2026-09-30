@@ -3,7 +3,6 @@ import { Image } from 'astro:assets';
 import ConversionCta from '../components/ConversionCta.astro';
 import Layout from '../layouts/Layout.astro';
 import manifiesto from '../assets/nosotros/manifiesto.jpg';
-import { ENGINEERING_STANDARDS } from '../lib/industries';
 import { content } from '../lib/content';
 import { SITE } from '../lib/site';
 import { absoluteUrl, graphSchema, organizationSchema, webPageSchema } from '../lib/seo';
@@ -60,15 +59,6 @@ const description = page.seoDescription;
 					</li>
 				))}
 			</ul>
-			<ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-				{ENGINEERING_STANDARDS.map((item) => (
-					<li class="mizo-card border border-white/10 bg-charcoal px-5 py-6">
-						<p class="text-sm font-extrabold text-white">{item.label}</p>
-						<p class="mt-2 text-sm leading-6 text-white/75">{item.detail}</p>
-					</li>
-				))}
-			</ul>
-			<a href="/estandares" class="mt-10 inline-block text-sm font-bold uppercase tracking-[0.12em] text-orange transition-all duration-300 hover:text-white">{page.standardsLinkLabel}</a>
 		</div>
 	</section>
 

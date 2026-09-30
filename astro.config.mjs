@@ -9,6 +9,7 @@ export default defineConfig({
 	compressHTML: true,
 	redirects: {
 		'/servicios': '/industrias',
+		'/estandares': '/industrias',
 	},
 	integrations: [
 		tailwind(),
@@ -19,7 +20,7 @@ export default defineConfig({
 				const priority =
 					pathname === '/'
 						? 1
-						: ['/contacto', '/nosotros', '/industrias', '/estandares', '/equipos'].includes(pathname) || pathname.startsWith('/industrias/')
+						: ['/contacto', '/nosotros', '/industrias', '/equipos'].includes(pathname) || pathname.startsWith('/industrias/')
 							? 0.9
 							: 0.4;
 				return {

@@ -230,7 +230,7 @@
 			);
 			app.append(section('Portada', [homeGrid]));
 
-			for (const key of ['soluciones', 'nosotros', 'contacto', 'estandares', 'equipos']) {
+			for (const key of ['soluciones', 'nosotros', 'contacto', 'equipos']) {
 				const page = data.pages[key];
 				const grid = document.createElement('div');
 				grid.className = 'grid';
@@ -302,22 +302,6 @@
 				industries.append(card);
 			});
 			app.append(section('Rubros / industrias', [industries]));
-
-			const tech = document.createElement('div');
-			tech.className = 'grid';
-			data.techStandards.forEach((item, index) => {
-				const card = document.createElement('div');
-				card.className = 'card';
-				card.append(
-					Object.assign(document.createElement('h3'), { textContent: item.id }),
-					field('Kicker', item.kicker, ['techStandards', index, 'kicker']),
-					field('Título', item.title, ['techStandards', index, 'title']),
-					field('Lead', item.lead, ['techStandards', index, 'lead'], true),
-					field('Detalle', item.detail, ['techStandards', index, 'detail'], true),
-				);
-				tech.append(card);
-			});
-			app.append(section('Estándares tecnológicos', [tech]));
 
 			const tip = document.createElement('p');
 			tip.className = 'hint';

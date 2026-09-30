@@ -9,23 +9,7 @@
     "address": "Frutillar y Santiago, Chile",
     "hours": "Lunes a viernes, 9:00 a 18:00 hrs.",
     "areas": [
-      "Frutillar",
-      "Puerto Varas",
-      "Puerto Montt",
-      "Osorno",
-      "Valdivia",
-      "Temuco",
-      "Concepción",
-      "Talca",
-      "Rancagua",
-      "Santiago",
-      "La Serena",
-      "Copiapo",
-      "Antofagasta",
-      "Iquique",
-      "Arica",
-      "Coyaique",
-      "Punta Arenas."
+      "Cobertura en Todo Chile."
     ]
   },
   "nav": [
@@ -50,46 +34,45 @@
     "home": {
       "kicker": "Mizo",
       "title": "Para cada espacio, existe una solución",
-      "lead": "Audio, imagen y control en {areas}. Elige el rubro y abre su página.",
+      "lead": "Sistemas de Sonido Ambiental para Restaurantes, Video Proyección para escuelas y oficina, Sistemas de Amplificación para Auditorios y Gimnacios, Domotica Residencial, Circuitos cerrados de Camaras de seguridad.",
       "ctaLabel": "Ver soluciones",
       "heroImageAlt": "Instalación profesional de audio y video en un recinto",
       "rubrosKicker": "Rubros",
-      "rubrosTitle": "Cada recinto, con su propio sistema."
+      "rubrosTitle": "Soluciones para cada espacio | Marcas con respaldo en el Mercado Nacional."
     },
     "soluciones": {
       "seoTitle": "Soluciones | Mizo — Páginas por industria",
       "seoDescription": "Páginas por industria de Mizo: restaurantes, colegios, auditorios, gimnasios y entretenimiento residencial. Enlaces directos para cotizar sonido, video y automatización.",
       "kicker": "Soluciones",
-      "title": "Ingeniería a medida para cada tipo de recinto.",
-      "lead": "Dante, audio multizona, calibración acústica y cine en casa cuando la sala lo pide. Elige el rubro: el diseño, la instalación y el soporte son del mismo equipo."
+      "title": "Soluciones que aportan vida y sentido a tus espacios.",
+      "lead": "Restaurantes | Centros Nocturnos | Escuelas | Universidades | Iglesias | Auditorios | Gimnasios | Casas | Centros de Salud |"
     },
     "nosotros": {
       "seoTitle": "Nosotros | Mizo — Ingeniería y precisión",
       "seoDescription": "Mizo diseña, integra y optimiza sistemas de audio, video y automatización de alto rendimiento para espacios comerciales y residenciales en Chile.",
       "kicker": "Nosotros",
-      "title": "Ingeniería y precisión sin compromisos.",
-      "lead": "En Mizo no vendemos soluciones genéricas. Diseñamos, integramos y optimizamos sistemas de audio, video y automatización de alto rendimiento para transformar espacios comerciales y residenciales.",
+      "title": "Expertos en técnologia que aportan valor a tus ideas.",
+      "lead": "Más allá del suministro de hardware, en Mizo diseñamos soluciones integrales y acompañamos cada etapa del desarrollo de su proyecto.",
       "coveragePrefix": "Cobertura en",
       "pillarsKicker": "Criterio",
       "pillarsTitle": "Tres pilares. El mismo equipo de principio a fin.",
-      "standardsLinkLabel": "Ver el hardware de grado profesional",
-      "ctaTitle": "Conecta con un especialista de Mizo.",
-      "ctaText": "Cuéntanos el recinto. Revisamos acústica, arquitectura y operación, y te respondemos con una propuesta a medida.",
+      "ctaTitle": "Comunicate con nosotros",
+      "ctaText": "Cuentanos tu proyecto y te ayudaremos a desarrollarlo.",
       "pillars": [
         {
           "n": "01",
-          "title": "Ingeniería quirúrgica y a medida",
-          "text": "Estudiamos cada espacio desde cero según su acústica, arquitectura y necesidades operativas reales."
+          "title": "Aseosria Técnica de principio a fin",
+          "text": "Garantizamos comunicación directa y constante con su asesor técnico durante todo el ciclo del proyecto, brindándole respaldo especializado en cada decisión técnica y comercial"
         },
         {
           "n": "02",
-          "title": "Estándares profesionales de vanguardia",
-          "text": "Trabajamos con tecnología de primer nivel: protocolos Dante, procesamiento DSP, sistemas Dolby Atmos y marcas con respaldo global."
+          "title": "Productos con respaldo directo de la marca",
+          "text": "Todos los productos con los que trabajamos cuentan con representación directa de la marca en el territorio nacional y garantía oficial ante cualquier falla."
         },
         {
           "n": "03",
-          "title": "Acompañamiento directo y postventa real",
-          "text": "Soporte técnico local y respuesta rápida, desde la asesoría inicial hasta la puesta en marcha."
+          "title": "Post Venta y Garantia de 12 meses en todas nuestras integraciones.",
+          "text": "Garantizamos un periodo de 12 meses en todas nuestras integraciones, respaldado por un equipo de postventa especializado para acompañarle ante cualquier consulta técnica u operativa"
         }
       ]
     },
@@ -100,17 +83,6 @@
       "title": "Solicita una propuesta técnica.",
       "lead": "Un ingeniero revisa tu requerimiento y te responde con alcance e instalación según tu recinto.",
       "whatsappDetail": "Canal directo de cotización"
-    },
-    "estandares": {
-      "seoTitle": "Estándares | Mizo — Hardware de grado profesional",
-      "seoDescription": "Estándares tecnológicos de Mizo: redes de audio Dante, procesamiento DSP, audio de intemperie y visuales de gran formato. Hardware elegido para cada recinto.",
-      "kicker": "Estándares",
-      "title": "Hardware de grado profesional, elegido para el recinto.",
-      "lead": "Dante, DSP, audio de intemperie y visuales de gran formato entran al proyecto cuando el espacio lo exige. El criterio es la ingeniería del recinto.",
-      "teaserLead": "Cuatro familias de equipo con las que se diseña. El criterio es el desempeño del espacio, no un listado de precios.",
-      "teaserLinkLabel": "Ver estándares",
-      "ctaTitle": "Definamos el estándar de tu recinto.",
-      "ctaText": "Cuéntanos el espacio. Un especialista de Mizo propone el hardware que corresponde, sin un catálogo de por medio."
     },
     "equipos": {
       "seoTitle": "Equipos | Mizo — Hardware de grado profesional",
@@ -142,28 +114,6 @@
     {
       "title": "Pago con tarjeta",
       "detail": "Puedes pagar con tarjetas de crédito."
-    }
-  ],
-  "engineeringStandards": [
-    {
-      "label": "Dante",
-      "detail": "Audio sobre IP cuando el recinto necesita latencia imperceptible y cambios de montaje."
-    },
-    {
-      "label": "Multizona",
-      "detail": "Alta fidelidad con volumen y programa independientes en cada ambiente."
-    },
-    {
-      "label": "Calibración",
-      "detail": "Ajuste acústico real de la sala, no un nivel dejado al azar."
-    },
-    {
-      "label": "Dolby Atmos",
-      "detail": "Envolvente de cine, con DTS:X, calibrado a la geometría de la sala."
-    },
-    {
-      "label": "Marcas",
-      "detail": "Integramos Sony, Sennheiser, JBL, Bose, Shure, Epson y BenQ."
     }
   ],
   "engineeringSteps": [
@@ -220,36 +170,6 @@
       "short": "Cine en casa, audio de exterior para quincho y terraza, y domótica para iluminación, cortinas y equipos desde un toque o la voz.",
       "lead": "La sala se calibra a Dolby Atmos o DTS:X y el quincho lleva audio de intemperie en su propia zona. Es un diseño para esa casa, acompañado desde la asesoría hasta dejar el control en manos de quien vive ahí.",
       "imageLabel": "Sala de cine, quincho y terraza"
-    }
-  ],
-  "techStandards": [
-    {
-      "id": "audio-digital",
-      "kicker": "AoIP / Dante",
-      "title": "Redes de audio digital",
-      "lead": "Transmisión multicanal sin pérdida sobre red estándar.",
-      "detail": "El audio viaja por la infraestructura de red del recinto, con canales independientes y latencia baja. Sirve cuando hay muchas fuentes o el montaje cambia de un evento a otro."
-    },
-    {
-      "id": "dsp",
-      "kicker": "DSP",
-      "title": "Procesamiento de señal",
-      "lead": "Matrices de audio avanzado y control de ecualización.",
-      "detail": "La matriz enruta, ecualiza y limita cada zona. El sistema queda calibrado al uso real de la sala, con el nivel y la ruta que esa operación necesita."
-    },
-    {
-      "id": "intemperie",
-      "kicker": "Audio",
-      "title": "Audio e intemperie",
-      "lead": "Altavoces de alta eficiencia, amplificación multizona y sistemas acústicos.",
-      "detail": "Cobertura uniforme en sala y en exterior, con programa y volumen independientes por ambiente. El equipo se elige según el clima, la distancia y el nivel que el espacio exige."
-    },
-    {
-      "id": "video",
-      "kicker": "Visuales",
-      "title": "Video y visuales de gran formato",
-      "lead": "Pantallas LED y proyección láser de alta luminosidad.",
-      "detail": "La imagen se dimensiona al muro o a la sala, para que se lea con luz ambiente. El formato, el brillo y la distancia de visión se definen en el diseño, antes de instalar."
     }
   ]
 }
