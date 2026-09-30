@@ -56,6 +56,7 @@
       "coveragePrefix": "Cobertura en",
       "pillarsKicker": "Criterio",
       "pillarsTitle": "Tres pilares. El mismo equipo de principio a fin.",
+      "standardsLinkLabel": "Ver el hardware de grado profesional",
       "ctaTitle": "Comunicate con nosotros",
       "ctaText": "Cuentanos tu proyecto y te ayudaremos a desarrollarlo.",
       "pillars": [
@@ -80,40 +81,73 @@
       "seoTitle": "Contacto | Mizo — Cotiza instalación en Chile",
       "seoDescription": "Contacta a Mizo para cotizaciones de sonido, video, CCTV y soporte TI.",
       "kicker": "Contacto",
-      "title": "Solicita una propuesta técnica.",
-      "lead": "Un ingeniero revisa tu requerimiento y te responde con alcance e instalación según tu recinto.",
+      "title": "Comunicate con nosotros.",
+      "lead": "Un asesor técnico te contactara para ayudarte con tus consultas.",
       "whatsappDetail": "Canal directo de cotización"
     },
+    "estandares": {
+      "seoTitle": "Estándares | Mizo — Hardware de grado profesional",
+      "seoDescription": "Estándares tecnológicos de Mizo: redes de audio Dante, procesamiento DSP, audio de intemperie y visuales de gran formato. Hardware elegido para cada recinto.",
+      "kicker": "Estándares",
+      "title": "Hardware de grado profesional, elegido para el recinto.",
+      "lead": "Dante, DSP, audio de intemperie y visuales de gran formato entran al proyecto cuando el espacio lo exige. El criterio es la ingeniería del recinto.",
+      "teaserLead": "Cuatro familias de equipo con las que se diseña. El criterio es el desempeño del espacio, no un listado de precios.",
+      "teaserLinkLabel": "Ver estándares",
+      "ctaTitle": "Definamos el estándar de tu recinto.",
+      "ctaText": "Cuéntanos el espacio. Un especialista de Mizo propone el hardware que corresponde, sin un catálogo de por medio."
+    },
     "equipos": {
-      "seoTitle": "Equipos | Mizo — Hardware de grado profesional",
+      "seoTitle": "Productos | Mizo — Hardware de grado profesional",
       "seoDescription": "Equipos de audio, video y automatización que Mizo integra en cada recinto. Referencia técnica, sin precios de tienda.",
-      "kicker": "Equipos",
-      "title": "Componentes de grado profesional, elegidos para integrar.",
-      "lead": "Tres equipos por fila. Toca la foto para verla en grande y abre Información completa para leer la ficha."
+      "kicker": "Productos ",
+      "title": "Catalogo de productos disponibles.",
+      "lead": "-"
     }
   },
   "cta": {
-    "title": "¿Tienes un recinto que equipar?",
-    "text": "Cuéntanos el espacio y te respondemos con una propuesta clara.",
+    "title": "¿Tienes un proyecto en mente?",
+    "text": "Cuentanos tu proyecto y te ayudaremos.",
     "quoteLabel": "Solicitar cotización",
     "whatsappLabel": "WhatsApp"
   },
   "supportPromises": [
     {
       "title": "Soporte técnico local",
-      "detail": "Quien instala en Chile es quien responde después."
+      "detail": "Todos nuestros proyectos cuentan con 12 meses de garantía."
     },
     {
       "title": "Postventa garantizada",
-      "detail": "La instalación queda cubierta cuando el sistema ya está en uso."
+      "detail": "Atenderemos consultas operativas y técnicas cada vez que lo necesites."
     },
     {
       "title": "Respuesta rápida",
-      "detail": "Cotización y WhatsApp directos, sin un call center de por medio."
+      "detail": "En menos de 12 horas nos contactamos contigo."
     },
     {
       "title": "Pago con tarjeta",
-      "detail": "Puedes pagar con tarjetas de crédito."
+      "detail": "Puedes pagar con tarjetas de crédito cualquier de nuestros productos y servicios."
+    }
+  ],
+  "engineeringStandards": [
+    {
+      "label": "Dante",
+      "detail": "Audio sobre IP cuando el recinto necesita latencia imperceptible y cambios de montaje."
+    },
+    {
+      "label": "Multizona",
+      "detail": "Alta fidelidad con volumen y programa independientes en cada ambiente."
+    },
+    {
+      "label": "Calibración",
+      "detail": "Ajuste acústico real de la sala, no un nivel dejado al azar."
+    },
+    {
+      "label": "Dolby Atmos",
+      "detail": "Envolvente de cine, con DTS:X, calibrado a la geometría de la sala."
+    },
+    {
+      "label": "Marcas",
+      "detail": "Integramos Sony, Sennheiser, JBL, Bose, Shure, Epson y BenQ."
     }
   ],
   "engineeringSteps": [
@@ -170,6 +204,36 @@
       "short": "Cine en casa, audio de exterior para quincho y terraza, y domótica para iluminación, cortinas y equipos desde un toque o la voz.",
       "lead": "La sala se calibra a Dolby Atmos o DTS:X y el quincho lleva audio de intemperie en su propia zona. Es un diseño para esa casa, acompañado desde la asesoría hasta dejar el control en manos de quien vive ahí.",
       "imageLabel": "Sala de cine, quincho y terraza"
+    }
+  ],
+  "techStandards": [
+    {
+      "id": "audio-digital",
+      "kicker": "AoIP / Dante",
+      "title": "Redes de audio digital",
+      "lead": "Transmisión multicanal sin pérdida sobre red estándar.",
+      "detail": "El audio viaja por la infraestructura de red del recinto, con canales independientes y latencia baja. Sirve cuando hay muchas fuentes o el montaje cambia de un evento a otro."
+    },
+    {
+      "id": "dsp",
+      "kicker": "DSP",
+      "title": "Procesamiento de señal",
+      "lead": "Matrices de audio avanzado y control de ecualización.",
+      "detail": "La matriz enruta, ecualiza y limita cada zona. El sistema queda calibrado al uso real de la sala, con el nivel y la ruta que esa operación necesita."
+    },
+    {
+      "id": "intemperie",
+      "kicker": "Audio",
+      "title": "Audio e intemperie",
+      "lead": "Altavoces de alta eficiencia, amplificación multizona y sistemas acústicos.",
+      "detail": "Cobertura uniforme en sala y en exterior, con programa y volumen independientes por ambiente. El equipo se elige según el clima, la distancia y el nivel que el espacio exige."
+    },
+    {
+      "id": "video",
+      "kicker": "Visuales",
+      "title": "Video y visuales de gran formato",
+      "lead": "Pantallas LED y proyección láser de alta luminosidad.",
+      "detail": "La imagen se dimensiona al muro o a la sala, para que se lea con luz ambiente. El formato, el brillo y la distancia de visión se definen en el diseño, antes de instalar."
     }
   ]
 }
