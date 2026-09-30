@@ -2,19 +2,21 @@
 
 Panel local offline para editar los textos fijos del sitio. Lee y escribe `src/data/siteContent.json`.
 
-## Cómo abrirlo
+## Cómo abrirlo (recomendado)
 
-1. Asegúrate de tener **Node.js** instalado (`node -v` en una terminal).
-2. Doble clic en `Abrir-editor-textos.bat` en la raíz del proyecto  
-   **o** ejecuta:
-
-```bash
-npm run content-editor
-```
-
+1. Ten **Node.js LTS** instalado desde https://nodejs.org
+2. Haz **doble clic** en `Abrir-editor-textos.bat` en la raíz del proyecto.
 3. Se abre el navegador en `http://127.0.0.1:4789/`.
-4. Edita los campos y pulsa **Guardar cambios**.
-5. Deja la ventana de la terminal/BAT abierta mientras editas. Ciérrala para detener el editor.
+4. Edita y pulsa **Guardar cambios**.
+5. Deja abierta la ventana negra mientras editas. Si algo falla, la ventana **no se cierra sola** y muestra el error.
+
+El `.bat` llama a `node.exe` directamente (no usa `npm.ps1`), así evita el error de PowerShell *“la ejecución de scripts está deshabilitada”*.
+
+Alternativa desde **CMD** (no PowerShell):
+
+```bat
+node tools\content-editor\server.mjs
+```
 
 ## Flujo con el sitio
 

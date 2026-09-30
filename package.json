@@ -7,7 +7,7 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "content-editor": "node tools/content-editor/server.mjs"
+    "content-editor": "node ./tools/content-editor/server.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",

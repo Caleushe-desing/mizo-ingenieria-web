@@ -38,8 +38,12 @@ function readBody(req) {
 }
 
 function serveStatic(reqPath, res) {
-	const safe = path.normalize(reqPath).replace(/^(\.\.[/\\])+/, '');
-	const filePath = path.join(PUBLIC_DIR, safe === '/' || safe === '' ? 'index.html' : safe);
+	const cleaned = decodeURIComponent(reqPath || '/').split('?')[0];
+	const relative =
+		cleaned === '/' || cleaned === '' || cleaned === '\\'
+			? 'index.html'
+			: cleaned.replace(/^[/\\]+/, '').replace(/\//g, path.sep);
+	const filePath = path.resolve(PUBLIC_DIR, relative);
 	if (!filePath.startsWith(PUBLIC_DIR)) {
 		send(res, 403, 'Forbidden');
 		return;
@@ -96,16 +100,30 @@ const server = http.createServer(async (req, res) => {
 	}
 });
 
+server.on('error', (error) => {
+	if (error && error.code === 'EADDRINUSE') {
+		console.error(`\n[ERROR] El puerto ${PORT} ya esta en uso.`);
+		console.error('Cierra la otra ventana del editor e intenta de nuevo.\n');
+	} else {
+		console.error('\n[ERROR] No se pudo iniciar el servidor:', error);
+	}
+	process.exit(1);
+});
+
 server.listen(PORT, HOST, () => {
 	const url = `http://${HOST}:${PORT}/`;
 	console.log(`Editor de textos Mizo: ${url}`);
 	console.log(`Archivo: ${CONTENT_PATH}`);
-	console.log('Cierra esta ventana para detener el editor.');
+	console.log('Cierra esta ventana para detener el editor.\n');
 	const opener =
 		process.platform === 'win32'
-			? `start "" "${url}"`
+			? `cmd /c start "" "${url}"`
 			: process.platform === 'darwin'
 				? `open "${url}"`
 				: `xdg-open "${url}"`;
-	exec(opener);
+	exec(opener, (err) => {
+		if (err) {
+			console.log(`No se pudo abrir el navegador solo. Abre manualmente: ${url}`);
+		}
+	});
 });
