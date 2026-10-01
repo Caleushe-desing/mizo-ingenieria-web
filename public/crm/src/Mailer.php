@@ -5,13 +5,20 @@ namespace MizoCrm;
 
 final class Mailer
 {
-	public static function send(string $to, string $subject, string $html, string $replyTo = ''): bool
+	/**
+	 * Envía HTML. Con casilla conectada guarda copia en Enviados.
+	 * @return int|false id del mensaje en CRM (0 si salió por mail() sin casilla), false si falló
+	 */
+	public static function send(string $to, string $subject, string $html, string $replyTo = '', string $cc = ''): int|false
 	{
 		$user = Auth::user();
 		if ($user && Models\Mailbox::forUser((int) $user['id'])) {
 			try {
-				Models\Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, '', Models\MailMessage::clientIdFor((int) $user['id'], $to));
-				return true;
+				$clientId = Models\MailMessage::clientIdFor((int) $user['id'], $to);
+				if ($clientId === null && $cc !== '') {
+					$clientId = Models\MailMessage::clientIdFor((int) $user['id'], $cc);
+				}
+				return Models\Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, '', $clientId, $cc);
 			} catch (\RuntimeException) {
 				return false;
 			}
@@ -26,8 +33,13 @@ final class Mailer
 		if ($replyTo !== '' && filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
 			$headers[] = 'Reply-To: ' . $replyTo;
 		}
+		$ccList = Mail\Mime::emailsFromString($cc);
+		if ($ccList !== []) {
+			$headers[] = 'Cc: ' . implode(', ', $ccList);
+		}
 		$encoded = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-		return @mail($to, $encoded, $html, implode("\r\n", $headers));
+		$ok = @mail($to, $encoded, $html, implode("\r\n", $headers));
+		return $ok ? 0 : false;
 	}
 
 	public static function quoteHtml(array $quote, array $items, array $client, string $publicUrl, ?array $user = null): string

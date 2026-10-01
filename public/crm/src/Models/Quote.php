@@ -389,6 +389,65 @@ final class Quote extends Record
 		return trim((string) ($item['description'] ?? ''));
 	}
 
+	/**
+	 * Copia una cotización con un número correlativo nuevo (borrador).
+	 * Conserva partidas, textos y vínculo al mismo proyecto/cliente.
+	 */
+	public static function duplicate(int $quoteId, int $userId): ?int
+	{
+		$quote = self::find($quoteId);
+		if (!$quote) {
+			return null;
+		}
+		$items = self::items($quoteId);
+		$now = date('c');
+		$id = self::insert([
+			'number' => self::nextNumber(),
+			'deal_id' => (int) $quote['deal_id'],
+			'client_id' => (int) $quote['client_id'],
+			'status' => 'borrador',
+			'intro' => (string) ($quote['intro'] ?? ''),
+			'notes' => (string) ($quote['notes'] ?? ''),
+			'terms_text' => self::termsText($quote),
+			'about_text' => self::aboutText($quote),
+			'valid_until' => date('Y-m-d', strtotime('+15 days')),
+			'tax_rate' => (float) ($quote['tax_rate'] ?? Config::TAX_RATE),
+			'subtotal' => 0,
+			'tax' => 0,
+			'total' => 0,
+			'token' => bin2hex(random_bytes(16)),
+			'sent_to' => '',
+			'sent_cc' => '',
+			'contact_id' => $quote['contact_id'] ?? null,
+			'revision' => '',
+			'created_by' => $userId,
+			'updated_by' => $userId,
+			'created_at' => $now,
+			'updated_at' => $now,
+		]);
+		$copyItems = [];
+		foreach ($items as $item) {
+			$copyItems[] = [
+				'product_id' => (int) ($item['product_id'] ?? 0),
+				'name' => (string) ($item['name'] ?? ''),
+				'description' => (string) ($item['description'] ?? ''),
+				'quantity' => $item['quantity'] ?? 1,
+				'unit' => (string) ($item['unit'] ?? 'un'),
+				'cost_price' => (int) ($item['cost_price'] ?? 0),
+				'margin_percent' => (float) ($item['margin_percent'] ?? 0),
+				'unit_price' => (int) ($item['unit_price'] ?? 0),
+				'service_breakdown' => $item['service_breakdown'] ?? '',
+			];
+		}
+		$totals = self::saveItems($id, $copyItems);
+		self::update($id, [...$totals, 'updated_at' => $now, 'updated_by' => $userId]);
+		Deal::update((int) $quote['deal_id'], [
+			'amount' => $totals['total'],
+			'updated_at' => $now,
+		]);
+		return $id;
+	}
+
 	public static function purge(int $quoteId): int
 	{
 		$quote = self::find($quoteId);

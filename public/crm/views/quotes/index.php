@@ -1,5 +1,6 @@
 <?php
 use MizoCrm\Config;
+use MizoCrm\Csrf;
 use MizoCrm\Http;
 
 $summary = $summary ?? [
@@ -85,6 +86,16 @@ $profitPositive = (int) $summary['profit'] >= 0;
 							<td>
 								<a class="quotes-number" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>"><?= h($quote['number']) ?></a>
 								<span class="quotes-status quotes-status-<?= h($statusKey) ?>"><?= h($statusLabel) ?></span>
+								<div class="quotes-row-actions">
+									<a href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Abrir</a>
+									<?php if (!empty($quote['last_email_html'])): ?>
+										<a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Correo</a>
+									<?php endif; ?>
+									<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" onsubmit="return confirm('¿Copiar <?= h($quote['number']) ?> con un número nuevo?');">
+										<?= Csrf::field() ?>
+										<button type="submit">Copiar</button>
+									</form>
+								</div>
 							</td>
 							<td>
 								<span class="quotes-client"><?= h($quote['client_name']) ?></span>

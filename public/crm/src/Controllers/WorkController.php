@@ -484,7 +484,7 @@ final class WorkController
 		$html = Mailer::quoteHtml($quote, $items, $client ?? ['name' => '', 'contact_name' => ''], $url);
 		$user = Auth::user();
 		$ok = Mailer::send($to, 'Cotización ' . $quote['number'] . ' — Mizo', $html, $user['email'] ?? '');
-		if (!$ok) {
+		if ($ok === false) {
 			View::flash('error', 'No se pudo enviar el correo desde este equipo. En el servidor sí sale. La cotización quedó guardada.');
 			Http::redirect('/t/' . $dealId);
 		}

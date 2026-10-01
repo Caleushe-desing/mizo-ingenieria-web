@@ -61,16 +61,25 @@ foreach ($contacts as $c) {
 				<?php if ($quote): ?> · <?= h(quote_status_label((string) $quote['status'])) ?><?php endif; ?>
 			</p>
 		</div>
-		<?php if (!$locked): ?>
-			<div class="quote-toolbar-actions">
+		<div class="quote-toolbar-actions">
+			<?php if ($quote): ?>
+				<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" style="display:inline">
+					<?= Csrf::field() ?>
+					<button class="btn" type="submit" title="Crea un borrador nuevo con el siguiente número correlativo">Copiar</button>
+				</form>
+			<?php endif; ?>
+			<?php if ($quote && trim((string) ($quote['last_email_html'] ?? '')) !== ''): ?>
+				<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Ver correo enviado</a>
+			<?php endif; ?>
+			<?php if (!$locked): ?>
 				<button class="btn btn-excel" type="submit" form="quote-form" name="intent" value="save">Guardar</button>
-				<button class="btn btn-word" type="submit" form="quote-form" name="intent" value="send"><?= $sentAlready ? 'Enviar revisión' : 'Enviar' ?></button>
-			</div>
-		<?php endif; ?>
+				<button class="btn btn-word" type="submit" form="quote-form" name="intent" value="send"><?= $sentAlready ? 'Revisar y enviar' : 'Revisar y enviar' ?></button>
+			<?php endif; ?>
+		</div>
 	</header>
 
 	<?php if ($sentAlready && !$locked): ?>
-		<p class="quote-notice">Esta cotización ya se envió. Al guardar una versión (REV-01, OC u otra), reemplaza a la anterior en la misma tarjeta del tablero.</p>
+		<p class="quote-notice">Esta cotización ya se envió. Al enviar una versión (REV-01, OC u otra) puedes elegir contactos, ver el correo y confirmar antes de mandarlo.</p>
 	<?php endif; ?>
 
 	<form id="quote-form" class="paper form quote-work" method="post" action="<?= h($action) ?>">
@@ -303,7 +312,7 @@ foreach ($contacts as $c) {
 			<?php if (!$locked): ?>
 				<div class="form-actions quote-footer-actions">
 					<button class="btn btn-excel" type="submit" name="intent" value="save">Guardar cotización</button>
-					<button class="btn btn-word" type="submit" name="intent" value="send"><?= $sentAlready ? 'Enviar revisión' : 'Enviar al cliente' ?></button>
+					<button class="btn btn-word" type="submit" name="intent" value="send">Revisar y enviar</button>
 				</div>
 			<?php else: ?>
 				<p class="muted">Esta cotización ya fue <?= h(quote_status_label((string) $quote['status'])) ?> y no se puede modificar.</p>
@@ -314,6 +323,16 @@ foreach ($contacts as $c) {
 	<?php if ($quote): ?>
 		<div class="client-sheet-links">
 			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/preview')) ?>" target="_blank" rel="noopener">Ver como la ve el cliente</a>
+			<?php if (trim((string) ($quote['last_email_html'] ?? '')) !== ''): ?>
+				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Ver correo enviado</a>
+			<?php endif; ?>
+			<?php if (!$locked): ?>
+				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">Revisar envío / contactos</a>
+			<?php endif; ?>
+			<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" onsubmit="return confirm('¿Crear una copia con un número de cotización nuevo?');">
+				<?= Csrf::field() ?>
+				<button class="btn-text" type="submit">Copiar cotización</button>
+			</form>
 			<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Eliminar la cotización <?= h($quote['number']) ?>?');">
 				<?= Csrf::field() ?>
 				<button class="btn-danger-text" type="submit">Eliminar cotización</button>

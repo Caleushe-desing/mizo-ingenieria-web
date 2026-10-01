@@ -8,6 +8,7 @@ use MizoCrm\Auth;
 use MizoCrm\Config;
 use MizoCrm\Csrf;
 use MizoCrm\Http;
+use MizoCrm\Mail\Mime;
 use MizoCrm\Mailer;
 use MizoCrm\Models\Activity;
 use MizoCrm\Models\Client;
@@ -118,8 +119,7 @@ final class QuoteController
 		$client = Auth::requireClient(Client::find((int) $deal['client_id']));
 		$quoteId = $this->saveQuote($client, null, (int) $deal['id']);
 		if (Http::string('intent', 20) === 'send') {
-			$this->deliver($quoteId);
-			return;
+			Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
 		}
 		View::flash('ok', 'Cotización guardada en este proyecto.');
 		Http::redirect('/cotizaciones/' . $quoteId);
@@ -137,8 +137,7 @@ final class QuoteController
 		}
 		$quoteId = $this->saveQuote($client, null, (int) $deal['id']);
 		if (Http::string('intent', 20) === 'send') {
-			$this->deliver($quoteId);
-			return;
+			Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
 		}
 		View::flash('ok', 'Cotización guardada. Puedes enviarla cuando esté lista.');
 		Http::redirect('/cotizaciones/' . $quoteId);
@@ -190,17 +189,126 @@ final class QuoteController
 		}
 		$this->saveQuote($client, $quote);
 		if (Http::string('intent', 20) === 'send') {
-			$this->deliver((int) $id);
-			return;
+			Http::redirect('/cotizaciones/' . $id . '/enviar');
 		}
 		View::flash('ok', 'Cotización guardada.');
 		Http::redirect('/cotizaciones/' . $id);
+	}
+
+	/** Pantalla previa: contactos, Cc y vista del correo antes de enviar. */
+	public function prepareSend(string $id): void
+	{
+		$quote = Quote::find((int) $id);
+		if (!$quote) {
+			Http::redirect('/');
+		}
+		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
+		if (in_array((string) $quote['status'], ['aceptada', 'rechazada'], true)) {
+			View::flash('error', 'Esa cotización ya fue respondida y no se puede enviar de nuevo.');
+			Http::redirect('/cotizaciones/' . $id);
+		}
+		$items = Quote::items((int) $id);
+		$hasItems = false;
+		foreach ($items as $item) {
+			if (Quote::itemLabel($item) !== '') {
+				$hasItems = true;
+				break;
+			}
+		}
+		if (!$hasItems) {
+			View::flash('error', 'Agrega al menos una partida antes de enviar.');
+			Http::redirect('/cotizaciones/' . $id);
+		}
+		$contacts = ClientContact::forClient((int) $client['id']);
+		$selectedContact = (int) ($_GET['contacto'] ?? ($quote['contact_id'] ?? 0));
+		if ($selectedContact > 0) {
+			$owned = ClientContact::owned($selectedContact, (int) $client['id']);
+			if ($owned) {
+				$quote['contact_id'] = $selectedContact;
+				$quote['sent_to'] = trim((string) ($owned['email'] ?? ''));
+			}
+		}
+		$quote = ClientContact::applyToQuote($quote);
+		if (!empty($quote['contact_name'])) {
+			$client['contact_name'] = $quote['contact_name'];
+		}
+		$quote['deal_title'] = $quote['intro'] !== '' ? $quote['intro'] : (Quote::itemLabel($items[0] ?? []) ?: 'Cotización');
+		$url = App::absolute('/q/' . $quote['token']);
+		$user = Auth::user();
+		$html = Mailer::quoteHtml($quote, $items, $client, $url, $user);
+		$version = trim((string) ($quote['revision'] ?? ''));
+		$subject = 'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' — Mizo';
+		$alreadySent = !empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true);
+		View::render('quotes/send', [
+			'title' => 'Enviar ' . $quote['number'],
+			'client' => $client,
+			'quote' => $quote,
+			'items' => $items,
+			'contacts' => $contacts,
+			'subject' => $subject,
+			'emailHtml' => $html,
+			'publicUrl' => $url,
+			'alreadySent' => $alreadySent,
+			'selectedContact' => (int) ($quote['contact_id'] ?? 0),
+			'selectedCc' => Mime::emailsFromString((string) ($quote['sent_cc'] ?? '')),
+		]);
 	}
 
 	public function send(string $id): void
 	{
 		Csrf::check();
 		$this->deliver((int) $id);
+	}
+
+	/** Ver el último correo enviado de esta cotización. */
+	public function email(string $id): void
+	{
+		$quote = Quote::find((int) $id);
+		if (!$quote) {
+			Http::redirect('/');
+		}
+		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
+		$html = trim((string) ($quote['last_email_html'] ?? ''));
+		if ($html === '') {
+			View::flash('error', 'Todavía no hay un correo guardado para esta cotización. Envíala primero.');
+			Http::redirect('/cotizaciones/' . $id);
+		}
+		View::render('quotes/email', [
+			'title' => 'Correo · ' . $quote['number'],
+			'client' => $client,
+			'quote' => $quote,
+			'subject' => (string) ($quote['last_email_subject'] ?? ''),
+			'emailHtml' => $html,
+			'mailId' => (int) ($quote['last_mail_id'] ?? 0),
+		]);
+	}
+
+	/** Copia con número correlativo nuevo. */
+	public function duplicate(string $id): void
+	{
+		Csrf::check();
+		$quote = Quote::find((int) $id);
+		if (!$quote) {
+			Http::redirect('/');
+		}
+		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
+		$newId = Quote::duplicate((int) $id, Auth::id());
+		if (!$newId) {
+			View::flash('error', 'No se pudo copiar la cotización.');
+			Http::redirect('/cotizaciones/' . $id);
+		}
+		$created = Quote::find($newId);
+		Activity::log(
+			'quote_created',
+			'Cotización ' . ($created['number'] ?? '') . ' copiada desde ' . ($quote['number'] ?? '') . '.',
+			Auth::id(),
+			(int) $client['id'],
+			(int) $quote['deal_id'],
+			$newId
+		);
+		Client::update((int) $client['id'], ['updated_at' => date('c')]);
+		View::flash('ok', 'Copia creada como ' . ($created['number'] ?? '') . '. Es un borrador nuevo; puedes editarla y enviarla.');
+		Http::redirect('/cotizaciones/' . $newId);
 	}
 
 	public function destroy(string $id): void
@@ -369,7 +477,35 @@ final class QuoteController
 		}
 		$alreadySent = !empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true);
 		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
-		$this->saveQuote($client, $quote);
+		if (in_array((string) $quote['status'], ['aceptada', 'rechazada'], true)) {
+			View::flash('error', 'Esa cotización ya fue respondida y no se puede enviar de nuevo.');
+			Http::redirect('/cotizaciones/' . $quoteId);
+		}
+
+		$recipients = $this->recipientsFromSendPost((int) $client['id'], $quote);
+		$to = $recipients['to'];
+		$cc = $recipients['cc'];
+		$contactId = $recipients['contact_id'];
+
+		$fieldsPre = [
+			'contact_id' => $contactId,
+			'sent_to' => $to,
+			'sent_cc' => $cc,
+			'updated_at' => date('c'),
+			'updated_by' => Auth::id(),
+		];
+		if ($alreadySent) {
+			$postedRev = strtoupper(trim(Http::string('revision', 24)));
+			$postedRev = preg_replace('/\s+/', '-', $postedRev) ?? '';
+			if ($postedRev !== '' && preg_match('/^[A-Z0-9][A-Z0-9\-]{0,23}$/', $postedRev)) {
+				$fieldsPre['revision'] = $postedRev;
+			} elseif (trim((string) ($quote['revision'] ?? '')) === '') {
+				View::flash('error', 'Indica la versión con letras y números, por ejemplo REV-01 o OC.');
+				Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
+			}
+		}
+		Quote::update($quoteId, $fieldsPre);
+
 		$quote = Quote::find($quoteId);
 		if (!$quote) {
 			Http::redirect('/');
@@ -386,17 +522,14 @@ final class QuoteController
 			View::flash('error', 'Agrega al menos una partida antes de enviar.');
 			Http::redirect('/cotizaciones/' . $quoteId);
 		}
+		if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+			View::flash('error', 'Elige un destinatario con correo válido.');
+			Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
+		}
+
 		$quote = ClientContact::applyToQuote($quote);
 		if (!empty($quote['contact_name'])) {
 			$client['contact_name'] = $quote['contact_name'];
-		}
-		$to = (string) ($quote['sent_to'] ?? '');
-		if ($to === '') {
-			$to = Http::string('sent_to', 160) ?: (string) ($quote['client_email'] ?? $client['email'] ?? '');
-		}
-		if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-			View::flash('error', 'Ese contacto no tiene un correo válido. Agrégalo en la ficha del cliente y vuelve a enviar.');
-			Http::redirect('/cotizaciones/' . $quoteId);
 		}
 		$quote['deal_title'] = $quote['intro'] !== '' ? $quote['intro'] : (Quote::itemLabel($items[0] ?? []) ?: 'Cotización');
 		$url = App::absolute('/q/' . $quote['token']);
@@ -404,27 +537,35 @@ final class QuoteController
 		$html = Mailer::quoteHtml($quote, $items, $client, $url, $user);
 		$version = trim((string) ($quote['revision'] ?? ''));
 		$subject = 'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' — Mizo';
-		$ok = Mailer::send($to, $subject, $html, $user['email'] ?? '');
-		if (!$ok) {
+		$mailId = Mailer::send($to, $subject, $html, $user['email'] ?? '', $cc);
+		if ($mailId === false) {
 			$hint = \MizoCrm\Models\Mailbox::forUser(Auth::id())
 				? 'Revisa la clave de tu casilla en Correo.'
 				: 'Conecta tu casilla en Correo para que el cliente te responda ahí.';
 			View::flash('error', 'No se pudo enviar el correo. ' . $hint . ' La cotización quedó guardada.');
-			Http::redirect('/cotizaciones/' . $quoteId);
+			Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
 		}
-		Quote::update((int) $quote['id'], [
+		$fields = [
 			'status' => 'enviada',
 			'sent_at' => date('c'),
 			'sent_to' => $to,
+			'sent_cc' => $cc,
+			'last_email_html' => $html,
+			'last_email_subject' => $subject,
 			'updated_at' => date('c'),
 			'updated_by' => Auth::id(),
-		]);
+		];
+		if ($mailId > 0) {
+			$fields['last_mail_id'] = $mailId;
+		}
+		Quote::update((int) $quote['id'], $fields);
 		if (!$alreadySent) {
 			\MizoCrm\Models\Pipeline::onQuoteSent((int) $quote['deal_id']);
 		}
+		$ccNote = $cc !== '' ? ' (cc ' . $cc . ')' : '';
 		Activity::log(
 			'quote_sent',
-			'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' enviada a ' . $to . '.',
+			'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' enviada a ' . $to . $ccNote . '.',
 			Auth::id(),
 			(int) $quote['client_id'],
 			(int) $quote['deal_id'],
@@ -432,8 +573,49 @@ final class QuoteController
 		);
 		Client::update((int) $quote['client_id'], ['updated_at' => date('c')]);
 		View::flash('ok', $alreadySent
-			? 'Versión ' . ($version !== '' ? $version : $quote['number']) . ' enviada. La tarjeta sigue en la misma columna.'
-			: 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '. Si responde, te llega a Correo.');
-		Http::redirect('/tablero/cliente/' . $quote['client_id'] . '/ficha');
+			? 'Versión ' . ($version !== '' ? $version : $quote['number']) . ' enviada a ' . $to . '.'
+			: 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '.');
+		Http::redirect('/cotizaciones/' . $quoteId . '/correo');
+	}
+
+	/** @param array<string,mixed> $quote @return array{to: string, cc: string, contact_id: ?int} */
+	private function recipientsFromSendPost(int $clientId, array $quote): array
+	{
+		$contactId = (int) ($_POST['contact_id'] ?? 0);
+		$contact = $contactId > 0 ? ClientContact::owned($contactId, $clientId) : null;
+		$to = $contact ? trim((string) ($contact['email'] ?? '')) : '';
+		if ($to === '') {
+			$to = trim(Http::string('sent_to', 160));
+		}
+		if ($to === '') {
+			$to = trim((string) ($quote['sent_to'] ?? ''));
+		}
+
+		$ccEmails = [];
+		$extra = $_POST['cc_contact_id'] ?? [];
+		if (is_array($extra)) {
+			foreach ($extra as $rawId) {
+				$cid = (int) $rawId;
+				if ($cid <= 0 || ($contact && $cid === (int) $contact['id'])) {
+					continue;
+				}
+				$row = ClientContact::owned($cid, $clientId);
+				$email = $row ? trim((string) ($row['email'] ?? '')) : '';
+				if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) && strcasecmp($email, $to) !== 0) {
+					$ccEmails[] = mb_strtolower($email);
+				}
+			}
+		}
+		foreach (Mime::emailsFromString(Http::string('cc', 500)) as $email) {
+			if (strcasecmp($email, $to) !== 0) {
+				$ccEmails[] = $email;
+			}
+		}
+		$ccEmails = array_values(array_unique($ccEmails));
+		return [
+			'to' => $to,
+			'cc' => implode(', ', $ccEmails),
+			'contact_id' => $contact ? (int) $contact['id'] : null,
+		];
 	}
 }

@@ -629,6 +629,24 @@ final class Database
 				$pdo->exec('ALTER TABLE quotes ADD COLUMN about_text TEXT NOT NULL DEFAULT \'\'');
 			}
 			$pdo->exec('PRAGMA user_version = 23');
+			$version = 23;
+		}
+
+		if ($version < 24) {
+			$quoteCols = array_column($pdo->query('PRAGMA table_info(quotes)')->fetchAll(), 'name');
+			if ($quoteCols !== [] && !in_array('last_mail_id', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN last_mail_id INTEGER');
+			}
+			if ($quoteCols !== [] && !in_array('last_email_html', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN last_email_html TEXT NOT NULL DEFAULT \'\'');
+			}
+			if ($quoteCols !== [] && !in_array('last_email_subject', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN last_email_subject TEXT NOT NULL DEFAULT \'\'');
+			}
+			if ($quoteCols !== [] && !in_array('sent_cc', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN sent_cc TEXT NOT NULL DEFAULT \'\'');
+			}
+			$pdo->exec('PRAGMA user_version = 24');
 		}
 	}
 
@@ -673,6 +691,18 @@ final class Database
 			}
 			if ($quoteCols !== [] && !in_array('about_text', $quoteCols, true)) {
 				$pdo->exec('ALTER TABLE quotes ADD COLUMN about_text TEXT NOT NULL DEFAULT \'\'');
+			}
+			if ($quoteCols !== [] && !in_array('last_mail_id', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN last_mail_id INTEGER');
+			}
+			if ($quoteCols !== [] && !in_array('last_email_html', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN last_email_html TEXT NOT NULL DEFAULT \'\'');
+			}
+			if ($quoteCols !== [] && !in_array('last_email_subject', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN last_email_subject TEXT NOT NULL DEFAULT \'\'');
+			}
+			if ($quoteCols !== [] && !in_array('sent_cc', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN sent_cc TEXT NOT NULL DEFAULT \'\'');
 			}
 			self::ensureProfessionalServiceProduct($pdo);
 		} catch (\Throwable) {
