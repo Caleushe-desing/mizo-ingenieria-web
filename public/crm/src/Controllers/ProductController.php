@@ -167,6 +167,36 @@ final class ProductController
 		);
 	}
 
+	/** Alta rápida desde el cotizador (ejecutivo autenticado). */
+	public function quoteCreate(): void
+	{
+		Auth::requireUser();
+		Csrf::check();
+		header('Content-Type: application/json; charset=utf-8');
+		header('Cache-Control: no-store');
+		$data = $this->input();
+		$data['activo'] = 1;
+		$error = $this->validate($data, null);
+		if ($error !== null) {
+			http_response_code(422);
+			echo json_encode(['ok' => false, 'error' => $error], JSON_UNESCAPED_UNICODE);
+			return;
+		}
+		$now = date('c');
+		$id = Product::insert($data + ['created_at' => $now, 'updated_at' => $now]);
+		$product = [
+			'id' => $id,
+			'sku' => $data['sku'],
+			'nombre' => $data['nombre'],
+			'descripcion' => $data['descripcion'],
+			'categoria' => $data['categoria'],
+			'precio_compra_iva' => (int) $data['precio_compra_iva'],
+			'proveedor_link' => $data['proveedor_link'],
+			'proveedor_empresa' => $data['proveedor_empresa'],
+		];
+		echo json_encode(['ok' => true, 'product' => $product], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+	}
+
 	private function postedImages(): array
 	{
 		$decoded = json_decode((string) ($_POST['imagenes'] ?? ''), true);

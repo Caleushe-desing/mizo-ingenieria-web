@@ -2349,10 +2349,120 @@ body.is-quote-popup .client-sheet.quote-sheet {
 	max-width: none;
 	margin: 8px auto 20px;
 }
+.quote-toolbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 16px;
+	margin: 0 0 14px;
+	padding: 14px 16px;
+	border: 1px solid #d6e4f0;
+	border-radius: 12px;
+	background: #fff;
+	border-top: 3px solid #1c9bd8;
+}
+.quote-kicker {
+	margin: 0 0 4px;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #667085;
+}
+.quote-toolbar h1 {
+	margin: 0;
+	font-size: 22px;
+}
+.quote-toolbar p {
+	margin: 4px 0 0;
+	color: #667085;
+}
+.quote-toolbar-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.quote-block {
+	margin: 0 0 14px;
+	border: 1px solid #d6e4f0;
+	border-radius: 12px;
+	background: #fff;
+	overflow: hidden;
+}
+.quote-block > summary {
+	list-style: none;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+	font-weight: 700;
+	background: #f7fafc;
+}
+.quote-block > summary::-webkit-details-marker { display: none; }
+.quote-block > summary small {
+	font-weight: 500;
+	color: #667085;
+}
+.quote-block-body {
+	padding: 14px 16px 16px;
+	border-top: 1px solid #e8eef4;
+}
+.quote-block.is-solid {
+	padding: 0;
+}
+.quote-block-hd {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 14px 16px 8px;
+}
+.quote-block-hd h2 {
+	margin: 0;
+	font-size: 18px;
+}
+.quote-block-hd .muted {
+	margin: 4px 0 0;
+}
+.quote-notes-field {
+	grid-column: 1 / -1;
+}
+.quote-footer-bar {
+	position: sticky;
+	bottom: 0;
+	z-index: 5;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-top: 8px;
+	padding: 12px 14px;
+	border: 1px solid #d6e4f0;
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.96);
+	box-shadow: 0 -6px 18px rgba(15, 17, 20, 0.06);
+}
+.quote-footer-actions {
+	margin: 0;
+}
+.quote-line-hd {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 10px;
+}
+.quote-line-hd strong {
+	font-size: 13px;
+	color: #0b6ea8;
+}
 .quote-line-cards {
 	display: grid;
 	gap: 14px;
-	margin: 12px 0 16px;
+	margin: 0;
+	padding: 0 16px 16px;
 }
 .quote-line-card {
 	display: grid;
@@ -2361,6 +2471,49 @@ body.is-quote-popup .client-sheet.quote-sheet {
 	border: 1px solid #d6e4f0;
 	border-radius: 10px;
 	background: #fbfcfd;
+}
+.catalog-create-form {
+	display: grid;
+	gap: 12px;
+	padding: 0 18px 18px;
+}
+.catalog-create-form .grid-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+.catalog-create-form label {
+	display: grid;
+	gap: 6px;
+	margin: 0;
+}
+.catalog-create-form input,
+.catalog-create-form textarea {
+	width: 100%;
+	border: 1px solid #c9d0d8;
+	border-radius: 8px;
+	padding: 10px 12px;
+	font: inherit;
+}
+.catalog-create-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.catalog-search-empty {
+	display: grid;
+	gap: 12px;
+	justify-items: center;
+	padding: 28px 12px;
+	text-align: center;
+}
+.catalog-search-actions {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	flex-wrap: wrap;
+	padding: 0 18px 8px;
 }
 .quote-line-top {
 	display: grid;

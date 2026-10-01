@@ -10,31 +10,49 @@
 		iva: document.querySelector('[data-iva]'),
 		total: document.querySelector('[data-total]'),
 	};
-	const FREE_LABEL = 'Ítem libre / elegir catálogo…';
+	const FREE_LABEL = 'Buscar en catálogo…';
+	const sheet = document.querySelector('.quote-sheet');
+	const createUrl = (sheet && sheet.getAttribute('data-catalog-create')) || '';
+	const csrfToken = (sheet && sheet.getAttribute('data-csrf')) || '';
 
 	function catalogList() {
 		const el = document.getElementById('quote-catalog-json');
 		if (!el) return [];
 		try {
-			const products = JSON.parse(el.textContent || '[]');
-			return Array.isArray(products) ? products : [];
+			const items = JSON.parse(el.textContent || '[]');
+			return Array.isArray(items) ? items : [];
 		} catch (e) {
 			return [];
 		}
 	}
 
-	function catalogMap() {
+	function catalogMapFrom(list) {
 		const map = {};
-		catalogList().forEach(function (product) {
+		list.forEach(function (product) {
 			if (product && product.id != null) map[String(product.id)] = product;
 		});
 		return map;
 	}
 
-	const catalog = catalogMap();
-	const products = catalogList();
+	let products = catalogList();
+	let catalog = catalogMapFrom(products);
 	let activeRow = null;
 	let pickerRoot = null;
+	let pickerMode = 'search';
+
+	function rememberCatalog(list) {
+		products = list;
+		catalog = catalogMapFrom(products);
+		const el = document.getElementById('quote-catalog-json');
+		if (el) el.textContent = JSON.stringify(products);
+	}
+
+	function renumberLines() {
+		rows().forEach(function (row, index) {
+			const label = row.querySelector('[data-line-index]');
+			if (label) label.textContent = 'Partida ' + (index + 1);
+		});
+	}
 
 	function rows() {
 		return list.querySelectorAll('[data-item-row]');
@@ -163,38 +181,83 @@
 		});
 	}
 
+	function showPickerSearch() {
+		pickerMode = 'search';
+		if (!pickerRoot) return;
+		const searchView = pickerRoot.querySelector('[data-catalog-search-view]');
+		const createView = pickerRoot.querySelector('[data-catalog-create-view]');
+		if (searchView) searchView.hidden = false;
+		if (createView) createView.hidden = true;
+		const title = pickerRoot.querySelector('[data-catalog-title]');
+		if (title) title.textContent = 'Catálogo de productos';
+	}
+
+	function showPickerCreate(seedName) {
+		pickerMode = 'create';
+		if (!pickerRoot) return;
+		const searchView = pickerRoot.querySelector('[data-catalog-search-view]');
+		const createView = pickerRoot.querySelector('[data-catalog-create-view]');
+		if (searchView) searchView.hidden = true;
+		if (createView) createView.hidden = false;
+		const title = pickerRoot.querySelector('[data-catalog-title]');
+		if (title) title.textContent = 'Nuevo producto';
+		const err = pickerRoot.querySelector('[data-catalog-create-error]');
+		if (err) {
+			err.hidden = true;
+			err.textContent = '';
+		}
+		const form = pickerRoot.querySelector('[data-catalog-create-form]');
+		if (form) {
+			form.reset();
+			if (seedName) {
+				const nombre = form.querySelector('[name="nombre"]');
+				if (nombre) nombre.value = seedName;
+			}
+			const first = form.querySelector('[name="sku"]');
+			if (first) setTimeout(function () { first.focus(); }, 20);
+		}
+	}
+
 	function renderPickerResults(query) {
 		if (!pickerRoot) return;
 		const box = pickerRoot.querySelector('[data-catalog-results]');
 		const count = pickerRoot.querySelector('[data-catalog-count]');
 		if (!box) return;
 		const matches = filterProducts(query);
+		const term = String(query || '').trim();
 		if (count) {
 			count.textContent = matches.length === 1
 				? '1 producto'
 				: matches.length + ' productos';
 		}
+		let html = '';
 		if (!matches.length) {
-			box.innerHTML = '<p class="muted catalog-search-empty">No hay productos con esa búsqueda.</p>';
-			return;
+			html += '<div class="catalog-search-empty">'
+				+ '<p class="muted">No hay productos con esa búsqueda.</p>'
+				+ '<button type="button" class="btn btn-word" data-catalog-new>'
+				+ (term ? 'Agregar “' + escapeHtml(term) + '” al catálogo' : 'Agregar producto nuevo')
+				+ '</button>'
+				+ '</div>';
+		} else {
+			html += matches.map(function (product) {
+				const cost = Number(product.precio_compra_iva) || 0;
+				const desc = String(product.descripcion || '').replace(/\s+/g, ' ').trim();
+				const short = desc.length > 120 ? desc.slice(0, 120) + '…' : desc;
+				return ''
+					+ '<button type="button" class="catalog-search-item" data-catalog-choose="' + escapeHtml(product.id) + '">'
+					+ '<div class="catalog-search-item-top">'
+					+ '<strong>' + escapeHtml(product.nombre || '') + '</strong>'
+					+ '<span>' + escapeHtml(product.sku || '') + '</span>'
+					+ '</div>'
+					+ (short ? '<p>' + escapeHtml(short) + '</p>' : '')
+					+ '<div class="catalog-search-meta">'
+					+ '<span>' + escapeHtml(product.categoria || 'Sin categoría') + '</span>'
+					+ '<span>' + (cost > 0 ? formatMoney(cost) + ' c/IVA' : 'Sin costo') + '</span>'
+					+ '</div>'
+					+ '</button>';
+			}).join('');
 		}
-		box.innerHTML = matches.map(function (product) {
-			const cost = Number(product.precio_compra_iva) || 0;
-			const desc = String(product.descripcion || '').replace(/\s+/g, ' ').trim();
-			const short = desc.length > 120 ? desc.slice(0, 120) + '…' : desc;
-			return ''
-				+ '<button type="button" class="catalog-search-item" data-catalog-choose="' + escapeHtml(product.id) + '">'
-				+ '<div class="catalog-search-item-top">'
-				+ '<strong>' + escapeHtml(product.nombre || '') + '</strong>'
-				+ '<span>' + escapeHtml(product.sku || '') + '</span>'
-				+ '</div>'
-				+ (short ? '<p>' + escapeHtml(short) + '</p>' : '')
-				+ '<div class="catalog-search-meta">'
-				+ '<span>' + escapeHtml(product.categoria || 'Sin categoría') + '</span>'
-				+ '<span>' + (cost > 0 ? formatMoney(cost) + ' c/IVA' : 'Sin costo') + '</span>'
-				+ '</div>'
-				+ '</button>';
-		}).join('');
+		box.innerHTML = html;
 	}
 
 	function closePicker() {
@@ -202,6 +265,7 @@
 		pickerRoot.hidden = true;
 		document.body.classList.remove('catalog-search-open');
 		activeRow = null;
+		pickerMode = 'search';
 	}
 
 	function openPicker(row) {
@@ -209,12 +273,66 @@
 		activeRow = row;
 		pickerRoot.hidden = false;
 		document.body.classList.add('catalog-search-open');
+		showPickerSearch();
 		const search = pickerRoot.querySelector('[data-catalog-search]');
 		if (search) {
 			search.value = '';
 			renderPickerResults('');
 			setTimeout(function () { search.focus(); }, 20);
 		}
+	}
+
+	function submitQuickProduct(form) {
+		if (!createUrl || !activeRow) return;
+		const err = pickerRoot.querySelector('[data-catalog-create-error]');
+		const submitBtn = form.querySelector('[type="submit"]');
+		const data = new FormData(form);
+		data.set('_csrf', csrfToken);
+		if (submitBtn) {
+			submitBtn.disabled = true;
+			submitBtn.textContent = 'Guardando…';
+		}
+		if (err) {
+			err.hidden = true;
+			err.textContent = '';
+		}
+		fetch(createUrl, {
+			method: 'POST',
+			body: data,
+			credentials: 'same-origin',
+			headers: { 'Accept': 'application/json' },
+		}).then(function (res) {
+			return res.json().then(function (payload) {
+				return { ok: res.ok, payload: payload };
+			});
+		}).then(function (result) {
+			if (!result.ok || !result.payload || !result.payload.ok || !result.payload.product) {
+				const message = (result.payload && result.payload.error) || 'No se pudo guardar el producto.';
+				if (err) {
+					err.hidden = false;
+					err.textContent = message;
+				}
+				return;
+			}
+			const product = result.payload.product;
+			rememberCatalog([product].concat(products));
+			const targetRow = activeRow;
+			applyCatalogProduct(targetRow, product.id);
+			recalc();
+			closePicker();
+			const focus = targetRow.querySelector('[name="item_margin[]"]') || targetRow.querySelector('[name="item_name[]"]');
+			if (focus) focus.focus();
+		}).catch(function () {
+			if (err) {
+				err.hidden = false;
+				err.textContent = 'No se pudo guardar el producto. Revisa la conexión e inténtalo de nuevo.';
+			}
+		}).finally(function () {
+			if (submitBtn) {
+				submitBtn.disabled = false;
+				submitBtn.textContent = 'Guardar y usar en la partida';
+			}
+		});
 	}
 
 	function ensurePicker() {
@@ -227,22 +345,62 @@
 			+ '<div class="catalog-search-backdrop" data-catalog-close></div>'
 			+ '<div class="catalog-search-panel" role="dialog" aria-modal="true" aria-label="Buscar producto">'
 			+ '<header class="catalog-search-hd">'
-			+ '<div><h2>Catálogo de productos</h2><p class="muted" data-catalog-count></p></div>'
+			+ '<div><h2 data-catalog-title>Catálogo de productos</h2><p class="muted" data-catalog-count></p></div>'
 			+ '<button type="button" class="btn" data-catalog-close>Cerrar</button>'
 			+ '</header>'
+			+ '<div data-catalog-search-view>'
 			+ '<div class="catalog-search-bar">'
 			+ '<input type="search" data-catalog-search placeholder="Buscar por SKU, nombre, categoría o descripción…" autocomplete="off">'
 			+ '</div>'
 			+ '<div class="catalog-search-actions">'
+			+ '<button type="button" class="btn btn-word" data-catalog-new>+ Nuevo producto</button>'
 			+ '<button type="button" class="btn-text" data-catalog-free>Usar ítem libre</button>'
 			+ '</div>'
 			+ '<div class="catalog-search-results" data-catalog-results></div>'
+			+ '</div>'
+			+ '<div data-catalog-create-view hidden>'
+			+ '<form class="catalog-create-form" data-catalog-create-form>'
+			+ '<p class="muted">Se guarda en el catálogo y queda listo para esta partida.</p>'
+			+ '<div class="flash error" data-catalog-create-error hidden></div>'
+			+ '<div class="grid-2">'
+			+ '<label><span>SKU</span><input name="sku" required maxlength="80" autocomplete="off"></label>'
+			+ '<label><span>Categoría</span><input name="categoria" required maxlength="80" list="quote-categorias-producto" placeholder="Audio, Video…"></label>'
+			+ '</div>'
+			+ '<label><span>Nombre</span><input name="nombre" required maxlength="180"></label>'
+			+ '<label><span>Descripción</span><textarea name="descripcion" required rows="4"></textarea></label>'
+			+ '<div class="grid-2">'
+			+ '<label><span>Empresa proveedora</span><input name="proveedor_empresa" required maxlength="160"></label>'
+			+ '<label><span>Precio de compra c/IVA</span><input name="precio_compra_iva" inputmode="numeric" placeholder="0"></label>'
+			+ '</div>'
+			+ '<label><span>URL del proveedor</span><input name="proveedor_link" type="url" required maxlength="500" placeholder="https://"></label>'
+			+ '<div class="catalog-create-actions">'
+			+ '<button type="button" class="btn" data-catalog-back>Volver al buscador</button>'
+			+ '<button type="submit" class="btn btn-word">Guardar y usar en la partida</button>'
+			+ '</div>'
+			+ '</form>'
+			+ '<datalist id="quote-categorias-producto">'
+			+ '<option value="Audio"></option><option value="Video"></option><option value="Automatización"></option>'
+			+ '<option value="Redes"></option><option value="Control"></option><option value="Iluminación"></option>'
+			+ '</datalist>'
+			+ '</div>'
 			+ '</div>';
 		document.body.appendChild(pickerRoot);
 
 		pickerRoot.addEventListener('click', function (event) {
 			if (event.target.closest('[data-catalog-close]')) {
 				closePicker();
+				return;
+			}
+			if (event.target.closest('[data-catalog-back]')) {
+				showPickerSearch();
+				const search = pickerRoot.querySelector('[data-catalog-search]');
+				renderPickerResults(search ? search.value : '');
+				if (search) search.focus();
+				return;
+			}
+			if (event.target.closest('[data-catalog-new]')) {
+				const search = pickerRoot.querySelector('[data-catalog-search]');
+				showPickerCreate(search ? search.value.trim() : '');
 				return;
 			}
 			if (event.target.closest('[data-catalog-free]') && activeRow) {
@@ -265,6 +423,14 @@
 			}
 		});
 
+		const createForm = pickerRoot.querySelector('[data-catalog-create-form]');
+		if (createForm) {
+			createForm.addEventListener('submit', function (event) {
+				event.preventDefault();
+				submitQuickProduct(createForm);
+			});
+		}
+
 		const search = pickerRoot.querySelector('[data-catalog-search]');
 		if (search) {
 			search.addEventListener('input', function () {
@@ -280,6 +446,10 @@
 
 		document.addEventListener('keydown', function (event) {
 			if (event.key === 'Escape' && pickerRoot && !pickerRoot.hidden) {
+				if (pickerMode === 'create') {
+					showPickerSearch();
+					return;
+				}
 				closePicker();
 			}
 		});
@@ -324,6 +494,7 @@
 			remove.addEventListener('click', function () {
 				if (rows().length === 1) return;
 				row.remove();
+				renumberLines();
 				recalc();
 			});
 		}
@@ -338,6 +509,7 @@
 			syncCatalogLabel(row, catalog[productId]);
 		}
 	});
+	renumberLines();
 	recalc();
 
 	if (addBtn) {
@@ -361,6 +533,7 @@
 			if (line) line.textContent = '$0';
 			list.appendChild(row);
 			bindRow(row);
+			renumberLines();
 			const openBtn = row.querySelector('[data-catalog-open]');
 			if (openBtn) openBtn.focus();
 			else {

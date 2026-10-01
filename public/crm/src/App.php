@@ -119,6 +119,7 @@ final class App
 			['GET', '#^/catalogo$#', [Controllers\ProductController::class, 'index']],
 			['POST', '#^/catalogo$#', [Controllers\ProductController::class, 'store']],
 			['GET', '#^/api/catalogo-cotizacion$#', [Controllers\ProductController::class, 'quoteSearch']],
+			['POST', '#^/api/catalogo-rapido$#', [Controllers\ProductController::class, 'quoteCreate']],
 			['GET', '#^/admin/estadisticas$#', [Controllers\AdminController::class, 'stats']],
 			['GET', '#^/admin$#', [Controllers\AdminController::class, 'index']],
 			['GET', '#^/equipo$#', [Controllers\TeamController::class, 'index']],
