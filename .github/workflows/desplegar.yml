@@ -121,8 +121,9 @@ jobs:
               except ftplib.error_perm as error:
                   print(f"No se pudo eliminar {remote_path}: {error}")
 
+          # Nunca borrar "_astro" aquí: si el upload falla después del prune, el sitio queda sin CSS.
+          # Los hashes viejos se pueden limpiar a mano; lo nuevo se sobrescribe al subir dist.
           OBSOLETE = [
-              "_astro",
               "admin",
               "admin-cms.js",
               "admin-manifest.webmanifest",
