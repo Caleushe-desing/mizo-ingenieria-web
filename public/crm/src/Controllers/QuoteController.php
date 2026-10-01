@@ -576,13 +576,23 @@ final class QuoteController
 		if (!empty($quote['contact_name'])) {
 			$client['contact_name'] = $quote['contact_name'];
 		}
+		$quote['client_name'] = $quote['client_name'] ?? ($client['name'] ?? '');
+		$quote['client_email'] = $quote['client_email'] ?? ($client['email'] ?? '');
+		$quote['client_phone'] = $quote['client_phone'] ?? ($client['phone'] ?? '');
+		$quote['client_rut'] = $quote['client_rut'] ?? ($client['rut'] ?? '');
+		$quote['client_city'] = $quote['client_city'] ?? ($client['city'] ?? '');
 		$quote['deal_title'] = $quote['intro'] !== '' ? $quote['intro'] : (Quote::itemLabel($items[0] ?? []) ?: 'Cotización');
 		$url = App::absolute('/q/' . $quote['token']);
 		$user = Auth::user();
 		$html = Mailer::quoteHtml($quote, $items, $client, $url, $user);
 		$version = trim((string) ($quote['revision'] ?? ''));
 		$subject = 'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' — Mizo';
-		$mailId = Mailer::send($to, $subject, $html, $user['email'] ?? '', $cc);
+		$attachments = [];
+		$pdf = \MizoCrm\QuotePdf::attachment($quote, $items);
+		if ($pdf !== null) {
+			$attachments[] = $pdf;
+		}
+		$mailId = Mailer::send($to, $subject, $html, $user['email'] ?? '', $cc, $attachments);
 		if ($mailId === false) {
 			$hint = \MizoCrm\Models\Mailbox::forUser(Auth::id())
 				? 'Revisa la clave de tu casilla en Correo.'
@@ -616,9 +626,10 @@ final class QuoteController
 			(int) $quote['id']
 		);
 		Client::update((int) $quote['client_id'], ['updated_at' => date('c')]);
+		$pdfNote = $attachments !== [] ? ' Con PDF adjunto.' : '';
 		View::flash('ok', $alreadySent
-			? 'Versión ' . ($version !== '' ? $version : $quote['number']) . ' enviada a ' . $to . '.'
-			: 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '.');
+			? 'Versión ' . ($version !== '' ? $version : $quote['number']) . ' enviada a ' . $to . '.' . $pdfNote
+			: 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '.' . $pdfNote);
 		Http::redirect('/cotizaciones/' . $quoteId . '/correo');
 	}
 

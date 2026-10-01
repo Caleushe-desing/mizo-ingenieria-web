@@ -7,10 +7,17 @@ final class Mailer
 {
 	/**
 	 * Envía HTML. Con casilla conectada guarda copia en Enviados.
+	 * @param list<array{filename:string,mime:string,content:string}> $attachments
 	 * @return int|false id del mensaje en CRM (0 si salió por mail() sin casilla), false si falló
 	 */
-	public static function send(string $to, string $subject, string $html, string $replyTo = '', string $cc = ''): int|false
-	{
+	public static function send(
+		string $to,
+		string $subject,
+		string $html,
+		string $replyTo = '',
+		string $cc = '',
+		array $attachments = [],
+	): int|false {
 		$user = Auth::user();
 		if ($user && Models\Mailbox::forUser((int) $user['id'])) {
 			try {
@@ -18,13 +25,35 @@ final class Mailer
 				if ($clientId === null && $cc !== '') {
 					$clientId = Models\MailMessage::clientIdFor((int) $user['id'], $cc);
 				}
-				return Models\Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, '', $clientId, $cc);
+				return Models\Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, '', $clientId, $cc, $attachments);
 			} catch (\RuntimeException) {
 				return false;
 			}
 		}
 		$fromName = Models\User::mailFromName($user);
-		$from = $fromName . ' <' . Config::EMAIL . '>';
+		$fromEmail = Config::EMAIL;
+		if ($attachments !== []) {
+			$rfc822 = Mail\Mime::build($fromName, $fromEmail, $to, $subject, $html, '', $cc, $attachments);
+			$split = preg_split("/\r\n\r\n/", $rfc822, 2);
+			if (!is_array($split) || count($split) < 2) {
+				return false;
+			}
+			[$rawHeaders, $body] = $split;
+			$headerLines = preg_split("/\r\n/", (string) $rawHeaders) ?: [];
+			$pass = [];
+			foreach ($headerLines as $line) {
+				if (preg_match('/^(From|MIME-Version|Content-Type|Cc|Reply-To):/i', $line)) {
+					$pass[] = $line;
+				}
+			}
+			if ($replyTo !== '' && filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
+				$pass[] = 'Reply-To: ' . $replyTo;
+			}
+			$encoded = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+			$ok = @mail($to, $encoded, (string) $body, implode("\r\n", $pass));
+			return $ok ? 0 : false;
+		}
+		$from = $fromName . ' <' . $fromEmail . '>';
 		$headers = [
 			'MIME-Version: 1.0',
 			'Content-Type: text/html; charset=UTF-8',
@@ -90,7 +119,7 @@ final class Mailer
 			<tr>
 				<td style="padding:28px;">
 					<p style="margin:0 0 16px;font-size:15px;line-height:1.5;">Estimado/a <strong>' . h($greeting) . '</strong>' . ($company !== '' && $company !== $contact ? ' · ' . h($company) : '') . ',</p>
-					<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#444;">Adjuntamos la cotización <strong>' . h($quote['number']) . '</strong>' . ($reference !== '' ? ' para <strong>' . h($reference) . '</strong>' : '') . '. A continuación el detalle técnico y comercial.</p>
+					<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#444;">Adjuntamos el <strong>PDF</strong> de la cotización <strong>' . h($quote['number']) . '</strong>' . ($reference !== '' ? ' para <strong>' . h($reference) . '</strong>' : '') . '. También puedes ver el detalle completo en el enlace de abajo.</p>
 					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:13px;">
 						<tr style="background:#ffffff;color:#1c9bd8;border-bottom:2px solid #1c9bd8;">
 							<th align="left" style="padding:9px 8px;font-weight:600;border-bottom:2px solid #1c9bd8;">#</th>
