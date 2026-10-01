@@ -16,7 +16,7 @@ export default {
 					soft: '#fdebd9',
 				},
 				ink: '#181b20',
-				paper: '#dce3eb',
+				paper: '#e2e8ef',
 				surface: '#ffffff',
 				charcoal: {
 					DEFAULT: '#0f1114',
