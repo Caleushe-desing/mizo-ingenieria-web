@@ -584,17 +584,10 @@ body.quote-doc {
 	color: #333;
 }
 .doc-parties strong { color: #111; font-size: 14px; }
-.doc-party-name {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: 8px 12px;
-}
 .doc-rut {
-	font-size: 12px;
+	font-size: 12.5px;
 	font-weight: 600;
-	color: #555;
-	white-space: nowrap;
+	color: #333;
 }
 .doc-ref, .doc-items { padding-top: 10px; }
 .doc-items table {
