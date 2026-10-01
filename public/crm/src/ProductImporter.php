@@ -20,7 +20,11 @@ final class ProductImporter
 		if ($parsed['nombre'] === '' && $parsed['descripcion'] === '') {
 			throw new RuntimeException('No se pudo leer el nombre ni la descripción. Prueba con la URL directa de la ficha.');
 		}
-		$parsed['imagenes'] = self::downloadImages(self::extractImageUrls($loaded['body'], $loaded['url']), 'imp-' . substr(hash('sha256', $loaded['url']), 0, 16));
+		try {
+			$parsed['imagenes'] = self::downloadImages(self::extractImageUrls($loaded['body'], $loaded['url']), 'imp-' . substr(hash('sha256', $loaded['url']), 0, 16));
+		} catch (\Throwable) {
+			$parsed['imagenes'] = [];
+		}
 		return $parsed;
 	}
 

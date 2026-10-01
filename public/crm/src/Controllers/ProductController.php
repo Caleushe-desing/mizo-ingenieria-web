@@ -170,27 +170,36 @@ final class ProductController
 	/** Importa ficha desde URL (misma regla que el catálogo). */
 	public function quoteImport(): void
 	{
-		Auth::requireUser();
-		Csrf::check();
-		header('Content-Type: application/json; charset=utf-8');
-		header('Cache-Control: no-store');
-		try {
-			$draft = ProductImporter::fromUrl(Http::string('url', 500));
-		} catch (RuntimeException $e) {
-			http_response_code(422);
-			echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+		$this->jsonStart();
+		if (!$this->jsonGuard()) {
 			return;
 		}
-		echo json_encode(['ok' => true, 'draft' => $draft], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		try {
+			$draft = ProductImporter::fromUrl(Http::string('url', 500));
+			$payload = json_encode(
+				['ok' => true, 'draft' => $draft],
+				JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE
+			);
+			if ($payload === false) {
+				throw new RuntimeException('Los datos importados no se pudieron procesar. Prueba otra URL.');
+			}
+			echo $payload;
+		} catch (\Throwable $e) {
+			http_response_code(422);
+			echo json_encode(
+				['ok' => false, 'error' => $e->getMessage() !== '' ? $e->getMessage() : 'No se pudo importar esa URL.'],
+				JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+			);
+		}
 	}
 
 	/** Alta rápida desde el cotizador (ejecutivo autenticado). */
 	public function quoteCreate(): void
 	{
-		Auth::requireUser();
-		Csrf::check();
-		header('Content-Type: application/json; charset=utf-8');
-		header('Cache-Control: no-store');
+		$this->jsonStart();
+		if (!$this->jsonGuard()) {
+			return;
+		}
 		$data = $this->input();
 		$data['activo'] = 1;
 		$images = $this->postedImages();
@@ -200,23 +209,53 @@ final class ProductController
 			echo json_encode(['ok' => false, 'error' => $error], JSON_UNESCAPED_UNICODE);
 			return;
 		}
-		$now = date('c');
-		$extra = ['created_at' => $now, 'updated_at' => $now];
-		if ($images !== []) {
-			$extra['imagenes'] = json_encode($images, JSON_UNESCAPED_SLASHES);
+		try {
+			$now = date('c');
+			$extra = ['created_at' => $now, 'updated_at' => $now];
+			if ($images !== []) {
+				$extra['imagenes'] = json_encode($images, JSON_UNESCAPED_SLASHES);
+			}
+			$id = Product::insert($data + $extra);
+			$product = [
+				'id' => $id,
+				'sku' => $data['sku'],
+				'nombre' => $data['nombre'],
+				'descripcion' => $data['descripcion'],
+				'categoria' => $data['categoria'],
+				'precio_compra_iva' => (int) $data['precio_compra_iva'],
+				'proveedor_link' => $data['proveedor_link'],
+				'proveedor_empresa' => $data['proveedor_empresa'],
+			];
+			echo json_encode(['ok' => true, 'product' => $product], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+		} catch (\Throwable $e) {
+			http_response_code(500);
+			echo json_encode(
+				['ok' => false, 'error' => 'No se pudo guardar el producto. Inténtalo de nuevo.'],
+				JSON_UNESCAPED_UNICODE
+			);
 		}
-		$id = Product::insert($data + $extra);
-		$product = [
-			'id' => $id,
-			'sku' => $data['sku'],
-			'nombre' => $data['nombre'],
-			'descripcion' => $data['descripcion'],
-			'categoria' => $data['categoria'],
-			'precio_compra_iva' => (int) $data['precio_compra_iva'],
-			'proveedor_link' => $data['proveedor_link'],
-			'proveedor_empresa' => $data['proveedor_empresa'],
-		];
-		echo json_encode(['ok' => true, 'product' => $product], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+	}
+
+	private function jsonStart(): void
+	{
+		header('Content-Type: application/json; charset=utf-8');
+		header('Cache-Control: no-store');
+	}
+
+	private function jsonGuard(): bool
+	{
+		if (!Auth::user()) {
+			http_response_code(401);
+			echo json_encode(['ok' => false, 'error' => 'Sesión expirada. Vuelve a iniciar sesión.'], JSON_UNESCAPED_UNICODE);
+			return false;
+		}
+		$sent = (string) ($_POST['_csrf'] ?? '');
+		if ($sent === '' || !hash_equals(Csrf::token(), $sent)) {
+			http_response_code(419);
+			echo json_encode(['ok' => false, 'error' => 'Sesión expirada. Recarga la cotización e inténtalo de nuevo.'], JSON_UNESCAPED_UNICODE);
+			return false;
+		}
+		return true;
 	}
 
 	private function postedImages(): array

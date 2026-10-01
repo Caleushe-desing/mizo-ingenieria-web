@@ -14,7 +14,29 @@
 	const sheet = document.querySelector('.quote-sheet');
 	const createUrl = (sheet && sheet.getAttribute('data-catalog-create')) || '';
 	const importUrl = (sheet && sheet.getAttribute('data-catalog-import')) || '';
-	const csrfToken = (sheet && sheet.getAttribute('data-csrf')) || '';
+	function csrfValue() {
+		const fromSheet = sheet && sheet.getAttribute('data-csrf');
+		if (fromSheet) return fromSheet;
+		const fromForm = document.querySelector('#quote-form input[name="_csrf"], .quote-work input[name="_csrf"]');
+		return fromForm ? String(fromForm.value || '') : '';
+	}
+
+	function closestEl(target, selector) {
+		const el = target instanceof Element ? target : (target && target.parentElement);
+		return el && el.closest ? el.closest(selector) : null;
+	}
+
+	function readJsonResponse(res) {
+		return res.text().then(function (text) {
+			var payload = null;
+			try {
+				payload = text ? JSON.parse(text) : null;
+			} catch (e) {
+				payload = null;
+			}
+			return { ok: res.ok, status: res.status, payload: payload, raw: text };
+		});
+	}
 
 	function catalogList() {
 		const el = document.getElementById('quote-catalog-json');
@@ -275,10 +297,17 @@
 	}
 
 	function importFromUrl() {
-		if (!importUrl || !pickerRoot) return;
+		const importErr = pickerRoot ? pickerRoot.querySelector('[data-catalog-import-error]') : null;
+		const importBtn = pickerRoot ? pickerRoot.querySelector('[data-catalog-import-run]') : null;
+		if (!pickerRoot) return;
+		if (!importUrl) {
+			if (importErr) {
+				importErr.hidden = false;
+				importErr.textContent = 'No está configurada la importación. Recarga la cotización.';
+			}
+			return;
+		}
 		const urlInput = pickerRoot.querySelector('[data-catalog-import-url]');
-		const importErr = pickerRoot.querySelector('[data-catalog-import-error]');
-		const importBtn = pickerRoot.querySelector('[data-catalog-import-run]');
 		const url = urlInput ? String(urlInput.value || '').trim() : '';
 		if (!url) {
 			if (importErr) {
@@ -287,8 +316,23 @@
 			}
 			return;
 		}
+		if (!/^https?:\/\//i.test(url)) {
+			if (importErr) {
+				importErr.hidden = false;
+				importErr.textContent = 'La URL debe empezar con http:// o https://';
+			}
+			return;
+		}
+		const token = csrfValue();
+		if (!token) {
+			if (importErr) {
+				importErr.hidden = false;
+				importErr.textContent = 'Sesión no válida. Recarga la cotización e inténtalo de nuevo.';
+			}
+			return;
+		}
 		const data = new FormData();
-		data.set('_csrf', csrfToken);
+		data.set('_csrf', token);
 		data.set('url', url);
 		if (importBtn) {
 			importBtn.disabled = true;
@@ -303,13 +347,12 @@
 			body: data,
 			credentials: 'same-origin',
 			headers: { 'Accept': 'application/json' },
-		}).then(function (res) {
-			return res.json().then(function (payload) {
-				return { ok: res.ok, payload: payload };
-			});
-		}).then(function (result) {
-			if (!result.ok || !result.payload || !result.payload.ok || !result.payload.draft) {
-				const message = (result.payload && result.payload.error) || 'No se pudo leer esa página.';
+		}).then(readJsonResponse).then(function (result) {
+			if (!result.payload || !result.payload.ok || !result.payload.draft) {
+				const message = (result.payload && result.payload.error)
+					|| (result.status === 404 ? 'No se encontró el servicio de importación. Recarga e inténtalo de nuevo.' : '')
+					|| (result.status === 419 || result.status === 401 ? 'Sesión expirada. Recarga la cotización.' : '')
+					|| 'No se pudo leer esa página. Prueba con la URL directa de la ficha.';
 				if (importErr) {
 					importErr.hidden = false;
 					importErr.textContent = message;
@@ -394,11 +437,17 @@
 	}
 
 	function submitQuickProduct(form) {
-		if (!createUrl || !activeRow) return;
-		const err = pickerRoot.querySelector('[data-catalog-create-error]');
+		const err = pickerRoot ? pickerRoot.querySelector('[data-catalog-create-error]') : null;
 		const submitBtn = form.querySelector('[type="submit"]');
+		if (!createUrl || !activeRow) {
+			if (err) {
+				err.hidden = false;
+				err.textContent = 'No se puede guardar ahora. Recarga la cotización.';
+			}
+			return;
+		}
 		const data = new FormData(form);
-		data.set('_csrf', csrfToken);
+		data.set('_csrf', csrfValue());
 		if (submitBtn) {
 			submitBtn.disabled = true;
 			submitBtn.textContent = 'Guardando…';
@@ -412,12 +461,8 @@
 			body: data,
 			credentials: 'same-origin',
 			headers: { 'Accept': 'application/json' },
-		}).then(function (res) {
-			return res.json().then(function (payload) {
-				return { ok: res.ok, payload: payload };
-			});
-		}).then(function (result) {
-			if (!result.ok || !result.payload || !result.payload.ok || !result.payload.product) {
+		}).then(readJsonResponse).then(function (result) {
+			if (!result.payload || !result.payload.ok || !result.payload.product) {
 				const message = (result.payload && result.payload.error) || 'No se pudo guardar el producto.';
 				if (err) {
 					err.hidden = false;
@@ -509,33 +554,34 @@
 		document.body.appendChild(pickerRoot);
 
 		pickerRoot.addEventListener('click', function (event) {
-			if (event.target.closest('[data-catalog-close]')) {
+			if (closestEl(event.target, '[data-catalog-close]')) {
 				closePicker();
 				return;
 			}
-			if (event.target.closest('[data-catalog-back]')) {
+			if (closestEl(event.target, '[data-catalog-back]')) {
 				showPickerSearch();
 				const search = pickerRoot.querySelector('[data-catalog-search]');
 				renderPickerResults(search ? search.value : '');
 				if (search) search.focus();
 				return;
 			}
-			if (event.target.closest('[data-catalog-import-again]')) {
+			if (closestEl(event.target, '[data-catalog-import-again]')) {
 				showCreateStep('import');
 				const urlInput = pickerRoot.querySelector('[data-catalog-import-url]');
 				if (urlInput) urlInput.focus();
 				return;
 			}
-			if (event.target.closest('[data-catalog-import-run]')) {
+			if (closestEl(event.target, '[data-catalog-import-run]')) {
+				event.preventDefault();
 				importFromUrl();
 				return;
 			}
-			if (event.target.closest('[data-catalog-new]')) {
+			if (closestEl(event.target, '[data-catalog-new]')) {
 				const search = pickerRoot.querySelector('[data-catalog-search]');
 				showPickerCreate(search ? search.value.trim() : '');
 				return;
 			}
-			if (event.target.closest('[data-catalog-free]') && activeRow) {
+			if (closestEl(event.target, '[data-catalog-free]') && activeRow) {
 				const targetRow = activeRow;
 				applyCatalogProduct(targetRow, '');
 				recalc();
@@ -544,7 +590,7 @@
 				if (focus) focus.focus();
 				return;
 			}
-			const choose = event.target.closest('[data-catalog-choose]');
+			const choose = closestEl(event.target, '[data-catalog-choose]');
 			if (choose && activeRow) {
 				const targetRow = activeRow;
 				applyCatalogProduct(targetRow, choose.getAttribute('data-catalog-choose'));
@@ -569,6 +615,14 @@
 					event.preventDefault();
 					importFromUrl();
 				}
+			});
+		}
+		const importRunBtn = pickerRoot.querySelector('[data-catalog-import-run]');
+		if (importRunBtn) {
+			importRunBtn.addEventListener('click', function (event) {
+				event.preventDefault();
+				event.stopPropagation();
+				importFromUrl();
 			});
 		}
 
