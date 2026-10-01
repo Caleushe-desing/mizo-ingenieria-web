@@ -117,7 +117,9 @@ function catalog_resolve_images(array $row, string $crmRoot): array
 	}
 
 	if ($found === []) {
-		foreach (array_keys($folders) as $folder) {
+		foreach (array_keys($folders) as $folderKey) {
+			// PHP convierte claves numéricas ("12") a int; preg_match exige string.
+			$folder = (string) $folderKey;
 			if (!preg_match('/^[A-Za-z0-9_-]{1,64}$/', $folder)) {
 				continue;
 			}
@@ -131,6 +133,7 @@ function catalog_resolve_images(array $row, string $crmRoot): array
 			}
 			natcasesort($files);
 			foreach ($files as $name) {
+				$name = (string) $name;
 				if ($name === '.' || $name === '..') {
 					continue;
 				}
@@ -149,9 +152,9 @@ function catalog_resolve_images(array $row, string $crmRoot): array
 	return array_values(array_unique($found));
 }
 
-function catalog_normalize_image_path(string $path): ?string
+function catalog_normalize_image_path($path): ?string
 {
-	$path = trim($path);
+	$path = trim((string) $path);
 	if ($path === '') {
 		return null;
 	}
