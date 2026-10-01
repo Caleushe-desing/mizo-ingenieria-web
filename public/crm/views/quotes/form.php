@@ -53,7 +53,7 @@ foreach ($contacts as $c) {
 >
 	<header class="quote-toolbar">
 		<div>
-			<p class="quote-kicker">Cotizador</p>
+			<p class="file-kicker">Cotizador</p>
 			<h1><?= $quote ? h($quote['number'] . ((trim((string) ($quote['revision'] ?? '')) !== '') ? ' · ' . $quote['revision'] : '')) : 'Nueva cotización' ?></h1>
 			<p>
 				<?= h($client['name']) ?>
@@ -63,10 +63,10 @@ foreach ($contacts as $c) {
 		</div>
 		<div class="quote-toolbar-actions">
 			<?php if ($quote): ?>
-				<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" title="Crea un borrador nuevo y elige el proyecto">Copiar</a>
+				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" title="Crea un borrador nuevo y elige el proyecto">Copiar</a>
 			<?php endif; ?>
 			<?php if ($quote && trim((string) ($quote['last_email_html'] ?? '')) !== ''): ?>
-				<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Ver correo enviado</a>
+				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Ver correo enviado</a>
 			<?php endif; ?>
 			<?php if (!$locked): ?>
 				<button class="btn btn-excel" type="submit" form="quote-form" name="intent" value="save">Guardar</button>
@@ -79,7 +79,7 @@ foreach ($contacts as $c) {
 		<p class="quote-notice">Esta cotización ya se envió. Al enviar una versión (REV-01, OC u otra) puedes elegir contactos, ver el correo y confirmar antes de mandarlo.</p>
 	<?php endif; ?>
 
-	<form id="quote-form" class="paper form quote-work" method="post" action="<?= h($action) ?>">
+	<form id="quote-form" class="form quote-work" method="post" action="<?= h($action) ?>">
 		<?= Csrf::field() ?>
 
 		<details class="quote-block" open>

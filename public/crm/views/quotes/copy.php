@@ -9,16 +9,16 @@ $selected = (int) ($project['id'] ?? $quote['deal_id'] ?? 0);
 <div class="client-sheet quote-sheet quote-send-sheet">
 	<header class="quote-toolbar">
 		<div>
-			<p class="quote-kicker">Copiar cotización</p>
+			<p class="file-kicker">Copiar cotización</p>
 			<h1><?= h($quote['number']) ?></h1>
 			<p><?= h($client['name']) ?> · Se creará un borrador con el siguiente número correlativo</p>
 		</div>
 		<div class="quote-toolbar-actions">
-			<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Cancelar</a>
+			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Cancelar</a>
 		</div>
 	</header>
 
-	<form class="quote-block is-solid quote-send-panel" method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>">
+	<form class="quote-block is-solid quote-send-panel form" method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>">
 		<?= Csrf::field() ?>
 		<div class="quote-block-hd">
 			<div>
@@ -36,8 +36,8 @@ $selected = (int) ($project['id'] ?? $quote['deal_id'] ?? 0);
 				</select>
 			</label>
 			<p class="muted">Se copian partidas, condiciones e institucional. La copia nace como borrador, sin envío.</p>
-			<div class="quote-send-actions" style="padding:0">
-				<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Volver</a>
+			<div class="quote-send-actions is-flush">
+				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Volver</a>
 				<button class="btn btn-excel" type="submit">Crear copia</button>
 			</div>
 		</div>

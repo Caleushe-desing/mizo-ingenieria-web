@@ -16,7 +16,7 @@ $profitPositive = (int) $summary['profit'] >= 0;
 <div class="quotes-dir">
 	<header class="quotes-dir-hd">
 		<div>
-			<p class="kicker">Interno</p>
+			<p class="file-kicker">Interno</p>
 			<h1>Cotizaciones</h1>
 			<p>Venta, costo y margen real. Estos números no salen al cliente.</p>
 		</div>
@@ -56,7 +56,7 @@ $profitPositive = (int) $summary['profit'] >= 0;
 		<?php if (!$quotes): ?>
 			<div class="quotes-empty">
 				<p>Todavía no hay presupuestos<?= $status !== '' ? ' en este estado' : '' ?>.</p>
-				<a class="btn" href="<?= h(Http::url('/clientes')) ?>">Ir a clientes</a>
+				<a class="btn btn-word" href="<?= h(Http::url('/clientes')) ?>">Ir a clientes</a>
 			</div>
 		<?php else: ?>
 			<div class="quotes-table-wrap">

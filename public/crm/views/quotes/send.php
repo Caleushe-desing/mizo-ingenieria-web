@@ -13,12 +13,12 @@ $publicUrl = (string) ($publicUrl ?? '');
 <div class="client-sheet quote-sheet quote-send-sheet">
 	<header class="quote-toolbar">
 		<div>
-			<p class="quote-kicker">Enviar cotización</p>
+			<p class="file-kicker">Enviar cotización</p>
 			<h1><?= h($quote['number']) ?><?php if (trim((string) ($quote['revision'] ?? '')) !== ''): ?> · <?= h($quote['revision']) ?><?php endif; ?></h1>
 			<p><?= h($client['name']) ?> · Revisa destinatarios y el correo antes de enviar</p>
 		</div>
 		<div class="quote-toolbar-actions">
-			<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Volver a editar</a>
+			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Volver a editar</a>
 			<a class="btn btn-word" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/preview')) ?>" target="_blank" rel="noopener">PDF / vista cliente</a>
 		</div>
 	</header>
@@ -117,7 +117,7 @@ $publicUrl = (string) ($publicUrl ?? '');
 		</section>
 
 		<div class="quote-send-actions">
-			<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Cancelar</a>
+			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Cancelar</a>
 			<button class="btn btn-word" type="submit"><?= $alreadySent ? 'Enviar revisión' : 'Confirmar y enviar' ?></button>
 		</div>
 	</form>

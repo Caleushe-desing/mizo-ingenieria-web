@@ -11,7 +11,7 @@ $sentCc = trim((string) ($quote['sent_cc'] ?? ''));
 <div class="client-sheet quote-sheet quote-send-sheet">
 	<header class="quote-toolbar">
 		<div>
-			<p class="quote-kicker">Correo enviado</p>
+			<p class="file-kicker">Correo enviado</p>
 			<h1><?= h($quote['number']) ?><?php if (trim((string) ($quote['revision'] ?? '')) !== ''): ?> · <?= h($quote['revision']) ?><?php endif; ?></h1>
 			<p>
 				<?= h($client['name']) ?>
@@ -21,9 +21,9 @@ $sentCc = trim((string) ($quote['sent_cc'] ?? ''));
 			</p>
 		</div>
 		<div class="quote-toolbar-actions">
-			<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Volver a la cotización</a>
+			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Volver a la cotización</a>
 			<?php if ($mailId > 0): ?>
-				<a class="btn" href="<?= h(Http::url('/correo/' . $mailId)) ?>">Abrir en Correo</a>
+				<a class="btn-text" href="<?= h(Http::url('/correo/' . $mailId)) ?>">Abrir en Correo</a>
 			<?php endif; ?>
 			<a class="btn btn-word" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">Reenviar / revisión</a>
 		</div>
@@ -49,7 +49,7 @@ $sentCc = trim((string) ($quote['sent_cc'] ?? ''));
 	</section>
 
 	<div class="quote-send-actions">
-		<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Editar cotización</a>
+		<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Editar cotización</a>
 		<a class="btn btn-excel" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>">Copiar con número nuevo</a>
 	</div>
 </div>
