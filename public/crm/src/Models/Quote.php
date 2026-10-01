@@ -121,13 +121,18 @@ final class Quote extends Record
 		$subtotal = 0;
 		$position = 0;
 		$insert = self::pdo()->prepare(
-			'INSERT INTO quote_items (quote_id, position, description, quantity, unit, cost_price, margin_percent, unit_price, total)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+			'INSERT INTO quote_items (quote_id, position, name, description, quantity, unit, cost_price, margin_percent, unit_price, total)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 		);
 		foreach ($items as $item) {
+			$name = trim((string) ($item['name'] ?? ''));
 			$description = trim((string) ($item['description'] ?? ''));
-			if ($description === '') {
+			if ($name === '' && $description === '') {
 				continue;
+			}
+			if ($name === '') {
+				$name = $description;
+				$description = '';
 			}
 			$qty = (float) str_replace(',', '.', (string) ($item['quantity'] ?? 1));
 			if ($qty <= 0) {
@@ -141,7 +146,7 @@ final class Quote extends Record
 				$price = self::netSaleFromCost($cost, $margin);
 			}
 			$total = (int) round($qty * $price);
-			$insert->execute([$quoteId, $position, $description, $qty, $unit, $cost, $margin, $price, $total]);
+			$insert->execute([$quoteId, $position, $name, $description, $qty, $unit, $cost, $margin, $price, $total]);
 			$subtotal += $total;
 			$position++;
 		}
@@ -198,6 +203,7 @@ final class Quote extends Record
 
 	public static function itemsFromPost(): array
 	{
+		$names = $_POST['item_name'] ?? [];
 		$descriptions = $_POST['item_description'] ?? [];
 		$quantities = $_POST['item_quantity'] ?? [];
 		$units = $_POST['item_unit'] ?? [];
@@ -205,12 +211,14 @@ final class Quote extends Record
 		$margins = $_POST['item_margin'] ?? [];
 		$prices = $_POST['item_price'] ?? [];
 		$items = [];
-		if (!is_array($descriptions)) {
+		$keys = is_array($names) && $names !== [] ? $names : $descriptions;
+		if (!is_array($keys)) {
 			return $items;
 		}
-		foreach ($descriptions as $i => $description) {
+		foreach ($keys as $i => $_) {
 			$items[] = [
-				'description' => $description,
+				'name' => is_array($names) ? ($names[$i] ?? '') : '',
+				'description' => is_array($descriptions) ? ($descriptions[$i] ?? '') : '',
 				'quantity' => $quantities[$i] ?? 1,
 				'unit' => $units[$i] ?? 'un',
 				'cost_price' => $costs[$i] ?? 0,
@@ -219,6 +227,15 @@ final class Quote extends Record
 			];
 		}
 		return $items;
+	}
+
+	public static function itemLabel(array $item): string
+	{
+		$name = trim((string) ($item['name'] ?? ''));
+		if ($name !== '') {
+			return $name;
+		}
+		return trim((string) ($item['description'] ?? ''));
 	}
 
 	public static function purge(int $quoteId): int

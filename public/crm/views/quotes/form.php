@@ -136,11 +136,12 @@ $action = $quote
 		</div>
 
 		<h2 class="section-title word">Partidas</h2>
-		<p class="muted">Describe el ítem, ingresa el costo con IVA y el margen. La venta neta y el total se calculan solos.</p>
+		<p class="muted">Nombre y descripción del producto, costo con IVA y margen. La venta neta y el total se calculan solos.</p>
 		<div class="table-wrap">
 			<table class="sheet sheet-edit quote-lines" data-tax-rate="19">
 				<thead>
 					<tr>
+						<th>Nombre del producto</th>
 						<th>Descripción</th>
 						<th>Cant.</th>
 						<th>Unidad</th>
@@ -160,10 +161,19 @@ $action = $quote
 					if ($cost > 0) {
 						$price = \MizoCrm\Models\Quote::netSaleFromCost($cost, $margin);
 					}
+					$name = trim((string) ($item['name'] ?? ''));
+					$detail = (string) ($item['description'] ?? '');
+					if ($name === '' && $detail !== '') {
+						$name = $detail;
+						$detail = '';
+					}
 					?>
 					<tr data-item-row>
 						<td>
-							<textarea name="item_description[]" rows="3" placeholder="Equipo o servicio + especificaciones técnicas…" <?= $locked ? 'readonly' : '' ?>><?= h($item['description'] ?? '') ?></textarea>
+							<input name="item_name[]" value="<?= h($name) ?>" placeholder="Ej: Parlante de techo JBL" <?= $locked ? 'readonly' : '' ?>>
+						</td>
+						<td>
+							<textarea name="item_description[]" rows="3" placeholder="Especificaciones técnicas, notas, alcance…" <?= $locked ? 'readonly' : '' ?>><?= h($detail) ?></textarea>
 						</td>
 						<td><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $locked ? 'readonly' : '' ?>></td>
 						<td><input name="item_unit[]" value="<?= h($item['unit'] ?? 'un') ?>" <?= $locked ? 'readonly' : '' ?>></td>

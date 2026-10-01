@@ -41,9 +41,18 @@ final class Mailer
 		$n = 1;
 		foreach ($items as $item) {
 			$qty = rtrim(rtrim(number_format((float) $item['quantity'], 2, ',', '.'), '0'), ',');
+			$label = Models\Quote::itemLabel($item);
+			$detail = trim((string) ($item['description'] ?? ''));
+			if ($detail !== '' && strcasecmp($detail, $label) === 0) {
+				$detail = '';
+			}
+			$copy = '<div style="font-weight:600;color:#1a1a1a;">' . h($label) . '</div>';
+			if ($detail !== '') {
+				$copy .= '<div style="margin-top:4px;color:#555;font-size:12px;line-height:1.4;">' . nl2br(h($detail)) . '</div>';
+			}
 			$rows .= '<tr>
 				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;color:#666;font-size:12px;">' . $n . '</td>
-				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;color:#1a1a1a;">' . nl2br(h((string) $item['description'])) . '</td>
+				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;color:#1a1a1a;">' . $copy . '</td>
 				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;text-align:right;white-space:nowrap;">' . h($qty) . ' ' . h((string) $item['unit']) . '</td>
 				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;text-align:right;white-space:nowrap;">' . money((int) $item['unit_price']) . '</td>
 				<td style="padding:10px 8px;border-bottom:1px solid #e6e6e6;text-align:right;white-space:nowrap;font-weight:600;">' . money((int) $item['total']) . '</td>

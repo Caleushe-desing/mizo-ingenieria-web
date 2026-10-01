@@ -13,7 +13,7 @@ if ($reference === '') {
 	$reference = trim((string) ($quote['deal_title'] ?? ''));
 }
 if ($reference === '' && $items) {
-	$reference = (string) ($items[0]['description'] ?? '');
+	$reference = \MizoCrm\Models\Quote::itemLabel($items[0]);
 }
 ?>
 <?php if ($preview): ?>
@@ -85,9 +85,21 @@ if ($reference === '' && $items) {
 			</thead>
 			<tbody>
 			<?php foreach ($items as $i => $item): ?>
+				<?php
+				$label = \MizoCrm\Models\Quote::itemLabel($item);
+				$detail = trim((string) ($item['description'] ?? ''));
+				if ($detail !== '' && strcasecmp($detail, $label) === 0) {
+					$detail = '';
+				}
+				?>
 				<tr>
 					<td class="is-num"><?= (int) $i + 1 ?></td>
-					<td><?= nl2br(h($item['description'])) ?></td>
+					<td>
+						<strong><?= h($label) ?></strong>
+						<?php if ($detail !== ''): ?>
+							<div class="doc-item-detail"><?= nl2br(h($detail)) ?></div>
+						<?php endif; ?>
+					</td>
 					<td class="is-num"><?= h(rtrim(rtrim(number_format((float) $item['quantity'], 2, ',', '.'), '0'), ',')) ?></td>
 					<td><?= h($item['unit']) ?></td>
 					<td class="is-num"><?= money((int) $item['unit_price']) ?></td>

@@ -56,7 +56,8 @@ final class WorkController
 			'client' => null,
 			'quote' => null,
 			'items' => [[
-				'description' => Config::defaultLine($service),
+				'name' => Config::defaultLine($service),
+				'description' => '',
 				'quantity' => 1,
 				'unit' => 'un',
 				'cost_price' => 0,
@@ -96,7 +97,8 @@ final class WorkController
 		$items = $quote ? Quote::items((int) $quote['id']) : [];
 		if ($items === []) {
 			$items = [[
-				'description' => Config::defaultLine((string) $deal['service']),
+				'name' => Config::defaultLine((string) $deal['service']),
+				'description' => '',
 				'quantity' => 1,
 				'unit' => 'un',
 				'cost_price' => 0,
@@ -373,7 +375,7 @@ final class WorkController
 
 	private function persistQuote(int $dealId, int $clientId): ?array
 	{
-		if (!isset($_POST['item_description'])) {
+		if (!isset($_POST['item_name']) && !isset($_POST['item_description'])) {
 			return Deal::latestQuote($dealId);
 		}
 
@@ -385,7 +387,7 @@ final class WorkController
 		$items = Quote::itemsFromPost();
 		$hasItems = false;
 		foreach ($items as $item) {
-			if (trim((string) ($item['description'] ?? '')) !== '') {
+			if (Quote::itemLabel($item) !== '') {
 				$hasItems = true;
 				break;
 			}

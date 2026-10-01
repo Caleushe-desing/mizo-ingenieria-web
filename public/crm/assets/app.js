@@ -101,7 +101,7 @@
 			if (line) line.textContent = '$0';
 			list.appendChild(row);
 			bindRow(row);
-			const focus = row.querySelector('[name="item_description[]"]');
+			const focus = row.querySelector('[name="item_name[]"]') || row.querySelector('[name="item_description[]"]');
 			if (focus) focus.focus();
 			recalc();
 		});

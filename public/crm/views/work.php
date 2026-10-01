@@ -144,6 +144,7 @@ $tab = $deal ? 'actividad' : 'datos';
 				<table class="sheet quote-sheet quote-lines" data-tax-rate="19">
 					<thead>
 						<tr>
+							<th>Nombre</th>
 							<th>Descripción</th>
 							<th>Cant.</th>
 							<th>Un.</th>
@@ -163,9 +164,16 @@ $tab = $deal ? 'actividad' : 'datos';
 						if ($cost > 0) {
 							$price = \MizoCrm\Models\Quote::netSaleFromCost($cost, $margin);
 						}
+						$name = trim((string) ($item['name'] ?? ''));
+						$detail = (string) ($item['description'] ?? '');
+						if ($name === '' && $detail !== '') {
+							$name = $detail;
+							$detail = '';
+						}
 						?>
 						<tr data-item-row>
-							<td><textarea name="item_description[]" rows="2" placeholder="Equipo o servicio + detalle…" <?= $quoteLocked ? 'readonly' : '' ?>><?= h($item['description'] ?? '') ?></textarea></td>
+							<td><input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $quoteLocked ? 'readonly' : '' ?>></td>
+							<td><textarea name="item_description[]" rows="2" placeholder="Especificaciones…" <?= $quoteLocked ? 'readonly' : '' ?>><?= h($detail) ?></textarea></td>
 							<td><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
 							<td><input name="item_unit[]" value="<?= h($item['unit'] ?? 'un') ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
 							<td><input name="item_cost[]" value="<?= $cost > 0 ? h((string) $cost) : '' ?>" placeholder="0" <?= $quoteLocked ? 'readonly' : '' ?>></td>

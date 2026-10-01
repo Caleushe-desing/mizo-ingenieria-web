@@ -31,6 +31,7 @@ final class QuoteController
 			'projects' => $projects,
 			'quote' => null,
 			'items' => [[
+				'name' => '',
 				'description' => '',
 				'quantity' => 1,
 				'unit' => 'un',
@@ -56,6 +57,7 @@ final class QuoteController
 			'project' => $deal,
 			'quote' => null,
 			'items' => [[
+				'name' => '',
 				'description' => '',
 				'quantity' => 1,
 				'unit' => 'un',
@@ -113,6 +115,7 @@ final class QuoteController
 		$items = Quote::items((int) $id);
 		if ($items === []) {
 			$items = [[
+				'name' => '',
 				'description' => '',
 				'quantity' => 1,
 				'unit' => 'un',
@@ -320,7 +323,7 @@ final class QuoteController
 		$items = Quote::items((int) $quote['id']);
 		$hasItems = false;
 		foreach ($items as $item) {
-			if (trim((string) ($item['description'] ?? '')) !== '') {
+			if (Quote::itemLabel($item) !== '') {
 				$hasItems = true;
 				break;
 			}
@@ -341,7 +344,7 @@ final class QuoteController
 			View::flash('error', 'Ese contacto no tiene un correo válido. Agrégalo en la ficha del cliente y vuelve a enviar.');
 			Http::redirect('/cotizaciones/' . $quoteId);
 		}
-		$quote['deal_title'] = $quote['intro'] !== '' ? $quote['intro'] : ($items[0]['description'] ?? 'Cotización');
+		$quote['deal_title'] = $quote['intro'] !== '' ? $quote['intro'] : (Quote::itemLabel($items[0] ?? []) ?: 'Cotización');
 		$url = App::absolute('/q/' . $quote['token']);
 		$user = Auth::user();
 		$html = Mailer::quoteHtml($quote, $items, $client, $url, $user);
