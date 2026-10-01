@@ -7,7 +7,7 @@ final class Config
 {
 	public const COMPANY = 'Mizo';
 	/** RUT de la empresa emisora (aparece en la cotización PDF). */
-	public const RUT = '';
+	public const RUT = '77.589.163-7';
 	public const EMAIL = 'ventas@mizo.cl';
 	public const PHONE = '+56 9 9439 0870';
 	public const ADDRESS = 'Frutillar y Santiago, Chile';
