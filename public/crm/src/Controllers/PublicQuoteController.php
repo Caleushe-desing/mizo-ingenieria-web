@@ -9,6 +9,7 @@ use MizoCrm\Models\Activity;
 use MizoCrm\Models\ClientContact;
 use MizoCrm\Models\Deal;
 use MizoCrm\Models\Quote;
+use MizoCrm\QuotePdf;
 use MizoCrm\View;
 
 final class PublicQuoteController
@@ -31,6 +32,36 @@ final class PublicQuoteController
 			'quote' => ClientContact::applyToQuote($quote),
 			'items' => Quote::items((int) $quote['id']),
 		], 'public-layout');
+	}
+
+	/** Descarga directa del PDF (enlace del correo). */
+	public function pdf(string $token): void
+	{
+		$quote = Quote::findByToken($token);
+		if (!$quote || $quote['status'] === 'borrador') {
+			http_response_code(404);
+			header('Content-Type: text/plain; charset=UTF-8');
+			echo 'Cotización no encontrada.';
+			return;
+		}
+		$quote = ClientContact::applyToQuote($quote);
+		$items = Quote::items((int) $quote['id']);
+		$pdf = QuotePdf::attachment($quote, $items);
+		if ($pdf === null) {
+			http_response_code(500);
+			header('Content-Type: text/plain; charset=UTF-8');
+			echo 'No se pudo generar el PDF.';
+			return;
+		}
+		if ($quote['status'] === 'enviada' && empty($quote['viewed_at'])) {
+			Quote::update((int) $quote['id'], ['status' => 'vista', 'viewed_at' => date('c'), 'updated_at' => date('c')]);
+			Activity::log('quote_viewed', 'El cliente descargó el PDF de ' . $quote['number'] . '.', null, (int) $quote['client_id'], (int) $quote['deal_id'], (int) $quote['id']);
+		}
+		header('Content-Type: application/pdf');
+		header('Content-Disposition: attachment; filename="' . str_replace('"', '', $pdf['filename']) . '"');
+		header('Content-Length: ' . (string) strlen($pdf['content']));
+		header('Cache-Control: private, max-age=0, must-revalidate');
+		echo $pdf['content'];
 	}
 
 	public function respond(string $token): void

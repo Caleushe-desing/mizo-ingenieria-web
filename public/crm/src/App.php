@@ -132,6 +132,7 @@ final class App
 			['POST', '#^/equipo$#', [Controllers\TeamController::class, 'store']],
 			['GET', '#^/nueva$#', [Controllers\ClientController::class, 'create']],
 			['GET', '#^/t/(\d+)$#', [Controllers\ClientController::class, 'fromDeal']],
+			['GET', '#^/q/([a-zA-Z0-9]+)/pdf$#', [Controllers\PublicQuoteController::class, 'pdf']],
 			['GET', '#^/q/([a-zA-Z0-9]+)$#', [Controllers\PublicQuoteController::class, 'show']],
 			['POST', '#^/q/([a-zA-Z0-9]+)$#', [Controllers\PublicQuoteController::class, 'respond']],
 		];

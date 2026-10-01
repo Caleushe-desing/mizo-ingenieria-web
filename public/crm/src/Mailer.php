@@ -74,6 +74,7 @@ final class Mailer
 	public static function quoteHtml(array $quote, array $items, array $client, string $publicUrl, ?array $user = null): string
 	{
 		$logo = App::origin() . '/mizo-logo.png';
+		$downloadUrl = rtrim($publicUrl, '/') . '/pdf';
 		$contact = (string) ($client['contact_name'] ?: $client['name']);
 		$company = (string) ($client['name'] ?? '');
 		$greeting = $contact !== '' ? $contact : 'estimado cliente';
@@ -104,7 +105,7 @@ final class Mailer
 		return '<div style="background:#efefef;padding:24px 12px;margin:0;">
 		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;">
 			<tr>
-				<td style="background:#ffffff;padding:22px 28px;border-bottom:1px solid #ececec;">
+				<td style="background:#ffffff;padding:22px 28px 18px;border-bottom:1px solid #ececec;">
 					<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 						<tr>
 							<td><img src="' . h($logo) . '" alt="Mizo" height="42" style="display:block;border:0;height:42px;width:auto;"></td>
@@ -114,12 +115,24 @@ final class Mailer
 							</td>
 						</tr>
 					</table>
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:18px;">
+						<tr>
+							<td align="center" style="padding:0;">
+								<a href="' . h($downloadUrl) . '" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:14px 26px;font-weight:bold;font-size:15px;letter-spacing:.03em;border-radius:4px;">Descargar cotización</a>
+							</td>
+						</tr>
+						<tr>
+							<td align="center" style="padding:10px 0 0;">
+								<a href="' . h($publicUrl) . '" style="color:#0b6ea8;font-size:13px;text-decoration:underline;">Ver en el navegador</a>
+							</td>
+						</tr>
+					</table>
 				</td>
 			</tr>
 			<tr>
 				<td style="padding:28px;">
 					<p style="margin:0 0 16px;font-size:15px;line-height:1.5;">Estimado/a <strong>' . h($greeting) . '</strong>' . ($company !== '' && $company !== $contact ? ' · ' . h($company) : '') . ',</p>
-					<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#444;">Adjuntamos el <strong>PDF</strong> de la cotización <strong>' . h($quote['number']) . '</strong>' . ($reference !== '' ? ' para <strong>' . h($reference) . '</strong>' : '') . '. También puedes ver el detalle completo en el enlace de abajo.</p>
+					<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#444;">Te enviamos la cotización <strong>' . h($quote['number']) . '</strong>' . ($reference !== '' ? ' para <strong>' . h($reference) . '</strong>' : '') . '. Puedes <strong>descargar el PDF</strong> con el botón de arriba (también va adjunto) o revisar el resumen aquí.</p>
 					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:13px;">
 						<tr style="background:#ffffff;color:#1c9bd8;border-bottom:2px solid #1c9bd8;">
 							<th align="left" style="padding:9px 8px;font-weight:600;border-bottom:2px solid #1c9bd8;">#</th>
@@ -146,7 +159,10 @@ final class Mailer
 					</table>
 					<div style="clear:both;"></div>
 					<p style="margin:28px 0 0;text-align:center;">
-						<a href="' . h($publicUrl) . '" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:14px 22px;font-weight:bold;font-size:14px;letter-spacing:.03em;">Ver cotización completa</a>
+						<a href="' . h($downloadUrl) . '" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:14px 22px;font-weight:bold;font-size:14px;letter-spacing:.03em;border-radius:4px;">Descargar cotización</a>
+					</p>
+					<p style="margin:12px 0 0;text-align:center;">
+						<a href="' . h($publicUrl) . '" style="color:#0b6ea8;font-size:13px;text-decoration:underline;">Ver cotización completa en el navegador</a>
 					</p>
 					' . Models\User::signatureHtml($user) . '
 					<p style="margin:18px 0 0;font-size:12px;color:#777;text-align:center;line-height:1.5;">Válida hasta ' . h(when($quote['valid_until'], 'd-m-Y')) . '. Precios en pesos chilenos, neto + IVA.<br>
