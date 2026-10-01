@@ -148,9 +148,42 @@ $revision = trim((string) ($quote['revision'] ?? ''));
 			white-space: pre-wrap;
 		}
 		.compact .card { min-height: 0; }
+		.decide {
+			margin-top: 14px;
+			padding: 12px 10px;
+			border: 1px solid #e4e4e4;
+			text-align: center;
+		}
+		.decide p {
+			margin: 0 0 10px;
+			font-size: 11px;
+			color: #444;
+		}
+		.decide a {
+			display: inline-block;
+			padding: 9px 14px;
+			margin: 0 4px 4px;
+			font-size: 11px;
+			font-weight: 700;
+			text-decoration: none;
+		}
+		.btn-accept {
+			background: #f47b20;
+			color: #ffffff;
+		}
+		.btn-reject {
+			background: #ffffff;
+			color: #444444;
+			border: 1px solid #cccccc;
+		}
 	</style>
 </head>
 <body>
+<?php
+$canDecide = !in_array((string) ($quote['status'] ?? ''), ['aceptada', 'rechazada', 'borrador'], true)
+	&& ($acceptUrl ?? '') !== ''
+	&& ($rejectUrl ?? '') !== '';
+?>
 	<div class="page">
 		<table class="letterhead">
 			<tr>
@@ -273,6 +306,14 @@ $revision = trim((string) ($quote['revision'] ?? ''));
 
 		<?php if (!empty($quote['notes'])): ?>
 			<section class="notes"><?= nl2br(h($quote['notes'])) ?></section>
+		<?php endif; ?>
+
+		<?php if ($canDecide): ?>
+			<section class="decide">
+				<p>Si esta propuesta se ajusta a lo requerido, puedes responder aquí. También puedes responder el correo.</p>
+				<a class="btn-accept" href="<?= h($acceptUrl) ?>">Aceptar presupuesto</a>
+				<a class="btn-reject" href="<?= h($rejectUrl) ?>">No por ahora</a>
+			</section>
 		<?php endif; ?>
 
 		<footer class="foot">

@@ -47,7 +47,10 @@ final class QuotePdf
 			throw new \RuntimeException('No se encontró la carpeta public.');
 		}
 		$logo = self::logoPath($publicRoot);
-		$html = self::html($quote, $items, $logo);
+		$token = trim((string) ($quote['token'] ?? ''));
+		$acceptUrl = $token !== '' ? App::absolute('/q/' . $token . '/aceptar') : '';
+		$rejectUrl = $token !== '' ? App::absolute('/q/' . $token . '/rechazar') : '';
+		$html = self::html($quote, $items, $logo, $acceptUrl, $rejectUrl);
 
 		$options = new \Dompdf\Options();
 		$options->set('isRemoteEnabled', false);
@@ -73,12 +76,17 @@ final class QuotePdf
 		return is_file($png) ? $png : '';
 	}
 
-	/** @param array<string,mixed> $quote @param list<array<string,mixed>> $items */
-	private static function html(array $quote, array $items, string $logoSrc): string
-	{
-		$quote = $quote;
-		$items = $items;
-		$logoSrc = $logoSrc;
+	/**
+	 * @param array<string,mixed> $quote
+	 * @param list<array<string,mixed>> $items
+	 */
+	private static function html(
+		array $quote,
+		array $items,
+		string $logoSrc,
+		string $acceptUrl = '',
+		string $rejectUrl = '',
+	): string {
 		ob_start();
 		require dirname(__DIR__) . '/views/quotes/pdf.php';
 		return (string) ob_get_clean();
