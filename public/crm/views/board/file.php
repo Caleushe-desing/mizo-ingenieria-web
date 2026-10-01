@@ -322,16 +322,25 @@ if ($editContacts === []) {
 						$margin = $quote['margin_real'] ?? null;
 						?>
 						<tr data-quote-row="<?= (int) $quote['id'] ?>">
-							<td><a href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>"><?= h($quote['number']) ?></a></td>
+							<td>
+								<a href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">
+									<?= h($quote['number']) ?>
+									<?php if (trim((string) ($quote['revision'] ?? '')) !== ''): ?>
+										· <?= h($quote['revision']) ?>
+									<?php endif; ?>
+								</a>
+							</td>
 							<td><?php
-								$quoteProject = '';
-								foreach ($projects as $row) {
-									if ((int) $row['id'] === (int) ($quote['deal_id'] ?? 0)) {
-										$quoteProject = (string) $row['title'];
-										break;
+								$quoteProject = trim((string) ($quote['deal_title'] ?? ''));
+								if ($quoteProject === '' || $quoteProject === '—') {
+									foreach ($projects as $row) {
+										if ((int) $row['id'] === (int) ($quote['deal_id'] ?? 0)) {
+											$quoteProject = (string) $row['title'];
+											break;
+										}
 									}
 								}
-								echo h($quoteProject !== '' ? $quoteProject : '—');
+								echo h($quoteProject !== '' && $quoteProject !== '—' ? $quoteProject : '—');
 							?></td>
 							<td data-quote-status="<?= (int) $quote['id'] ?>"><?= h(quote_status_label((string) $quote['status'])) ?></td>
 							<td class="is-num"><?= money($saleNet) ?></td>

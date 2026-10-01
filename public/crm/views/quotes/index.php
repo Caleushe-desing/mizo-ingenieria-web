@@ -84,7 +84,12 @@ $profitPositive = (int) $summary['profit'] >= 0;
 						?>
 						<tr>
 							<td>
-								<a class="quotes-number" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>"><?= h($quote['number']) ?></a>
+								<a class="quotes-number" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">
+									<?= h($quote['number']) ?>
+									<?php if (trim((string) ($quote['revision'] ?? '')) !== ''): ?>
+										· <?= h($quote['revision']) ?>
+									<?php endif; ?>
+								</a>
 								<span class="quotes-status quotes-status-<?= h($statusKey) ?>"><?= h($statusLabel) ?></span>
 								<div class="quotes-row-actions">
 									<a href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Abrir</a>

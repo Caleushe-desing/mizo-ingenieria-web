@@ -144,7 +144,13 @@ final class Client extends Record
 
 	public static function quotes(int $clientId): array
 	{
-		$stmt = self::pdo()->prepare('SELECT * FROM quotes WHERE client_id = ? ORDER BY created_at DESC');
+		$stmt = self::pdo()->prepare(
+			'SELECT q.*, COALESCE(d.title, \'—\') AS deal_title
+			FROM quotes q
+			LEFT JOIN deals d ON d.id = q.deal_id
+			WHERE q.client_id = ?
+			ORDER BY q.created_at DESC, q.id DESC'
+		);
 		$stmt->execute([$clientId]);
 		return Quote::attachProfitMetrics($stmt->fetchAll());
 	}

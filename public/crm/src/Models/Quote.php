@@ -15,10 +15,10 @@ final class Quote extends Record
 
 	public static function withRelations(?string $status = null, ?int $ownerId = null): array
 	{
-		$sql = 'SELECT q.*, c.name AS client_name, d.title AS deal_title, u.name AS author_name
+		$sql = 'SELECT q.*, c.name AS client_name, COALESCE(d.title, \'—\') AS deal_title, u.name AS author_name
 			FROM quotes q
 			JOIN clients c ON c.id = q.client_id
-			JOIN deals d ON d.id = q.deal_id
+			LEFT JOIN deals d ON d.id = q.deal_id
 			LEFT JOIN users u ON u.id = q.created_by
 			WHERE 1=1';
 		$params = [];
@@ -30,10 +30,52 @@ final class Quote extends Record
 			$sql .= ' AND c.owner_id = ?';
 			$params[] = $ownerId;
 		}
-		$sql .= ' ORDER BY q.created_at DESC';
+		$sql .= ' ORDER BY q.created_at DESC, q.id DESC';
 		$stmt = self::pdo()->prepare($sql);
 		$stmt->execute($params);
 		return self::attachProfitMetrics($stmt->fetchAll());
+	}
+
+	/** Siguiente etiqueta REV-01, REV-02… para versiones del mismo proyecto. */
+	public static function nextRevLabel(int $dealId): string
+	{
+		$stmt = self::pdo()->prepare('SELECT revision FROM quotes WHERE deal_id = ?');
+		$stmt->execute([$dealId]);
+		$max = 0;
+		foreach ($stmt->fetchAll(\PDO::FETCH_COLUMN) as $rev) {
+			if (is_string($rev) && preg_match('/^REV-0*(\d+)$/i', $rev, $m)) {
+				$max = max($max, (int) $m[1]);
+			}
+		}
+		return sprintf('REV-%02d', $max + 1);
+	}
+
+	/**
+	 * Crea una cotización nueva a partir de una ya enviada (conserva la anterior en el listado).
+	 * @return ?int id de la nueva cotización
+	 */
+	public static function forkRevision(int $quoteId, int $userId, string $revision = ''): ?int
+	{
+		$source = self::find($quoteId);
+		if (!$source) {
+			return null;
+		}
+		$dealId = (int) $source['deal_id'];
+		$newId = self::duplicate($quoteId, $userId, $dealId > 0 ? $dealId : null);
+		if (!$newId) {
+			return null;
+		}
+		$label = strtoupper(trim($revision));
+		$label = preg_replace('/\s+/', '-', $label) ?? '';
+		if ($label === '' || !preg_match('/^[A-Z0-9][A-Z0-9\-]{0,23}$/', $label)) {
+			$label = self::nextRevLabel($dealId > 0 ? $dealId : (int) $source['deal_id']);
+		}
+		self::update($newId, [
+			'revision' => $label,
+			'updated_at' => date('c'),
+			'updated_by' => $userId,
+		]);
+		return $newId;
 	}
 
 	/**

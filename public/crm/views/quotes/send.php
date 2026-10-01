@@ -34,10 +34,14 @@ $publicUrl = (string) ($publicUrl ?? '');
 				</div>
 			</div>
 			<div class="quote-send-body">
-				<?php if ($alreadySent): ?>
+				<?php
+				$showRevision = !empty($alreadySent) || trim((string) ($quote['revision'] ?? '')) !== '';
+				$revisionRequired = !empty($alreadySent);
+				?>
+				<?php if ($showRevision): ?>
 					<label>
-						<span>Versión de esta revisión</span>
-						<input name="revision" value="<?= h($quote['revision'] ?? '') ?>" placeholder="REV-01, OC" maxlength="24" required>
+						<span>Versión (REV)</span>
+						<input name="revision" value="<?= h($quote['revision'] ?? '') ?>" placeholder="REV-01, OC" maxlength="24" <?= $revisionRequired ? 'required' : '' ?>>
 					</label>
 				<?php endif; ?>
 

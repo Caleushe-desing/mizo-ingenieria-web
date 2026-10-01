@@ -188,12 +188,15 @@ final class QuoteController
 			View::flash('error', 'Esa cotización ya fue respondida y no se puede modificar.');
 			Http::redirect('/cotizaciones/' . $id);
 		}
-		$this->saveQuote($client, $quote);
+		$quoteId = $this->saveQuote($client, $quote);
+		$createdNew = $quoteId !== (int) $id;
 		if (Http::string('intent', 20) === 'send') {
-			Http::redirect('/cotizaciones/' . $id . '/enviar');
+			Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
 		}
-		View::flash('ok', 'Cotización guardada.');
-		Http::redirect('/cotizaciones/' . $id);
+		View::flash('ok', $createdNew
+			? 'Se guardó una versión nueva en el listado. La cotización anterior queda en el historial del cliente.'
+			: 'Cotización guardada.');
+		Http::redirect('/cotizaciones/' . $quoteId);
 	}
 
 	/** Pantalla previa: contactos, Cc y vista del correo antes de enviar. */
@@ -441,7 +444,26 @@ final class QuoteController
 			return (int) $quote['id'];
 		}
 
-		$totals = Quote::saveItems((int) $quote['id'], $items);
+		$dealId = (int) $quote['deal_id'];
+		$workingId = (int) $quote['id'];
+		$sourceNumber = (string) ($quote['number'] ?? '');
+		$alreadySent = !empty($quote['sent_at']) || in_array((string) ($quote['status'] ?? ''), ['enviada', 'vista'], true);
+
+		// Cotización ya enviada: crear fila nueva (REV) y dejar la anterior en el historial.
+		if ($alreadySent) {
+			$postedRev = strtoupper(trim((string) ($_POST['revision'] ?? '')));
+			$postedRev = preg_replace('/\s+/', '-', $postedRev) ?? '';
+			$forkId = Quote::forkRevision($workingId, Auth::id(), $postedRev);
+			if (!$forkId) {
+				View::flash('error', 'No se pudo crear la nueva versión de la cotización.');
+				Http::redirect('/cotizaciones/' . $workingId);
+			}
+			$workingId = $forkId;
+			$quote = Quote::find($workingId) ?? $quote;
+			$dealId = (int) ($quote['deal_id'] ?? $dealId);
+		}
+
+		$totals = Quote::saveItems($workingId, $items);
 		$fields = [
 			'intro' => $intro,
 			'notes' => $notes,
@@ -454,7 +476,6 @@ final class QuoteController
 			'updated_at' => $now,
 			'updated_by' => Auth::id(),
 		];
-		$dealId = (int) $quote['deal_id'];
 		// En borrador se puede reasignar a otro proyecto del mismo cliente.
 		if ((string) ($quote['status'] ?? '') === 'borrador') {
 			$postedDeal = (int) ($_POST['project_id'] ?? 0);
@@ -466,25 +487,27 @@ final class QuoteController
 				}
 			}
 		}
-		if (!empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true)) {
-			$fields['revision'] = $this->revisionLabel($quote);
-		}
-		Quote::update((int) $quote['id'], $fields);
+		Quote::update($workingId, $fields);
 		Deal::update($dealId, [
 			'amount' => $totals['total'],
 			'updated_at' => $now,
 		]);
 		Client::update($clientId, ['updated_at' => $now]);
-		$versionNote = !empty($fields['revision']) ? ' Versión ' . $fields['revision'] . '.' : '';
+		$saved = Quote::find($workingId);
+		$versionNote = trim((string) ($saved['revision'] ?? '')) !== ''
+			? ' Versión ' . $saved['revision'] . '.'
+			: '';
 		Activity::log(
-			'quote_updated',
-			'Cotización ' . ($quote['number'] ?? '') . ' actualizada.' . $versionNote,
+			$alreadySent ? 'quote_created' : 'quote_updated',
+			$alreadySent
+				? ('Cotización ' . ($saved['number'] ?? '') . $versionNote . ' creada como nueva versión desde ' . $sourceNumber . '.')
+				: ('Cotización ' . ($saved['number'] ?? $sourceNumber) . ' actualizada.' . $versionNote),
 			Auth::id(),
 			$clientId,
 			$dealId,
-			(int) $quote['id']
+			$workingId
 		);
-		return (int) $quote['id'];
+		return $workingId;
 	}
 
 	/** @param array<string,mixed> $quote */
@@ -532,6 +555,23 @@ final class QuoteController
 		$cc = $recipients['cc'];
 		$contactId = $recipients['contact_id'];
 
+		// Reenvío: nueva fila en listados (cliente + cotizaciones); la anterior se conserva.
+		if ($alreadySent) {
+			$postedRev = strtoupper(trim(Http::string('revision', 24)));
+			$postedRev = preg_replace('/\s+/', '-', $postedRev) ?? '';
+			if ($postedRev === '' || !preg_match('/^[A-Z0-9][A-Z0-9\-]{0,23}$/', $postedRev)) {
+				View::flash('error', 'Indica la versión con letras y números, por ejemplo REV-01 o OC.');
+				Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
+			}
+			$forkId = Quote::forkRevision($quoteId, Auth::id(), $postedRev);
+			if (!$forkId) {
+				View::flash('error', 'No se pudo crear la nueva versión para enviar.');
+				Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
+			}
+			$quoteId = $forkId;
+			$alreadySent = false;
+		}
+
 		$fieldsPre = [
 			'contact_id' => $contactId,
 			'sent_to' => $to,
@@ -539,15 +579,10 @@ final class QuoteController
 			'updated_at' => date('c'),
 			'updated_by' => Auth::id(),
 		];
-		if ($alreadySent) {
-			$postedRev = strtoupper(trim(Http::string('revision', 24)));
-			$postedRev = preg_replace('/\s+/', '-', $postedRev) ?? '';
-			if ($postedRev !== '' && preg_match('/^[A-Z0-9][A-Z0-9\-]{0,23}$/', $postedRev)) {
-				$fieldsPre['revision'] = $postedRev;
-			} elseif (trim((string) ($quote['revision'] ?? '')) === '') {
-				View::flash('error', 'Indica la versión con letras y números, por ejemplo REV-01 o OC.');
-				Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
-			}
+		$postedRev = strtoupper(trim(Http::string('revision', 24)));
+		$postedRev = preg_replace('/\s+/', '-', $postedRev) ?? '';
+		if ($postedRev !== '' && preg_match('/^[A-Z0-9][A-Z0-9\-]{0,23}$/', $postedRev)) {
+			$fieldsPre['revision'] = $postedRev;
 		}
 		Quote::update($quoteId, $fieldsPre);
 
