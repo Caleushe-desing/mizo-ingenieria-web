@@ -139,95 +139,83 @@ $action = $quote
 		<h2 class="section-title word">Partidas</h2>
 		<p class="muted">Abre el catálogo, busca el producto y selecciónalo, o escribe un ítem libre. La URL del proveedor es solo para el ejecutivo.</p>
 		<script type="application/json" id="quote-catalog-json"><?= json_encode(array_values($catalogProducts), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
-		<div class="table-wrap">
-			<table class="sheet sheet-edit quote-lines" data-tax-rate="19">
-				<thead>
-					<tr>
-						<th>Producto</th>
-						<th>Descripción</th>
-						<th>Cant.</th>
-						<th>Unidad</th>
-						<th>Costo c/IVA</th>
-						<th>URL proveedor</th>
-						<th>Margen %</th>
-						<th>Venta neta</th>
-						<th>Total</th>
-						<?php if (!$locked): ?><th></th><?php endif; ?>
-					</tr>
-				</thead>
-				<tbody data-items>
-				<?php foreach ($items as $item): ?>
-					<?php
-					$cost = (int) ($item['cost_price'] ?? 0);
-					$margin = (float) ($item['margin_percent'] ?? 0);
-					$price = (int) ($item['unit_price'] ?? 0);
-					if ($cost > 0) {
-						$price = \MizoCrm\Models\Quote::netSaleFromCost($cost, $margin);
+		<div class="quote-lines quote-line-cards" data-tax-rate="19" data-items>
+		<?php foreach ($items as $item): ?>
+			<?php
+			$cost = (int) ($item['cost_price'] ?? 0);
+			$margin = (float) ($item['margin_percent'] ?? 0);
+			$price = (int) ($item['unit_price'] ?? 0);
+			if ($cost > 0) {
+				$price = \MizoCrm\Models\Quote::netSaleFromCost($cost, $margin);
+			}
+			$name = trim((string) ($item['name'] ?? ''));
+			$detail = (string) ($item['description'] ?? '');
+			if ($name === '' && $detail !== '') {
+				$name = $detail;
+				$detail = '';
+			}
+			$productId = (int) ($item['product_id'] ?? 0);
+			$supplierHref = '';
+			if ($productId > 0) {
+				foreach ($catalogProducts as $catalogProduct) {
+					if ((int) $catalogProduct['id'] === $productId) {
+						$supplierHref = (string) ($catalogProduct['proveedor_link'] ?? '');
+						break;
 					}
-					$name = trim((string) ($item['name'] ?? ''));
-					$detail = (string) ($item['description'] ?? '');
-					if ($name === '' && $detail !== '') {
-						$name = $detail;
-						$detail = '';
+				}
+			}
+			$supplierHost = $supplierHref !== '' ? (parse_url($supplierHref, PHP_URL_HOST) ?: 'Abrir ficha') : '';
+			$pickedLabel = 'Ítem libre / elegir catálogo…';
+			if ($productId > 0) {
+				foreach ($catalogProducts as $catalogProduct) {
+					if ((int) $catalogProduct['id'] === $productId) {
+						$pickedLabel = trim(($catalogProduct['sku'] ?? '') . ' — ' . ($catalogProduct['nombre'] ?? ''));
+						break;
 					}
-					$productId = (int) ($item['product_id'] ?? 0);
-					?>
-					<tr data-item-row>
-						<td class="quote-product-cell">
-							<?php if (!$locked): ?>
-								<?php
-								$pickedLabel = 'Ítem libre / elegir catálogo…';
-								if ($productId > 0) {
-									foreach ($catalogProducts as $catalogProduct) {
-										if ((int) $catalogProduct['id'] === $productId) {
-											$pickedLabel = trim(($catalogProduct['sku'] ?? '') . ' — ' . ($catalogProduct['nombre'] ?? ''));
-											break;
-										}
-									}
-								}
-								?>
-								<button class="catalog-pick" type="button" data-catalog-open aria-label="Buscar producto del catálogo">
-									<span data-catalog-label><?= h($pickedLabel) ?></span>
-								</button>
-							<?php endif; ?>
-							<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
-							<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $locked ? 'readonly' : '' ?>>
-						</td>
-						<td>
-							<textarea name="item_description[]" rows="3" placeholder="Especificaciones técnicas, notas, alcance…" <?= $locked ? 'readonly' : '' ?>><?= h($detail) ?></textarea>
-						</td>
-						<td><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $locked ? 'readonly' : '' ?>></td>
-						<td><input name="item_unit[]" value="<?= h($item['unit'] ?? 'un') ?>" <?= $locked ? 'readonly' : '' ?>></td>
-						<td><input name="item_cost[]" inputmode="numeric" value="<?= $cost > 0 ? h((string) $cost) : '' ?>" placeholder="0" <?= $locked ? 'readonly' : '' ?>></td>
-						<?php
-						$supplierHref = '';
-						if ($productId > 0) {
-							foreach ($catalogProducts as $catalogProduct) {
-								if ((int) $catalogProduct['id'] === $productId) {
-									$supplierHref = (string) ($catalogProduct['proveedor_link'] ?? '');
-									break;
-								}
-							}
-						}
-						$supplierHost = $supplierHref !== '' ? (parse_url($supplierHref, PHP_URL_HOST) ?: 'Abrir ficha') : '';
-						?>
-						<td class="quote-supplier-cell">
-							<div class="catalog-supplier" data-catalog-supplier<?= $supplierHref === '' ? ' hidden' : '' ?>>
-								<a class="btn catalog-supplier-link" data-catalog-link href="<?= h($supplierHref !== '' ? $supplierHref : '#') ?>" target="_blank" rel="noopener noreferrer">Ver precio</a>
-								<span class="catalog-supplier-host" data-catalog-host title="<?= h($supplierHref) ?>"><?= h($supplierHost) ?></span>
-							</div>
-							<span class="muted catalog-supplier-empty" data-catalog-empty<?= $supplierHref !== '' ? ' hidden' : '' ?>>—</span>
-						</td>
-						<td><input name="item_margin[]" inputmode="decimal" value="<?= $margin > 0 ? h(rtrim(rtrim(number_format($margin, 2, '.', ''), '0'), '.')) : '' ?>" placeholder="0" <?= $locked ? 'readonly' : '' ?>></td>
-						<td><input name="item_price[]" data-sale-net value="<?= h((string) $price) ?>" <?= $locked || $cost > 0 ? 'readonly' : '' ?>></td>
-						<td data-line><?= money((int) round(((float) ($item['quantity'] ?? 1)) * $price)) ?></td>
+				}
+			}
+			?>
+			<article class="quote-line-card" data-item-row>
+				<div class="quote-line-top">
+					<div class="quote-product-cell">
+						<span class="quote-line-label">Producto</span>
 						<?php if (!$locked): ?>
-							<td><button class="btn-text" type="button" data-remove>Quitar</button></td>
+							<button class="catalog-pick" type="button" data-catalog-open aria-label="Buscar producto del catálogo">
+								<span data-catalog-label><?= h($pickedLabel) ?></span>
+							</button>
 						<?php endif; ?>
-					</tr>
-				<?php endforeach; ?>
-				</tbody>
-			</table>
+						<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
+						<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $locked ? 'readonly' : '' ?>>
+					</div>
+					<label class="quote-desc-cell">
+						<span class="quote-line-label">Descripción / especificaciones</span>
+						<textarea name="item_description[]" rows="6" placeholder="Especificaciones técnicas, notas, alcance…" <?= $locked ? 'readonly' : '' ?>><?= h($detail) ?></textarea>
+					</label>
+				</div>
+				<div class="quote-line-metrics">
+					<label><span>Cant.</span><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $locked ? 'readonly' : '' ?>></label>
+					<label><span>Unidad</span><input name="item_unit[]" value="<?= h($item['unit'] ?? 'un') ?>" <?= $locked ? 'readonly' : '' ?>></label>
+					<label><span>Costo c/IVA</span><input name="item_cost[]" inputmode="numeric" value="<?= $cost > 0 ? h((string) $cost) : '' ?>" placeholder="0" <?= $locked ? 'readonly' : '' ?>></label>
+					<div class="quote-supplier-cell">
+						<span class="quote-line-label">URL proveedor</span>
+						<div class="catalog-supplier" data-catalog-supplier<?= $supplierHref === '' ? ' hidden' : '' ?>>
+							<a class="btn catalog-supplier-link" data-catalog-link href="<?= h($supplierHref !== '' ? $supplierHref : '#') ?>" target="_blank" rel="noopener noreferrer">Ver precio</a>
+							<span class="catalog-supplier-host" data-catalog-host title="<?= h($supplierHref) ?>"><?= h($supplierHost) ?></span>
+						</div>
+						<span class="muted catalog-supplier-empty" data-catalog-empty<?= $supplierHref !== '' ? ' hidden' : '' ?>>—</span>
+					</div>
+					<label><span>Margen %</span><input name="item_margin[]" inputmode="decimal" value="<?= $margin > 0 ? h(rtrim(rtrim(number_format($margin, 2, '.', ''), '0'), '.')) : '' ?>" placeholder="0" <?= $locked ? 'readonly' : '' ?>></label>
+					<label><span>Venta neta</span><input name="item_price[]" data-sale-net value="<?= h((string) $price) ?>" <?= $locked || $cost > 0 ? 'readonly' : '' ?>></label>
+					<div class="quote-line-total">
+						<span class="quote-line-label">Total</span>
+						<strong data-line><?= money((int) round(((float) ($item['quantity'] ?? 1)) * $price)) ?></strong>
+					</div>
+					<?php if (!$locked): ?>
+						<button class="btn-text quote-line-remove" type="button" data-remove>Quitar</button>
+					<?php endif; ?>
+				</div>
+			</article>
+		<?php endforeach; ?>
 		</div>
 
 		<?php if (!$locked): ?>

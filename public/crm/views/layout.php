@@ -13,6 +13,7 @@ $onChat = str_starts_with($path, '/chat');
 $onBoard = $path === '/' || str_starts_with($path, '/tablero');
 $onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cotizaciones');
 $onCatalog = str_starts_with($path, '/catalogo');
+$onQuoteEditor = str_ends_with($path, '/cotizacion') || (bool) preg_match('#^/cotizaciones/\d+$#', $path);
 ?>
 <!doctype html>
 <html lang="es-CL">
@@ -21,9 +22,9 @@ $onCatalog = str_starts_with($path, '/catalogo');
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=56">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=57">
 </head>
-<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
+<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?><?= $onQuoteEditor ? ' is-quote-editor' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
 	<header class="titlebar">
 		<img src="/mizo-logo-footer.png" alt="Mizo">
 		<small>Clientes, cotizaciones y correo</small>
@@ -82,6 +83,6 @@ $onCatalog = str_starts_with($path, '/catalogo');
 		<?php endif; ?>
 		<?= $content ?>
 	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=54"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=55"></script>
 </body>
 </html>

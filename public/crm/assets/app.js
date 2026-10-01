@@ -3,8 +3,8 @@
 	if (!list) return;
 
 	const addBtn = document.querySelector('[data-add-item]');
-	const table = list.closest('table');
-	const taxRate = Number((table && table.getAttribute('data-tax-rate')) || 19) || 19;
+	const linesRoot = list.closest('[data-tax-rate]') || list;
+	const taxRate = Number((linesRoot && linesRoot.getAttribute('data-tax-rate')) || 19) || 19;
 	const totals = {
 		neto: document.querySelector('[data-neto]'),
 		iva: document.querySelector('[data-iva]'),
@@ -393,10 +393,12 @@
 	}
 
 	function openQuotePopup(url) {
-		const width = Math.min(1480, Math.max(1100, (window.screen.availWidth || 1400) - 48));
-		const height = Math.min(960, Math.max(720, (window.screen.availHeight || 900) - 64));
-		const left = Math.max(0, Math.round(((window.screen.availWidth || width) - width) / 2));
-		const top = Math.max(0, Math.round(((window.screen.availHeight || height) - height) / 2));
+		const availW = window.screen.availWidth || 1600;
+		const availH = window.screen.availHeight || 1000;
+		const width = Math.max(1280, availW - 24);
+		const height = Math.max(800, availH - 32);
+		const left = Math.max(0, Math.round((availW - width) / 2));
+		const top = Math.max(0, Math.round((availH - height) / 2));
 		const features = [
 			'popup=yes',
 			'width=' + width,
