@@ -10,90 +10,103 @@ $summary = $summary ?? [
 	'margin_real' => null,
 	'count' => 0,
 ];
+$profitPositive = (int) $summary['profit'] >= 0;
 ?>
-<div class="top-actions" style="justify-content:space-between;margin-bottom:16px">
-	<div>
-		<p class="kicker">Interno</p>
-		<h1>Cotizaciones</h1>
-		<p class="muted">Rentabilidad sobre costo. Costos y utilidad no se muestran al cliente.</p>
-	</div>
-	<a class="btn" href="<?= h(Http::url('/clientes')) ?>">Nueva desde cliente</a>
-</div>
+<div class="quotes-dir">
+	<header class="quotes-dir-hd">
+		<div>
+			<p class="kicker">Interno</p>
+			<h1>Cotizaciones</h1>
+			<p>Venta, costo y margen real. Estos números no salen al cliente.</p>
+		</div>
+		<a class="btn btn-word" href="<?= h(Http::url('/clientes')) ?>">Nueva desde cliente</a>
+	</header>
 
-<section class="quote-profit-summary" aria-label="Resumen de rentabilidad">
-	<div>
-		<span>Venta neta</span>
-		<strong><?= money((int) $summary['sale_net']) ?></strong>
-	</div>
-	<div>
-		<span>Costo neto</span>
-		<strong><?= money((int) $summary['cost_total_net']) ?></strong>
-		<small class="muted">c/IVA <?= money((int) $summary['cost_total_iva']) ?></small>
-	</div>
-	<div>
-		<span>Utilidad</span>
-		<strong class="<?= (int) $summary['profit'] >= 0 ? 'is-gain' : 'is-loss' ?>"><?= money((int) $summary['profit']) ?></strong>
-	</div>
-	<div>
-		<span>Margen real</span>
-		<strong class="<?= (int) $summary['profit'] >= 0 ? 'is-gain' : 'is-loss' ?>">
-			<?= $summary['margin_real'] !== null ? h(number_format((float) $summary['margin_real'], 1, ',', '.')) . '%' : '—' ?>
-		</strong>
-		<small class="muted"><?= (int) $summary['count'] ?> cotización<?= (int) $summary['count'] === 1 ? '' : 'es' ?></small>
-	</div>
-</section>
+	<section class="quotes-metrics" aria-label="Resumen de rentabilidad">
+		<div class="quotes-metric">
+			<span>Venta neta</span>
+			<strong><?= money((int) $summary['sale_net']) ?></strong>
+		</div>
+		<div class="quotes-metric">
+			<span>Costo neto</span>
+			<strong><?= money((int) $summary['cost_total_net']) ?></strong>
+		</div>
+		<div class="quotes-metric">
+			<span>Utilidad</span>
+			<strong class="<?= $profitPositive ? 'is-gain' : 'is-loss' ?>"><?= money((int) $summary['profit']) ?></strong>
+		</div>
+		<div class="quotes-metric">
+			<span>Margen real</span>
+			<strong class="<?= $profitPositive ? 'is-gain' : 'is-loss' ?>">
+				<?= $summary['margin_real'] !== null ? h(number_format((float) $summary['margin_real'], 1, ',', '.')) . '%' : '—' ?>
+			</strong>
+			<em><?= (int) $summary['count'] ?> cotiz.</em>
+		</div>
+	</section>
 
-<div class="filters">
-	<a class="<?= $status === '' ? 'is-on' : '' ?>" href="<?= h(Http::url('/cotizaciones')) ?>">Todas</a>
-	<?php foreach (Config::quoteStatuses() as $key => $label): ?>
-		<a class="<?= $status === $key ? 'is-on' : '' ?>" href="<?= h(Http::url('/cotizaciones?estado=' . $key)) ?>"><?= h($label) ?></a>
-	<?php endforeach; ?>
-</div>
-<div class="card">
-	<div class="table-wrap">
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Número</th>
-					<th>Cliente / negocio</th>
-					<th>Estado</th>
-					<th class="is-num">Venta neta</th>
-					<th class="is-num">Costo neto</th>
-					<th class="is-num">Utilidad</th>
-					<th class="is-num">Margen real</th>
-					<th>Envío</th>
-				</tr>
-			</thead>
-			<tbody>
-			<?php foreach ($quotes as $quote): ?>
-				<?php
-				$saleNet = (int) ($quote['sale_net'] ?? $quote['subtotal'] ?? 0);
-				$costNet = (int) ($quote['cost_total_net'] ?? 0);
-				$profit = (int) ($quote['profit'] ?? ($saleNet - $costNet));
-				$margin = $quote['margin_real'] ?? null;
-				?>
-				<tr>
-					<td><a href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>"><b><?= h($quote['number']) ?></b></a></td>
-					<td><?= h($quote['client_name']) ?><div class="muted"><?= h($quote['deal_title']) ?></div></td>
-					<td><span class="badge <?= h($quote['status']) ?>"><?= h(Config::quoteStatuses()[$quote['status']] ?? $quote['status']) ?></span></td>
-					<td class="is-num"><?= money($saleNet) ?></td>
-					<td class="is-num">
-						<?= money($costNet) ?>
-						<?php if ((int) ($quote['cost_total_iva'] ?? 0) > 0): ?>
-							<div class="muted" style="font-size:12px">c/IVA <?= money((int) $quote['cost_total_iva']) ?></div>
-						<?php endif; ?>
-					</td>
-					<td class="is-num <?= $profit >= 0 ? 'is-gain' : 'is-loss' ?>"><?= money($profit) ?></td>
-					<td class="is-num <?= $profit >= 0 ? 'is-gain' : 'is-loss' ?>">
-						<?= $margin !== null ? h(number_format((float) $margin, 1, ',', '.')) . '%' : '—' ?>
-					</td>
-					<td><?= $quote['sent_at'] ? when($quote['sent_at'], 'd-m-Y H:i') : '—' ?><div class="muted"><?= h($quote['sent_to'] ?: '') ?></div></td>
-				</tr>
-			<?php endforeach; ?>
-			<?php if (!$quotes): ?>
-				<tr><td colspan="8" class="empty">Todavía no hay presupuestos registrados.</td></tr>
-			<?php endif; ?>
-			</tbody>
-		</table>
-	</div>
+	<nav class="quotes-filters" aria-label="Filtrar por estado">
+		<a class="<?= $status === '' ? 'is-on' : '' ?>" href="<?= h(Http::url('/cotizaciones')) ?>">Todas</a>
+		<?php foreach (Config::quoteStatuses() as $key => $label): ?>
+			<a class="<?= $status === $key ? 'is-on' : '' ?>" href="<?= h(Http::url('/cotizaciones?estado=' . $key)) ?>"><?= h($label) ?></a>
+		<?php endforeach; ?>
+	</nav>
+
+	<section class="quotes-panel">
+		<?php if (!$quotes): ?>
+			<div class="quotes-empty">
+				<p>Todavía no hay presupuestos<?= $status !== '' ? ' en este estado' : '' ?>.</p>
+				<a class="btn" href="<?= h(Http::url('/clientes')) ?>">Ir a clientes</a>
+			</div>
+		<?php else: ?>
+			<div class="quotes-table-wrap">
+				<table class="quotes-table">
+					<thead>
+						<tr>
+							<th>Cotización</th>
+							<th>Cliente</th>
+							<th class="is-num">Venta</th>
+							<th class="is-num">Costo</th>
+							<th class="is-num">Utilidad</th>
+							<th class="is-num">Margen</th>
+							<th>Envío</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php foreach ($quotes as $quote): ?>
+						<?php
+						$saleNet = (int) ($quote['sale_net'] ?? $quote['subtotal'] ?? 0);
+						$costNet = (int) ($quote['cost_total_net'] ?? 0);
+						$profit = (int) ($quote['profit'] ?? ($saleNet - $costNet));
+						$margin = $quote['margin_real'] ?? null;
+						$statusKey = (string) ($quote['status'] ?? '');
+						$statusLabel = Config::quoteStatuses()[$statusKey] ?? $statusKey;
+						?>
+						<tr>
+							<td>
+								<a class="quotes-number" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>"><?= h($quote['number']) ?></a>
+								<span class="quotes-status quotes-status-<?= h($statusKey) ?>"><?= h($statusLabel) ?></span>
+							</td>
+							<td>
+								<span class="quotes-client"><?= h($quote['client_name']) ?></span>
+								<span class="quotes-deal"><?= h($quote['deal_title'] ?: '—') ?></span>
+							</td>
+							<td class="is-num"><?= money($saleNet) ?></td>
+							<td class="is-num" title="<?= (int) ($quote['cost_total_iva'] ?? 0) > 0 ? 'c/IVA ' . money((int) $quote['cost_total_iva']) : '' ?>"><?= money($costNet) ?></td>
+							<td class="is-num <?= $profit >= 0 ? 'is-gain' : 'is-loss' ?>"><?= money($profit) ?></td>
+							<td class="is-num <?= $profit >= 0 ? 'is-gain' : 'is-loss' ?>">
+								<?= $margin !== null ? h(number_format((float) $margin, 1, ',', '.')) . '%' : '—' ?>
+							</td>
+							<td class="quotes-sent">
+								<span><?= $quote['sent_at'] ? when($quote['sent_at'], 'd-m-Y') : 'Sin envío' ?></span>
+								<?php if (!empty($quote['sent_to'])): ?>
+									<small><?= h($quote['sent_to']) ?></small>
+								<?php endif; ?>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		<?php endif; ?>
+	</section>
 </div>
