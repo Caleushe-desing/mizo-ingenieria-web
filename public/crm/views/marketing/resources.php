@@ -50,6 +50,7 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 					Importar imagen
 					<input type="file" accept="image/*" data-act="upload-image" hidden>
 				</label>
+				<button type="button" class="btn btn-word" data-act="preview">Vista previa real</button>
 				<button type="button" class="btn-text" data-act="delete">Eliminar</button>
 				<button type="button" class="btn-text" data-act="front">Traer al frente</button>
 				<button type="button" class="btn-text" data-act="back">Enviar al fondo</button>
@@ -59,7 +60,12 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 
 		<div class="mkt-free-layout">
 			<aside class="mkt-free-sidebar">
-				<h3>Fondo</h3>
+				<h3>Plantillas y fondos profesionales</h3>
+				<p class="muted mkt-stock-hint">Un clic aplica el fondo al lienzo. El texto e imágenes se mantienen.</p>
+				<div class="mkt-stock-filters" data-bg-tpl-filters></div>
+				<div class="mkt-bg-tpl-gallery" data-bg-tpl-gallery></div>
+
+				<h3>Color sólido</h3>
 				<div class="mkt-palette" data-bg-palette>
 					<button type="button" data-bg="#0b1c2c" style="background:#0b1c2c" title="Navy"></button>
 					<button type="button" data-bg="#0b6ea8" style="background:#0b6ea8" title="Azul Mizo"></button>
@@ -128,6 +134,28 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 				</div>
 			</div>
 		</div>
+
+		<div class="mkt-preview-modal" data-preview-modal hidden>
+			<div class="mkt-preview-backdrop" data-preview-close></div>
+			<div class="mkt-preview-dialog" role="dialog" aria-modal="true" aria-label="Vista previa real">
+				<div class="mkt-preview-head">
+					<strong>Simulador móvil</strong>
+					<div class="mkt-preview-formats" data-preview-formats>
+						<button type="button" class="mkt-filter is-on" data-preview-format="story">Story / WhatsApp</button>
+						<button type="button" class="mkt-filter" data-preview-format="post">Post cuadrado</button>
+						<button type="button" class="mkt-filter" data-preview-format="feed">Feed vertical</button>
+					</div>
+					<button type="button" class="btn-text" data-preview-close>Cerrar</button>
+				</div>
+				<div class="mkt-phone">
+					<div class="mkt-phone-notch" aria-hidden="true"></div>
+					<div class="mkt-phone-screen" data-preview-screen>
+						<img alt="Vista previa del diseño" data-preview-image>
+					</div>
+					<p class="mkt-phone-caption" data-preview-caption>Instagram Story · 9:16</p>
+				</div>
+			</div>
+		</div>
 	</section>
 
 	<section class="paper mkt-panel" id="galeria">
@@ -186,4 +214,4 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 	</section>
 </div>
 <script src="<?= h(Http::url('/assets/fabric.min.js')) ?>?v=531"></script>
-<script src="<?= h(Http::url('/assets/marketing-free-canvas.js')) ?>?v=1"></script>
+<script src="<?= h(Http::url('/assets/marketing-free-canvas.js')) ?>?v=3"></script>

@@ -68,6 +68,106 @@ body.is-marketing .workspace { max-width: 1240px; margin: 0 auto; padding: 0 16p
 	border-radius: 8px;
 	font-size: 13px;
 }
+.mkt-bg-tpl-gallery {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+	max-height: 220px;
+	overflow: auto;
+	margin-bottom: 8px;
+}
+.mkt-bg-tpl {
+	border: 1px solid #d5dde6;
+	background: #fff;
+	border-radius: 8px;
+	padding: 6px;
+	cursor: pointer;
+	display: grid;
+	gap: 5px;
+	text-align: left;
+}
+.mkt-bg-tpl.is-on,
+.mkt-bg-tpl:hover {
+	border-color: #1c9bd8;
+	box-shadow: 0 2px 8px rgba(28,155,216,.14);
+}
+.mkt-bg-tpl-swatch {
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 5;
+	border-radius: 6px;
+}
+.mkt-bg-tpl strong {
+	font-size: 11px;
+	color: #1f2328;
+	line-height: 1.25;
+}
+body.mkt-preview-open { overflow: hidden; }
+.mkt-preview-modal[hidden] { display: none !important; }
+.mkt-preview-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 80;
+	display: grid;
+	place-items: center;
+	padding: 16px;
+}
+.mkt-preview-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(15, 20, 28, 0.72);
+}
+.mkt-preview-dialog {
+	position: relative;
+	z-index: 1;
+	width: min(440px, 100%);
+	background: #eef1f4;
+	border-radius: 16px;
+	padding: 14px 14px 18px;
+	box-shadow: 0 20px 50px rgba(0,0,0,.3);
+}
+.mkt-preview-head {
+	display: grid;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+.mkt-preview-head strong { color: #0b6ea8; font-size: 15px; }
+.mkt-preview-formats { display: flex; flex-wrap: wrap; gap: 6px; }
+.mkt-phone {
+	margin: 0 auto;
+	width: min(280px, 78vw);
+	background: #111418;
+	border-radius: 36px;
+	padding: 14px 12px 18px;
+	box-shadow: inset 0 0 0 2px #2a313a, 0 12px 28px rgba(0,0,0,.28);
+}
+.mkt-phone-notch {
+	width: 42%;
+	height: 18px;
+	margin: 0 auto 10px;
+	background: #0a0c0f;
+	border-radius: 0 0 12px 12px;
+}
+.mkt-phone-screen {
+	background: #000;
+	border-radius: 18px;
+	overflow: hidden;
+	aspect-ratio: 9 / 16;
+}
+.mkt-phone.is-post .mkt-phone-screen { aspect-ratio: 1 / 1; }
+.mkt-phone.is-feed .mkt-phone-screen { aspect-ratio: 4 / 5; }
+.mkt-phone-screen img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+.mkt-phone-caption {
+	margin: 10px 4px 0;
+	text-align: center;
+	font-size: 12px;
+	color: #c5ccd4;
+}
 .mkt-tabs {
 	display: flex;
 	flex-wrap: wrap;
