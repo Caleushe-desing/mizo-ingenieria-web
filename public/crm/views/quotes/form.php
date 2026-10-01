@@ -48,6 +48,7 @@ foreach ($contacts as $c) {
 <div
 	class="client-sheet quote-sheet"
 	data-catalog-create="<?= h(Http::url('/api/catalogo-rapido')) ?>"
+	data-catalog-import="<?= h(Http::url('/api/catalogo-importar')) ?>"
 	data-csrf="<?= h(Csrf::token()) ?>"
 >
 	<header class="quote-toolbar">

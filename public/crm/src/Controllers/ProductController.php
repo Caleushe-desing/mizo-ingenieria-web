@@ -167,6 +167,23 @@ final class ProductController
 		);
 	}
 
+	/** Importa ficha desde URL (misma regla que el catálogo). */
+	public function quoteImport(): void
+	{
+		Auth::requireUser();
+		Csrf::check();
+		header('Content-Type: application/json; charset=utf-8');
+		header('Cache-Control: no-store');
+		try {
+			$draft = ProductImporter::fromUrl(Http::string('url', 500));
+		} catch (RuntimeException $e) {
+			http_response_code(422);
+			echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+			return;
+		}
+		echo json_encode(['ok' => true, 'draft' => $draft], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+	}
+
 	/** Alta rápida desde el cotizador (ejecutivo autenticado). */
 	public function quoteCreate(): void
 	{
@@ -176,6 +193,7 @@ final class ProductController
 		header('Cache-Control: no-store');
 		$data = $this->input();
 		$data['activo'] = 1;
+		$images = $this->postedImages();
 		$error = $this->validate($data, null);
 		if ($error !== null) {
 			http_response_code(422);
@@ -183,7 +201,11 @@ final class ProductController
 			return;
 		}
 		$now = date('c');
-		$id = Product::insert($data + ['created_at' => $now, 'updated_at' => $now]);
+		$extra = ['created_at' => $now, 'updated_at' => $now];
+		if ($images !== []) {
+			$extra['imagenes'] = json_encode($images, JSON_UNESCAPED_SLASHES);
+		}
+		$id = Product::insert($data + $extra);
 		$product = [
 			'id' => $id,
 			'sku' => $data['sku'],

@@ -13,6 +13,7 @@
 	const FREE_LABEL = 'Buscar en catálogo…';
 	const sheet = document.querySelector('.quote-sheet');
 	const createUrl = (sheet && sheet.getAttribute('data-catalog-create')) || '';
+	const importUrl = (sheet && sheet.getAttribute('data-catalog-import')) || '';
 	const csrfToken = (sheet && sheet.getAttribute('data-csrf')) || '';
 
 	function catalogList() {
@@ -192,30 +193,142 @@
 		if (title) title.textContent = 'Catálogo de productos';
 	}
 
-	function showPickerCreate(seedName) {
+	function showCreateStep(step) {
+		if (!pickerRoot) return;
+		const importStep = pickerRoot.querySelector('[data-catalog-import-step]');
+		const reviewStep = pickerRoot.querySelector('[data-catalog-review-step]');
+		if (importStep) importStep.hidden = step !== 'import';
+		if (reviewStep) reviewStep.hidden = step !== 'review';
+		const title = pickerRoot.querySelector('[data-catalog-title]');
+		if (title) title.textContent = step === 'review' ? 'Revisar producto importado' : 'Nuevo producto desde URL';
+		const count = pickerRoot.querySelector('[data-catalog-count]');
+		if (count) {
+			count.textContent = step === 'review'
+				? 'Asigna el SKU, revisa la ficha y guarda.'
+				: 'Pega la URL de la ficha del proveedor.';
+		}
+	}
+
+	function renderImportGallery(images) {
+		const gallery = pickerRoot.querySelector('[data-catalog-import-gallery]');
+		if (!gallery) return;
+		const list = Array.isArray(images) ? images : [];
+		if (!list.length) {
+			gallery.hidden = true;
+			gallery.innerHTML = '';
+			return;
+		}
+		gallery.hidden = false;
+		gallery.innerHTML = ''
+			+ '<p class="product-gallery-label">' + (list.length === 1 ? '1 foto' : list.length + ' fotos') + '</p>'
+			+ '<div class="product-gallery-stage"><img src="' + escapeHtml(list[0]) + '" alt="Foto del producto"></div>';
+	}
+
+	function fillCreateForm(draft) {
+		const form = pickerRoot.querySelector('[data-catalog-create-form]');
+		if (!form) return;
+		form.reset();
+		const setVal = function (name, value) {
+			const el = form.querySelector('[name="' + name + '"]');
+			if (el) el.value = value == null ? '' : String(value);
+		};
+		setVal('nombre', draft.nombre || '');
+		setVal('descripcion', draft.descripcion || '');
+		setVal('proveedor_empresa', draft.proveedor_empresa || '');
+		setVal('proveedor_link', draft.proveedor_link || '');
+		setVal('imagenes', JSON.stringify(Array.isArray(draft.imagenes) ? draft.imagenes : []));
+		setVal('sku', '');
+		setVal('categoria', '');
+		setVal('precio_compra_iva', '');
+		renderImportGallery(draft.imagenes || []);
+		const sku = form.querySelector('[name="sku"]');
+		if (sku) setTimeout(function () { sku.focus(); }, 20);
+	}
+
+	function showPickerCreate(seedValue) {
 		pickerMode = 'create';
 		if (!pickerRoot) return;
 		const searchView = pickerRoot.querySelector('[data-catalog-search-view]');
 		const createView = pickerRoot.querySelector('[data-catalog-create-view]');
 		if (searchView) searchView.hidden = true;
 		if (createView) createView.hidden = false;
-		const title = pickerRoot.querySelector('[data-catalog-title]');
-		if (title) title.textContent = 'Nuevo producto';
+		showCreateStep('import');
 		const err = pickerRoot.querySelector('[data-catalog-create-error]');
+		const importErr = pickerRoot.querySelector('[data-catalog-import-error]');
 		if (err) {
 			err.hidden = true;
 			err.textContent = '';
 		}
-		const form = pickerRoot.querySelector('[data-catalog-create-form]');
-		if (form) {
-			form.reset();
-			if (seedName) {
-				const nombre = form.querySelector('[name="nombre"]');
-				if (nombre) nombre.value = seedName;
-			}
-			const first = form.querySelector('[name="sku"]');
-			if (first) setTimeout(function () { first.focus(); }, 20);
+		if (importErr) {
+			importErr.hidden = true;
+			importErr.textContent = '';
 		}
+		const form = pickerRoot.querySelector('[data-catalog-create-form]');
+		if (form) form.reset();
+		renderImportGallery([]);
+		const urlInput = pickerRoot.querySelector('[data-catalog-import-url]');
+		if (urlInput) {
+			const seed = String(seedValue || '').trim();
+			urlInput.value = /^https?:\/\//i.test(seed) ? seed : '';
+			setTimeout(function () { urlInput.focus(); }, 20);
+		}
+	}
+
+	function importFromUrl() {
+		if (!importUrl || !pickerRoot) return;
+		const urlInput = pickerRoot.querySelector('[data-catalog-import-url]');
+		const importErr = pickerRoot.querySelector('[data-catalog-import-error]');
+		const importBtn = pickerRoot.querySelector('[data-catalog-import-run]');
+		const url = urlInput ? String(urlInput.value || '').trim() : '';
+		if (!url) {
+			if (importErr) {
+				importErr.hidden = false;
+				importErr.textContent = 'Pega la URL de la ficha del producto.';
+			}
+			return;
+		}
+		const data = new FormData();
+		data.set('_csrf', csrfToken);
+		data.set('url', url);
+		if (importBtn) {
+			importBtn.disabled = true;
+			importBtn.textContent = 'Leyendo ficha…';
+		}
+		if (importErr) {
+			importErr.hidden = true;
+			importErr.textContent = '';
+		}
+		fetch(importUrl, {
+			method: 'POST',
+			body: data,
+			credentials: 'same-origin',
+			headers: { 'Accept': 'application/json' },
+		}).then(function (res) {
+			return res.json().then(function (payload) {
+				return { ok: res.ok, payload: payload };
+			});
+		}).then(function (result) {
+			if (!result.ok || !result.payload || !result.payload.ok || !result.payload.draft) {
+				const message = (result.payload && result.payload.error) || 'No se pudo leer esa página.';
+				if (importErr) {
+					importErr.hidden = false;
+					importErr.textContent = message;
+				}
+				return;
+			}
+			fillCreateForm(result.payload.draft);
+			showCreateStep('review');
+		}).catch(function () {
+			if (importErr) {
+				importErr.hidden = false;
+				importErr.textContent = 'No se pudo leer esa página. Revisa la URL e inténtalo de nuevo.';
+			}
+		}).finally(function () {
+			if (importBtn) {
+				importBtn.disabled = false;
+				importBtn.textContent = 'Importar desde URL';
+			}
+		});
 	}
 
 	function renderPickerResults(query) {
@@ -234,9 +347,7 @@
 		if (!matches.length) {
 			html += '<div class="catalog-search-empty">'
 				+ '<p class="muted">No hay productos con esa búsqueda.</p>'
-				+ '<button type="button" class="btn btn-word" data-catalog-new>'
-				+ (term ? 'Agregar “' + escapeHtml(term) + '” al catálogo' : 'Agregar producto nuevo')
-				+ '</button>'
+				+ '<button type="button" class="btn btn-word" data-catalog-new>+ Nuevo producto desde URL</button>'
 				+ '</div>';
 		} else {
 			html += matches.map(function (product) {
@@ -353,28 +464,39 @@
 			+ '<input type="search" data-catalog-search placeholder="Buscar por SKU, nombre, categoría o descripción…" autocomplete="off">'
 			+ '</div>'
 			+ '<div class="catalog-search-actions">'
-			+ '<button type="button" class="btn btn-word" data-catalog-new>+ Nuevo producto</button>'
+			+ '<button type="button" class="btn btn-word" data-catalog-new>+ Nuevo producto desde URL</button>'
 			+ '<button type="button" class="btn-text" data-catalog-free>Usar ítem libre</button>'
 			+ '</div>'
 			+ '<div class="catalog-search-results" data-catalog-results></div>'
 			+ '</div>'
 			+ '<div data-catalog-create-view hidden>'
-			+ '<form class="catalog-create-form" data-catalog-create-form>'
-			+ '<p class="muted">Se guarda en el catálogo y queda listo para esta partida.</p>'
+			+ '<div data-catalog-import-step class="catalog-create-form">'
+			+ '<p class="muted">Pega la página del producto. Se completan el nombre, la descripción y el proveedor. El SKU lo asignas tú.</p>'
+			+ '<div class="flash error" data-catalog-import-error hidden></div>'
+			+ '<label><span>URL de la ficha</span><input type="url" data-catalog-import-url required maxlength="500" placeholder="https://proveedor.cl/producto"></label>'
+			+ '<div class="catalog-create-actions">'
+			+ '<button type="button" class="btn" data-catalog-back>Volver al buscador</button>'
+			+ '<button type="button" class="btn btn-word" data-catalog-import-run>Importar desde URL</button>'
+			+ '</div>'
+			+ '</div>'
+			+ '<form class="catalog-create-form" data-catalog-create-form data-catalog-review-step hidden>'
+			+ '<p class="muted">Datos leídos. Asigna el SKU, revisa la ficha, el precio de compra y guarda.</p>'
 			+ '<div class="flash error" data-catalog-create-error hidden></div>'
+			+ '<div class="product-gallery" data-catalog-import-gallery hidden></div>'
+			+ '<input type="hidden" name="imagenes" value="[]">'
 			+ '<div class="grid-2">'
 			+ '<label><span>SKU</span><input name="sku" required maxlength="80" autocomplete="off"></label>'
 			+ '<label><span>Categoría</span><input name="categoria" required maxlength="80" list="quote-categorias-producto" placeholder="Audio, Video…"></label>'
 			+ '</div>'
 			+ '<label><span>Nombre</span><input name="nombre" required maxlength="180"></label>'
-			+ '<label><span>Descripción</span><textarea name="descripcion" required rows="4"></textarea></label>'
+			+ '<label><span>Descripción</span><textarea name="descripcion" required rows="5"></textarea></label>'
+			+ '<label><span>Precio de compra c/IVA</span><input name="precio_compra_iva" inputmode="numeric" placeholder="0"></label>'
 			+ '<div class="grid-2">'
 			+ '<label><span>Empresa proveedora</span><input name="proveedor_empresa" required maxlength="160"></label>'
-			+ '<label><span>Precio de compra c/IVA</span><input name="precio_compra_iva" inputmode="numeric" placeholder="0"></label>'
+			+ '<label><span>Enlace URL del proveedor</span><input name="proveedor_link" type="url" required maxlength="500" placeholder="https://"></label>'
 			+ '</div>'
-			+ '<label><span>URL del proveedor</span><input name="proveedor_link" type="url" required maxlength="500" placeholder="https://"></label>'
 			+ '<div class="catalog-create-actions">'
-			+ '<button type="button" class="btn" data-catalog-back>Volver al buscador</button>'
+			+ '<button type="button" class="btn" data-catalog-import-again>Usar otra URL</button>'
 			+ '<button type="submit" class="btn btn-word">Guardar y usar en la partida</button>'
 			+ '</div>'
 			+ '</form>'
@@ -396,6 +518,16 @@
 				const search = pickerRoot.querySelector('[data-catalog-search]');
 				renderPickerResults(search ? search.value : '');
 				if (search) search.focus();
+				return;
+			}
+			if (event.target.closest('[data-catalog-import-again]')) {
+				showCreateStep('import');
+				const urlInput = pickerRoot.querySelector('[data-catalog-import-url]');
+				if (urlInput) urlInput.focus();
+				return;
+			}
+			if (event.target.closest('[data-catalog-import-run]')) {
+				importFromUrl();
 				return;
 			}
 			if (event.target.closest('[data-catalog-new]')) {
@@ -430,6 +562,15 @@
 				submitQuickProduct(createForm);
 			});
 		}
+		const importUrlInput = pickerRoot.querySelector('[data-catalog-import-url]');
+		if (importUrlInput) {
+			importUrlInput.addEventListener('keydown', function (event) {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					importFromUrl();
+				}
+			});
+		}
 
 		const search = pickerRoot.querySelector('[data-catalog-search]');
 		if (search) {
@@ -447,6 +588,11 @@
 		document.addEventListener('keydown', function (event) {
 			if (event.key === 'Escape' && pickerRoot && !pickerRoot.hidden) {
 				if (pickerMode === 'create') {
+					const review = pickerRoot.querySelector('[data-catalog-review-step]');
+					if (review && !review.hidden) {
+						showCreateStep('import');
+						return;
+					}
 					showPickerSearch();
 					return;
 				}
