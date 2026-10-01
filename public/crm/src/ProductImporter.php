@@ -16,9 +16,12 @@ final class ProductImporter
 	public static function fromUrl(string $url): array
 	{
 		$url = self::publicUrl(self::stripTracking($url));
-		$shopify = self::fromShopifyJson($url);
-		if ($shopify !== null) {
-			return $shopify;
+		if (self::shopifyHandle($url) !== null) {
+			$shopify = self::fromShopifyJson($url);
+			if ($shopify !== null) {
+				return $shopify;
+			}
+			throw new RuntimeException('No se pudo leer esa ficha de Shopify. Prueba de nuevo en unos segundos o pega la URL corta del producto (sin parámetros de Google).');
 		}
 		$loaded = self::fetch($url);
 		$parsed = self::parse($loaded['body'], $loaded['url']);
@@ -134,73 +137,140 @@ final class ProductImporter
 	}
 
 	/**
-	 * Tiendas Shopify suelen bloquear el HTML (429) pero exponen /products/{handle}.js.
+	 * Tiendas Shopify suelen bloquear el HTML (429). Leemos .js / .json con cookies y reintentos.
 	 *
 	 * @return array{nombre: string, descripcion: string, proveedor_empresa: string, proveedor_link: string, imagenes: list<string>}|null
 	 */
 	private static function fromShopifyJson(string $url): ?array
 	{
-		$jsonUrl = self::shopifyProductJsonUrl($url);
-		if ($jsonUrl === null) {
+		$handle = self::shopifyHandle($url);
+		if ($handle === null) {
+			return null;
+		}
+		$parts = parse_url($url);
+		$scheme = strtolower((string) ($parts['scheme'] ?? 'https'));
+		$host = strtolower((string) ($parts['host'] ?? ''));
+		if ($host === '' || !in_array($scheme, ['http', 'https'], true)) {
+			return null;
+		}
+		$base = $scheme . '://' . $host;
+		$endpoints = [
+			$base . '/products/' . rawurlencode($handle) . '.js',
+			$base . '/products/' . rawurlencode($handle) . '.json',
+			$base . '/products.json?limit=1&handle=' . rawurlencode($handle),
+		];
+		$cookie = tempnam(sys_get_temp_dir(), 'mizoshy');
+		if ($cookie === false) {
 			return null;
 		}
 		try {
-			$loaded = self::fetch($jsonUrl, true);
-		} catch (RuntimeException) {
-			return null;
-		}
-		$data = json_decode($loaded['body'], true);
-		if (!is_array($data) || empty($data['title']) || !is_string($data['title'])) {
-			return null;
-		}
-		$host = self::hostLabel((string) parse_url($url, PHP_URL_HOST));
-		$name = self::cleanTitle(self::plain($data['title']), $host);
-		$description = '';
-		if (!empty($data['description']) && is_string($data['description'])) {
-			$description = self::plain($data['description']);
-		} elseif (!empty($data['body_html']) && is_string($data['body_html'])) {
-			$description = self::plain($data['body_html']);
-		}
-		$description = self::clip($description, 4000);
-		if ($name === '' && !self::usefulBlurb($description)) {
-			return null;
-		}
-		$canonical = self::shopifyCanonicalUrl($url, is_string($data['handle'] ?? null) ? $data['handle'] : null);
-		$imageUrls = [];
-		if (!empty($data['images']) && is_array($data['images'])) {
-			foreach ($data['images'] as $image) {
-				$src = is_string($image) ? $image : (is_array($image) && is_string($image['src'] ?? null) ? $image['src'] : '');
-				$resolved = self::absoluteUrl($src, $canonical);
+			// Primero visita la tienda para obtener cookies; luego pide el JSON del producto.
+			try {
+				self::fetchInto($base . '/', $cookie, false, 1);
+			} catch (RuntimeException) {
+				// Si la home también limita, igual intentamos los JSON.
+			}
+			$data = null;
+			foreach ($endpoints as $endpoint) {
+				for ($attempt = 0; $attempt < 3; $attempt++) {
+					if ($attempt > 0) {
+						usleep(400000 * $attempt);
+					}
+					try {
+						$loaded = self::fetchInto($endpoint, $cookie, true, 2);
+					} catch (RuntimeException $e) {
+						if (str_contains($e->getMessage(), 'limitó')) {
+							continue;
+						}
+						break;
+					}
+					$decoded = json_decode($loaded['body'], true);
+					$candidate = self::normalizeShopifyProduct($decoded);
+					if ($candidate !== null) {
+						$data = $candidate;
+						break 2;
+					}
+					break;
+				}
+			}
+			if ($data === null) {
+				return null;
+			}
+			$hostLabel = self::hostLabel($host);
+			$name = self::cleanTitle(self::plain((string) $data['title']), $hostLabel);
+			$description = '';
+			if (!empty($data['description']) && is_string($data['description'])) {
+				$description = self::plain($data['description']);
+			} elseif (!empty($data['body_html']) && is_string($data['body_html'])) {
+				$description = self::plain($data['body_html']);
+			}
+			$description = self::clip($description, 4000);
+			if ($name === '' && !self::usefulBlurb($description)) {
+				return null;
+			}
+			$canonical = self::shopifyCanonicalUrl($url, is_string($data['handle'] ?? null) ? $data['handle'] : $handle);
+			$imageUrls = [];
+			if (!empty($data['images']) && is_array($data['images'])) {
+				foreach ($data['images'] as $image) {
+					$src = is_string($image) ? $image : (is_array($image) && is_string($image['src'] ?? null) ? $image['src'] : '');
+					$resolved = self::absoluteUrl($src, $canonical);
+					if ($resolved !== null && self::looksLikePhoto($resolved)) {
+						$imageUrls[] = $resolved;
+					}
+				}
+			}
+			if ($imageUrls === [] && !empty($data['featured_image'])) {
+				$featured = is_string($data['featured_image'])
+					? $data['featured_image']
+					: (is_array($data['featured_image']) && is_string($data['featured_image']['src'] ?? null) ? $data['featured_image']['src'] : '');
+				$resolved = self::absoluteUrl($featured, $canonical);
 				if ($resolved !== null && self::looksLikePhoto($resolved)) {
 					$imageUrls[] = $resolved;
 				}
 			}
-		}
-		if ($imageUrls === [] && !empty($data['featured_image'])) {
-			$featured = is_string($data['featured_image'])
-				? $data['featured_image']
-				: (is_array($data['featured_image']) && is_string($data['featured_image']['src'] ?? null) ? $data['featured_image']['src'] : '');
-			$resolved = self::absoluteUrl($featured, $canonical);
-			if ($resolved !== null && self::looksLikePhoto($resolved)) {
-				$imageUrls[] = $resolved;
+			if ($imageUrls === [] && !empty($data['image']) && is_array($data['image']) && is_string($data['image']['src'] ?? null)) {
+				$resolved = self::absoluteUrl($data['image']['src'], $canonical);
+				if ($resolved !== null && self::looksLikePhoto($resolved)) {
+					$imageUrls[] = $resolved;
+				}
 			}
+			$folder = 'imp-' . substr(hash('sha256', $canonical), 0, 16);
+			try {
+				$imagenes = self::downloadImages(array_values(array_unique($imageUrls)), $folder);
+			} catch (\Throwable) {
+				$imagenes = [];
+			}
+			return [
+				'nombre' => self::clip($name, 180),
+				'descripcion' => $description,
+				'proveedor_empresa' => self::clip($hostLabel, 160),
+				'proveedor_link' => $canonical,
+				'imagenes' => $imagenes,
+			];
+		} finally {
+			@unlink($cookie);
 		}
-		$folder = 'imp-' . substr(hash('sha256', $canonical), 0, 16);
-		try {
-			$imagenes = self::downloadImages(array_values(array_unique($imageUrls)), $folder);
-		} catch (\Throwable) {
-			$imagenes = [];
-		}
-		return [
-			'nombre' => self::clip($name, 180),
-			'descripcion' => $description,
-			'proveedor_empresa' => self::clip($host, 160),
-			'proveedor_link' => $canonical,
-			'imagenes' => $imagenes,
-		];
 	}
 
-	private static function shopifyProductJsonUrl(string $url): ?string
+	/** @return array<string, mixed>|null */
+	private static function normalizeShopifyProduct(mixed $decoded): ?array
+	{
+		if (!is_array($decoded)) {
+			return null;
+		}
+		if (!empty($decoded['title']) && is_string($decoded['title'])) {
+			return $decoded;
+		}
+		if (!empty($decoded['product']) && is_array($decoded['product']) && !empty($decoded['product']['title'])) {
+			return $decoded['product'];
+		}
+		if (!empty($decoded['products'][0]) && is_array($decoded['products'][0]) && !empty($decoded['products'][0]['title'])) {
+			return $decoded['products'][0];
+		}
+		return null;
+	}
+
+	private static function shopifyHandle(string $url): ?string
 	{
 		$parts = parse_url($url);
 		$path = (string) ($parts['path'] ?? '');
@@ -208,16 +278,11 @@ final class ProductImporter
 			return null;
 		}
 		$handle = rawurldecode($match[1]);
-		$handle = preg_replace('/\.js$/i', '', $handle) ?? $handle;
+		$handle = preg_replace('/\.(js|json)$/i', '', $handle) ?? $handle;
 		if ($handle === '' || !preg_match('/^[a-zA-Z0-9][a-zA-Z0-9\-_%]*$/', $handle)) {
 			return null;
 		}
-		$scheme = strtolower((string) ($parts['scheme'] ?? 'https'));
-		$host = strtolower((string) ($parts['host'] ?? ''));
-		if ($host === '' || !in_array($scheme, ['http', 'https'], true)) {
-			return null;
-		}
-		return $scheme . '://' . $host . '/products/' . rawurlencode($handle) . '.js';
+		return $handle;
 	}
 
 	private static function shopifyCanonicalUrl(string $url, ?string $handle): string
@@ -277,87 +342,102 @@ final class ProductImporter
 	/** @return array{body: string, url: string} */
 	private static function fetch(string $url, bool $allowJson = false): array
 	{
-		if (!function_exists('curl_init')) {
-			throw new RuntimeException('El servidor no puede leer páginas externas en este momento.');
-		}
 		$cookie = tempnam(sys_get_temp_dir(), 'mizoimp');
 		if ($cookie === false) {
 			throw new RuntimeException('No se pudo leer esa página.');
 		}
 		try {
-			$current = $url;
-			$referer = '';
-			for ($hop = 0; $hop <= self::MAX_REDIRECTS; $hop++) {
-				$current = self::publicUrl($current);
-				$parts = parse_url($current);
-				$host = (string) ($parts['host'] ?? '');
-				$scheme = strtolower((string) ($parts['scheme'] ?? ''));
-				$port = (int) ($parts['port'] ?? ($scheme === 'https' ? 443 : 80));
-				$ip = self::publicIp($host);
-				if ($referer === '') {
-					$referer = $scheme . '://' . $host . '/';
-				}
-				$ch = curl_init($current);
-				if ($ch === false) {
-					throw new RuntimeException('No se pudo leer esa página.');
-				}
-				$accept = $allowJson
-					? 'application/json,text/javascript,*/*;q=0.8'
-					: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8';
-				curl_setopt_array($ch, [
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_FOLLOWLOCATION => false,
-					CURLOPT_SSL_VERIFYPEER => true,
-					CURLOPT_SSL_VERIFYHOST => 2,
-					CURLOPT_ENCODING => '',
-					CURLOPT_CONNECTTIMEOUT => 8,
-					CURLOPT_TIMEOUT => 20,
-					CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-					CURLOPT_HTTPHEADER => [
-						'Accept: ' . $accept,
-						'Accept-Language: es-CL,es;q=0.9,en;q=0.8',
-						'Referer: ' . $referer,
-					],
-					CURLOPT_COOKIEFILE => $cookie,
-					CURLOPT_COOKIEJAR => $cookie,
-					CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
-					CURLOPT_RESOLVE => [$host . ':' . $port . ':' . $ip],
-				]);
-				$body = curl_exec($ch);
-				$code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-				$next = (string) curl_getinfo($ch, CURLINFO_REDIRECT_URL);
-				$type = strtolower((string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
-				curl_close($ch);
-				if (!is_string($body)) {
-					throw new RuntimeException('No se pudo leer esa página. Revisa que la URL sea la ficha pública del producto.');
-				}
-				if (strlen($body) > self::MAX_BYTES) {
-					$body = substr($body, 0, self::MAX_BYTES);
-				}
-				if ($code >= 300 && $code < 400 && $next !== '') {
-					$referer = $current;
-					$current = $next;
-					continue;
-				}
-				if ($code === 429) {
-					throw new RuntimeException('El proveedor limitó las consultas. Espera un momento e intenta de nuevo.');
-				}
-				if ($code < 200 || $code >= 300) {
-					throw new RuntimeException('La página del proveedor no respondió. Prueba de nuevo con la URL de la ficha.');
-				}
-				$okType = str_contains($type, 'html')
-					|| str_contains($type, 'xml')
-					|| str_contains($type, 'text/plain')
-					|| ($allowJson && (str_contains($type, 'json') || str_contains($type, 'javascript') || $type === ''));
-				if ($type !== '' && !$okType) {
-					throw new RuntimeException('Esa URL no es una ficha de producto en HTML.');
-				}
-				return ['body' => $body, 'url' => $current];
-			}
-			throw new RuntimeException('La página redirige demasiadas veces. Pega la URL final de la ficha.');
+			return self::fetchInto($url, $cookie, $allowJson, self::MAX_REDIRECTS);
 		} finally {
 			@unlink($cookie);
 		}
+	}
+
+	/** @return array{body: string, url: string} */
+	private static function fetchInto(string $url, string $cookie, bool $allowJson = false, int $maxRedirects = self::MAX_REDIRECTS): array
+	{
+		if (!function_exists('curl_init')) {
+			throw new RuntimeException('El servidor no puede leer páginas externas en este momento.');
+		}
+		$current = $url;
+		$referer = '';
+		for ($hop = 0; $hop <= $maxRedirects; $hop++) {
+			$current = self::publicUrl($current);
+			$parts = parse_url($current);
+			$host = (string) ($parts['host'] ?? '');
+			$scheme = strtolower((string) ($parts['scheme'] ?? ''));
+			$port = (int) ($parts['port'] ?? ($scheme === 'https' ? 443 : 80));
+			$ip = self::publicIp($host);
+			if ($referer === '') {
+				$referer = $scheme . '://' . $host . '/';
+			}
+			$ch = curl_init($current);
+			if ($ch === false) {
+				throw new RuntimeException('No se pudo leer esa página.');
+			}
+			$accept = $allowJson
+				? 'application/json,text/javascript,application/javascript,*/*;q=0.8'
+				: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8';
+			curl_setopt_array($ch, [
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_FOLLOWLOCATION => false,
+				CURLOPT_SSL_VERIFYPEER => true,
+				CURLOPT_SSL_VERIFYHOST => 2,
+				CURLOPT_ENCODING => '',
+				CURLOPT_CONNECTTIMEOUT => 8,
+				CURLOPT_TIMEOUT => 20,
+				CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+				CURLOPT_HTTPHEADER => [
+					'Accept: ' . $accept,
+					'Accept-Language: es-CL,es;q=0.9,en;q=0.8',
+					'Cache-Control: no-cache',
+					'Referer: ' . $referer,
+					'Sec-Fetch-Dest: ' . ($allowJson ? 'empty' : 'document'),
+					'Sec-Fetch-Mode: ' . ($allowJson ? 'cors' : 'navigate'),
+					'Sec-Fetch-Site: same-origin',
+				],
+				CURLOPT_COOKIEFILE => $cookie,
+				CURLOPT_COOKIEJAR => $cookie,
+				CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+				CURLOPT_RESOLVE => [$host . ':' . $port . ':' . $ip],
+			]);
+			$body = curl_exec($ch);
+			$code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+			$next = (string) curl_getinfo($ch, CURLINFO_REDIRECT_URL);
+			$type = strtolower((string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
+			curl_close($ch);
+			if (!is_string($body)) {
+				throw new RuntimeException('No se pudo leer esa página. Revisa que la URL sea la ficha pública del producto.');
+			}
+			if (strlen($body) > self::MAX_BYTES) {
+				$body = substr($body, 0, self::MAX_BYTES);
+			}
+			if ($code >= 300 && $code < 400 && $next !== '') {
+				$referer = $current;
+				$current = $next;
+				continue;
+			}
+			if ($code === 429 || $code === 430) {
+				throw new RuntimeException('El proveedor limitó las consultas. Espera un momento e intenta de nuevo.');
+			}
+			if ($code < 200 || $code >= 300) {
+				throw new RuntimeException('La página del proveedor no respondió. Prueba de nuevo con la URL de la ficha.');
+			}
+			$okType = str_contains($type, 'html')
+				|| str_contains($type, 'xml')
+				|| str_contains($type, 'text/plain')
+				|| ($allowJson && (
+					str_contains($type, 'json')
+					|| str_contains($type, 'javascript')
+					|| str_contains($type, 'ecmascript')
+					|| $type === ''
+				));
+			if ($type !== '' && !$okType) {
+				throw new RuntimeException('Esa URL no es una ficha de producto en HTML.');
+			}
+			return ['body' => $body, 'url' => $current];
+		}
+		throw new RuntimeException('La página redirige demasiadas veces. Pega la URL final de la ficha.');
 	}
 
 	private static function publicUrl(string $url): string

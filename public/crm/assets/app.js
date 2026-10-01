@@ -26,6 +26,23 @@
 		return el && el.closest ? el.closest(selector) : null;
 	}
 
+	/** Quita tracking de Google/UTM y deja variant si existe (Shopify). */
+	function cleanImportUrl(raw) {
+		try {
+			const parsed = new URL(raw);
+			const drop = ['gclid', 'gbraid', 'wbraid', 'fbclid', 'mc_cid', 'mc_eid', 'srsltid', 'ref', '_gl', 'yclid'];
+			Array.from(parsed.searchParams.keys()).forEach(function (key) {
+				const lk = String(key).toLowerCase();
+				if (lk.indexOf('utm_') === 0 || lk.indexOf('gad_') === 0 || drop.indexOf(lk) !== -1) {
+					parsed.searchParams.delete(key);
+				}
+			});
+			return parsed.toString();
+		} catch (e) {
+			return raw;
+		}
+	}
+
 	function readJsonResponse(res) {
 		return res.text().then(function (text) {
 			var payload = null;
@@ -308,7 +325,7 @@
 			return;
 		}
 		const urlInput = pickerRoot.querySelector('[data-catalog-import-url]');
-		const url = urlInput ? String(urlInput.value || '').trim() : '';
+		let url = urlInput ? String(urlInput.value || '').trim() : '';
 		if (!url) {
 			if (importErr) {
 				importErr.hidden = false;
@@ -323,6 +340,8 @@
 			}
 			return;
 		}
+		url = cleanImportUrl(url);
+		if (urlInput) urlInput.value = url;
 		const token = csrfValue();
 		if (!token) {
 			if (importErr) {
@@ -518,7 +537,7 @@
 			+ '<div data-catalog-import-step class="catalog-create-form">'
 			+ '<p class="muted">Pega la página del producto. Se completan el nombre, la descripción y el proveedor. El SKU lo asignas tú.</p>'
 			+ '<div class="flash error" data-catalog-import-error hidden></div>'
-			+ '<label><span>URL de la ficha</span><input type="url" data-catalog-import-url required maxlength="500" placeholder="https://proveedor.cl/producto"></label>'
+			+ '<label><span>URL de la ficha</span><input type="url" data-catalog-import-url required maxlength="800" placeholder="https://proveedor.cl/producto"></label>'
 			+ '<div class="catalog-create-actions">'
 			+ '<button type="button" class="btn" data-catalog-back>Volver al buscador</button>'
 			+ '<button type="button" class="btn btn-word" data-catalog-import-run>Importar desde URL</button>'

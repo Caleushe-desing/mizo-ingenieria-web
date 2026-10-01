@@ -12,7 +12,7 @@
 	<?= Csrf::field() ?>
 	<label>
 		<span>URL de la ficha</span>
-		<input type="url" name="url" required maxlength="500" placeholder="https://proveedor.cl/producto">
+		<input type="url" name="url" required maxlength="800" placeholder="https://proveedor.cl/producto">
 	</label>
 	<p class="muted">Pega la página del producto. Se completan el nombre, la descripción y el proveedor. El SKU lo asignas tú.</p>
 	<div class="form-actions">
