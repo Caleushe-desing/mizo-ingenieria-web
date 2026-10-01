@@ -70,7 +70,6 @@ try {
 		'ok' => false,
 		'productos' => [],
 		'error' => 'No se pudo leer el catálogo.',
-		'detail' => $e->getMessage(),
 	], JSON_UNESCAPED_UNICODE);
 }
 
