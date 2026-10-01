@@ -1,10 +1,6 @@
 <?php
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . '/src/Autoload.php';
-
-use MizoCrm\Models\Product;
-
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: public, max-age=30');
@@ -16,14 +12,42 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
 	exit;
 }
 
+/**
+ * API pública liviana: lee SQLite en solo lectura y no dispara migraciones del CRM.
+ * Así evitamos 500 por side-effects de Database::pdo() en cada hit del catálogo.
+ */
 try {
-	try {
-		$rows = Product::visible();
-	} catch (Throwable) {
-		$rows = [];
+	$crmRoot = dirname(__DIR__);
+	$dbPath = dirname($crmRoot) . '/crm-data/crm.sqlite';
+	if (!is_file($dbPath)) {
+		echo json_encode(['ok' => true, 'productos' => []], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		exit;
 	}
 
-	$crmRoot = dirname(__DIR__);
+	$pdo = new PDO('sqlite:' . $dbPath, null, null, [
+		PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+		PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+		PDO::ATTR_EMULATE_PREPARES => false,
+	]);
+	// Solo lectura lógica: no escribimos ni migraremos desde este endpoint.
+	$pdo->exec('PRAGMA query_only = ON');
+
+	$cols = $pdo->query('PRAGMA table_info(products)')->fetchAll();
+	if ($cols === []) {
+		echo json_encode(['ok' => true, 'productos' => []], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		exit;
+	}
+	$names = array_column($cols, 'name');
+	$select = ['id', 'sku', 'nombre', 'descripcion', 'categoria'];
+	if (in_array('imagenes', $names, true)) {
+		$select[] = 'imagenes';
+	}
+	$sql = 'SELECT ' . implode(', ', $select) . '
+		FROM products
+		WHERE activo = 1
+		ORDER BY categoria COLLATE NOCASE, nombre COLLATE NOCASE, sku COLLATE NOCASE';
+	$rows = $pdo->query($sql)->fetchAll();
+
 	$productos = [];
 	foreach ($rows as $row) {
 		$productos[] = [
@@ -35,13 +59,18 @@ try {
 		];
 	}
 
-	echo json_encode(['ok' => true, 'productos' => $productos], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+	$json = json_encode(['ok' => true, 'productos' => $productos], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+	if ($json === false) {
+		throw new RuntimeException('No se pudo serializar el catálogo.');
+	}
+	echo $json;
 } catch (Throwable $e) {
 	http_response_code(500);
 	echo json_encode([
 		'ok' => false,
 		'productos' => [],
 		'error' => 'No se pudo leer el catálogo.',
+		'detail' => $e->getMessage(),
 	], JSON_UNESCAPED_UNICODE);
 }
 
@@ -52,7 +81,12 @@ try {
 function catalog_resolve_images(array $row, string $crmRoot): array
 {
 	$candidates = [];
-	$decoded = json_decode((string) ($row['imagenes'] ?? ''), true);
+	$raw = $row['imagenes'] ?? '[]';
+	if (is_array($raw)) {
+		$decoded = $raw;
+	} else {
+		$decoded = json_decode((string) $raw, true);
+	}
 	if (is_array($decoded)) {
 		foreach ($decoded as $path) {
 			if (is_string($path) && $path !== '') {
@@ -138,8 +172,11 @@ function catalog_normalize_image_path(string $path): ?string
 	return $path;
 }
 
-function catalog_plain(mixed $value, int $max): string
+function catalog_plain($value, int $max): string
 {
 	$text = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $value)) ?: '');
-	return function_exists('mb_substr') ? mb_substr($text, 0, $max, 'UTF-8') : substr($text, 0, $max);
+	if (function_exists('mb_substr')) {
+		return mb_substr($text, 0, $max, 'UTF-8');
+	}
+	return substr($text, 0, $max);
 }
