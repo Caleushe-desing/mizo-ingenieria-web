@@ -9,7 +9,6 @@ use MizoCrm\Csrf;
 use MizoCrm\Http;
 use MizoCrm\Mail\Mime;
 use MizoCrm\Mailer;
-use MizoCrm\Marketing\FlyerStudio;
 use MizoCrm\Marketing\TemplateEngine;
 use MizoCrm\Models\Activity;
 use MizoCrm\Models\Client;
@@ -108,6 +107,14 @@ final class MarketingController
 		$body = TemplateEngine::render((string) ($template['body'] ?? ''), $vars);
 
 		$quotes = $client ? Client::quotes((int) $client['id']) : [];
+		$attachResource = null;
+		$resourceId = Http::int('recurso');
+		if ($resourceId > 0) {
+			$attachResource = MarketingResource::find($resourceId);
+			if (!$attachResource || empty($attachResource['active'])) {
+				$attachResource = null;
+			}
+		}
 
 		View::render('marketing/compose', [
 			'title' => 'Correo comercial',
@@ -120,9 +127,10 @@ final class MarketingController
 			'quote' => $quote,
 			'quotes' => $quotes,
 			'deal' => $deal,
+			'attachResource' => $attachResource,
 			'to' => $to,
 			'cc' => '',
-			'subject' => $subject,
+			'subject' => $subject !== '' ? $subject : ($attachResource ? ('Material Mizo: ' . $attachResource['title']) : ''),
 			'body' => $body,
 			'publicUrl' => $publicUrl,
 			'previewVars' => $vars,
@@ -196,6 +204,21 @@ final class MarketingController
 			$pdf = QuotePdf::attachment($quote, $items);
 			if ($pdf !== null) {
 				$attachments[] = $pdf;
+			}
+		}
+		$resourceId = Http::int('resource_id');
+		if ($resourceId > 0) {
+			$resource = MarketingResource::find($resourceId);
+			$path = $resource ? MarketingResource::absolutePath($resource) : null;
+			if ($path !== null) {
+				$content = @file_get_contents($path);
+				if (is_string($content) && $content !== '') {
+					$attachments[] = [
+						'filename' => (string) ($resource['original_name'] ?: basename($path)),
+						'mime' => (string) ($resource['mime'] ?: 'application/octet-stream'),
+						'content' => $content,
+					];
+				}
 			}
 		}
 
@@ -360,34 +383,34 @@ final class MarketingController
 	{
 		Auth::requireUser();
 		$category = Http::string('categoria', 80);
+		$editId = Http::int('editar');
 		$visual = MarketingResource::visual();
-		$documents = MarketingResource::documents();
 		if ($category !== '') {
 			$visual = array_values(array_filter(
 				$visual,
 				static fn(array $row): bool => (string) ($row['category'] ?? '') === $category
 			));
-			$documents = array_values(array_filter(
-				$documents,
-				static fn(array $row): bool => (string) ($row['category'] ?? '') === $category
-			));
+		}
+		$editResource = null;
+		if ($editId > 0) {
+			$editResource = MarketingResource::find($editId);
+			if (!$editResource || empty($editResource['active'])) {
+				$editResource = null;
+			}
 		}
 		View::render('marketing/resources', [
-			'title' => 'Recursos y material comercial',
+			'title' => 'Estudio de diseño',
 			'visual' => $visual,
-			'documents' => $documents,
 			'categories' => MarketingResource::categories(),
-			'kinds' => MarketingResource::kinds(),
 			'filterCategory' => $category,
 			'canManage' => Auth::isAdmin(),
-			'studioTemplates' => FlyerStudio::templates(),
-			'studioBackgrounds' => FlyerStudio::backgrounds(),
 			'studioStock' => MarketingMedia::forStudio(),
 			'studioStockCategories' => MarketingMedia::categories(),
-			'studioBrand' => FlyerStudio::brand(),
 			'csrf' => Csrf::token(),
 			'saveDesignUrl' => Http::url('/marketing/recursos/diseno'),
-			'libraryUploadUrl' => Http::url('/marketing/recursos/biblioteca'),
+			'editResource' => $editResource,
+			'canvasWidth' => 1080,
+			'canvasHeight' => 1350,
 		]);
 	}
 
@@ -503,7 +526,7 @@ final class MarketingController
 		Http::redirect('/marketing/medios');
 	}
 
-	/** Guarda un flyer generado en el canvas (JPG/PNG/PDF) como recurso descargable. */
+	/** Guarda un diseño libre del canvas (imagen + JSON Fabric) en recursos. */
 	public function saveDesign(): void
 	{
 		Csrf::check();
@@ -512,19 +535,26 @@ final class MarketingController
 		$title = Http::string('title', 160);
 		$description = Http::string('description', 500);
 		$category = Http::string('category', 80);
+		$kind = Http::string('kind', 20) ?: 'flyer';
 		$format = strtolower(Http::string('format', 10));
+		$resourceId = Http::int('resource_id');
 		$imageData = (string) ($_POST['image'] ?? '');
+		$designJson = (string) ($_POST['design_json'] ?? '');
 		$allowedCategories = MarketingResource::categories();
+		$allowedKinds = array_keys(MarketingResource::kinds());
 		if ($title === '' || !in_array($category, $allowedCategories, true)) {
 			Http::json(['ok' => false, 'error' => 'Indica título y categoría válidos.'], 422);
 		}
-		if (!in_array($format, ['png', 'jpg', 'jpeg', 'pdf'], true)) {
+		if (!in_array($kind, $allowedKinds, true)) {
+			$kind = 'flyer';
+		}
+		if (!in_array($format, ['png', 'jpg', 'jpeg'], true)) {
 			$format = 'png';
 		}
 		if ($format === 'jpeg') {
 			$format = 'jpg';
 		}
-		if (!preg_match('#^data:image/(png|jpeg);base64,#i', $imageData, $m)) {
+		if (!preg_match('#^data:image/(png|jpeg);base64,#i', $imageData)) {
 			Http::json(['ok' => false, 'error' => 'La imagen del diseño no es válida.'], 422);
 		}
 		$binary = base64_decode(substr($imageData, strpos($imageData, ',') + 1), true);
@@ -534,132 +564,88 @@ final class MarketingController
 		if (strlen($binary) > 18 * 1024 * 1024) {
 			Http::json(['ok' => false, 'error' => 'El diseño es demasiado pesado. Prueba JPG.'], 422);
 		}
+		if (strlen($designJson) > 2_500_000) {
+			$designJson = '';
+		}
 
-		$ext = $format === 'pdf' ? 'png' : $format;
-		$mimeMap = ['png' => 'image/png', 'jpg' => 'image/jpeg'];
-		$mime = $mimeMap[$ext] ?? 'image/png';
-		$safe = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title) ?? 'flyer-mizo'));
-		$safe = trim($safe, '-') ?: 'flyer-mizo';
-		$original = $safe . '.' . ($format === 'pdf' ? 'pdf' : $ext);
+		$mime = $format === 'jpg' ? 'image/jpeg' : 'image/png';
+		$safe = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title) ?? 'diseno-mizo'));
+		$safe = trim($safe, '-') ?: 'diseno-mizo';
+		$original = $safe . '.' . $format;
+		$now = date('c');
 
-		$id = MarketingResource::insert([
-			'kind' => 'flyer',
-			'category' => $category,
-			'title' => $title,
-			'description' => $description !== '' ? $description : 'Flyer generado en el estudio Mizo.',
-			'file_path' => '',
-			'thumb_path' => '',
-			'original_name' => $original,
-			'mime' => $format === 'pdf' ? 'application/pdf' : $mime,
-			'file_size' => 0,
-			'active' => 1,
-			'position' => MarketingResource::nextPosition(),
-			'created_by' => (int) $user['id'],
-			'created_at' => date('c'),
-			'updated_at' => date('c'),
-		]);
+		$existing = $resourceId > 0 ? MarketingResource::find($resourceId) : null;
+		if ($existing && !empty($existing['active'])) {
+			$id = (int) $existing['id'];
+			MarketingResource::update($id, [
+				'kind' => $kind,
+				'category' => $category,
+				'title' => $title,
+				'description' => $description !== '' ? $description : 'Diseño libre del estudio Mizo.',
+				'original_name' => $original,
+				'mime' => $mime,
+				'design_json' => $designJson,
+				'updated_at' => $now,
+			]);
+		} else {
+			$id = MarketingResource::insert([
+				'kind' => $kind,
+				'category' => $category,
+				'title' => $title,
+				'description' => $description !== '' ? $description : 'Diseño libre del estudio Mizo.',
+				'file_path' => '',
+				'thumb_path' => '',
+				'original_name' => $original,
+				'mime' => $mime,
+				'file_size' => 0,
+				'design_json' => $designJson,
+				'active' => 1,
+				'position' => MarketingResource::nextPosition(),
+				'created_by' => (int) $user['id'],
+				'created_at' => $now,
+				'updated_at' => $now,
+			]);
+		}
 
 		$dir = MarketingResource::storageRoot() . '/' . $id;
 		if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
-			MarketingResource::delete($id);
+			if (!$existing) {
+				MarketingResource::delete($id);
+			}
 			Http::json(['ok' => false, 'error' => 'No se pudo crear la carpeta del recurso.'], 500);
 		}
 
-		$imageName = $safe . '-' . substr(bin2hex(random_bytes(3)), 0, 6) . '.' . $ext;
+		$imageName = $safe . '-' . substr(bin2hex(random_bytes(3)), 0, 6) . '.' . $format;
 		$imagePath = $dir . '/' . $imageName;
 		if (@file_put_contents($imagePath, $binary) === false) {
-			MarketingResource::delete($id);
 			Http::json(['ok' => false, 'error' => 'No se pudo guardar el archivo.'], 500);
 		}
 
-		$finalName = $imageName;
-		$finalMime = $mime;
-		$fileSize = (int) filesize($imagePath);
-		if ($format === 'pdf') {
-			try {
-				$pdfBinary = $this->designToPdf($imagePath);
-				$pdfName = $safe . '-' . substr(bin2hex(random_bytes(3)), 0, 6) . '.pdf';
-				$pdfPath = $dir . '/' . $pdfName;
-				if (@file_put_contents($pdfPath, $pdfBinary) === false) {
-					throw new RuntimeException('No se pudo escribir el PDF.');
-				}
-				$finalName = $pdfName;
-				$finalMime = 'application/pdf';
-				$fileSize = (int) filesize($pdfPath);
-			} catch (\Throwable $e) {
-				// Si falla PDF, dejamos el PNG como recurso usable.
-				$finalName = $imageName;
-				$finalMime = $mime;
-				$original = $safe . '.png';
-			}
-		}
-
-		$filePath = '/crm/uploads/marketing/' . $id . '/' . $finalName;
-		$thumbPath = '';
+		$filePath = '/crm/uploads/marketing/' . $id . '/' . $imageName;
+		$thumbPath = $filePath;
 		$thumbName = $this->makeImageThumb($imagePath, $dir);
 		if ($thumbName !== null) {
 			$thumbPath = '/crm/uploads/marketing/' . $id . '/' . $thumbName;
-		} elseif ($finalMime !== 'application/pdf') {
-			$thumbPath = $filePath;
-		} else {
-			$thumbPath = '/crm/uploads/marketing/' . $id . '/' . $imageName;
 		}
 
 		MarketingResource::update($id, [
 			'file_path' => $filePath,
 			'thumb_path' => $thumbPath,
 			'original_name' => $original,
-			'mime' => $finalMime,
-			'file_size' => $fileSize,
-			'updated_at' => date('c'),
+			'mime' => $mime,
+			'file_size' => (int) filesize($imagePath),
+			'design_json' => $designJson,
+			'updated_at' => $now,
 		]);
 
 		Http::json([
 			'ok' => true,
 			'id' => $id,
 			'download' => Http::url('/marketing/recursos/' . $id . '/descargar'),
-			'message' => 'Diseño guardado en Recursos y listo para descargar.',
+			'edit' => Http::url('/marketing/recursos?editar=' . $id),
+			'mail' => Http::url('/marketing/nuevo?recurso=' . $id),
+			'message' => 'Diseño guardado en Recursos.',
 		]);
-	}
-
-	/** Sube una imagen corporativa a la biblioteca del estudio (admin). */
-	public function storeLibrary(): void
-	{
-		Csrf::check();
-		Auth::requireUser();
-		if (!Auth::isAdmin()) {
-			View::flash('error', 'Solo administración puede ampliar la biblioteca.');
-			Http::redirect('/marketing/recursos');
-		}
-		$file = $_FILES['archivo'] ?? null;
-		if (!is_array($file) || (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-			View::flash('error', 'Sube una imagen JPG, PNG o WEBP.');
-			Http::redirect('/marketing/recursos#estudio');
-		}
-		$ext = strtolower(pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
-		if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
-			View::flash('error', 'Formato de biblioteca no permitido.');
-			Http::redirect('/marketing/recursos#estudio');
-		}
-		if ((int) ($file['size'] ?? 0) > 12 * 1024 * 1024) {
-			View::flash('error', 'La imagen de biblioteca debe pesar máximo 12 MB.');
-			Http::redirect('/marketing/recursos#estudio');
-		}
-		$dir = FlyerStudio::libraryRoot();
-		if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
-			View::flash('error', 'No se pudo crear la biblioteca.');
-			Http::redirect('/marketing/recursos#estudio');
-		}
-		$base = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', pathinfo((string) $file['name'], PATHINFO_FILENAME)) ?? 'fondo'));
-		$base = trim($base, '-') ?: 'fondo';
-		$name = $base . '-' . substr(bin2hex(random_bytes(3)), 0, 6) . '.' . ($ext === 'jpeg' ? 'jpg' : $ext);
-		$dest = $dir . '/' . $name;
-		if (!@move_uploaded_file((string) $file['tmp_name'], $dest)) {
-			View::flash('error', 'No se pudo guardar la imagen en la biblioteca.');
-			Http::redirect('/marketing/recursos#estudio');
-		}
-		View::flash('ok', 'Imagen agregada a la biblioteca del estudio.');
-		Http::redirect('/marketing/recursos#estudio');
 	}
 
 	private function designToPdf(string $imagePath): string

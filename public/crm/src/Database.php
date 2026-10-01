@@ -675,6 +675,12 @@ final class Database
 		if ($version < 27) {
 			self::ensureMarketingSchema($pdo);
 			$pdo->exec('PRAGMA user_version = 27');
+			$version = 27;
+		}
+
+		if ($version < 28) {
+			self::ensureMarketingSchema($pdo);
+			$pdo->exec('PRAGMA user_version = 28');
 		}
 	}
 
@@ -730,6 +736,7 @@ final class Database
 				original_name TEXT NOT NULL DEFAULT \'\',
 				mime TEXT NOT NULL DEFAULT \'\',
 				file_size INTEGER NOT NULL DEFAULT 0,
+				design_json TEXT NOT NULL DEFAULT \'\',
 				active INTEGER NOT NULL DEFAULT 1,
 				position INTEGER NOT NULL DEFAULT 0,
 				created_by INTEGER,
@@ -737,6 +744,10 @@ final class Database
 				updated_at TEXT NOT NULL
 			)'
 		);
+		$resCols = array_column($pdo->query('PRAGMA table_info(marketing_resources)')->fetchAll(), 'name');
+		if ($resCols !== [] && !in_array('design_json', $resCols, true)) {
+			$pdo->exec("ALTER TABLE marketing_resources ADD COLUMN design_json TEXT NOT NULL DEFAULT ''");
+		}
 		$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mkt_resources_kind ON marketing_resources(kind, active)');
 		$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mkt_resources_cat ON marketing_resources(category, active)');
 

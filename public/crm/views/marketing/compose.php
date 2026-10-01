@@ -51,6 +51,10 @@ $publicUrl = $publicUrl ?? '';
 		<?php if ($client): ?>
 			<input type="hidden" name="client_id" value="<?= (int) $client['id'] ?>">
 		<?php endif; ?>
+		<?php if (!empty($attachResource)): ?>
+			<input type="hidden" name="resource_id" value="<?= (int) $attachResource['id'] ?>">
+			<p class="mkt-attach-note">Se adjuntará el diseño: <strong><?= h($attachResource['title']) ?></strong></p>
+		<?php endif; ?>
 
 		<div class="mkt-compose-grid">
 			<label>

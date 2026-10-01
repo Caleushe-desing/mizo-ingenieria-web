@@ -4,160 +4,133 @@ use MizoCrm\Http;
 use MizoCrm\Models\MarketingResource;
 
 $visual = $visual ?? [];
-$documents = $documents ?? [];
 $categories = $categories ?? MarketingResource::categories();
-$kinds = $kinds ?? MarketingResource::kinds();
 $filterCategory = $filterCategory ?? '';
-$canManage = !empty($canManage);
-$studioTemplates = $studioTemplates ?? [];
-$studioBackgrounds = $studioBackgrounds ?? [];
 $studioStock = $studioStock ?? [];
 $studioStockCategories = $studioStockCategories ?? [];
-$studioBrand = $studioBrand ?? [];
 $csrf = $csrf ?? Csrf::token();
 $saveDesignUrl = $saveDesignUrl ?? Http::url('/marketing/recursos/diseno');
-$libraryUploadUrl = $libraryUploadUrl ?? Http::url('/marketing/recursos/biblioteca');
+$editResource = $editResource ?? null;
+$canvasWidth = (int) ($canvasWidth ?? 1080);
+$canvasHeight = (int) ($canvasHeight ?? 1350);
 $mktTab = 'recursos';
+$editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 ?>
-<div class="mkt-sheet">
+<div class="mkt-sheet mkt-free">
 	<div class="page-head">
 		<div>
 			<p class="file-kicker">Marketing</p>
-			<h1>Recursos y material comercial</h1>
-			<p>Estudio de flyers Mizo, biblioteca visual y PDFs listos para el equipo comercial.</p>
+			<h1>Estudio de diseño libre</h1>
+			<p>Canvas interactivo: mueve textos e imágenes con total libertad y guarda el resultado en Recursos.</p>
 		</div>
 		<div class="mkt-head-actions">
-			<a class="btn btn-word" href="#estudio">Abrir estudio</a>
 			<a class="btn-text" href="<?= h(Http::url('/marketing/medios')) ?>">Stock Mizo</a>
-			<a class="btn-text" href="<?= h(Http::url('/marketing/nuevo')) ?>">Correo comercial</a>
+			<a class="btn-text" href="#galeria">Galería guardada</a>
 		</div>
 	</div>
 
 	<?php require __DIR__ . '/_nav.php'; ?>
 
-	<section class="paper mkt-panel mkt-studio" id="estudio" data-mkt-studio
-		data-templates="<?= h(json_encode($studioTemplates, JSON_UNESCAPED_UNICODE)) ?>"
-		data-backgrounds="<?= h(json_encode($studioBackgrounds, JSON_UNESCAPED_UNICODE)) ?>"
+	<section class="paper mkt-panel mkt-free-studio" id="estudio"
+		data-free-studio
+		data-save-url="<?= h($saveDesignUrl) ?>"
+		data-csrf="<?= h($csrf) ?>"
+		data-width="<?= $canvasWidth ?>"
+		data-height="<?= $canvasHeight ?>"
 		data-stock="<?= h(json_encode($studioStock, JSON_UNESCAPED_UNICODE)) ?>"
 		data-stock-categories="<?= h(json_encode($studioStockCategories, JSON_UNESCAPED_UNICODE)) ?>"
-		data-brand="<?= h(json_encode($studioBrand, JSON_UNESCAPED_UNICODE)) ?>"
-		data-save-url="<?= h($saveDesignUrl) ?>"
-		data-csrf="<?= h($csrf) ?>">
-		<div class="mkt-studio-head">
-			<div>
-				<h2 class="section-title word">Estudio de diseño Mizo</h2>
-				<p class="muted">Elige una plantilla base, edita título / descripción / CTA y guarda en alta resolución para redes o impresión.</p>
+		data-resource-id="<?= $editResource ? (int) $editResource['id'] : 0 ?>"
+		data-design-json="<?= h($editJson) ?>"
+		data-logo="/mizo-logo-footer.png">
+		<div class="mkt-free-toolbar">
+			<div class="mkt-free-tools">
+				<button type="button" class="btn btn-word" data-act="add-text">Texto</button>
+				<button type="button" class="btn btn-word" data-act="add-logo">Logo Mizo</button>
+				<label class="btn btn-excel mkt-file-btn">
+					Importar imagen
+					<input type="file" accept="image/*" data-act="upload-image" hidden>
+				</label>
+				<button type="button" class="btn-text" data-act="delete">Eliminar</button>
+				<button type="button" class="btn-text" data-act="front">Traer al frente</button>
+				<button type="button" class="btn-text" data-act="back">Enviar al fondo</button>
 			</div>
 			<p class="mkt-studio-status" data-studio-status></p>
 		</div>
 
-		<div class="mkt-studio-layout">
-			<div class="mkt-studio-sidebar">
-				<h3>Plantillas base Mizo</h3>
-				<div class="mkt-studio-templates" data-studio-templates></div>
+		<div class="mkt-free-layout">
+			<aside class="mkt-free-sidebar">
+				<h3>Fondo</h3>
+				<div class="mkt-palette" data-bg-palette>
+					<button type="button" data-bg="#0b1c2c" style="background:#0b1c2c" title="Navy"></button>
+					<button type="button" data-bg="#0b6ea8" style="background:#0b6ea8" title="Azul Mizo"></button>
+					<button type="button" data-bg="#1c9bd8" style="background:#1c9bd8" title="Celeste"></button>
+					<button type="button" data-bg="#f47b20" style="background:#f47b20" title="Naranja"></button>
+					<button type="button" data-bg="#1f2328" style="background:#1f2328" title="Carbón"></button>
+					<button type="button" data-bg="#ffffff" style="background:#ffffff;border:1px solid #cfd8e3" title="Blanco"></button>
+					<button type="button" data-bg="#e8f6fc" style="background:#e8f6fc" title="Hielo"></button>
+				</div>
+				<label class="mkt-color-row"><span>Color libre</span><input type="color" value="#0b1c2c" data-bg-color></label>
 
-				<h3>Fondos e imágenes corporativas</h3>
-				<div class="mkt-studio-backgrounds" data-studio-backgrounds></div>
-				<?php if ($canManage): ?>
-					<form class="mkt-library-upload" method="post" action="<?= h($libraryUploadUrl) ?>" enctype="multipart/form-data">
-						<?= Csrf::field() ?>
-						<label>
-							<span>Sumar fondo a la biblioteca</span>
-							<input type="file" name="archivo" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" required>
-						</label>
-						<button class="btn btn-excel" type="submit">Subir a biblioteca</button>
-					</form>
-				<?php endif; ?>
-
-				<h3>Imágenes de servicios / productos Mizo</h3>
-				<p class="muted mkt-stock-hint">Elige una foto real: reemplaza el fondo y mantiene la máscara de la plantilla para que el texto resalte.
-					<a href="<?= h(Http::url('/marketing/medios')) ?>">Administrar Stock Mizo</a>
-				</p>
-				<div class="mkt-stock-filters" data-studio-stock-filters></div>
-				<div class="mkt-stock-gallery" data-studio-stock></div>
-
-				<h3>Campos de la plantilla</h3>
-				<label><span>Título</span><input type="text" data-studio-title maxlength="120"></label>
-				<label><span>Breve descripción</span><textarea rows="3" data-studio-description maxlength="280"></textarea></label>
-				<label><span>Llamada a la acción</span><input type="text" data-studio-cta maxlength="60"></label>
-
-				<div class="mkt-compose-grid">
-					<label>
-						<span>Tamaño título</span>
-						<input type="range" min="48" max="96" value="72" data-studio-font-size>
-					</label>
-					<label>
-						<span>Alineación</span>
-						<select data-studio-align>
-							<option value="left">Izquierda</option>
-							<option value="center">Centro</option>
-							<option value="right">Derecha</option>
-						</select>
-					</label>
-					<label>
-						<span>Color texto</span>
-						<input type="color" value="#ffffff" data-studio-color>
-					</label>
-					<label>
-						<span>Logo Mizo</span>
-						<select data-studio-logo-mode>
-							<option value="corner">Esquina (marca)</option>
-							<option value="watermark">Marca de agua</option>
-							<option value="off">Sin logo</option>
-						</select>
-					</label>
+				<h3>Texto seleccionado</h3>
+				<label><span>Fuente</span>
+					<select data-font>
+						<option value="Segoe UI">Segoe UI</option>
+						<option value="Arial">Arial</option>
+						<option value="Georgia">Georgia</option>
+						<option value="Trebuchet MS">Trebuchet MS</option>
+						<option value="Verdana">Verdana</option>
+						<option value="Impact">Impact</option>
+					</select>
+				</label>
+				<label><span>Tamaño</span><input type="range" min="16" max="140" value="48" data-font-size></label>
+				<label class="mkt-color-row"><span>Color</span><input type="color" value="#ffffff" data-text-color></label>
+				<div class="mkt-text-actions">
+					<button type="button" class="btn-text" data-act="bold">Negrita</button>
+					<button type="button" class="btn-text" data-act="align-left">Izq.</button>
+					<button type="button" class="btn-text" data-act="align-center">Centro</button>
+					<button type="button" class="btn-text" data-act="align-right">Der.</button>
 				</div>
 
-				<h3>Capa de texto libre</h3>
-				<div class="mkt-extra-text">
-					<input type="text" data-studio-extra-text placeholder="Texto adicional" maxlength="80">
-					<button type="button" class="btn btn-word" data-studio-add-text>Añadir capa</button>
-				</div>
-				<div class="mkt-layers" data-studio-layers></div>
-			</div>
+				<h3>Stock Mizo</h3>
+				<p class="muted mkt-stock-hint">Clic para insertar la foto en el lienzo (puedes moverla y redimensionarla).</p>
+				<div class="mkt-stock-filters" data-stock-filters></div>
+				<div class="mkt-stock-gallery" data-stock-gallery></div>
 
-			<div class="mkt-studio-stage">
-				<div class="mkt-canvas-wrap">
-					<canvas data-studio-canvas width="1080" height="1350" aria-label="Vista previa del flyer"></canvas>
-				</div>
-				<div class="mkt-studio-export paper">
-					<h3>Guardar diseño en Recursos</h3>
-					<div class="mkt-compose-grid">
-						<label>
-							<span>Nombre del recurso</span>
-							<input type="text" data-studio-resource-title maxlength="160" placeholder="Ej: Flyer domótica — marzo">
-						</label>
-						<label>
-							<span>Categoría</span>
-							<select data-studio-category>
-								<?php foreach ($categories as $cat): ?>
-									<option value="<?= h($cat) ?>"><?= h($cat) ?></option>
-								<?php endforeach; ?>
-							</select>
-						</label>
-						<label>
-							<span>Formato final</span>
-							<select data-studio-format>
-								<option value="png">PNG (transparencia / nitidez)</option>
-								<option value="jpg" selected>JPG (redes / WhatsApp)</option>
-								<option value="pdf">PDF (impresión / propuesta)</option>
-							</select>
-						</label>
-					</div>
-					<label>
-						<span>Uso recomendado</span>
-						<textarea rows="2" data-studio-resource-desc maxlength="500" placeholder="Stories, LinkedIn, carpeta de visita…"></textarea>
-					</label>
-					<div class="form-actions">
-						<button type="button" class="btn btn-word" data-studio-save>Guardar diseño</button>
-					</div>
-					<p class="muted">Se guarda en la biblioteca del equipo con miniatura y descarga directa.</p>
+				<h3>Guardar en CRM</h3>
+				<label><span>Título</span><input type="text" data-save-title maxlength="160" value="<?= h($editResource['title'] ?? 'Diseño Mizo') ?>"></label>
+				<label><span>Categoría</span>
+					<select data-save-category>
+						<?php foreach ($categories as $cat): ?>
+							<option value="<?= h($cat) ?>" <?= ($editResource['category'] ?? 'Redes Sociales') === $cat ? 'selected' : '' ?>><?= h($cat) ?></option>
+						<?php endforeach; ?>
+					</select>
+				</label>
+				<label><span>Uso</span>
+					<select data-save-kind>
+						<option value="flyer" <?= ($editResource['kind'] ?? '') === 'flyer' ? 'selected' : '' ?>>Flyer / publicación</option>
+						<option value="social" <?= ($editResource['kind'] ?? '') === 'social' ? 'selected' : '' ?>>Redes sociales</option>
+					</select>
+				</label>
+				<label><span>Formato</span>
+					<select data-save-format>
+						<option value="png">PNG</option>
+						<option value="jpg" selected>JPG</option>
+					</select>
+				</label>
+				<label><span>Nota de uso</span><textarea rows="2" data-save-desc maxlength="500"><?= h($editResource['description'] ?? '') ?></textarea></label>
+				<button type="button" class="btn btn-word" data-act="save">Guardar diseño</button>
+				<button type="button" class="btn-text" data-act="clear">Lienzo nuevo</button>
+			</aside>
+
+			<div class="mkt-free-stage">
+				<div class="mkt-canvas-shell">
+					<canvas id="mizo-free-canvas" width="<?= $canvasWidth ?>" height="<?= $canvasHeight ?>"></canvas>
 				</div>
 			</div>
 		</div>
 	</section>
 
-	<section class="paper mkt-panel">
+	<section class="paper mkt-panel" id="galeria">
 		<div class="mkt-filter-row">
 			<a class="mkt-filter <?= $filterCategory === '' ? 'is-on' : '' ?>" href="<?= h(Http::url('/marketing/recursos')) ?>">Todas</a>
 			<?php foreach ($categories as $cat): ?>
@@ -165,19 +138,19 @@ $mktTab = 'recursos';
 					href="<?= h(Http::url('/marketing/recursos?categoria=' . rawurlencode($cat))) ?>"><?= h($cat) ?></a>
 			<?php endforeach; ?>
 		</div>
-	</section>
-
-	<section class="paper mkt-panel">
-		<h2 class="section-title word">Flyers y publicaciones</h2>
-		<p class="muted">Material listo para Instagram, LinkedIn o WhatsApp (incluye diseños del estudio).</p>
+		<h2 class="section-title word">Diseños guardados</h2>
+		<p class="muted">Descarga para redes, reabre en el estudio o envía por correo comercial.</p>
 		<?php if ($visual === []): ?>
-			<p class="muted mkt-empty">Aún no hay flyers guardados. Crea el primero en el estudio de arriba.</p>
+			<p class="muted mkt-empty">Aún no hay diseños. Crea el primero en el estudio.</p>
 		<?php else: ?>
 			<div class="mkt-resource-grid">
 				<?php foreach ($visual as $row): ?>
 					<?php
 					$thumb = MarketingResource::thumbUrl($row);
-					$dl = Http::url('/marketing/recursos/' . (int) $row['id'] . '/descargar');
+					$id = (int) $row['id'];
+					$dl = Http::url('/marketing/recursos/' . $id . '/descargar');
+					$mail = Http::url('/marketing/nuevo?recurso=' . $id);
+					$edit = Http::url('/marketing/recursos?editar=' . $id . '#estudio');
 					$size = MarketingResource::humanSize($row);
 					?>
 					<article class="mkt-resource-card">
@@ -195,9 +168,11 @@ $mktTab = 'recursos';
 								<p><?= h($row['description']) ?></p>
 							<?php endif; ?>
 							<div class="mkt-resource-actions">
-								<a class="btn btn-word" href="<?= h($dl) ?>">Descargar<?= $size !== '' ? ' · ' . h($size) : '' ?></a>
-								<?php if ($canManage): ?>
-									<form method="post" action="<?= h(Http::url('/marketing/recursos/' . (int) $row['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Ocultar este recurso?');">
+								<a class="btn btn-word" href="<?= h($dl) ?>">Redes / descargar<?= $size !== '' ? ' · ' . h($size) : '' ?></a>
+								<a class="btn btn-excel" href="<?= h($mail) ?>">Correo comercial</a>
+								<a class="btn-text" href="<?= h($edit) ?>">Editar</a>
+								<?php if (!empty($canManage)): ?>
+									<form method="post" action="<?= h(Http::url('/marketing/recursos/' . $id . '/eliminar')) ?>" onsubmit="return confirm('¿Ocultar este diseño?');">
 										<?= Csrf::field() ?>
 										<button class="btn-danger-text" type="submit">Ocultar</button>
 									</form>
@@ -209,81 +184,6 @@ $mktTab = 'recursos';
 			</div>
 		<?php endif; ?>
 	</section>
-
-	<section class="paper mkt-panel">
-		<h2 class="section-title word">Presentaciones y catálogos PDF</h2>
-		<p class="muted">Portafolio, fichas y presentaciones institucionales actualizadas.</p>
-		<?php if ($documents === []): ?>
-			<p class="muted mkt-empty">Todavía no hay PDFs corporativos cargados.<?= $canManage ? ' Publícalos con el formulario de archivo listo.' : '' ?></p>
-		<?php else: ?>
-			<div class="mkt-doc-list">
-				<?php foreach ($documents as $row): ?>
-					<?php
-					$dl = Http::url('/marketing/recursos/' . (int) $row['id'] . '/descargar');
-					$size = MarketingResource::humanSize($row);
-					?>
-					<article class="mkt-doc-card">
-						<div class="mkt-doc-icon" aria-hidden="true">PDF</div>
-						<div class="mkt-doc-body">
-							<p class="mkt-resource-cat"><?= h($row['category']) ?></p>
-							<strong><?= h($row['title']) ?></strong>
-							<?php if (trim((string) ($row['description'] ?? '')) !== ''): ?>
-								<p><?= h($row['description']) ?></p>
-							<?php endif; ?>
-						</div>
-						<div class="mkt-doc-actions">
-							<a class="btn btn-excel" href="<?= h($dl) ?>">Descargar PDF<?= $size !== '' ? ' · ' . h($size) : '' ?></a>
-							<?php if (!empty($row['file_path'])): ?>
-								<a class="btn-text" href="<?= h($row['file_path']) ?>" target="_blank" rel="noopener">Ver rápido</a>
-							<?php endif; ?>
-							<?php if ($canManage): ?>
-								<form method="post" action="<?= h(Http::url('/marketing/recursos/' . (int) $row['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Ocultar este PDF?');">
-									<?= Csrf::field() ?>
-									<button class="btn-danger-text" type="submit">Ocultar</button>
-								</form>
-							<?php endif; ?>
-						</div>
-					</article>
-				<?php endforeach; ?>
-			</div>
-		<?php endif; ?>
-	</section>
-
-	<?php if ($canManage): ?>
-		<section class="paper mkt-panel">
-			<h2 class="section-title word">Subir archivo listo (PDF o pieza externa)</h2>
-			<p class="muted">Para material ya diseñado fuera del estudio. JPG/PNG/WEBP/GIF o PDF hasta 25 MB.</p>
-			<form class="form mkt-compose" method="post" action="<?= h(Http::url('/marketing/recursos')) ?>" enctype="multipart/form-data">
-				<?= Csrf::field() ?>
-				<div class="mkt-compose-grid">
-					<label>
-						<span>Tipo</span>
-						<select name="kind" required>
-							<?php foreach ($kinds as $value => $label): ?>
-								<option value="<?= h($value) ?>"><?= h($label) ?></option>
-							<?php endforeach; ?>
-						</select>
-					</label>
-					<label>
-						<span>Categoría</span>
-						<select name="category" required>
-							<?php foreach ($categories as $cat): ?>
-								<option value="<?= h($cat) ?>"><?= h($cat) ?></option>
-							<?php endforeach; ?>
-						</select>
-					</label>
-				</div>
-				<label><span>Título</span><input name="title" required maxlength="160" placeholder="Ej: Portafolio institucional 2026"></label>
-				<label><span>Uso recomendado</span><textarea name="description" rows="3" maxlength="500" placeholder="Cuándo y cómo usarlo"></textarea></label>
-				<label>
-					<span>Archivo</span>
-					<input type="file" name="archivo" required accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,image/*,application/pdf">
-				</label>
-				<div class="form-actions">
-					<button class="btn btn-excel" type="submit">Publicar recurso</button>
-				</div>
-			</form>
-		</section>
-	<?php endif; ?>
 </div>
-<script src="<?= h(Http::url('/assets/marketing-studio.js')) ?>?v=2"></script>
+<script src="<?= h(Http::url('/assets/fabric.min.js')) ?>?v=531"></script>
+<script src="<?= h(Http::url('/assets/marketing-free-canvas.js')) ?>?v=1"></script>
