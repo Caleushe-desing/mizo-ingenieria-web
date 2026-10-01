@@ -16,7 +16,7 @@ final class PublicQuoteController
 	public function show(string $token): void
 	{
 		$quote = Quote::findByToken($token);
-		if (!$quote || $quote['status'] === 'borrador') {
+		if (!$quote) {
 			http_response_code(404);
 			echo 'Cotización no encontrada.';
 			return;
@@ -37,7 +37,7 @@ final class PublicQuoteController
 	public function pdf(string $token): void
 	{
 		$quote = Quote::findByToken($token);
-		if (!$quote || $quote['status'] === 'borrador') {
+		if (!$quote) {
 			http_response_code(404);
 			header('Content-Type: text/plain; charset=UTF-8');
 			echo 'Cotización no encontrada.';
@@ -77,7 +77,7 @@ final class PublicQuoteController
 	private function confirm(string $token, string $decision): void
 	{
 		$quote = Quote::findByToken($token);
-		if (!$quote || $quote['status'] === 'borrador') {
+		if (!$quote) {
 			http_response_code(404);
 			echo 'Cotización no encontrada.';
 			return;
@@ -106,7 +106,7 @@ final class PublicQuoteController
 		if (!in_array($decision, ['aceptada', 'rechazada'], true)) {
 			Http::redirect('/q/' . $token);
 		}
-		if (in_array($quote['status'], ['aceptada', 'rechazada', 'borrador'], true)) {
+		if (in_array($quote['status'], ['aceptada', 'rechazada'], true)) {
 			Http::redirect('/q/' . $token);
 		}
 		Quote::update((int) $quote['id'], [
@@ -122,7 +122,7 @@ final class PublicQuoteController
 			Activity::log('quote_rejected', 'El cliente rechazó ' . $quote['number'] . '.', null, (int) $quote['client_id'], (int) $quote['deal_id'], (int) $quote['id']);
 		}
 		View::flash('ok', $decision === 'aceptada'
-			? 'Gracias. Un ingeniero Mizo te contactará para coordinar la instalación.'
+			? 'Gracias. Su asesor comercial se contactará para seguir con el proceso.'
 			: 'Registramos tu respuesta. Si quieres ajustar el alcance, responde el correo.');
 		Http::redirect('/q/' . $token);
 	}

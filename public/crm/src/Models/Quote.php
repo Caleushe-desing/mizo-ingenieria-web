@@ -149,8 +149,8 @@ final class Quote extends Record
 		$stmt = self::pdo()->prepare('SELECT q.*, c.name AS client_name, c.contact_name, c.email AS client_email,
 			c.phone AS client_phone, c.rut AS client_rut, c.city AS client_city, d.title AS deal_title
 			FROM quotes q
-			JOIN clients c ON c.id = q.client_id
-			JOIN deals d ON d.id = q.deal_id
+			LEFT JOIN clients c ON c.id = q.client_id
+			LEFT JOIN deals d ON d.id = q.deal_id
 			WHERE q.token = ?');
 		$stmt->execute([$token]);
 		$row = $stmt->fetch();

@@ -2,6 +2,8 @@ ErrorDocument 404 /404.html
 
 RewriteEngine On
 RewriteRule ^crm/assets/ - [L]
+# Enlaces públicos de cotización: /q/{token} (también /crm/q/...)
+RewriteRule ^q(/.*)?$ /crm/index.php [QSA,L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^crm(/.*)?$ /crm/index.php [QSA,L]
 

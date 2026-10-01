@@ -139,10 +139,10 @@ $aboutText = Quote::aboutText($quote);
 		<?php if ($preview): ?>
 			<p class="doc-status">Documento de vista previa. Aún no ha sido enviado al cliente.</p>
 		<?php elseif ($quote['status'] === 'aceptada'): ?>
-			<p class="doc-status is-ok">Esta cotización fue aceptada. Un ingeniero Mizo se contactará para coordinar el trabajo.</p>
+			<p class="doc-status is-ok">Esta cotización fue aceptada. Su asesor comercial se contactará para seguir con el proceso.</p>
 		<?php elseif ($quote['status'] === 'rechazada'): ?>
 			<p class="doc-status">Registramos que esta cotización no fue aceptada. Si desea ajustar el alcance, responda el correo.</p>
-		<?php elseif (!$locked && $quote['status'] !== 'borrador'): ?>
+		<?php elseif (!$locked): ?>
 			<form class="doc-actions" method="post" action="<?= h(Http::url('/q/' . $quote['token'])) ?>">
 				<?= Csrf::field() ?>
 				<p>Si esta propuesta se ajusta a lo requerido, puede aceptarla aquí. También puede responder el correo.</p>

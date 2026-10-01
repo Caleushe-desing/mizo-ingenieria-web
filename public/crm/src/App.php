@@ -166,6 +166,10 @@ final class App
 	public static function absolute(string $path): string
 	{
 		$path = '/' . ltrim($path, '/');
+		// Enlaces públicos del cliente van en /q/... (sin prefijo /crm).
+		if (str_starts_with($path, '/q/')) {
+			return self::origin() . $path;
+		}
 		return self::origin() . Http::url($path);
 	}
 }
