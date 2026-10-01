@@ -2175,14 +2175,15 @@ body.is-clients .quote-sheet [data-add-item] {
 	background: transparent;
 }
 .sheet-edit textarea:focus { outline: 2px solid #2b88d8; outline-offset: -2px; }
-.quote-lines th:nth-child(1), .quote-lines td:nth-child(1) { width: 20%; min-width: 160px; }
-.quote-lines th:nth-child(2), .quote-lines td:nth-child(2) { width: 20%; min-width: 150px; }
+.quote-lines th:nth-child(1), .quote-lines td:nth-child(1) { width: 18%; min-width: 150px; }
+.quote-lines th:nth-child(2), .quote-lines td:nth-child(2) { width: 18%; min-width: 140px; }
 .quote-lines th:nth-child(3), .quote-lines td:nth-child(3),
-.quote-lines th:nth-child(4), .quote-lines td:nth-child(4) { width: 6%; }
+.quote-lines th:nth-child(4), .quote-lines td:nth-child(4) { width: 5%; }
 .quote-lines th:nth-child(5), .quote-lines td:nth-child(5),
-.quote-lines th:nth-child(6), .quote-lines td:nth-child(6),
 .quote-lines th:nth-child(7), .quote-lines td:nth-child(7),
-.quote-lines th:nth-child(8), .quote-lines td:nth-child(8) { width: 9%; }
+.quote-lines th:nth-child(8), .quote-lines td:nth-child(8),
+.quote-lines th:nth-child(9), .quote-lines td:nth-child(9) { width: 8%; }
+.quote-lines th:nth-child(6), .quote-lines td:nth-child(6) { width: 11%; min-width: 110px; }
 .quote-product-cell {
 	display: flex;
 	flex-direction: column;
@@ -2194,9 +2195,29 @@ body.is-clients .quote-sheet [data-add-item] {
 	font-size: 0.85em;
 	padding: 4px 6px;
 }
-.quote-product-cell .catalog-supplier-link {
-	align-self: flex-start;
-	font-size: 0.82em;
+.quote-supplier-cell .catalog-supplier {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	align-items: flex-start;
+}
+.quote-supplier-cell .catalog-supplier[hidden],
+.quote-supplier-cell .catalog-supplier-empty[hidden] {
+	display: none !important;
+}
+.quote-supplier-cell .catalog-supplier-link {
+	font-size: 12px;
+	padding: 4px 8px;
+	white-space: nowrap;
+}
+.quote-supplier-cell .catalog-supplier-host {
+	display: block;
+	max-width: 140px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 11px;
+	color: var(--muted);
 }
 .product-usage .table-wrap {
 	margin-top: 10px;

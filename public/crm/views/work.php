@@ -156,6 +156,7 @@ $tab = $deal ? 'actividad' : 'datos';
 							<th>Cant.</th>
 							<th>Un.</th>
 							<th>Costo c/IVA</th>
+							<th>URL proveedor</th>
 							<th>Margen %</th>
 							<th>Venta neta</th>
 							<th>Total</th>
@@ -197,23 +198,30 @@ $tab = $deal ? 'actividad' : 'datos';
 								<?php endif; ?>
 								<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
 								<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $quoteLocked ? 'readonly' : '' ?>>
-								<?php
-								$supplierHref = '';
-								if ($productId > 0) {
-									foreach ($catalogProducts as $catalogProduct) {
-										if ((int) $catalogProduct['id'] === $productId) {
-											$supplierHref = (string) ($catalogProduct['proveedor_link'] ?? '');
-											break;
-										}
-									}
-								}
-								?>
-								<a class="btn-text catalog-supplier-link" data-catalog-link href="<?= h($supplierHref !== '' ? $supplierHref : '#') ?>" target="_blank" rel="noopener noreferrer"<?= $supplierHref === '' ? ' hidden' : '' ?>>Ver precio proveedor</a>
 							</td>
 							<td><textarea name="item_description[]" rows="2" placeholder="Especificaciones…" <?= $quoteLocked ? 'readonly' : '' ?>><?= h($detail) ?></textarea></td>
 							<td><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
 							<td><input name="item_unit[]" value="<?= h($item['unit'] ?? 'un') ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
 							<td><input name="item_cost[]" value="<?= $cost > 0 ? h((string) $cost) : '' ?>" placeholder="0" <?= $quoteLocked ? 'readonly' : '' ?>></td>
+							<?php
+							$supplierHref = '';
+							if ($productId > 0) {
+								foreach ($catalogProducts as $catalogProduct) {
+									if ((int) $catalogProduct['id'] === $productId) {
+										$supplierHref = (string) ($catalogProduct['proveedor_link'] ?? '');
+										break;
+									}
+								}
+							}
+							$supplierHost = $supplierHref !== '' ? (parse_url($supplierHref, PHP_URL_HOST) ?: 'Abrir ficha') : '';
+							?>
+							<td class="quote-supplier-cell">
+								<div class="catalog-supplier" data-catalog-supplier<?= $supplierHref === '' ? ' hidden' : '' ?>>
+									<a class="btn catalog-supplier-link" data-catalog-link href="<?= h($supplierHref !== '' ? $supplierHref : '#') ?>" target="_blank" rel="noopener noreferrer">Ver precio</a>
+									<span class="catalog-supplier-host" data-catalog-host title="<?= h($supplierHref) ?>"><?= h($supplierHost) ?></span>
+								</div>
+								<span class="muted catalog-supplier-empty" data-catalog-empty<?= $supplierHref !== '' ? ' hidden' : '' ?>>—</span>
+							</td>
 							<td><input name="item_margin[]" value="<?= $margin > 0 ? h(rtrim(rtrim(number_format($margin, 2, '.', ''), '0'), '.')) : '' ?>" placeholder="0" <?= $quoteLocked ? 'readonly' : '' ?>></td>
 							<td><input name="item_price[]" data-sale-net value="<?= h((string) $price) ?>" <?= $quoteLocked || $cost > 0 ? 'readonly' : '' ?>></td>
 							<td data-line><?= money((int) round(((float) ($item['quantity'] ?? 1)) * $price)) ?></td>

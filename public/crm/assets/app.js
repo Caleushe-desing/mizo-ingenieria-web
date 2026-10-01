@@ -65,16 +65,36 @@
 		}
 	}
 
+	function hostFromUrl(href) {
+		try {
+			return new URL(href).hostname || 'Abrir ficha';
+		} catch (e) {
+			return 'Abrir ficha';
+		}
+	}
+
 	function syncSupplierLink(row, product) {
+		const box = row.querySelector('[data-catalog-supplier]');
+		const empty = row.querySelector('[data-catalog-empty]');
 		const link = row.querySelector('[data-catalog-link]');
-		if (!link) return;
+		const host = row.querySelector('[data-catalog-host]');
 		const href = product && product.proveedor_link ? String(product.proveedor_link) : '';
-		if (href) {
+		if (href && link) {
 			link.href = href;
-			link.hidden = false;
+			if (host) {
+				host.textContent = hostFromUrl(href);
+				host.title = href;
+			}
+			if (box) box.hidden = false;
+			if (empty) empty.hidden = true;
 		} else {
-			link.href = '#';
-			link.hidden = true;
+			if (link) link.href = '#';
+			if (host) {
+				host.textContent = '';
+				host.title = '';
+			}
+			if (box) box.hidden = true;
+			if (empty) empty.hidden = false;
 		}
 	}
 
@@ -142,7 +162,14 @@
 		}
 	}
 
-	rows().forEach(bindRow);
+	rows().forEach(function (row) {
+		bindRow(row);
+		const pidInput = row.querySelector('[name="item_product_id[]"]');
+		const productId = pidInput ? String(pidInput.value || '') : '';
+		if (productId && catalog[productId]) {
+			syncSupplierLink(row, catalog[productId]);
+		}
+	});
 	recalc();
 
 	if (addBtn) {
