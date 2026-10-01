@@ -7,11 +7,6 @@ $locked = $quote && in_array($quote['status'], ['aceptada', 'rechazada'], true);
 $sentAlready = $quote && (!empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true));
 $projects = $projects ?? [];
 $catalogProducts = $catalogProducts ?? [];
-$catalogByCategory = [];
-foreach ($catalogProducts as $catalogProduct) {
-	$cat = trim((string) ($catalogProduct['categoria'] ?? '')) ?: 'Sin categoría';
-	$catalogByCategory[$cat][] = $catalogProduct;
-}
 $action = $quote
 	? Http::url('/cotizaciones/' . $quote['id'])
 	: Http::url('/clientes/' . $client['id'] . '/cotizacion');
@@ -142,7 +137,7 @@ $action = $quote
 		</div>
 
 		<h2 class="section-title word">Partidas</h2>
-		<p class="muted">Elige un producto del catálogo o escribe un ítem libre. La URL del proveedor es solo para el ejecutivo.</p>
+		<p class="muted">Abre el catálogo, busca el producto y selecciónalo, o escribe un ítem libre. La URL del proveedor es solo para el ejecutivo.</p>
 		<script type="application/json" id="quote-catalog-json"><?= json_encode(array_values($catalogProducts), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 		<div class="table-wrap">
 			<table class="sheet sheet-edit quote-lines" data-tax-rate="19">
@@ -180,18 +175,20 @@ $action = $quote
 					<tr data-item-row>
 						<td class="quote-product-cell">
 							<?php if (!$locked): ?>
-								<select class="catalog-pick" data-catalog-pick aria-label="Elegir del catálogo">
-									<option value="">Ítem libre / elegir catálogo…</option>
-									<?php foreach ($catalogByCategory as $catLabel => $catProducts): ?>
-										<optgroup label="<?= h($catLabel) ?>">
-											<?php foreach ($catProducts as $catalogProduct): ?>
-												<option value="<?= (int) $catalogProduct['id'] ?>" <?= $productId === (int) $catalogProduct['id'] ? 'selected' : '' ?>>
-													<?= h($catalogProduct['sku'] . ' — ' . $catalogProduct['nombre']) ?>
-												</option>
-											<?php endforeach; ?>
-										</optgroup>
-									<?php endforeach; ?>
-								</select>
+								<?php
+								$pickedLabel = 'Ítem libre / elegir catálogo…';
+								if ($productId > 0) {
+									foreach ($catalogProducts as $catalogProduct) {
+										if ((int) $catalogProduct['id'] === $productId) {
+											$pickedLabel = trim(($catalogProduct['sku'] ?? '') . ' — ' . ($catalogProduct['nombre'] ?? ''));
+											break;
+										}
+									}
+								}
+								?>
+								<button class="catalog-pick" type="button" data-catalog-open aria-label="Buscar producto del catálogo">
+									<span data-catalog-label><?= h($pickedLabel) ?></span>
+								</button>
 							<?php endif; ?>
 							<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
 							<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $locked ? 'readonly' : '' ?>>

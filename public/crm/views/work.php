@@ -13,11 +13,6 @@ $owner = $owner ?? null;
 $team = $team ?? [];
 $activity = $activity ?? [];
 $catalogProducts = $catalogProducts ?? [];
-$catalogByCategory = [];
-foreach ($catalogProducts as $catalogProduct) {
-	$cat = trim((string) ($catalogProduct['categoria'] ?? '')) ?: 'Sin categoría';
-	$catalogByCategory[$cat][] = $catalogProduct;
-}
 $quoteLocked = in_array($status, ['ganada', 'perdida'], true) || (($quote['status'] ?? '') === 'aceptada');
 $lost = $status === 'perdida';
 $action = $deal ? Http::url('/t/' . $deal['id']) : Http::url('/nueva');
@@ -183,18 +178,20 @@ $tab = $deal ? 'actividad' : 'datos';
 						<tr data-item-row>
 							<td class="quote-product-cell">
 								<?php if (!$quoteLocked): ?>
-									<select class="catalog-pick" data-catalog-pick aria-label="Elegir del catálogo">
-										<option value="">Ítem libre / elegir catálogo…</option>
-										<?php foreach ($catalogByCategory as $catLabel => $catProducts): ?>
-											<optgroup label="<?= h($catLabel) ?>">
-												<?php foreach ($catProducts as $catalogProduct): ?>
-													<option value="<?= (int) $catalogProduct['id'] ?>" <?= $productId === (int) $catalogProduct['id'] ? 'selected' : '' ?>>
-														<?= h($catalogProduct['sku'] . ' — ' . $catalogProduct['nombre']) ?>
-													</option>
-												<?php endforeach; ?>
-											</optgroup>
-										<?php endforeach; ?>
-									</select>
+									<?php
+									$pickedLabel = 'Ítem libre / elegir catálogo…';
+									if ($productId > 0) {
+										foreach ($catalogProducts as $catalogProduct) {
+											if ((int) $catalogProduct['id'] === $productId) {
+												$pickedLabel = trim(($catalogProduct['sku'] ?? '') . ' — ' . ($catalogProduct['nombre'] ?? ''));
+												break;
+											}
+										}
+									}
+									?>
+									<button class="catalog-pick" type="button" data-catalog-open aria-label="Buscar producto del catálogo">
+										<span data-catalog-label><?= h($pickedLabel) ?></span>
+									</button>
 								<?php endif; ?>
 								<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
 								<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $quoteLocked ? 'readonly' : '' ?>>
