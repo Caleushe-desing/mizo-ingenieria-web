@@ -101,7 +101,7 @@ const description = page.seoDescription;
 	/>
 </Layout>
 
-<style>
+<style is:global>
 	.shop-layout {
 		display: grid;
 		grid-template-columns: 1fr;
@@ -640,6 +640,7 @@ const description = page.seoDescription;
 				return;
 			}
 			status.hidden = true;
+			status.textContent = '';
 			const grid = node('div', 'shop-grid');
 			for (const item of visible) grid.append(card(item, phone));
 			list.append(grid);

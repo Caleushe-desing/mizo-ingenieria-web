@@ -10,13 +10,13 @@
 
 	body {
 		@apply font-sans text-ink antialiased;
-		background-color: #e6ebf1;
+		background-color: #dce3eb;
 		background-image:
-			radial-gradient(rgba(11, 110, 168, 0.09) 0.9px, transparent 0.9px),
-			radial-gradient(rgba(244, 123, 32, 0.05) 0.7px, transparent 0.7px),
-			linear-gradient(165deg, #f2f5f8 0%, #e4eaf1 48%, #dfe6ee 100%);
-		background-size: 22px 22px, 34px 34px, 100% 100%;
-		background-position: 0 0, 11px 17px, 0 0;
+			radial-gradient(rgba(11, 110, 168, 0.16) 1.1px, transparent 1.1px),
+			radial-gradient(rgba(244, 123, 32, 0.09) 0.9px, transparent 0.9px),
+			linear-gradient(165deg, #eef2f6 0%, #d9e1ea 52%, #d2dbe6 100%);
+		background-size: 18px 18px, 28px 28px, 100% 100%;
+		background-position: 0 0, 9px 14px, 0 0;
 		background-attachment: fixed;
 	}
 
@@ -26,14 +26,21 @@
 		inset: 0;
 		pointer-events: none;
 		z-index: 0;
-		opacity: 0.35;
+		opacity: 0.55;
 		background-image:
 			repeating-linear-gradient(
 				-18deg,
 				transparent,
-				transparent 11px,
-				rgba(28, 155, 216, 0.035) 11px,
-				rgba(28, 155, 216, 0.035) 12px
+				transparent 10px,
+				rgba(28, 155, 216, 0.06) 10px,
+				rgba(28, 155, 216, 0.06) 11px
+			),
+			repeating-linear-gradient(
+				72deg,
+				transparent,
+				transparent 22px,
+				rgba(24, 27, 32, 0.025) 22px,
+				rgba(24, 27, 32, 0.025) 23px
 			);
 	}
 
