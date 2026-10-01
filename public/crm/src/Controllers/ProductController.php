@@ -29,7 +29,7 @@ final class ProductController
 		Auth::requireAdmin();
 		Csrf::check();
 		try {
-			$_SESSION['_product_draft'] = ProductImporter::fromUrl(Http::string('url', 500));
+			$_SESSION['_product_draft'] = ProductImporter::fromUrl(Http::string('url', 800));
 		} catch (RuntimeException $e) {
 			View::flash('error', $e->getMessage());
 			Http::redirect('/catalogo');
@@ -175,7 +175,7 @@ final class ProductController
 			return;
 		}
 		try {
-			$draft = ProductImporter::fromUrl(Http::string('url', 500));
+			$draft = ProductImporter::fromUrl(Http::string('url', 800));
 			$payload = json_encode(
 				['ok' => true, 'draft' => $draft],
 				JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE

@@ -12,9 +12,14 @@ final class ProductImporter
 	private const MAX_REDIRECTS = 4;
 	private const MAX_IMAGES = 12;
 
-	/** @return array{nombre: string, descripcion: string, proveedor_empresa: string, proveedor_link: string} */
+	/** @return array{nombre: string, descripcion: string, proveedor_empresa: string, proveedor_link: string, imagenes?: list<string>} */
 	public static function fromUrl(string $url): array
 	{
+		$url = self::publicUrl(self::stripTracking($url));
+		$shopify = self::fromShopifyJson($url);
+		if ($shopify !== null) {
+			return $shopify;
+		}
 		$loaded = self::fetch($url);
 		$parsed = self::parse($loaded['body'], $loaded['url']);
 		if ($parsed['nombre'] === '' && $parsed['descripcion'] === '') {
@@ -128,8 +133,149 @@ final class ProductImporter
 		];
 	}
 
+	/**
+	 * Tiendas Shopify suelen bloquear el HTML (429) pero exponen /products/{handle}.js.
+	 *
+	 * @return array{nombre: string, descripcion: string, proveedor_empresa: string, proveedor_link: string, imagenes: list<string>}|null
+	 */
+	private static function fromShopifyJson(string $url): ?array
+	{
+		$jsonUrl = self::shopifyProductJsonUrl($url);
+		if ($jsonUrl === null) {
+			return null;
+		}
+		try {
+			$loaded = self::fetch($jsonUrl, true);
+		} catch (RuntimeException) {
+			return null;
+		}
+		$data = json_decode($loaded['body'], true);
+		if (!is_array($data) || empty($data['title']) || !is_string($data['title'])) {
+			return null;
+		}
+		$host = self::hostLabel((string) parse_url($url, PHP_URL_HOST));
+		$name = self::cleanTitle(self::plain($data['title']), $host);
+		$description = '';
+		if (!empty($data['description']) && is_string($data['description'])) {
+			$description = self::plain($data['description']);
+		} elseif (!empty($data['body_html']) && is_string($data['body_html'])) {
+			$description = self::plain($data['body_html']);
+		}
+		$description = self::clip($description, 4000);
+		if ($name === '' && !self::usefulBlurb($description)) {
+			return null;
+		}
+		$canonical = self::shopifyCanonicalUrl($url, is_string($data['handle'] ?? null) ? $data['handle'] : null);
+		$imageUrls = [];
+		if (!empty($data['images']) && is_array($data['images'])) {
+			foreach ($data['images'] as $image) {
+				$src = is_string($image) ? $image : (is_array($image) && is_string($image['src'] ?? null) ? $image['src'] : '');
+				$resolved = self::absoluteUrl($src, $canonical);
+				if ($resolved !== null && self::looksLikePhoto($resolved)) {
+					$imageUrls[] = $resolved;
+				}
+			}
+		}
+		if ($imageUrls === [] && !empty($data['featured_image'])) {
+			$featured = is_string($data['featured_image'])
+				? $data['featured_image']
+				: (is_array($data['featured_image']) && is_string($data['featured_image']['src'] ?? null) ? $data['featured_image']['src'] : '');
+			$resolved = self::absoluteUrl($featured, $canonical);
+			if ($resolved !== null && self::looksLikePhoto($resolved)) {
+				$imageUrls[] = $resolved;
+			}
+		}
+		$folder = 'imp-' . substr(hash('sha256', $canonical), 0, 16);
+		try {
+			$imagenes = self::downloadImages(array_values(array_unique($imageUrls)), $folder);
+		} catch (\Throwable) {
+			$imagenes = [];
+		}
+		return [
+			'nombre' => self::clip($name, 180),
+			'descripcion' => $description,
+			'proveedor_empresa' => self::clip($host, 160),
+			'proveedor_link' => $canonical,
+			'imagenes' => $imagenes,
+		];
+	}
+
+	private static function shopifyProductJsonUrl(string $url): ?string
+	{
+		$parts = parse_url($url);
+		$path = (string) ($parts['path'] ?? '');
+		if (!preg_match('#^/products/([^/]+)/?$#i', $path, $match)) {
+			return null;
+		}
+		$handle = rawurldecode($match[1]);
+		$handle = preg_replace('/\.js$/i', '', $handle) ?? $handle;
+		if ($handle === '' || !preg_match('/^[a-zA-Z0-9][a-zA-Z0-9\-_%]*$/', $handle)) {
+			return null;
+		}
+		$scheme = strtolower((string) ($parts['scheme'] ?? 'https'));
+		$host = strtolower((string) ($parts['host'] ?? ''));
+		if ($host === '' || !in_array($scheme, ['http', 'https'], true)) {
+			return null;
+		}
+		return $scheme . '://' . $host . '/products/' . rawurlencode($handle) . '.js';
+	}
+
+	private static function shopifyCanonicalUrl(string $url, ?string $handle): string
+	{
+		$parts = parse_url($url);
+		$scheme = strtolower((string) ($parts['scheme'] ?? 'https'));
+		$host = strtolower((string) ($parts['host'] ?? ''));
+		$pathHandle = $handle;
+		if ($pathHandle === null || $pathHandle === '') {
+			if (preg_match('#^/products/([^/]+)/?$#i', (string) ($parts['path'] ?? ''), $match)) {
+				$pathHandle = rawurldecode($match[1]);
+			}
+		}
+		$pathHandle = preg_replace('/\.js$/i', '', (string) $pathHandle) ?? '';
+		$canonical = $scheme . '://' . $host . '/products/' . rawurlencode($pathHandle);
+		if (!empty($parts['query'])) {
+			parse_str((string) $parts['query'], $query);
+			if (!empty($query['variant'])) {
+				$canonical .= '?variant=' . rawurlencode((string) $query['variant']);
+			}
+		}
+		return $canonical;
+	}
+
+	/** Quita parámetros de tracking que hinchan la URL y a veces rompen el fetch. */
+	private static function stripTracking(string $url): string
+	{
+		$url = trim($url);
+		$parts = parse_url($url);
+		if (!is_array($parts) || empty($parts['query'])) {
+			return $url;
+		}
+		parse_str((string) $parts['query'], $query);
+		foreach (array_keys($query) as $key) {
+			$lk = strtolower((string) $key);
+			if (
+				str_starts_with($lk, 'utm_')
+				|| str_starts_with($lk, 'gad_')
+				|| in_array($lk, ['gclid', 'gbraid', 'wbraid', 'fbclid', 'mc_cid', 'mc_eid', 'srsltid', 'ref', '_gl', 'yclid'], true)
+			) {
+				unset($query[$key]);
+			}
+		}
+		$scheme = (string) ($parts['scheme'] ?? 'https');
+		$host = (string) ($parts['host'] ?? '');
+		$rebuilt = $scheme . '://' . $host;
+		if (isset($parts['port'])) {
+			$rebuilt .= ':' . $parts['port'];
+		}
+		$rebuilt .= ($parts['path'] ?? '/');
+		if ($query !== []) {
+			$rebuilt .= '?' . http_build_query($query);
+		}
+		return $rebuilt;
+	}
+
 	/** @return array{body: string, url: string} */
-	private static function fetch(string $url): array
+	private static function fetch(string $url, bool $allowJson = false): array
 	{
 		if (!function_exists('curl_init')) {
 			throw new RuntimeException('El servidor no puede leer páginas externas en este momento.');
@@ -155,6 +301,9 @@ final class ProductImporter
 				if ($ch === false) {
 					throw new RuntimeException('No se pudo leer esa página.');
 				}
+				$accept = $allowJson
+					? 'application/json,text/javascript,*/*;q=0.8'
+					: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8';
 				curl_setopt_array($ch, [
 					CURLOPT_RETURNTRANSFER => true,
 					CURLOPT_FOLLOWLOCATION => false,
@@ -165,7 +314,7 @@ final class ProductImporter
 					CURLOPT_TIMEOUT => 20,
 					CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
 					CURLOPT_HTTPHEADER => [
-						'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+						'Accept: ' . $accept,
 						'Accept-Language: es-CL,es;q=0.9,en;q=0.8',
 						'Referer: ' . $referer,
 					],
@@ -190,10 +339,17 @@ final class ProductImporter
 					$current = $next;
 					continue;
 				}
+				if ($code === 429) {
+					throw new RuntimeException('El proveedor limitó las consultas. Espera un momento e intenta de nuevo.');
+				}
 				if ($code < 200 || $code >= 300) {
 					throw new RuntimeException('La página del proveedor no respondió. Prueba de nuevo con la URL de la ficha.');
 				}
-				if ($type !== '' && !str_contains($type, 'html') && !str_contains($type, 'xml') && !str_contains($type, 'text/plain')) {
+				$okType = str_contains($type, 'html')
+					|| str_contains($type, 'xml')
+					|| str_contains($type, 'text/plain')
+					|| ($allowJson && (str_contains($type, 'json') || str_contains($type, 'javascript') || $type === ''));
+				if ($type !== '' && !$okType) {
 					throw new RuntimeException('Esa URL no es una ficha de producto en HTML.');
 				}
 				return ['body' => $body, 'url' => $current];
@@ -207,7 +363,7 @@ final class ProductImporter
 	private static function publicUrl(string $url): string
 	{
 		$url = trim($url);
-		if ($url === '' || strlen($url) > 500 || !filter_var($url, FILTER_VALIDATE_URL)) {
+		if ($url === '' || strlen($url) > 800 || !filter_var($url, FILTER_VALIDATE_URL)) {
 			throw new RuntimeException('Pega una URL http o https de la ficha del producto.');
 		}
 		$parts = parse_url($url);
