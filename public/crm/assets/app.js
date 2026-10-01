@@ -1803,7 +1803,7 @@
 			}
 			if (current === section) {
 				a.setAttribute("href", home);
-				a.title = "Ir al inicio de esta secciÃ³n";
+				a.title = "Ir al inicio de esta sección";
 			} else if (places[section]) {
 				a.setAttribute("href", places[section]);
 				a.title = "Volver a donde lo dejaste";
@@ -2375,7 +2375,7 @@
 			const body = new FormData(mailForm);
 			body.set("_csrf", csrf);
 			body.set("client_id", mailClient || "");
-			if (mailStatus) mailStatus.textContent = "Enviandoâ¦";
+			if (mailStatus) mailStatus.textContent = "Enviando…";
 			fetch(base + "/correo", {
 				method: "POST",
 				body: body,
@@ -2417,7 +2417,7 @@
 	});
 
 	function contactLine(label, value) {
-		return "<div><dt>" + label + "</dt><dd>" + (value || "â") + "</dd></div>";
+		return "<div><dt>" + label + "</dt><dd>" + (value || "—") + "</dd></div>";
 	}
 
 	function paintPerson(person) {
@@ -2425,18 +2425,18 @@
 		const mailBtn = drawerBody.querySelector("[data-open-mail]");
 		if (!box) return;
 		if (!person) {
-			box.innerHTML = "<p class=\"muted\">Elige quiÃ©n estÃ¡ a cargo.</p>";
+			box.innerHTML = "<p class=\"muted\">Elige quién está a cargo.</p>";
 			if (mailBtn) mailBtn.hidden = true;
 			return;
 		}
 		const phone = person.phone
 			? '<a href="tel:' + escapeHtml(person.phone) + '">' + escapeHtml(person.phone) + "</a>"
-			: "â";
+			: "—";
 		box.innerHTML = ""
 			+ contactLine("Nombre", escapeHtml(person.name || "Contacto"))
-			+ contactLine("Cargo", escapeHtml(person.title || "â"))
-			+ contactLine("TelÃ©fono", phone)
-			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "â");
+			+ contactLine("Cargo", escapeHtml(person.title || "—"))
+			+ contactLine("Teléfono", phone)
+			+ contactLine("Correo", person.email ? escapeHtml(person.email) : "—");
 		if (mailBtn) {
 			mailBtn.hidden = false;
 			mailBtn.disabled = !person.email;
@@ -2446,7 +2446,7 @@
 
 	function contactPicker(dealId, contacts) {
 		if (!contacts.length) {
-			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. AgrÃ©galos en sus datos.</p></section>';
+			return '<section class="kb-block"><h3>Contacto a cargo</h3><p class="muted">Este cliente no tiene contactos. Agrégalos en sus datos.</p></section>';
 		}
 		const options = contacts.map(function (person) {
 			return '<option value="' + person.id + '"' + (person.on ? " selected" : "") + ">" + escapeHtml(person.name || "Contacto") + "</option>";
@@ -2459,26 +2459,66 @@
 			+ '<button type="button" class="kb-mail-btn" data-open-mail hidden>Enviar correo</button></section>';
 	}
 
+	function formatMoney(value) {
+		const n = Math.round(Number(value) || 0);
+		return "$" + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	}
+
+	function quoteCard(quote) {
+		const number = escapeHtml(quote.number || "");
+		const rev = quote.revision ? " · " + escapeHtml(quote.revision) : "";
+		const statusKey = escapeHtml(quote.status || "");
+		const statusLabel = escapeHtml(quote.status_label || quote.status || "");
+		const sent = quote.sent_at && quote.sent_at !== "—" ? escapeHtml(quote.sent_at) : "";
+		const sentTo = quote.sent_to ? escapeHtml(quote.sent_to) : "";
+		const created = quote.created_at && quote.created_at !== "—" ? escapeHtml(quote.created_at) : "";
+		const valid = quote.valid_until && quote.valid_until !== "—" ? escapeHtml(quote.valid_until) : "";
+		const responded = quote.responded_at && quote.responded_at !== "—" ? escapeHtml(quote.responded_at) : "";
+		const total = formatMoney(quote.total);
+		let meta = "";
+		if (sent) meta += '<div><span>Enviada</span><strong>' + sent + "</strong></div>";
+		else if (created) meta += '<div><span>Creada</span><strong>' + created + "</strong></div>";
+		if (sentTo) meta += '<div><span>Para</span><strong>' + sentTo + "</strong></div>";
+		meta += '<div><span>Total</span><strong>' + total + "</strong></div>";
+		if (valid) meta += '<div><span>Válida hasta</span><strong>' + valid + "</strong></div>";
+		if (responded) meta += '<div><span>Respuesta</span><strong>' + responded + "</strong></div>";
+		return '<li class="kb-quote">'
+			+ '<div class="kb-quote-top">'
+			+ '<a href="' + base + "/cotizaciones/" + quote.id + '">' + number + rev + "</a>"
+			+ '<span class="kb-quote-status kb-quote-status-' + statusKey + '">' + statusLabel + "</span>"
+			+ "</div>"
+			+ '<div class="kb-quote-meta">' + meta + "</div>"
+			+ "</li>";
+	}
+
 	function renderDrawer(card, data) {
 		const client = data.client || {};
 		const deal = data.deal || {};
 		const id = deal.id;
 		if (drawerTitle) drawerTitle.textContent = deal.title || "Proyecto";
-		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " Â· " + (deal.stage_label || "Prospecto");
+		if (drawerKicker) drawerKicker.textContent = (client.name || "Cliente") + " · " + (deal.stage_label || "Prospecto");
 		const notes = (data.notes || []).map(function (note) {
 			const prefix = note.type === "recordatorio" ? "Recordatorio: " : "";
-			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " Â· " + escapeHtml(note.when) + "</small></li>";
+			return "<li><p>" + escapeHtml(prefix + note.message) + "</p><small>" + escapeHtml(note.who) + " · " + escapeHtml(note.when) + "</small></li>";
 		}).join("");
-		const quotes = (data.quotes || []).map(function (quote) {
-			return '<li><a href="' + base + "/cotizaciones/" + quote.id + '">' + escapeHtml(quote.number) + "</a>"
-				+ "<small>" + escapeHtml(quote.status) + "</small></li>";
-		}).join("");
+		const quotes = (data.quotes || []).map(quoteCard).join("");
+		const summary = []
+			.concat(deal.service_label ? '<div><span>Servicio</span><strong>' + escapeHtml(deal.service_label) + "</strong></div>" : [])
+			.concat(deal.owner_name ? '<div><span>Ejecutivo</span><strong>' + escapeHtml(deal.owner_name) + "</strong></div>" : [])
+			.concat(client.city ? '<div><span>Ciudad</span><strong>' + escapeHtml(client.city) + "</strong></div>" : [])
+			.concat(deal.created_at && deal.created_at !== "—" ? '<div><span>Creado</span><strong>' + escapeHtml(deal.created_at) + "</strong></div>" : [])
+			.concat(deal.updated_at && deal.updated_at !== "—" ? '<div><span>Actualizado</span><strong>' + escapeHtml(deal.updated_at) + "</strong></div>" : [])
+			.concat(deal.amount ? '<div><span>Monto proyecto</span><strong>' + formatMoney(deal.amount) + "</strong></div>" : [])
+			.join("");
 		drawerBody.innerHTML = ''
-			+ '<p class="muted">' + escapeHtml(deal.service_label || "") + "</p>"
+			+ '<section class="kb-block"><h3>Resumen del proyecto</h3>'
+			+ '<div class="kb-summary">' + (summary || '<p class="muted">Sin datos adicionales.</p>') + "</div>"
+			+ '<div class="kb-actions"><a href="' + base + "/tablero/cliente/" + (client.id || "") + '/ficha">Abrir ficha del cliente</a></div></section>'
 			+ contactPicker(id, data.contacts || [])
-			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3><ul class="kb-notes">' + (quotes || "<li><p>Sin cotizaciones todavÃ­a.</p></li>") + "</ul>"
-			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotizaciÃ³n</a>'
-			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'Â¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
+			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3>'
+			+ '<ul class="kb-quotes">' + (quotes || '<li class="kb-quote is-empty"><p>Sin cotizaciones todavía.</p></li>') + "</ul>"
+			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotización</a>'
+			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
 			+ '<input type="hidden" name="_csrf" value="' + escapeHtml(csrf) + '">'
 			+ '<input type="hidden" name="volver" value="tablero">'
 			+ '<button type="submit" class="is-danger">Eliminar proyecto</button></form></div></section>'
@@ -2514,7 +2554,7 @@
 				const person = selectedPerson();
 				if (!person || !person.email || !mailPop || !mailForm) return;
 				mailTo.value = person.email;
-				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " Â· " + person.phone : "");
+				mailWho.textContent = (person.name || "Contacto") + (person.phone ? " · " + person.phone : "");
 				mailSubject.value = deal.title ? deal.title : "";
 				mailBody.value = "";
 				mailStatus.textContent = "";
@@ -2545,7 +2585,7 @@
 						if (!json || !json.ok) return;
 						const list = drawerBody.querySelector("[data-project-notes]");
 						const li = document.createElement("li");
-						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " Â· " + escapeHtml(json.note.when) + "</small>";
+						li.innerHTML = "<p>" + escapeHtml(json.note.message) + "</p><small>" + escapeHtml(json.note.who) + " · " + escapeHtml(json.note.when) + "</small>";
 						const empty = list.querySelector("li");
 						if (empty && empty.textContent.indexOf("Sin notas") === 0) empty.remove();
 						list.prepend(li);
@@ -2560,7 +2600,7 @@
 	function openDrawer(card) {
 		if (!drawer || !drawerBody) return;
 		drawer.hidden = false;
-		drawerBody.innerHTML = '<p class="muted">Cargandoâ¦</p>';
+		drawerBody.innerHTML = '<p class="muted">Cargando…</p>';
 		fetch(card.getAttribute("data-detail"), { credentials: "same-origin", headers: { Accept: "application/json" } })
 			.then(function (res) { return res.json(); })
 			.then(function (data) {

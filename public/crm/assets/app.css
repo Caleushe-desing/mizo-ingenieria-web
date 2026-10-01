@@ -2435,6 +2435,100 @@ body.is-board .workspace {
 .kb-notes small { color: #6b7280; }
 .kb-note-form { display: grid; gap: 8px; }
 .kb-note-form textarea { width: 100%; min-height: 72px; border: 1px solid #d0d7de; border-radius: 8px; padding: 8px; font: inherit; }
+.kb-summary {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+	margin: 0 0 12px;
+}
+.kb-summary > div {
+	display: grid;
+	gap: 2px;
+	padding: 8px 10px;
+	background: #f7fafc;
+	border: 1px solid #e8eef4;
+	border-radius: 8px;
+}
+.kb-summary span {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+.kb-summary strong {
+	font-size: 13px;
+	font-weight: 600;
+	color: #1f2328;
+	word-break: break-word;
+}
+.kb-quotes {
+	list-style: none;
+	margin: 0 0 12px;
+	padding: 0;
+	display: grid;
+	gap: 8px;
+}
+.kb-quote {
+	background: #f7f8fa;
+	border: 1px solid #e6eaee;
+	border-radius: 10px;
+	padding: 10px 12px;
+}
+.kb-quote.is-empty p { margin: 0; color: #6b7280; font-size: 13px; }
+.kb-quote-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+.kb-quote-top a {
+	font-weight: 700;
+	color: #0b6ea8;
+	text-decoration: none;
+}
+.kb-quote-top a:hover { text-decoration: underline; }
+.kb-quote-status {
+	display: inline-flex;
+	padding: 3px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	background: #eef2f6;
+	color: #4b5563;
+	white-space: nowrap;
+}
+.kb-quote-status-borrador { background: #f3f4f6; color: #4b5563; }
+.kb-quote-status-enviada { background: #e8f1fb; color: #1d4f91; }
+.kb-quote-status-vista { background: #eaf6ff; color: #0b6ea8; }
+.kb-quote-status-aceptada { background: #e8f7ee; color: #0f7a45; }
+.kb-quote-status-rechazada { background: #fdecee; color: #a4262c; }
+.kb-quote-meta {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 6px 10px;
+}
+.kb-quote-meta > div { display: grid; gap: 1px; min-width: 0; }
+.kb-quote-meta span {
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+.kb-quote-meta strong {
+	font-size: 12px;
+	font-weight: 600;
+	color: #1f2328;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+@media (max-width: 420px) {
+	.kb-summary,
+	.kb-quote-meta { grid-template-columns: 1fr; }
+}
 
 body.is-clients { background: #eef1f4; }
 body.is-clients .workspace { max-width: none; margin: 0; padding: 0 0 24px; }

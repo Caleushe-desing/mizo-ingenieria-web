@@ -179,18 +179,28 @@ final class BoardController
 		}
 		$quotes = [];
 		foreach (Deal::quotes((int) $deal['id']) as $quote) {
+			$revision = trim((string) ($quote['revision'] ?? ''));
 			$quotes[] = [
 				'id' => (int) $quote['id'],
 				'number' => (string) $quote['number'],
-				'status' => quote_status_label((string) $quote['status']),
-				'total' => (int) $quote['total'],
+				'revision' => $revision,
+				'status' => (string) ($quote['status'] ?? ''),
+				'status_label' => quote_status_label((string) ($quote['status'] ?? '')),
+				'total' => (int) ($quote['total'] ?? 0),
+				'sent_at' => when($quote['sent_at'] ?? null, 'd-m-Y H:i'),
+				'sent_to' => trim((string) ($quote['sent_to'] ?? '')),
+				'created_at' => when($quote['created_at'] ?? null, 'd-m-Y'),
+				'valid_until' => when($quote['valid_until'] ?? null, 'd-m-Y'),
+				'responded_at' => when($quote['responded_at'] ?? null, 'd-m-Y H:i'),
 			];
 		}
+		$owner = !empty($deal['owner_id']) ? \MizoCrm\Models\User::find((int) $deal['owner_id']) : null;
 		Http::json([
 			'ok' => true,
 			'client' => [
 				'id' => (int) $client['id'],
 				'name' => (string) $client['name'],
+				'city' => (string) ($client['city'] ?? ''),
 			],
 			'deal' => [
 				'id' => (int) $deal['id'],
@@ -200,6 +210,9 @@ final class BoardController
 				'service_label' => Config::services()[$service] ?? $service,
 				'amount' => (int) $deal['amount'],
 				'title' => (string) $deal['title'],
+				'created_at' => when($deal['created_at'] ?? null, 'd-m-Y'),
+				'updated_at' => when($deal['updated_at'] ?? null, 'd-m-Y H:i'),
+				'owner_name' => $owner ? (string) ($owner['name'] ?? '') : '',
 			],
 			'notes' => $notes,
 			'quotes' => $quotes,
