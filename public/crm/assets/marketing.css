@@ -111,6 +111,137 @@ body.is-marketing .workspace { max-width: 1100px; margin: 0 auto; padding: 0 16p
 .mkt-doc-body strong { font-size: 15px; color: #1f2328; }
 .mkt-doc-body p { margin: 0; font-size: 13px; color: #5b6570; }
 .mkt-empty { margin-top: 12px; }
+.mkt-studio { padding-bottom: 20px; }
+.mkt-studio-head {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 10px;
+	align-items: flex-start;
+	margin-bottom: 8px;
+}
+.mkt-studio-status { margin: 0; font-size: 13px; font-weight: 600; color: #1f8a4c; }
+.mkt-studio-status.is-error { color: #b42318; }
+.mkt-studio-layout {
+	display: grid;
+	grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+	gap: 18px;
+	align-items: start;
+}
+.mkt-studio-sidebar h3 {
+	margin: 16px 0 8px;
+	font-size: 13px;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	color: #0b6ea8;
+}
+.mkt-studio-sidebar label { display: grid; gap: 4px; margin-bottom: 10px; font-size: 13px; }
+.mkt-studio-sidebar input[type="text"],
+.mkt-studio-sidebar textarea,
+.mkt-studio-sidebar select {
+	width: 100%;
+	border: 1px solid #cfd8e3;
+	border-radius: 8px;
+	padding: 8px 10px;
+	font: inherit;
+}
+.mkt-studio-templates,
+.mkt-studio-backgrounds {
+	display: grid;
+	gap: 8px;
+}
+.mkt-studio-card {
+	text-align: left;
+	border: 1px solid #d5dde6;
+	background: #fff;
+	border-radius: 8px;
+	padding: 10px 12px;
+	cursor: pointer;
+	display: grid;
+	gap: 4px;
+}
+.mkt-studio-card.is-on,
+.mkt-studio-card:hover {
+	border-color: #1c9bd8;
+	box-shadow: 0 2px 10px rgba(28,155,216,.12);
+}
+.mkt-studio-card strong { color: #0b6ea8; font-size: 14px; }
+.mkt-studio-card span { color: #5b6570; font-size: 12px; line-height: 1.35; }
+.mkt-studio-backgrounds {
+	grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+}
+.mkt-bg-swatch {
+	border: 1px solid #d5dde6;
+	background: #fff;
+	border-radius: 8px;
+	padding: 6px;
+	cursor: pointer;
+	display: grid;
+	gap: 4px;
+	justify-items: center;
+}
+.mkt-bg-swatch.is-on { border-color: #1c9bd8; }
+.mkt-bg-thumb {
+	width: 100%;
+	aspect-ratio: 1;
+	border-radius: 6px;
+	background-size: cover;
+	background-position: center;
+	display: block;
+}
+.mkt-bg-swatch small {
+	font-size: 10px;
+	color: #5b6570;
+	text-align: center;
+	line-height: 1.2;
+}
+.mkt-library-upload {
+	margin: 10px 0 4px;
+	padding: 10px;
+	border: 1px dashed #b9dced;
+	border-radius: 8px;
+	background: #f4f8fb;
+	display: grid;
+	gap: 8px;
+}
+.mkt-extra-text { display: flex; gap: 8px; margin-bottom: 8px; }
+.mkt-extra-text input { flex: 1; }
+.mkt-layer-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	align-items: center;
+	padding: 6px 0;
+	border-bottom: 1px solid #e6ebf0;
+	font-size: 13px;
+}
+.mkt-studio-stage { display: grid; gap: 12px; }
+.mkt-canvas-wrap {
+	background: #d9e1ea;
+	border-radius: 12px;
+	padding: 16px;
+	display: grid;
+	place-items: center;
+}
+.mkt-canvas-wrap canvas {
+	width: min(100%, 360px);
+	height: auto;
+	background: #111;
+	border-radius: 8px;
+	box-shadow: 0 10px 30px rgba(0,0,0,.18);
+}
+.mkt-studio-export {
+	padding: 14px 16px;
+	margin: 0;
+}
+.mkt-studio-export h3 {
+	margin: 0 0 10px;
+	font-size: 15px;
+	color: #0b6ea8;
+}
+@media (max-width: 960px) {
+	.mkt-studio-layout { grid-template-columns: 1fr; }
+}
 @media (max-width: 720px) {
 	.mkt-doc-card { grid-template-columns: auto 1fr; }
 	.mkt-doc-actions { grid-column: 1 / -1; }

@@ -121,6 +121,8 @@ final class App
 			['POST', '#^/marketing/plantillas/(\d+)$#', [Controllers\MarketingController::class, 'updateTemplate']],
 			['GET', '#^/marketing/recursos$#', [Controllers\MarketingController::class, 'resources']],
 			['POST', '#^/marketing/recursos$#', [Controllers\MarketingController::class, 'storeResource']],
+			['POST', '#^/marketing/recursos/diseno$#', [Controllers\MarketingController::class, 'saveDesign']],
+			['POST', '#^/marketing/recursos/biblioteca$#', [Controllers\MarketingController::class, 'storeLibrary']],
 			['POST', '#^/marketing/recursos/(\d+)/eliminar$#', [Controllers\MarketingController::class, 'destroyResource']],
 			['GET', '#^/marketing/recursos/(\d+)/descargar$#', [Controllers\MarketingController::class, 'downloadResource']],
 			['GET', '#^/marketing/nuevo$#', [Controllers\MarketingController::class, 'compose']],
