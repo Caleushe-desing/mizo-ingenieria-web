@@ -22,7 +22,7 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion') || (bool) preg_match('#^/co
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=63">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=64">
 </head>
 <body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?><?= $onQuoteEditor ? ' is-quote-editor' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
 	<header class="titlebar">
