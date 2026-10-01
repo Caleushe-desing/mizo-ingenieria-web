@@ -57,7 +57,12 @@
 					?>
 					<tr>
 						<td><?= h($product['sku']) ?></td>
-						<td><?= h($product['nombre']) ?></td>
+						<td>
+							<?= h($product['nombre']) ?>
+							<?php if (!empty($product['servicio_profesional'])): ?>
+								<div class="muted" style="font-size:12px">Interno CRM · no sale a la web</div>
+							<?php endif; ?>
+						</td>
 						<td><?= h($product['categoria']) ?></td>
 						<td><?= (int) ($product['precio_compra_iva'] ?? 0) > 0 ? money((int) $product['precio_compra_iva']) : '—' ?></td>
 						<td>
@@ -68,18 +73,26 @@
 							<?php endif; ?>
 						</td>
 						<td><?= h($product['proveedor_empresa']) ?></td>
-						<td><a href="<?= h($product['proveedor_link']) ?>" target="_blank" rel="noopener noreferrer"><?= h($host) ?></a></td>
-						<td><?= (int) $product['activo'] === 1 ? 'Visible' : 'Oculto' ?></td>
+						<td>
+							<?php if (trim((string) ($product['proveedor_link'] ?? '')) !== ''): ?>
+								<a href="<?= h($product['proveedor_link']) ?>" target="_blank" rel="noopener noreferrer"><?= h($host) ?></a>
+							<?php else: ?>
+								<span class="muted">—</span>
+							<?php endif; ?>
+						</td>
+						<td><?= !empty($product['servicio_profesional']) ? 'Interno' : ((int) $product['activo'] === 1 ? 'Visible' : 'Oculto') ?></td>
 						<td>
 							<a href="<?= h(Http::url('/catalogo/' . $product['id'])) ?>">Editar</a>
-							<form method="post" action="<?= h(Http::url('/catalogo/' . $product['id'] . '/visibilidad')) ?>" style="display:inline">
-								<?= Csrf::field() ?>
-								<button class="btn-text" type="submit"><?= (int) $product['activo'] === 1 ? 'Ocultar' : 'Mostrar' ?></button>
-							</form>
-							<form method="post" action="<?= h(Http::url('/catalogo/' . $product['id'] . '/eliminar')) ?>" style="display:inline" onsubmit="return confirm('¿Eliminar <?= h($product['sku']) ?> del catálogo?');">
-								<?= Csrf::field() ?>
-								<button class="btn-danger-text" type="submit">Eliminar</button>
-							</form>
+							<?php if (empty($product['servicio_profesional'])): ?>
+								<form method="post" action="<?= h(Http::url('/catalogo/' . $product['id'] . '/visibilidad')) ?>" style="display:inline">
+									<?= Csrf::field() ?>
+									<button class="btn-text" type="submit"><?= (int) $product['activo'] === 1 ? 'Ocultar' : 'Mostrar' ?></button>
+								</form>
+								<form method="post" action="<?= h(Http::url('/catalogo/' . $product['id'] . '/eliminar')) ?>" style="display:inline" onsubmit="return confirm('¿Eliminar <?= h($product['sku']) ?> del catálogo?');">
+									<?= Csrf::field() ?>
+									<button class="btn-danger-text" type="submit">Eliminar</button>
+								</form>
+							<?php endif; ?>
 						</td>
 					</tr>
 				<?php endforeach; ?>

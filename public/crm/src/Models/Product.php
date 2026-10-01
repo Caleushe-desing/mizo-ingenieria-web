@@ -7,13 +7,55 @@ use MizoCrm\Record;
 
 final class Product extends Record
 {
+	public const SERVICE_SKU = 'MIZO-SP';
+
 	protected static function table(): string
 	{
 		return 'products';
 	}
 
+	public static function isProfessionalService(?array $product): bool
+	{
+		if (!$product) {
+			return false;
+		}
+		return strcasecmp(trim((string) ($product['sku'] ?? '')), self::SERVICE_SKU) === 0;
+	}
+
+	/** Garantiza el producto interno "Servicio profesional" (oculto en web). */
+	public static function ensureProfessionalService(): ?array
+	{
+		$existing = self::findBySku(self::SERVICE_SKU);
+		if ($existing) {
+			if ((int) ($existing['activo'] ?? 1) !== 0) {
+				self::update((int) $existing['id'], [
+					'activo' => 0,
+					'updated_at' => date('c'),
+				]);
+				$existing['activo'] = 0;
+			}
+			return $existing;
+		}
+		$now = date('c');
+		$id = self::insert([
+			'sku' => self::SERVICE_SKU,
+			'nombre' => 'Servicio profesional',
+			'descripcion' => 'Servicio profesional Mizo. El costo se arma en la cotización con ítems netos y se convierte a c/IVA.',
+			'categoria' => 'Servicios',
+			'proveedor_empresa' => 'Mizo Ingeniería',
+			'proveedor_link' => '',
+			'activo' => 0,
+			'precio_compra_iva' => 0,
+			'imagenes' => '[]',
+			'created_at' => $now,
+			'updated_at' => $now,
+		]);
+		return self::find((int) $id);
+	}
+
 	public static function catalog(string $query = ''): array
 	{
+		self::ensureProfessionalService();
 		$sql = 'SELECT p.*,
 				(SELECT COUNT(DISTINCT qi.quote_id)
 				 FROM quote_items qi
@@ -36,6 +78,7 @@ final class Product extends Record
 		foreach ($rows as &$row) {
 			$row['quote_count'] = (int) ($row['quote_count'] ?? 0);
 			$row['units_quoted'] = (float) ($row['units_quoted'] ?? 0);
+			$row['servicio_profesional'] = self::isProfessionalService($row);
 		}
 		unset($row);
 		return $rows;
@@ -85,6 +128,7 @@ final class Product extends Record
 	/** Catálogo para el cotizador: ficha oficial + costo c/IVA + enlace del proveedor. */
 	public static function forQuoting(string $query = ''): array
 	{
+		self::ensureProfessionalService();
 		$sql = 'SELECT id, sku, nombre, descripcion, categoria, precio_compra_iva, proveedor_link, proveedor_empresa
 			FROM products';
 		$params = [];
@@ -94,7 +138,7 @@ final class Product extends Record
 			$like = '%' . $term . '%';
 			$params = [$like, $like, $like, $like];
 		}
-		$sql .= ' ORDER BY categoria COLLATE NOCASE, nombre COLLATE NOCASE, sku COLLATE NOCASE';
+		$sql .= ' ORDER BY CASE WHEN sku = ' . static::pdo()->quote(self::SERVICE_SKU) . ' THEN 0 ELSE 1 END, categoria COLLATE NOCASE, nombre COLLATE NOCASE, sku COLLATE NOCASE';
 		$stmt = static::pdo()->prepare($sql);
 		$stmt->execute($params);
 		$rows = $stmt->fetchAll();
@@ -103,6 +147,7 @@ final class Product extends Record
 			$row['precio_compra_iva'] = (int) ($row['precio_compra_iva'] ?? 0);
 			$row['proveedor_link'] = (string) ($row['proveedor_link'] ?? '');
 			$row['proveedor_empresa'] = (string) ($row['proveedor_empresa'] ?? '');
+			$row['servicio_profesional'] = self::isProfessionalService($row);
 		}
 		unset($row);
 		return $rows;

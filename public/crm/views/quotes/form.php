@@ -196,7 +196,22 @@ foreach ($contacts as $c) {
 								</button>
 							<?php endif; ?>
 							<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
+							<input type="hidden" name="item_service_breakdown[]" value="<?= h((string) ($item['service_breakdown'] ?? '')) ?>" data-service-breakdown>
 							<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $locked ? 'readonly' : '' ?>>
+							<?php
+							$isService = false;
+							if ($productId > 0) {
+								foreach ($catalogProducts as $catalogProduct) {
+									if ((int) $catalogProduct['id'] === $productId && !empty($catalogProduct['servicio_profesional'])) {
+										$isService = true;
+										break;
+									}
+								}
+							}
+							?>
+							<?php if (!$locked): ?>
+								<button class="btn-text" type="button" data-service-edit<?= $isService ? '' : ' hidden' ?>>Editar desglose servicio</button>
+							<?php endif; ?>
 						</div>
 						<label class="quote-desc-cell">
 							<span class="quote-line-label">Descripción / especificaciones</span>
@@ -206,7 +221,7 @@ foreach ($contacts as $c) {
 					<div class="quote-line-metrics">
 						<label><span>Cant.</span><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $locked ? 'readonly' : '' ?>></label>
 						<label><span>Unidad</span><input name="item_unit[]" value="<?= h($item['unit'] ?? 'un') ?>" <?= $locked ? 'readonly' : '' ?>></label>
-						<label><span>Costo c/IVA</span><input name="item_cost[]" inputmode="numeric" value="<?= $cost > 0 ? h((string) $cost) : '' ?>" placeholder="0" <?= $locked ? 'readonly' : '' ?>></label>
+						<label><span>Costo c/IVA</span><input name="item_cost[]" inputmode="numeric" value="<?= $cost > 0 ? h((string) $cost) : '' ?>" placeholder="0" <?= $locked || $isService ? 'readonly' : '' ?> data-cost-field></label>
 						<div class="quote-supplier-cell">
 							<span class="quote-line-label">URL proveedor</span>
 							<div class="catalog-supplier" data-catalog-supplier<?= $supplierHref === '' ? ' hidden' : '' ?>>

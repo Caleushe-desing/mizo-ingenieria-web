@@ -134,6 +134,14 @@ final class ProductController
 		if (!$product) {
 			Http::redirect('/catalogo');
 		}
+		if (Product::isProfessionalService($product)) {
+			Product::update((int) $product['id'], [
+				'activo' => 0,
+				'updated_at' => date('c'),
+			]);
+			View::flash('error', 'Servicio profesional es interno del CRM y no se publica en la web.');
+			Http::redirect('/catalogo');
+		}
 		$visible = (int) $product['activo'] === 1 ? 0 : 1;
 		Product::update((int) $product['id'], [
 			'activo' => $visible,
@@ -148,6 +156,10 @@ final class ProductController
 		Auth::requireAdmin();
 		Csrf::check();
 		$product = Product::find((int) $id);
+		if ($product && Product::isProfessionalService($product)) {
+			View::flash('error', 'Servicio profesional no se puede eliminar: se usa en el cotizador.');
+			Http::redirect('/catalogo');
+		}
 		if ($product) {
 			Product::delete((int) $product['id']);
 			View::flash('ok', 'Producto ' . $product['sku'] . ' eliminado del catálogo.');

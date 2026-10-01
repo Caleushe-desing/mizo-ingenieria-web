@@ -187,7 +187,24 @@
 		}
 	}
 
-	function applyCatalogProduct(row, productId) {
+	function isServiceProduct(product) {
+		return !!(product && (product.servicio_profesional || String(product.sku || '').toUpperCase() === 'MIZO-SP'));
+	}
+
+	function syncServiceUi(row, product) {
+		const editBtn = row.querySelector('[data-service-edit]');
+		const costInput = row.querySelector('[name="item_cost[]"]');
+		const breakdown = row.querySelector('[data-service-breakdown]');
+		const service = isServiceProduct(product);
+		if (editBtn) editBtn.hidden = !service;
+		if (!service && breakdown) breakdown.value = '';
+		if (costInput) {
+			if (service) costInput.readOnly = true;
+		}
+	}
+
+	function applyCatalogProduct(row, productId, options) {
+		const opts = options || {};
 		const pidInput = row.querySelector('[name="item_product_id[]"]');
 		const nameInput = row.querySelector('[name="item_name[]"]');
 		const descInput = row.querySelector('[name="item_description[]"]');
@@ -196,19 +213,27 @@
 			if (pidInput) pidInput.value = '';
 			syncSupplierLink(row, null);
 			syncCatalogLabel(row, null);
+			syncServiceUi(row, null);
 			return;
 		}
 		const product = catalog[String(productId)];
 		if (!product) return;
 		if (pidInput) pidInput.value = String(product.id);
 		if (nameInput) nameInput.value = product.nombre || '';
-		if (descInput) descInput.value = product.descripcion || '';
+		syncSupplierLink(row, product);
+		syncCatalogLabel(row, product);
+		syncServiceUi(row, product);
+		if (isServiceProduct(product)) {
+			if (costInput && !opts.keepCost) costInput.value = '';
+			if (!opts.skipBuilder) openServiceBuilder(row, product);
+			return;
+		}
+		if (descInput && !opts.keepDesc) descInput.value = product.descripcion || '';
 		if (costInput) {
 			const cost = Number(product.precio_compra_iva) || 0;
 			costInput.value = cost > 0 ? String(cost) : '';
+			costInput.readOnly = false;
 		}
-		syncSupplierLink(row, product);
-		syncCatalogLabel(row, product);
 	}
 
 	function filterProducts(query) {
@@ -224,6 +249,226 @@
 			].join(' ').toLowerCase();
 			return hay.indexOf(term) !== -1;
 		});
+	}
+
+	let serviceRoot = null;
+	let serviceTargetRow = null;
+
+	function parseServiceBreakdown(raw) {
+		try {
+			const data = JSON.parse(raw || '');
+			if (!data || typeof data !== 'object') return { lines: [{ concept: '', amount: '' }], extra_percent: 0 };
+			const lines = Array.isArray(data.lines) ? data.lines : [];
+			const clean = lines.map(function (line) {
+				return {
+					concept: String(line && line.concept != null ? line.concept : ''),
+					amount: line && line.amount != null && line.amount !== '' ? String(line.amount) : '',
+				};
+			}).filter(function (line) {
+				return line.concept || line.amount;
+			});
+			return {
+				lines: clean.length ? clean : [{ concept: '', amount: '' }],
+				extra_percent: Number(data.extra_percent) || 0,
+			};
+		} catch (e) {
+			return { lines: [{ concept: '', amount: '' }], extra_percent: 0 };
+		}
+	}
+
+	function ensureServiceBuilder() {
+		if (serviceRoot) return serviceRoot;
+		serviceRoot = document.createElement('div');
+		serviceRoot.id = 'service-cost-modal';
+		serviceRoot.className = 'service-cost-modal';
+		serviceRoot.hidden = true;
+		serviceRoot.innerHTML = ''
+			+ '<div class="service-cost-backdrop" data-service-close></div>'
+			+ '<div class="service-cost-panel" role="dialog" aria-modal="true" aria-label="Desglose servicio profesional">'
+			+ '<header class="service-cost-hd">'
+			+ '<div><h2>Servicio profesional</h2><p class="muted">Ítems en valores netos. El total se convierte a costo c/IVA (+19%). El margen de utilidad se define en la partida.</p></div>'
+			+ '<button type="button" class="btn" data-service-close>Cerrar</button>'
+			+ '</header>'
+			+ '<div class="service-cost-body">'
+			+ '<div class="service-cost-lines" data-service-lines></div>'
+			+ '<button type="button" class="btn btn-text" data-service-add>+ Agregar ítem</button>'
+			+ '<div class="service-cost-totals">'
+			+ '<div><span>Suma neta</span><b data-service-sum>$0</b></div>'
+			+ '<label><span>Adicional % sobre la suma</span><input data-service-extra inputmode="decimal" placeholder="0"></label>'
+			+ '<div><span>Total neto</span><b data-service-net>$0</b></div>'
+			+ '<div><span>Costo c/IVA (+19%)</span><b data-service-iva>$0</b></div>'
+			+ '</div>'
+			+ '</div>'
+			+ '<footer class="service-cost-actions">'
+			+ '<button type="button" class="btn" data-service-close>Cancelar</button>'
+			+ '<button type="button" class="btn btn-word" data-service-apply>Aplicar a la partida</button>'
+			+ '</footer>'
+			+ '</div>';
+		document.body.appendChild(serviceRoot);
+		serviceRoot.addEventListener('click', function (event) {
+			if (closestEl(event.target, '[data-service-close]')) {
+				event.preventDefault();
+				closeServiceBuilder(false);
+				return;
+			}
+			if (closestEl(event.target, '[data-service-add]')) {
+				event.preventDefault();
+				addServiceLine('', '');
+				recalcServiceBuilder();
+				return;
+			}
+			if (closestEl(event.target, '[data-service-remove]')) {
+				event.preventDefault();
+				const line = closestEl(event.target, '[data-service-line]');
+				if (line) line.remove();
+				const box = serviceRoot.querySelector('[data-service-lines]');
+				if (box && !box.querySelector('[data-service-line]')) addServiceLine('', '');
+				recalcServiceBuilder();
+				return;
+			}
+			if (closestEl(event.target, '[data-service-apply]')) {
+				event.preventDefault();
+				applyServiceBuilder();
+			}
+		});
+		serviceRoot.addEventListener('input', function (event) {
+			if (closestEl(event.target, '[data-service-line]') || closestEl(event.target, '[data-service-extra]')) {
+				recalcServiceBuilder();
+			}
+		});
+		document.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape' && serviceRoot && !serviceRoot.hidden) {
+				closeServiceBuilder(false);
+			}
+		});
+		return serviceRoot;
+	}
+
+	function addServiceLine(concept, amount) {
+		const box = serviceRoot.querySelector('[data-service-lines]');
+		if (!box) return;
+		const row = document.createElement('div');
+		row.className = 'service-cost-line';
+		row.setAttribute('data-service-line', '');
+		row.innerHTML = ''
+			+ '<label><span>Concepto</span><input data-service-concept placeholder="Ej: Ingeniería, programación…" value="' + escapeHtml(concept) + '"></label>'
+			+ '<label><span>Monto neto</span><input data-service-amount inputmode="numeric" placeholder="0" value="' + escapeHtml(amount) + '"></label>'
+			+ '<button type="button" class="btn-text" data-service-remove aria-label="Quitar ítem">Quitar</button>';
+		box.appendChild(row);
+	}
+
+	function serviceBuilderValues() {
+		const lines = [];
+		let sum = 0;
+		serviceRoot.querySelectorAll('[data-service-line]').forEach(function (row) {
+			const concept = String((row.querySelector('[data-service-concept]') || {}).value || '').trim();
+			const amountRaw = (row.querySelector('[data-service-amount]') || {}).value || '';
+			const amount = parseMoney(amountRaw);
+			if (!concept && !amount) return;
+			lines.push({ concept: concept || 'Ítem', amount: Math.round(amount) });
+			sum += amount;
+		});
+		const extraInput = serviceRoot.querySelector('[data-service-extra]');
+		const extra = Math.max(0, parsePercent(extraInput ? extraInput.value : '0'));
+		const extraMoney = sum * (extra / 100);
+		const netTotal = Math.round(sum + extraMoney);
+		const costIva = Math.round(netTotal * (1 + taxRate / 100));
+		return {
+			lines: lines,
+			extra_percent: extra,
+			sum_net: Math.round(sum),
+			net_total: netTotal,
+			cost_iva: costIva,
+		};
+	}
+
+	function recalcServiceBuilder() {
+		if (!serviceRoot) return;
+		const values = serviceBuilderValues();
+		const sumEl = serviceRoot.querySelector('[data-service-sum]');
+		const netEl = serviceRoot.querySelector('[data-service-net]');
+		const ivaEl = serviceRoot.querySelector('[data-service-iva]');
+		if (sumEl) sumEl.textContent = formatMoney(values.sum_net);
+		if (netEl) netEl.textContent = formatMoney(values.net_total);
+		if (ivaEl) ivaEl.textContent = formatMoney(values.cost_iva);
+	}
+
+	function openServiceBuilder(row, product) {
+		ensureServiceBuilder();
+		serviceTargetRow = row;
+		const breakdownInput = row.querySelector('[data-service-breakdown]');
+		const data = parseServiceBreakdown(breakdownInput ? breakdownInput.value : '');
+		const box = serviceRoot.querySelector('[data-service-lines]');
+		if (box) box.innerHTML = '';
+		data.lines.forEach(function (line) {
+			addServiceLine(line.concept, line.amount);
+		});
+		const extraInput = serviceRoot.querySelector('[data-service-extra]');
+		if (extraInput) {
+			extraInput.value = data.extra_percent > 0
+				? String(data.extra_percent).replace('.', ',')
+				: '';
+		}
+		recalcServiceBuilder();
+		serviceRoot.hidden = false;
+		document.body.classList.add('service-cost-open');
+		const first = serviceRoot.querySelector('[data-service-concept]');
+		if (first) first.focus();
+	}
+
+	function closeServiceBuilder(applied) {
+		if (!serviceRoot) return;
+		serviceRoot.hidden = true;
+		document.body.classList.remove('service-cost-open');
+		if (!applied && serviceTargetRow) {
+			const costInput = serviceTargetRow.querySelector('[name="item_cost[]"]');
+			const breakdown = serviceTargetRow.querySelector('[data-service-breakdown]');
+			const hasCost = costInput && parseMoney(costInput.value) > 0;
+			const hasBreakdown = breakdown && String(breakdown.value || '').trim() !== '';
+			if (!hasCost && !hasBreakdown) {
+				// Si canceló sin desglose, deja el producto elegido pero sin costo.
+				syncServiceUi(serviceTargetRow, catalog[String((serviceTargetRow.querySelector('[name="item_product_id[]"]') || {}).value || '')] || null);
+			}
+		}
+		serviceTargetRow = null;
+	}
+
+	function applyServiceBuilder() {
+		if (!serviceTargetRow || !serviceRoot) return;
+		const values = serviceBuilderValues();
+		if (!values.lines.length || values.net_total <= 0) {
+			alert('Agrega al menos un ítem con monto neto.');
+			return;
+		}
+		const row = serviceTargetRow;
+		const costInput = row.querySelector('[name="item_cost[]"]');
+		const descInput = row.querySelector('[name="item_description[]"]');
+		const nameInput = row.querySelector('[name="item_name[]"]');
+		const breakdown = row.querySelector('[data-service-breakdown]');
+		const payload = {
+			lines: values.lines,
+			extra_percent: values.extra_percent,
+			sum_net: values.sum_net,
+			net_total: values.net_total,
+			cost_iva: values.cost_iva,
+		};
+		if (breakdown) breakdown.value = JSON.stringify(payload);
+		if (costInput) {
+			costInput.value = String(values.cost_iva);
+			costInput.readOnly = true;
+		}
+		if (nameInput && !String(nameInput.value || '').trim()) {
+			nameInput.value = 'Servicio profesional';
+		}
+		if (descInput) {
+			const names = values.lines.map(function (line) { return '- ' + line.concept; });
+			descInput.value = 'Servicio profesional:\n' + names.join('\n');
+		}
+		syncServiceUi(row, catalog[String((row.querySelector('[name="item_product_id[]"]') || {}).value || '')] || { servicio_profesional: true });
+		recalc();
+		closeServiceBuilder(true);
+		const margin = row.querySelector('[name="item_margin[]"]');
+		if (margin) margin.focus();
 	}
 
 	function showPickerSearch() {
@@ -419,18 +664,21 @@
 		} else {
 			html += matches.map(function (product) {
 				const cost = Number(product.precio_compra_iva) || 0;
-				const desc = String(product.descripcion || '').replace(/\s+/g, ' ').trim();
+				const service = isServiceProduct(product);
+				const desc = String(service
+					? 'Arma el costo con ítems netos. El margen se define en la partida.'
+					: (product.descripcion || '')).replace(/\s+/g, ' ').trim();
 				const short = desc.length > 120 ? desc.slice(0, 120) + '…' : desc;
 				return ''
-					+ '<button type="button" class="catalog-search-item" data-catalog-choose="' + escapeHtml(product.id) + '">'
+					+ '<button type="button" class="catalog-search-item' + (service ? ' is-service' : '') + '" data-catalog-choose="' + escapeHtml(product.id) + '">'
 					+ '<div class="catalog-search-item-top">'
 					+ '<strong>' + escapeHtml(product.nombre || '') + '</strong>'
-					+ '<span>' + escapeHtml(product.sku || '') + '</span>'
+					+ '<span>' + escapeHtml(service ? 'Interno CRM' : (product.sku || '')) + '</span>'
 					+ '</div>'
 					+ (short ? '<p>' + escapeHtml(short) + '</p>' : '')
 					+ '<div class="catalog-search-meta">'
-					+ '<span>' + escapeHtml(product.categoria || 'Sin categoría') + '</span>'
-					+ '<span>' + (cost > 0 ? formatMoney(cost) + ' c/IVA' : 'Sin costo') + '</span>'
+					+ '<span>' + escapeHtml(service ? 'Servicios' : (product.categoria || 'Sin categoría')) + '</span>'
+					+ '<span>' + (service ? 'Desglose al elegir' : (cost > 0 ? formatMoney(cost) + ' c/IVA' : 'Sin costo')) + '</span>'
 					+ '</div>'
 					+ '</button>';
 			}).join('');
@@ -621,11 +869,15 @@
 			const choose = closestEl(event.target, '[data-catalog-choose]');
 			if (choose && activeRow) {
 				const targetRow = activeRow;
-				applyCatalogProduct(targetRow, choose.getAttribute('data-catalog-choose'));
-				recalc();
+				const chosenId = choose.getAttribute('data-catalog-choose');
+				const chosenProduct = catalog[String(chosenId || '')];
 				closePicker();
-				const focus = targetRow.querySelector('[name="item_margin[]"]') || targetRow.querySelector('[name="item_name[]"]');
-				if (focus) focus.focus();
+				applyCatalogProduct(targetRow, chosenId);
+				recalc();
+				if (!isServiceProduct(chosenProduct)) {
+					const focus = targetRow.querySelector('[name="item_margin[]"]') || targetRow.querySelector('[name="item_name[]"]');
+					if (focus) focus.focus();
+				}
 			}
 		});
 
@@ -751,6 +1003,15 @@
 				openPicker(row);
 			});
 		}
+		const serviceEdit = row.querySelector('[data-service-edit]');
+		if (serviceEdit && !serviceEdit.dataset.bound) {
+			serviceEdit.dataset.bound = '1';
+			serviceEdit.addEventListener('click', function () {
+				const pidInput = row.querySelector('[name="item_product_id[]"]');
+				const product = catalog[String(pidInput ? pidInput.value : '')] || { servicio_profesional: true, nombre: 'Servicio profesional' };
+				openServiceBuilder(row, product);
+			});
+		}
 		const remove = row.querySelector('[data-remove]');
 		if (remove && !remove.dataset.bound) {
 			remove.dataset.bound = '1';
@@ -770,6 +1031,7 @@
 		if (productId && catalog[productId]) {
 			syncSupplierLink(row, catalog[productId]);
 			syncCatalogLabel(row, catalog[productId]);
+			syncServiceUi(row, catalog[productId]);
 		}
 	});
 	renumberLines();
@@ -785,13 +1047,16 @@
 				if (name === 'item_quantity[]') input.value = '1';
 				else if (name === 'item_unit[]') input.value = 'un';
 				else input.value = '';
-				if (name === 'item_price[]') input.readOnly = false;
+				if (name === 'item_price[]' || name === 'item_cost[]') input.readOnly = false;
 			});
-			row.querySelectorAll('[data-catalog-open], [data-remove]').forEach(function (btn) {
+			row.querySelectorAll('[data-catalog-open], [data-remove], [data-service-edit]').forEach(function (btn) {
 				delete btn.dataset.bound;
 			});
+			const serviceEditBtn = row.querySelector('[data-service-edit]');
+			if (serviceEditBtn) serviceEditBtn.hidden = true;
 			syncSupplierLink(row, null);
 			syncCatalogLabel(row, null);
+			syncServiceUi(row, null);
 			const line = row.querySelector('[data-line]');
 			if (line) line.textContent = '$0';
 			list.appendChild(row);

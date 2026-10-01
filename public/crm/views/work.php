@@ -193,13 +193,28 @@ $tab = $deal ? 'actividad' : 'datos';
 										<span data-catalog-label><?= h($pickedLabel) ?></span>
 									</button>
 								<?php endif; ?>
+								<?php
+								$isService = false;
+								if ($productId > 0) {
+									foreach ($catalogProducts as $catalogProduct) {
+										if ((int) $catalogProduct['id'] === $productId && !empty($catalogProduct['servicio_profesional'])) {
+											$isService = true;
+											break;
+										}
+									}
+								}
+								?>
 								<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
+								<input type="hidden" name="item_service_breakdown[]" value="<?= h((string) ($item['service_breakdown'] ?? '')) ?>" data-service-breakdown>
 								<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $quoteLocked ? 'readonly' : '' ?>>
+								<?php if (!$quoteLocked): ?>
+									<button class="btn-text" type="button" data-service-edit<?= $isService ? '' : ' hidden' ?>>Editar desglose</button>
+								<?php endif; ?>
 							</td>
 							<td><textarea name="item_description[]" rows="2" placeholder="Especificaciones…" <?= $quoteLocked ? 'readonly' : '' ?>><?= h($detail) ?></textarea></td>
 							<td><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
 							<td><input name="item_unit[]" value="<?= h($item['unit'] ?? 'un') ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
-							<td><input name="item_cost[]" value="<?= $cost > 0 ? h((string) $cost) : '' ?>" placeholder="0" <?= $quoteLocked ? 'readonly' : '' ?>></td>
+							<td><input name="item_cost[]" value="<?= $cost > 0 ? h((string) $cost) : '' ?>" placeholder="0" <?= $quoteLocked || $isService ? 'readonly' : '' ?> data-cost-field></td>
 							<?php
 							$supplierHref = '';
 							if ($productId > 0) {

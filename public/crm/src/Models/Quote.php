@@ -233,8 +233,8 @@ final class Quote extends Record
 		$subtotal = 0;
 		$position = 0;
 		$insert = self::pdo()->prepare(
-			'INSERT INTO quote_items (quote_id, position, product_id, name, description, quantity, unit, cost_price, margin_percent, unit_price, total)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+			'INSERT INTO quote_items (quote_id, position, product_id, name, description, quantity, unit, cost_price, margin_percent, unit_price, total, service_breakdown)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 		);
 		foreach ($items as $item) {
 			$name = trim((string) ($item['name'] ?? ''));
@@ -260,7 +260,8 @@ final class Quote extends Record
 				$price = self::netSaleFromCost($cost, $margin);
 			}
 			$total = (int) round($qty * $price);
-			$insert->execute([$quoteId, $position, $productId, $name, $description, $qty, $unit, $cost, $margin, $price, $total]);
+			$breakdown = self::normalizeServiceBreakdown($item['service_breakdown'] ?? null);
+			$insert->execute([$quoteId, $position, $productId, $name, $description, $qty, $unit, $cost, $margin, $price, $total, $breakdown]);
 			$subtotal += $total;
 			$position++;
 		}
@@ -325,6 +326,7 @@ final class Quote extends Record
 		$margins = $_POST['item_margin'] ?? [];
 		$prices = $_POST['item_price'] ?? [];
 		$productIds = $_POST['item_product_id'] ?? [];
+		$breakdowns = $_POST['item_service_breakdown'] ?? [];
 		$items = [];
 		$keys = is_array($names) && $names !== [] ? $names : $descriptions;
 		if (!is_array($keys)) {
@@ -340,9 +342,28 @@ final class Quote extends Record
 				'cost_price' => $costs[$i] ?? 0,
 				'margin_percent' => $margins[$i] ?? 0,
 				'unit_price' => $prices[$i] ?? 0,
+				'service_breakdown' => is_array($breakdowns) ? ($breakdowns[$i] ?? '') : '',
 			];
 		}
 		return $items;
+	}
+
+	private static function normalizeServiceBreakdown(mixed $raw): ?string
+	{
+		if (is_array($raw)) {
+			$encoded = json_encode($raw, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+			return is_string($encoded) && $encoded !== '' && $encoded !== 'null' ? $encoded : null;
+		}
+		$text = trim((string) $raw);
+		if ($text === '') {
+			return null;
+		}
+		$decoded = json_decode($text, true);
+		if (!is_array($decoded)) {
+			return null;
+		}
+		$encoded = json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		return is_string($encoded) ? $encoded : null;
 	}
 
 	public static function itemLabel(array $item): string

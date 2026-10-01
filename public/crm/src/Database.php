@@ -41,6 +41,7 @@ final class Database
 		self::$pdo = $pdo;
 		self::migrate($pdo);
 		self::ensureMailSchema($pdo);
+		self::ensureQuoteServiceSchema($pdo);
 		return $pdo;
 	}
 
@@ -606,6 +607,57 @@ final class Database
 				$pdo->exec('ALTER TABLE quote_items ADD COLUMN product_id INTEGER');
 			}
 			$pdo->exec('PRAGMA user_version = 21');
+			$version = 21;
+		}
+
+		if ($version < 22) {
+			$itemCols = array_column($pdo->query('PRAGMA table_info(quote_items)')->fetchAll(), 'name');
+			if ($itemCols !== [] && !in_array('service_breakdown', $itemCols, true)) {
+				$pdo->exec('ALTER TABLE quote_items ADD COLUMN service_breakdown TEXT');
+			}
+			self::ensureProfessionalServiceProduct($pdo);
+			$pdo->exec('PRAGMA user_version = 22');
+		}
+	}
+
+	/** Producto interno del cotizador: oculto en la web pública. */
+	private static function ensureProfessionalServiceProduct(PDO $pdo): void
+	{
+		$sku = 'MIZO-SP';
+		$exists = $pdo->prepare('SELECT id FROM products WHERE sku = ? COLLATE NOCASE LIMIT 1');
+		$exists->execute([$sku]);
+		if ($exists->fetchColumn()) {
+			$pdo->prepare('UPDATE products SET activo = 0, updated_at = ? WHERE sku = ? COLLATE NOCASE')->execute([date('c'), $sku]);
+			return;
+		}
+		$now = date('c');
+		$pdo->prepare(
+			'INSERT INTO products (sku, nombre, descripcion, categoria, proveedor_empresa, proveedor_link, activo, precio_compra_iva, imagenes, created_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)'
+		)->execute([
+			$sku,
+			'Servicio profesional',
+			'Servicio profesional Mizo. El costo se arma en la cotización con ítems netos y se convierte a c/IVA.',
+			'Servicios',
+			'Mizo Ingeniería',
+			'',
+			'[]',
+			$now,
+			$now,
+		]);
+	}
+
+	/** Garantiza desglose de servicio profesional aunque el schema venga atrasado. */
+	private static function ensureQuoteServiceSchema(PDO $pdo): void
+	{
+		try {
+			$itemCols = array_column($pdo->query('PRAGMA table_info(quote_items)')->fetchAll(), 'name');
+			if ($itemCols !== [] && !in_array('service_breakdown', $itemCols, true)) {
+				$pdo->exec('ALTER TABLE quote_items ADD COLUMN service_breakdown TEXT');
+			}
+			self::ensureProfessionalServiceProduct($pdo);
+		} catch (\Throwable) {
+			// Si aún no existen tablas de cotización, la migración normal las crea.
 		}
 	}
 
