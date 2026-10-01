@@ -11,6 +11,23 @@
 		total: document.querySelector('[data-total]'),
 	};
 
+	function catalogMap() {
+		const el = document.getElementById('quote-catalog-json');
+		if (!el) return {};
+		try {
+			const products = JSON.parse(el.textContent || '[]');
+			const map = {};
+			(products || []).forEach(function (product) {
+				if (product && product.id != null) map[String(product.id)] = product;
+			});
+			return map;
+		} catch (e) {
+			return {};
+		}
+	}
+
+	const catalog = catalogMap();
+
 	function rows() {
 		return list.querySelectorAll('[data-item-row]');
 	}
@@ -48,6 +65,26 @@
 		}
 	}
 
+	function applyCatalogProduct(row, productId) {
+		const pidInput = row.querySelector('[name="item_product_id[]"]');
+		const nameInput = row.querySelector('[name="item_name[]"]');
+		const descInput = row.querySelector('[name="item_description[]"]');
+		const costInput = row.querySelector('[name="item_cost[]"]');
+		if (!productId) {
+			if (pidInput) pidInput.value = '';
+			return;
+		}
+		const product = catalog[String(productId)];
+		if (!product) return;
+		if (pidInput) pidInput.value = String(product.id);
+		if (nameInput) nameInput.value = product.nombre || '';
+		if (descInput) descInput.value = product.descripcion || '';
+		if (costInput) {
+			const cost = Number(product.precio_compra_iva) || 0;
+			costInput.value = cost > 0 ? String(cost) : '';
+		}
+	}
+
 	function recalc() {
 		let neto = 0;
 		rows().forEach(function (row) {
@@ -72,6 +109,14 @@
 		row.querySelectorAll('input, textarea').forEach(function (input) {
 			input.addEventListener('input', recalc);
 		});
+		const pick = row.querySelector('[data-catalog-pick]');
+		if (pick && !pick.dataset.bound) {
+			pick.dataset.bound = '1';
+			pick.addEventListener('change', function () {
+				applyCatalogProduct(row, pick.value);
+				recalc();
+			});
+		}
 		const remove = row.querySelector('[data-remove]');
 		if (remove) {
 			remove.addEventListener('click', function () {
@@ -97,11 +142,16 @@
 				else input.value = '';
 				if (name === 'item_price[]') input.readOnly = false;
 			});
+			const pick = row.querySelector('[data-catalog-pick]');
+			if (pick) {
+				pick.value = '';
+				delete pick.dataset.bound;
+			}
 			const line = row.querySelector('[data-line]');
 			if (line) line.textContent = '$0';
 			list.appendChild(row);
 			bindRow(row);
-			const focus = row.querySelector('[name="item_name[]"]') || row.querySelector('[name="item_description[]"]');
+			const focus = pick || row.querySelector('[name="item_name[]"]') || row.querySelector('[name="item_description[]"]');
 			if (focus) focus.focus();
 			recalc();
 		});

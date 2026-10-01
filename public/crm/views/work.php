@@ -12,6 +12,12 @@ $history = $history ?? [];
 $owner = $owner ?? null;
 $team = $team ?? [];
 $activity = $activity ?? [];
+$catalogProducts = $catalogProducts ?? [];
+$catalogByCategory = [];
+foreach ($catalogProducts as $catalogProduct) {
+	$cat = trim((string) ($catalogProduct['categoria'] ?? '')) ?: 'Sin categoría';
+	$catalogByCategory[$cat][] = $catalogProduct;
+}
 $quoteLocked = in_array($status, ['ganada', 'perdida'], true) || (($quote['status'] ?? '') === 'aceptada');
 $lost = $status === 'perdida';
 $action = $deal ? Http::url('/t/' . $deal['id']) : Http::url('/nueva');
@@ -141,10 +147,11 @@ $tab = $deal ? 'actividad' : 'datos';
 						<button class="btn-ghost" type="button" data-add-item>Agregar</button>
 					<?php endif; ?>
 				</div>
+				<script type="application/json" id="quote-catalog-json"><?= json_encode(array_values($catalogProducts), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 				<table class="sheet quote-sheet quote-lines" data-tax-rate="19">
 					<thead>
 						<tr>
-							<th>Nombre</th>
+							<th>Producto</th>
 							<th>Descripción</th>
 							<th>Cant.</th>
 							<th>Un.</th>
@@ -170,9 +177,27 @@ $tab = $deal ? 'actividad' : 'datos';
 							$name = $detail;
 							$detail = '';
 						}
+						$productId = (int) ($item['product_id'] ?? 0);
 						?>
 						<tr data-item-row>
-							<td><input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $quoteLocked ? 'readonly' : '' ?>></td>
+							<td class="quote-product-cell">
+								<?php if (!$quoteLocked): ?>
+									<select class="catalog-pick" data-catalog-pick aria-label="Elegir del catálogo">
+										<option value="">Ítem libre / elegir catálogo…</option>
+										<?php foreach ($catalogByCategory as $catLabel => $catProducts): ?>
+											<optgroup label="<?= h($catLabel) ?>">
+												<?php foreach ($catProducts as $catalogProduct): ?>
+													<option value="<?= (int) $catalogProduct['id'] ?>" <?= $productId === (int) $catalogProduct['id'] ? 'selected' : '' ?>>
+														<?= h($catalogProduct['sku'] . ' — ' . $catalogProduct['nombre']) ?>
+													</option>
+												<?php endforeach; ?>
+											</optgroup>
+										<?php endforeach; ?>
+									</select>
+								<?php endif; ?>
+								<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
+								<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $quoteLocked ? 'readonly' : '' ?>>
+							</td>
 							<td><textarea name="item_description[]" rows="2" placeholder="Especificaciones…" <?= $quoteLocked ? 'readonly' : '' ?>><?= h($detail) ?></textarea></td>
 							<td><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
 							<td><input name="item_unit[]" value="<?= h($item['unit'] ?? 'un') ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>

@@ -6,7 +6,7 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 <div class="page-head">
 	<div>
 		<h1><?= $isEdit ? 'Editar producto' : 'Nuevo producto' ?></h1>
-		<p><?= !empty($imported) ? 'Revisa los datos importados, asigna el SKU y guarda.' : 'Ficha interna del equipo y del distribuidor en Chile. No es una tienda: no hay precio ni carrito.' ?></p>
+		<p><?= !empty($imported) ? 'Revisa los datos importados, asigna el SKU, el precio de compra y guarda.' : 'Ficha interna del equipo. El precio de compra con IVA se usa en el cotizador para calcular la venta neta.' ?></p>
 	</div>
 </div>
 
@@ -51,6 +51,11 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 	<label>
 		<span>Descripción</span>
 		<textarea name="descripcion" required rows="6"><?= h($product['descripcion'] ?? '') ?></textarea>
+	</label>
+	<label>
+		<span>Precio de compra con IVA</span>
+		<input name="precio_compra_iva" inputmode="numeric" value="<?= (int) ($product['precio_compra_iva'] ?? 0) > 0 ? h((string) (int) $product['precio_compra_iva']) : '' ?>" placeholder="0">
+		<span class="muted" style="display:block;margin-top:4px;font-size:0.9em">Costo interno. En la cotización se combina con el margen % para obtener la venta neta al cliente.</span>
 	</label>
 	<label>
 		<span>Categoría</span>

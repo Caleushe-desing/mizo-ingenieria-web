@@ -2,7 +2,7 @@
 <div class="page-head">
 	<div>
 		<h1>Catálogo de productos</h1>
-		<p>Equipos de referencia para cotizar. El enlace abre la ficha del distribuidor. Visible u oculto define si el equipo se ofrece en el sitio público.</p>
+		<p>Equipos de referencia para cotizar. El precio de compra con IVA alimenta el cotizador; el enlace abre la ficha del distribuidor.</p>
 	</div>
 	<a class="btn btn-word" href="<?= h(Http::url('/catalogo/nuevo')) ?>">Nuevo producto</a>
 </div>
@@ -41,6 +41,7 @@
 						<th>SKU</th>
 						<th>Nombre</th>
 						<th>Categoría</th>
+						<th>Compra c/IVA</th>
 						<th>Proveedor</th>
 						<th>Enlace</th>
 						<th>Estado</th>
@@ -54,6 +55,7 @@
 						<td><?= h($product['sku']) ?></td>
 						<td><?= h($product['nombre']) ?></td>
 						<td><?= h($product['categoria']) ?></td>
+						<td><?= (int) ($product['precio_compra_iva'] ?? 0) > 0 ? money((int) $product['precio_compra_iva']) : '—' ?></td>
 						<td><?= h($product['proveedor_empresa']) ?></td>
 						<td><a href="<?= h($product['proveedor_link']) ?>" target="_blank" rel="noopener noreferrer"><?= h($host) ?></a></td>
 						<td><?= (int) $product['activo'] === 1 ? 'Visible' : 'Oculto' ?></td>

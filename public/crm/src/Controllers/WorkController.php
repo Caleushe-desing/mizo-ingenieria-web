@@ -12,6 +12,7 @@ use MizoCrm\Mailer;
 use MizoCrm\Models\Activity;
 use MizoCrm\Models\Client;
 use MizoCrm\Models\Deal;
+use MizoCrm\Models\Product;
 use MizoCrm\Models\Quote;
 use MizoCrm\Models\User;
 use MizoCrm\View;
@@ -56,6 +57,7 @@ final class WorkController
 			'client' => null,
 			'quote' => null,
 			'items' => [[
+				'product_id' => 0,
 				'name' => Config::defaultLine($service),
 				'description' => '',
 				'quantity' => 1,
@@ -64,6 +66,7 @@ final class WorkController
 				'margin_percent' => 0,
 				'unit_price' => 0,
 			]],
+			'catalogProducts' => Product::forQuoting(),
 			'activity' => [],
 			'status' => 'pendiente',
 			'service' => $service,
@@ -97,6 +100,7 @@ final class WorkController
 		$items = $quote ? Quote::items((int) $quote['id']) : [];
 		if ($items === []) {
 			$items = [[
+				'product_id' => 0,
 				'name' => Config::defaultLine((string) $deal['service']),
 				'description' => '',
 				'quantity' => 1,
@@ -113,6 +117,7 @@ final class WorkController
 			'client' => $client,
 			'quote' => $quote,
 			'items' => $items,
+			'catalogProducts' => Product::forQuoting(),
 			'activity' => Activity::forClient((int) $deal['client_id']),
 			'history' => array_values(array_filter(
 				Client::deals((int) $deal['client_id']),

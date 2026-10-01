@@ -2175,14 +2175,25 @@ body.is-clients .quote-sheet [data-add-item] {
 	background: transparent;
 }
 .sheet-edit textarea:focus { outline: 2px solid #2b88d8; outline-offset: -2px; }
-.quote-lines th:nth-child(1), .quote-lines td:nth-child(1) { width: 18%; min-width: 140px; }
-.quote-lines th:nth-child(2), .quote-lines td:nth-child(2) { width: 22%; min-width: 160px; }
+.quote-lines th:nth-child(1), .quote-lines td:nth-child(1) { width: 20%; min-width: 160px; }
+.quote-lines th:nth-child(2), .quote-lines td:nth-child(2) { width: 20%; min-width: 150px; }
 .quote-lines th:nth-child(3), .quote-lines td:nth-child(3),
 .quote-lines th:nth-child(4), .quote-lines td:nth-child(4) { width: 6%; }
 .quote-lines th:nth-child(5), .quote-lines td:nth-child(5),
 .quote-lines th:nth-child(6), .quote-lines td:nth-child(6),
 .quote-lines th:nth-child(7), .quote-lines td:nth-child(7),
 .quote-lines th:nth-child(8), .quote-lines td:nth-child(8) { width: 9%; }
+.quote-product-cell {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	align-items: stretch;
+}
+.quote-product-cell .catalog-pick {
+	width: 100%;
+	font-size: 0.85em;
+	padding: 4px 6px;
+}
 .quote-lines input[data-sale-net][readonly] {
 	background: #f4f7fa;
 	color: #0f1114;

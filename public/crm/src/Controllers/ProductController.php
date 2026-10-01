@@ -153,6 +153,18 @@ final class ProductController
 		Http::redirect('/catalogo');
 	}
 
+	/** JSON para el cotizador: productos del catálogo con precio de compra c/IVA. */
+	public function quoteSearch(): void
+	{
+		Auth::requireUser();
+		header('Content-Type: application/json; charset=utf-8');
+		header('Cache-Control: no-store');
+		echo json_encode(
+			['products' => Product::forQuoting(Http::string('q', 80))],
+			JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+		);
+	}
+
 	private function postedImages(): array
 	{
 		$decoded = json_decode((string) ($_POST['imagenes'] ?? ''), true);
@@ -182,6 +194,7 @@ final class ProductController
 			'categoria' => '',
 			'proveedor_empresa' => '',
 			'proveedor_link' => '',
+			'precio_compra_iva' => 0,
 			'activo' => 1,
 		];
 	}
@@ -195,6 +208,7 @@ final class ProductController
 			'categoria' => Http::string('categoria', 80),
 			'proveedor_empresa' => Http::string('proveedor_empresa', 160),
 			'proveedor_link' => Http::string('proveedor_link', 500),
+			'precio_compra_iva' => max(0, Http::money('precio_compra_iva')),
 			'activo' => isset($_POST['activo']) ? 1 : 0,
 		];
 	}

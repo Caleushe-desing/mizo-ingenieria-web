@@ -51,4 +51,27 @@ final class Product extends Record
 		);
 		return $stmt->fetchAll();
 	}
+
+	/** Catálogo para el cotizador: id, sku, nombre, descripción y precio de compra c/IVA. */
+	public static function forQuoting(string $query = ''): array
+	{
+		$sql = 'SELECT id, sku, nombre, descripcion, categoria, precio_compra_iva FROM products';
+		$params = [];
+		$term = trim($query);
+		if ($term !== '') {
+			$sql .= ' WHERE sku LIKE ? OR nombre LIKE ? OR categoria LIKE ? OR descripcion LIKE ?';
+			$like = '%' . $term . '%';
+			$params = [$like, $like, $like, $like];
+		}
+		$sql .= ' ORDER BY categoria COLLATE NOCASE, nombre COLLATE NOCASE, sku COLLATE NOCASE';
+		$stmt = static::pdo()->prepare($sql);
+		$stmt->execute($params);
+		$rows = $stmt->fetchAll();
+		foreach ($rows as &$row) {
+			$row['id'] = (int) $row['id'];
+			$row['precio_compra_iva'] = (int) ($row['precio_compra_iva'] ?? 0);
+		}
+		unset($row);
+		return $rows;
+	}
 }

@@ -12,6 +12,7 @@ use MizoCrm\Models\Activity;
 use MizoCrm\Models\Client;
 use MizoCrm\Models\ClientContact;
 use MizoCrm\Models\Deal;
+use MizoCrm\Models\Product;
 use MizoCrm\Models\Quote;
 use MizoCrm\View;
 
@@ -31,6 +32,7 @@ final class QuoteController
 			'projects' => $projects,
 			'quote' => null,
 			'items' => [[
+				'product_id' => 0,
 				'name' => '',
 				'description' => '',
 				'quantity' => 1,
@@ -39,6 +41,7 @@ final class QuoteController
 				'margin_percent' => 0,
 				'unit_price' => 0,
 			]],
+			'catalogProducts' => Product::forQuoting(),
 			'publicUrl' => '',
 		]);
 	}
@@ -57,6 +60,7 @@ final class QuoteController
 			'project' => $deal,
 			'quote' => null,
 			'items' => [[
+				'product_id' => 0,
 				'name' => '',
 				'description' => '',
 				'quantity' => 1,
@@ -65,6 +69,7 @@ final class QuoteController
 				'margin_percent' => 0,
 				'unit_price' => 0,
 			]],
+			'catalogProducts' => Product::forQuoting(),
 			'publicUrl' => '',
 		]);
 	}
@@ -115,6 +120,7 @@ final class QuoteController
 		$items = Quote::items((int) $id);
 		if ($items === []) {
 			$items = [[
+				'product_id' => 0,
 				'name' => '',
 				'description' => '',
 				'quantity' => 1,
@@ -130,6 +136,7 @@ final class QuoteController
 			'project' => Deal::find((int) $quote['deal_id']),
 			'quote' => $quote,
 			'items' => $items,
+			'catalogProducts' => Product::forQuoting(),
 			'publicUrl' => App::absolute('/q/' . $quote['token']),
 		]);
 	}

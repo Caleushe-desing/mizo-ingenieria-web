@@ -593,6 +593,19 @@ final class Database
 				$pdo->exec("UPDATE quote_items SET name = description WHERE TRIM(COALESCE(name, '')) = '' AND TRIM(COALESCE(description, '')) != ''");
 			}
 			$pdo->exec('PRAGMA user_version = 20');
+			$version = 20;
+		}
+
+		if ($version < 21) {
+			$productCols = array_column($pdo->query('PRAGMA table_info(products)')->fetchAll(), 'name');
+			if ($productCols !== [] && !in_array('precio_compra_iva', $productCols, true)) {
+				$pdo->exec('ALTER TABLE products ADD COLUMN precio_compra_iva INTEGER NOT NULL DEFAULT 0');
+			}
+			$itemCols = array_column($pdo->query('PRAGMA table_info(quote_items)')->fetchAll(), 'name');
+			if ($itemCols !== [] && !in_array('product_id', $itemCols, true)) {
+				$pdo->exec('ALTER TABLE quote_items ADD COLUMN product_id INTEGER');
+			}
+			$pdo->exec('PRAGMA user_version = 21');
 		}
 	}
 

@@ -6,6 +6,12 @@ $project = $project ?? null;
 $locked = $quote && in_array($quote['status'], ['aceptada', 'rechazada'], true);
 $sentAlready = $quote && (!empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true));
 $projects = $projects ?? [];
+$catalogProducts = $catalogProducts ?? [];
+$catalogByCategory = [];
+foreach ($catalogProducts as $catalogProduct) {
+	$cat = trim((string) ($catalogProduct['categoria'] ?? '')) ?: 'Sin categoría';
+	$catalogByCategory[$cat][] = $catalogProduct;
+}
 $action = $quote
 	? Http::url('/cotizaciones/' . $quote['id'])
 	: Http::url('/clientes/' . $client['id'] . '/cotizacion');
@@ -136,12 +142,13 @@ $action = $quote
 		</div>
 
 		<h2 class="section-title word">Partidas</h2>
-		<p class="muted">Nombre y descripción del producto, costo con IVA y margen. La venta neta y el total se calculan solos.</p>
+		<p class="muted">Elige un producto del catálogo o escribe un ítem libre. El costo con IVA y el margen definen la venta neta al cliente.</p>
+		<script type="application/json" id="quote-catalog-json"><?= json_encode(array_values($catalogProducts), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 		<div class="table-wrap">
 			<table class="sheet sheet-edit quote-lines" data-tax-rate="19">
 				<thead>
 					<tr>
-						<th>Nombre del producto</th>
+						<th>Producto</th>
 						<th>Descripción</th>
 						<th>Cant.</th>
 						<th>Unidad</th>
@@ -167,10 +174,26 @@ $action = $quote
 						$name = $detail;
 						$detail = '';
 					}
+					$productId = (int) ($item['product_id'] ?? 0);
 					?>
 					<tr data-item-row>
-						<td>
-							<input name="item_name[]" value="<?= h($name) ?>" placeholder="Ej: Parlante de techo JBL" <?= $locked ? 'readonly' : '' ?>>
+						<td class="quote-product-cell">
+							<?php if (!$locked): ?>
+								<select class="catalog-pick" data-catalog-pick aria-label="Elegir del catálogo">
+									<option value="">Ítem libre / elegir catálogo…</option>
+									<?php foreach ($catalogByCategory as $catLabel => $catProducts): ?>
+										<optgroup label="<?= h($catLabel) ?>">
+											<?php foreach ($catProducts as $catalogProduct): ?>
+												<option value="<?= (int) $catalogProduct['id'] ?>" <?= $productId === (int) $catalogProduct['id'] ? 'selected' : '' ?>>
+													<?= h($catalogProduct['sku'] . ' — ' . $catalogProduct['nombre']) ?>
+												</option>
+											<?php endforeach; ?>
+										</optgroup>
+									<?php endforeach; ?>
+								</select>
+							<?php endif; ?>
+							<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
+							<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $locked ? 'readonly' : '' ?>>
 						</td>
 						<td>
 							<textarea name="item_description[]" rows="3" placeholder="Especificaciones técnicas, notas, alcance…" <?= $locked ? 'readonly' : '' ?>><?= h($detail) ?></textarea>

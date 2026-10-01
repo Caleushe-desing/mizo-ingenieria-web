@@ -121,8 +121,8 @@ final class Quote extends Record
 		$subtotal = 0;
 		$position = 0;
 		$insert = self::pdo()->prepare(
-			'INSERT INTO quote_items (quote_id, position, name, description, quantity, unit, cost_price, margin_percent, unit_price, total)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+			'INSERT INTO quote_items (quote_id, position, product_id, name, description, quantity, unit, cost_price, margin_percent, unit_price, total)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 		);
 		foreach ($items as $item) {
 			$name = trim((string) ($item['name'] ?? ''));
@@ -139,6 +139,8 @@ final class Quote extends Record
 				$qty = 1;
 			}
 			$unit = trim((string) ($item['unit'] ?? 'un')) ?: 'un';
+			$productId = (int) ($item['product_id'] ?? 0);
+			$productId = $productId > 0 ? $productId : null;
 			$cost = self::parseMoneyValue($item['cost_price'] ?? 0);
 			$margin = self::parsePercentValue($item['margin_percent'] ?? 0);
 			$price = self::parseMoneyValue($item['unit_price'] ?? 0);
@@ -146,7 +148,7 @@ final class Quote extends Record
 				$price = self::netSaleFromCost($cost, $margin);
 			}
 			$total = (int) round($qty * $price);
-			$insert->execute([$quoteId, $position, $name, $description, $qty, $unit, $cost, $margin, $price, $total]);
+			$insert->execute([$quoteId, $position, $productId, $name, $description, $qty, $unit, $cost, $margin, $price, $total]);
 			$subtotal += $total;
 			$position++;
 		}
@@ -210,6 +212,7 @@ final class Quote extends Record
 		$costs = $_POST['item_cost'] ?? [];
 		$margins = $_POST['item_margin'] ?? [];
 		$prices = $_POST['item_price'] ?? [];
+		$productIds = $_POST['item_product_id'] ?? [];
 		$items = [];
 		$keys = is_array($names) && $names !== [] ? $names : $descriptions;
 		if (!is_array($keys)) {
@@ -217,6 +220,7 @@ final class Quote extends Record
 		}
 		foreach ($keys as $i => $_) {
 			$items[] = [
+				'product_id' => is_array($productIds) ? (int) ($productIds[$i] ?? 0) : 0,
 				'name' => is_array($names) ? ($names[$i] ?? '') : '',
 				'description' => is_array($descriptions) ? ($descriptions[$i] ?? '') : '',
 				'quantity' => $quantities[$i] ?? 1,
