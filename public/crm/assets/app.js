@@ -442,7 +442,6 @@
 		}
 		const row = serviceTargetRow;
 		const costInput = row.querySelector('[name="item_cost[]"]');
-		const descInput = row.querySelector('[name="item_description[]"]');
 		const nameInput = row.querySelector('[name="item_name[]"]');
 		const breakdown = row.querySelector('[data-service-breakdown]');
 		const payload = {
@@ -459,10 +458,6 @@
 		}
 		if (nameInput && !String(nameInput.value || '').trim()) {
 			nameInput.value = 'Servicio profesional';
-		}
-		if (descInput) {
-			const names = values.lines.map(function (line) { return '- ' + line.concept; });
-			descInput.value = 'Servicio profesional:\n' + names.join('\n');
 		}
 		syncServiceUi(row, catalog[String((row.querySelector('[name="item_product_id[]"]') || {}).value || '')] || { servicio_profesional: true });
 		recalc();

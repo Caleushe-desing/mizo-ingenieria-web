@@ -84,6 +84,6 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion') || (bool) preg_match('#^/co
 		<?php endif; ?>
 		<?= $content ?>
 	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=62"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=63"></script>
 </body>
 </html>
