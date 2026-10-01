@@ -22,7 +22,7 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion') || (bool) preg_match('#^/co
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=60">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=61">
 </head>
 <body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?><?= $onQuoteEditor ? ' is-quote-editor' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
 	<header class="titlebar">
@@ -37,7 +37,8 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion') || (bool) preg_match('#^/co
 		</div>
 		<nav class="ribbon-nav" data-crm-nav>
 			<a data-crm-section="tablero" data-crm-fixed data-crm-home="<?= h(Http::url('/')) ?>" class="<?= $onBoard ? 'is-on' : '' ?>" href="<?= h(Http::url('/')) ?>">Tablero</a>
-			<a data-crm-section="clientes" data-crm-fixed data-crm-home="<?= h(Http::url('/clientes')) ?>" class="<?= $onClients ? 'is-on' : '' ?>" href="<?= h(Http::url('/clientes')) ?>">Clientes</a>
+			<a data-crm-section="clientes" data-crm-fixed data-crm-home="<?= h(Http::url('/clientes')) ?>" class="<?= $onClients && !str_starts_with($path, '/cotizaciones') ? 'is-on' : '' ?>" href="<?= h(Http::url('/clientes')) ?>">Clientes</a>
+			<a data-crm-section="cotizaciones" data-crm-fixed data-crm-home="<?= h(Http::url('/cotizaciones')) ?>" class="<?= str_starts_with($path, '/cotizaciones') ? 'is-on' : '' ?>" href="<?= h(Http::url('/cotizaciones')) ?>">Cotizaciones</a>
 			<a id="nav-mail" data-crm-section="correo" data-crm-home="<?= h(Http::url('/correo')) ?>" class="<?= $onMail ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo')) ?>">Correo <span class="mail-badge" id="mail-badge"<?= $unreadMail > 0 ? '' : ' hidden' ?>><?= (int) $unreadMail ?></span></a>
 			<a id="nav-chat" data-crm-section="chat" data-crm-home="<?= h(Http::url('/chat')) ?>" class="<?= $onChat ? 'is-on' : '' ?>" href="<?= h(Http::url('/chat')) ?>">Chat <span class="mail-badge" id="chat-badge"<?= $unreadChat > 0 ? '' : ' hidden' ?>><?= (int) $unreadChat ?></span></a>
 			<?php if (Auth::isAdmin()): ?>
@@ -83,6 +84,6 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion') || (bool) preg_match('#^/co
 		<?php endif; ?>
 		<?= $content ?>
 	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=60"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=61"></script>
 </body>
 </html>

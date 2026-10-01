@@ -93,6 +93,7 @@ final class App
 			['POST', '#^/cotizaciones/(\d+)/eliminar$#', [Controllers\QuoteController::class, 'destroy']],
 			['GET', '#^/cotizaciones/(\d+)$#', [Controllers\QuoteController::class, 'show']],
 			['POST', '#^/cotizaciones/(\d+)$#', [Controllers\QuoteController::class, 'update']],
+			['GET', '#^/cotizaciones$#', [Controllers\QuoteController::class, 'index']],
 			['POST', '#^/equipo/firma-imagen$#', [Controllers\TeamController::class, 'signatureImage']],
 			['POST', '#^/equipo/(\d+)/firma$#', [Controllers\TeamController::class, 'signature']],
 			['POST', '#^/equipo/(\d+)/eliminar$#', [Controllers\TeamController::class, 'destroy']],

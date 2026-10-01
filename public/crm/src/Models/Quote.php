@@ -13,7 +13,7 @@ final class Quote extends Record
 		return 'quotes';
 	}
 
-	public static function withRelations(?string $status = null): array
+	public static function withRelations(?string $status = null, ?int $ownerId = null): array
 	{
 		$sql = 'SELECT q.*, c.name AS client_name, d.title AS deal_title, u.name AS author_name
 			FROM quotes q
@@ -26,10 +26,122 @@ final class Quote extends Record
 			$sql .= ' AND q.status = ?';
 			$params[] = $status;
 		}
+		if ($ownerId) {
+			$sql .= ' AND c.owner_id = ?';
+			$params[] = $ownerId;
+		}
 		$sql .= ' ORDER BY q.created_at DESC';
 		$stmt = self::pdo()->prepare($sql);
 		$stmt->execute($params);
-		return $stmt->fetchAll();
+		return self::attachProfitMetrics($stmt->fetchAll());
+	}
+
+	/**
+	 * Métricas internas de rentabilidad (no van al documento del cliente).
+	 * Utilidad = venta neta − costo neto (costo c/IVA ÷ 1.19).
+	 * Margen real % = utilidad ÷ costo neto (sobre el costo indicado).
+	 *
+	 * @param list<array<string, mixed>> $items
+	 * @return array{
+	 *   cost_total_iva: int,
+	 *   cost_total_net: int,
+	 *   sale_net: int,
+	 *   profit: int,
+	 *   margin_real: ?float,
+	 *   margin_on_sale: ?float,
+	 *   has_cost: bool
+	 * }
+	 */
+	public static function profitFromItems(array $items, ?float $taxRate = null): array
+	{
+		$rate = $taxRate ?? Config::TAX_RATE;
+		$factor = 1 + ($rate / 100);
+		$costIva = 0.0;
+		$costNet = 0.0;
+		$saleNet = 0.0;
+		foreach ($items as $item) {
+			$qty = (float) str_replace(',', '.', (string) ($item['quantity'] ?? 0));
+			if ($qty <= 0) {
+				continue;
+			}
+			$cost = (int) ($item['cost_price'] ?? 0);
+			$price = (int) ($item['unit_price'] ?? 0);
+			if ($cost > 0) {
+				$price = self::netSaleFromCost($cost, (float) ($item['margin_percent'] ?? 0));
+			}
+			$costIva += $qty * $cost;
+			$costNet += $qty * ($cost / $factor);
+			$saleNet += $qty * $price;
+		}
+		$costIvaInt = (int) round($costIva);
+		$costNetInt = (int) round($costNet);
+		$saleNetInt = (int) round($saleNet);
+		$profit = $saleNetInt - $costNetInt;
+		$hasCost = $costNetInt > 0;
+		return [
+			'cost_total_iva' => $costIvaInt,
+			'cost_total_net' => $costNetInt,
+			'sale_net' => $saleNetInt,
+			'profit' => $profit,
+			'margin_real' => $hasCost ? round(($profit / $costNetInt) * 100, 1) : null,
+			'margin_on_sale' => $saleNetInt > 0 ? round(($profit / $saleNetInt) * 100, 1) : null,
+			'has_cost' => $hasCost,
+		];
+	}
+
+	/** @param list<array<string, mixed>> $quotes @return list<array<string, mixed>> */
+	public static function attachProfitMetrics(array $quotes): array
+	{
+		if ($quotes === []) {
+			return [];
+		}
+		$ids = [];
+		foreach ($quotes as $quote) {
+			$id = (int) ($quote['id'] ?? 0);
+			if ($id > 0) {
+				$ids[] = $id;
+			}
+		}
+		$byQuote = self::itemsByQuoteIds($ids);
+		foreach ($quotes as &$quote) {
+			$id = (int) ($quote['id'] ?? 0);
+			$metrics = self::profitFromItems($byQuote[$id] ?? []);
+			$quote['cost_total_iva'] = $metrics['cost_total_iva'];
+			$quote['cost_total_net'] = $metrics['cost_total_net'];
+			$quote['sale_net'] = $metrics['sale_net'] > 0 ? $metrics['sale_net'] : (int) ($quote['subtotal'] ?? 0);
+			$quote['profit'] = $metrics['profit'];
+			$quote['margin_real'] = $metrics['margin_real'];
+			$quote['margin_on_sale'] = $metrics['margin_on_sale'];
+			$quote['has_cost'] = $metrics['has_cost'];
+		}
+		unset($quote);
+		return $quotes;
+	}
+
+	/**
+	 * @param list<int> $quoteIds
+	 * @return array<int, list<array<string, mixed>>>
+	 */
+	public static function itemsByQuoteIds(array $quoteIds): array
+	{
+		$quoteIds = array_values(array_unique(array_filter(array_map('intval', $quoteIds))));
+		if ($quoteIds === []) {
+			return [];
+		}
+		$placeholders = implode(',', array_fill(0, count($quoteIds), '?'));
+		$stmt = self::pdo()->prepare(
+			"SELECT quote_id, quantity, cost_price, margin_percent, unit_price, total
+			 FROM quote_items
+			 WHERE quote_id IN ({$placeholders})
+			 ORDER BY position ASC, id ASC"
+		);
+		$stmt->execute($quoteIds);
+		$grouped = [];
+		foreach ($stmt->fetchAll() as $row) {
+			$qid = (int) $row['quote_id'];
+			$grouped[$qid][] = $row;
+		}
+		return $grouped;
 	}
 
 	public static function findByToken(string $token): ?array

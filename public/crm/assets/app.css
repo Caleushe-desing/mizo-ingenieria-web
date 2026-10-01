@@ -2444,6 +2444,89 @@ body.is-quote-popup .client-sheet.quote-sheet {
 .quote-notes-field {
 	grid-column: 1 / -1;
 }
+.quote-profit-panel {
+	margin: 14px 0 10px;
+	padding: 12px 14px;
+	border: 1px solid #c5d9ea;
+	border-radius: 12px;
+	background: linear-gradient(180deg, #f3f8fc 0%, #eef5fb 100%);
+}
+.quote-profit-panel-hd {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+.quote-profit-panel-hd strong {
+	font-size: 13px;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	color: #0b6ea8;
+}
+.quote-profit-grid {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 10px;
+}
+.quote-profit-grid > div {
+	display: grid;
+	gap: 4px;
+	min-width: 0;
+}
+.quote-profit-grid span {
+	font-size: 12px;
+	color: #5f6b7a;
+}
+.quote-profit-grid b {
+	font-size: 16px;
+	font-variant-numeric: tabular-nums;
+}
+.quote-profit-summary {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+	margin: 0 0 16px;
+}
+.quote-profit-summary > div {
+	display: grid;
+	gap: 4px;
+	padding: 14px 16px;
+	border: 1px solid #d6e4f0;
+	border-radius: 12px;
+	background: #f8fbfd;
+}
+.quote-profit-summary span {
+	font-size: 12px;
+	color: #5f6b7a;
+}
+.quote-profit-summary strong {
+	font-size: 20px;
+	font-variant-numeric: tabular-nums;
+}
+.quote-profit-summary small {
+	font-size: 12px;
+}
+.is-gain { color: #0f7a45; }
+.is-loss { color: #b42318; }
+.table .is-num,
+.sheet .is-num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+@media (max-width: 960px) {
+	.quote-profit-grid,
+	.quote-profit-summary {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+@media (max-width: 560px) {
+	.quote-profit-grid,
+	.quote-profit-summary {
+		grid-template-columns: 1fr;
+	}
+}
 .quote-footer-bar {
 	position: sticky;
 	bottom: 0;

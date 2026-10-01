@@ -305,13 +305,22 @@ if ($editContacts === []) {
 							<th>Número</th>
 							<th>Proyecto</th>
 							<th>Estado</th>
-							<th>Total</th>
+							<th class="is-num">Venta neta</th>
+							<th class="is-num">Costo neto</th>
+							<th class="is-num">Utilidad</th>
+							<th class="is-num">Margen</th>
 							<th>Fecha</th>
 							<th></th>
 						</tr>
 					</thead>
 					<tbody>
 					<?php foreach ($quotes as $quote): ?>
+						<?php
+						$saleNet = (int) ($quote['sale_net'] ?? $quote['subtotal'] ?? 0);
+						$costNet = (int) ($quote['cost_total_net'] ?? 0);
+						$profit = (int) ($quote['profit'] ?? ($saleNet - $costNet));
+						$margin = $quote['margin_real'] ?? null;
+						?>
 						<tr data-quote-row="<?= (int) $quote['id'] ?>">
 							<td><a href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>"><?= h($quote['number']) ?></a></td>
 							<td><?php
@@ -325,7 +334,10 @@ if ($editContacts === []) {
 								echo h($quoteProject !== '' ? $quoteProject : '—');
 							?></td>
 							<td data-quote-status="<?= (int) $quote['id'] ?>"><?= h(quote_status_label((string) $quote['status'])) ?></td>
-							<td><?= money((int) $quote['total']) ?></td>
+							<td class="is-num"><?= money($saleNet) ?></td>
+							<td class="is-num"><?= money($costNet) ?></td>
+							<td class="is-num <?= $profit >= 0 ? 'is-gain' : 'is-loss' ?>"><?= money($profit) ?></td>
+							<td class="is-num <?= $profit >= 0 ? 'is-gain' : 'is-loss' ?>"><?= $margin !== null ? h(number_format((float) $margin, 1, ',', '.')) . '%' : '—' ?></td>
 							<td><?= h(when($quote['created_at'], 'd-m-Y')) ?></td>
 							<td>
 								<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Eliminar la cotización <?= h($quote['number']) ?>?');">

@@ -164,7 +164,7 @@ final class Deal extends Record
 	{
 		$stmt = self::pdo()->prepare('SELECT * FROM quotes WHERE deal_id = ? ORDER BY created_at DESC');
 		$stmt->execute([$dealId]);
-		return $stmt->fetchAll();
+		return Quote::attachProfitMetrics($stmt->fetchAll());
 	}
 
 	public static function latestQuote(int $dealId): ?array

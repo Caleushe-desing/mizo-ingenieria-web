@@ -32,9 +32,19 @@ use MizoCrm\Http;
 		<div class="card" style="margin-bottom:16px">
 			<div class="card-hd"><h2>Cotizaciones de este negocio</h2></div>
 			<?php foreach ($quotes as $quote): ?>
+				<?php
+				$profit = (int) ($quote['profit'] ?? 0);
+				$margin = $quote['margin_real'] ?? null;
+				?>
 				<a class="deal-card" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">
 					<b><?= h($quote['number']) ?></b>
-					<small><span class="badge <?= h($quote['status']) ?>"><?= h(Config::quoteStatuses()[$quote['status']]) ?></span> · <?= money((int) $quote['total']) ?> · <?= when($quote['sent_at'] ?: $quote['created_at'], 'd-m-Y') ?></small>
+					<small>
+						<span class="badge <?= h($quote['status']) ?>"><?= h(Config::quoteStatuses()[$quote['status']]) ?></span>
+						· Venta <?= money((int) ($quote['sale_net'] ?? $quote['subtotal'] ?? 0)) ?>
+						· Utilidad <?= money($profit) ?>
+						<?= $margin !== null ? ' · ' . h(number_format((float) $margin, 1, ',', '.')) . '%' : '' ?>
+						· <?= when($quote['sent_at'] ?: $quote['created_at'], 'd-m-Y') ?>
+					</small>
 				</a>
 			<?php endforeach; ?>
 			<?php if (!$quotes): ?><p class="empty">Aún no hay presupuestos. Emite el primero.</p><?php endif; ?>

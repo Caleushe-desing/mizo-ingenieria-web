@@ -9,6 +9,11 @@
 		neto: document.querySelector('[data-neto]'),
 		iva: document.querySelector('[data-iva]'),
 		total: document.querySelector('[data-total]'),
+		costIva: document.querySelector('[data-profit-cost-iva]'),
+		costNet: document.querySelector('[data-profit-cost-net]'),
+		saleNet: document.querySelector('[data-profit-sale-net]'),
+		profitMoney: document.querySelector('[data-profit-money]'),
+		profitMargin: document.querySelector('[data-profit-margin]'),
 	};
 	const FREE_LABEL = 'Buscar en catálogo…';
 	const sheet = document.querySelector('.quote-sheet');
@@ -680,24 +685,59 @@
 		return pickerRoot;
 	}
 
+	function formatPercent(value) {
+		const n = Math.round(value * 10) / 10;
+		return String(n).replace('.', ',') + '%';
+	}
+
+	function setProfitTone(el, profit) {
+		if (!el) return;
+		el.classList.remove('is-gain', 'is-loss');
+		el.classList.add(profit >= 0 ? 'is-gain' : 'is-loss');
+	}
+
 	function recalc() {
 		let neto = 0;
+		let costIva = 0;
+		let costNet = 0;
+		const taxFactor = 1 + (taxRate / 100);
 		rows().forEach(function (row) {
 			syncRowPrice(row);
 			const qtyInput = row.querySelector('[name="item_quantity[]"]');
 			const priceInput = row.querySelector('[name="item_price[]"]');
+			const costInput = row.querySelector('[name="item_cost[]"]');
 			const lineEl = row.querySelector('[data-line]');
-			if (!qtyInput || !priceInput || !lineEl) return;
+			if (!qtyInput || !priceInput) return;
 			const qty = Number(String(qtyInput.value).replace(',', '.')) || 0;
 			const price = parseMoney(priceInput.value);
+			const cost = costInput ? parseMoney(costInput.value) : 0;
 			const line = qty * price;
 			neto += line;
-			lineEl.textContent = formatMoney(line);
+			costIva += qty * cost;
+			costNet += qty * (cost / taxFactor);
+			if (lineEl) lineEl.textContent = formatMoney(line);
 		});
 		const iva = Math.round(neto * (taxRate / 100));
-		if (totals.neto) totals.neto.textContent = formatMoney(neto);
+		const costIvaRounded = Math.round(costIva);
+		const costNetRounded = Math.round(costNet);
+		const saleNetRounded = Math.round(neto);
+		const profit = saleNetRounded - costNetRounded;
+		if (totals.neto) totals.neto.textContent = formatMoney(saleNetRounded);
 		if (totals.iva) totals.iva.textContent = formatMoney(iva);
-		if (totals.total) totals.total.textContent = formatMoney(neto + iva);
+		if (totals.total) totals.total.textContent = formatMoney(saleNetRounded + iva);
+		if (totals.costIva) totals.costIva.textContent = formatMoney(costIvaRounded);
+		if (totals.costNet) totals.costNet.textContent = formatMoney(costNetRounded);
+		if (totals.saleNet) totals.saleNet.textContent = formatMoney(saleNetRounded);
+		if (totals.profitMoney) {
+			totals.profitMoney.textContent = formatMoney(profit);
+			setProfitTone(totals.profitMoney, profit);
+		}
+		if (totals.profitMargin) {
+			totals.profitMargin.textContent = costNetRounded > 0
+				? formatPercent((profit / costNetRounded) * 100)
+				: '—';
+			setProfitTone(totals.profitMargin, profit);
+		}
 	}
 
 	function bindRow(row) {
@@ -1424,7 +1464,8 @@
 		if (path.indexOf("/chat") === 0) return "chat";
 		if (path.indexOf("/equipo") === 0) return "equipo";
 		if (path === "/" || path.indexOf("/tablero") === 0) return "tablero";
-		if (path.indexOf("/clientes") === 0 || path.indexOf("/cotizaciones") === 0) return "clientes";
+		if (path.indexOf("/cotizaciones") === 0) return "cotizaciones";
+		if (path.indexOf("/clientes") === 0) return "clientes";
 		return null;
 	}
 

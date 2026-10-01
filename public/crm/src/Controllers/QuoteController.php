@@ -5,6 +5,7 @@ namespace MizoCrm\Controllers;
 
 use MizoCrm\App;
 use MizoCrm\Auth;
+use MizoCrm\Config;
 use MizoCrm\Csrf;
 use MizoCrm\Http;
 use MizoCrm\Mailer;
@@ -18,6 +19,39 @@ use MizoCrm\View;
 
 final class QuoteController
 {
+	public function index(): void
+	{
+		Auth::user();
+		$status = Http::string('estado', 20);
+		$allowed = array_keys(Config::quoteStatuses());
+		if ($status !== '' && !in_array($status, $allowed, true)) {
+			$status = '';
+		}
+		$quotes = Quote::withRelations($status !== '' ? $status : null, Auth::ownerScope());
+		$summary = [
+			'sale_net' => 0,
+			'cost_total_net' => 0,
+			'cost_total_iva' => 0,
+			'profit' => 0,
+			'count' => count($quotes),
+		];
+		foreach ($quotes as $quote) {
+			$summary['sale_net'] += (int) ($quote['sale_net'] ?? $quote['subtotal'] ?? 0);
+			$summary['cost_total_net'] += (int) ($quote['cost_total_net'] ?? 0);
+			$summary['cost_total_iva'] += (int) ($quote['cost_total_iva'] ?? 0);
+			$summary['profit'] += (int) ($quote['profit'] ?? 0);
+		}
+		$summary['margin_real'] = $summary['cost_total_net'] > 0
+			? round(($summary['profit'] / $summary['cost_total_net']) * 100, 1)
+			: null;
+		View::render('quotes/index', [
+			'title' => 'Cotizaciones',
+			'status' => $status,
+			'quotes' => $quotes,
+			'summary' => $summary,
+		]);
+	}
+
 	public function create(string $clientId): void
 	{
 		$client = Auth::requireClient(Client::find((int) $clientId));

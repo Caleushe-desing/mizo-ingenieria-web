@@ -227,6 +227,38 @@ $tab = $deal ? 'actividad' : 'datos';
 					<?php endforeach; ?>
 					</tbody>
 				</table>
+				<?php
+				$profitLive = \MizoCrm\Models\Quote::profitFromItems($items ?? []);
+				$profitClass = ((int) $profitLive['profit'] >= 0) ? 'is-gain' : 'is-loss';
+				?>
+				<aside class="quote-profit-panel" aria-label="Utilidad interna">
+					<div class="quote-profit-panel-hd">
+						<strong>Utilidad interna</strong>
+						<span class="muted">Solo CRM · no sale al cliente</span>
+					</div>
+					<div class="quote-profit-grid">
+						<div>
+							<span>Costo total c/IVA</span>
+							<b data-profit-cost-iva><?= money((int) $profitLive['cost_total_iva']) ?></b>
+						</div>
+						<div>
+							<span>Costo neto</span>
+							<b data-profit-cost-net><?= money((int) $profitLive['cost_total_net']) ?></b>
+						</div>
+						<div>
+							<span>Venta neta</span>
+							<b data-profit-sale-net><?= money((int) $profitLive['sale_net']) ?></b>
+						</div>
+						<div>
+							<span>Utilidad</span>
+							<b class="<?= $profitClass ?>" data-profit-money><?= money((int) $profitLive['profit']) ?></b>
+						</div>
+						<div>
+							<span>Margen real</span>
+							<b class="<?= $profitClass ?>" data-profit-margin><?= $profitLive['margin_real'] !== null ? h(number_format((float) $profitLive['margin_real'], 1, ',', '.')) . '%' : '—' ?></b>
+						</div>
+					</div>
+				</aside>
 				<div class="totals-line">
 					<span>Neto <b data-neto><?= money((int) ($quote['subtotal'] ?? 0)) ?></b></span>
 					<span>IVA 19% <b data-iva><?= money((int) ($quote['tax'] ?? 0)) ?></b></span>

@@ -146,7 +146,7 @@ final class Client extends Record
 	{
 		$stmt = self::pdo()->prepare('SELECT * FROM quotes WHERE client_id = ? ORDER BY created_at DESC');
 		$stmt->execute([$clientId]);
-		return $stmt->fetchAll();
+		return Quote::attachProfitMetrics($stmt->fetchAll());
 	}
 
 	public static function purge(int $clientId): void

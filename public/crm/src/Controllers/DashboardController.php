@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MizoCrm\Controllers;
 
+use MizoCrm\Auth;
 use MizoCrm\Models\Activity;
 use MizoCrm\Models\Client;
 use MizoCrm\Models\Deal;
@@ -21,7 +22,7 @@ final class DashboardController
 			'pipelineValue' => Deal::openValue(),
 			'pipeline' => Deal::pipeline(),
 			'activity' => Activity::recent(10),
-			'quotes' => array_slice(Quote::withRelations(), 0, 6),
+			'quotes' => array_slice(Quote::withRelations(null, Auth::ownerScope()), 0, 6),
 		]);
 	}
 }
