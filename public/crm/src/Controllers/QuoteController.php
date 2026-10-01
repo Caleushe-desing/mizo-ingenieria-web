@@ -245,6 +245,14 @@ final class QuoteController
 		$items = Quote::itemsFromPost();
 		$intro = trim((string) ($_POST['intro'] ?? ''));
 		$notes = trim((string) ($_POST['notes'] ?? ''));
+		$termsText = trim((string) ($_POST['terms_text'] ?? ''));
+		$aboutText = trim((string) ($_POST['about_text'] ?? ''));
+		if ($termsText === '') {
+			$termsText = Config::defaultQuoteTerms();
+		}
+		if ($aboutText === '') {
+			$aboutText = Config::defaultQuoteAbout();
+		}
 		$validUntil = Http::string('valid_until', 20) ?: date('Y-m-d', strtotime('+15 days'));
 		$now = date('c');
 		$clientId = (int) $client['id'];
@@ -264,6 +272,8 @@ final class QuoteController
 				'status' => 'borrador',
 				'intro' => $intro,
 				'notes' => $notes !== '' ? $notes : 'Validez 15 días. Precios en pesos chilenos, neto + IVA.',
+				'terms_text' => $termsText,
+				'about_text' => $aboutText,
 				'valid_until' => $validUntil,
 				'tax_rate' => 19,
 				'subtotal' => 0,
@@ -294,6 +304,8 @@ final class QuoteController
 		$fields = [
 			'intro' => $intro,
 			'notes' => $notes,
+			'terms_text' => $termsText,
+			'about_text' => $aboutText,
 			'valid_until' => $validUntil,
 			'sent_to' => $recipient['email'],
 			'contact_id' => $recipient['id'],

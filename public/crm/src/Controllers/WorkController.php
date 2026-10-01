@@ -394,6 +394,14 @@ final class WorkController
 		$now = date('c');
 		$intro = trim((string) ($_POST['intro'] ?? ''));
 		$notes = trim((string) ($_POST['notes'] ?? ''));
+		$termsText = trim((string) ($_POST['terms_text'] ?? ''));
+		$aboutText = trim((string) ($_POST['about_text'] ?? ''));
+		if ($termsText === '') {
+			$termsText = Config::defaultQuoteTerms();
+		}
+		if ($aboutText === '') {
+			$aboutText = Config::defaultQuoteAbout();
+		}
 		$validUntil = Http::string('valid_until', 20) ?: date('Y-m-d', strtotime('+15 days'));
 		$items = Quote::itemsFromPost();
 		$hasItems = false;
@@ -415,6 +423,8 @@ final class WorkController
 				'status' => 'borrador',
 				'intro' => $intro,
 				'notes' => $notes !== '' ? $notes : 'Validez 15 días. Precios en pesos chilenos, neto + IVA. Instalación sujeta a visita técnica.',
+				'terms_text' => $termsText,
+				'about_text' => $aboutText,
 				'valid_until' => $validUntil,
 				'tax_rate' => 19,
 				'subtotal' => 0,
@@ -440,6 +450,8 @@ final class WorkController
 		Quote::update((int) $quote['id'], [
 			'intro' => $intro,
 			'notes' => $notes,
+			'terms_text' => $termsText,
+			'about_text' => $aboutText,
 			'valid_until' => $validUntil,
 			...$totals,
 			'updated_at' => $now,

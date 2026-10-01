@@ -617,6 +617,18 @@ final class Database
 			}
 			self::ensureProfessionalServiceProduct($pdo);
 			$pdo->exec('PRAGMA user_version = 22');
+			$version = 22;
+		}
+
+		if ($version < 23) {
+			$quoteCols = array_column($pdo->query('PRAGMA table_info(quotes)')->fetchAll(), 'name');
+			if ($quoteCols !== [] && !in_array('terms_text', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN terms_text TEXT NOT NULL DEFAULT \'\'');
+			}
+			if ($quoteCols !== [] && !in_array('about_text', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN about_text TEXT NOT NULL DEFAULT \'\'');
+			}
+			$pdo->exec('PRAGMA user_version = 23');
 		}
 	}
 
@@ -647,13 +659,20 @@ final class Database
 		]);
 	}
 
-	/** Garantiza desglose de servicio profesional aunque el schema venga atrasado. */
+	/** Garantiza desglose de servicio y textos de página 2 aunque el schema venga atrasado. */
 	private static function ensureQuoteServiceSchema(PDO $pdo): void
 	{
 		try {
 			$itemCols = array_column($pdo->query('PRAGMA table_info(quote_items)')->fetchAll(), 'name');
 			if ($itemCols !== [] && !in_array('service_breakdown', $itemCols, true)) {
 				$pdo->exec('ALTER TABLE quote_items ADD COLUMN service_breakdown TEXT');
+			}
+			$quoteCols = array_column($pdo->query('PRAGMA table_info(quotes)')->fetchAll(), 'name');
+			if ($quoteCols !== [] && !in_array('terms_text', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN terms_text TEXT NOT NULL DEFAULT \'\'');
+			}
+			if ($quoteCols !== [] && !in_array('about_text', $quoteCols, true)) {
+				$pdo->exec('ALTER TABLE quotes ADD COLUMN about_text TEXT NOT NULL DEFAULT \'\'');
 			}
 			self::ensureProfessionalServiceProduct($pdo);
 		} catch (\Throwable) {

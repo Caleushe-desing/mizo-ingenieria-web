@@ -78,6 +78,36 @@ final class Config
 		];
 	}
 
+	/** Texto por defecto: página 2 del PDF — condiciones y pago. */
+	public static function defaultQuoteTerms(): string
+	{
+		return "Condiciones generales\n"
+			. "• Validez de la cotización: 15 días corridos desde la fecha de emisión.\n"
+			. "• Precios en pesos chilenos (CLP), expresados en valores netos. El IVA se indica por separado en el total.\n"
+			. "• La instalación y puesta en marcha quedan sujetas a coordinación de visita técnica y acceso al recinto.\n"
+			. "• Cualquier cambio de alcance, marca o especificación puede modificar plazos y valores.\n"
+			. "• Los equipos quedan garantizados según la política del fabricante y la instalación ejecutada por Mizo.\n\n"
+			. "Modo de pago\n"
+			. "• 50% al aceptar la propuesta, para reserva de equipos e inicio de obra.\n"
+			. "• 50% contra entrega e instalación conforme, o según hitos acordados por escrito.\n"
+			. "• Transferencia bancaria a nombre de Mizo. Datos de pago se envían al confirmar la OC.\n"
+			. "• Facturación electrónica según normativa vigente.";
+	}
+
+	/** Texto por defecto: página 2 del PDF — presentación institucional. */
+	public static function defaultQuoteAbout(): string
+	{
+		return "Sobre Mizo\n"
+			. "Somos una empresa de ingeniería audiovisual e integración tecnológica. Diseñamos, instalamos y damos soporte a sistemas de sonido, video, CCTV, redes y automatización para empresas, instituciones y recintos en Frutillar, Santiago y el sur de Chile.\n\n"
+			. "Nuestras fortalezas\n"
+			. "• Ingeniería aplicada: cada propuesta se dimensiona al uso real del espacio, no a un catálogo genérico.\n"
+			. "• Integración completa: audio, video, seguridad y TI conversan en un solo sistema operable.\n"
+			. "• Instalación profesional: cableado, montaje, calibración y entrega documentada.\n"
+			. "• Soporte cercano: acompañamos la operación después de la puesta en marcha.\n"
+			. "• Marcas con respaldo local y garantía oficial en el territorio nacional.\n\n"
+			. "Trabajamos para que la tecnología se note en el resultado — claridad, estabilidad y continuidad — y no en la complejidad del día a día.";
+	}
+
 	public static function sources(): array
 	{
 		return [

@@ -133,7 +133,7 @@ foreach ($contacts as $c) {
 						<input name="valid_until" type="date" value="<?= h($quote['valid_until'] ?? date('Y-m-d', strtotime('+15 days'))) ?>" <?= $locked ? 'readonly' : '' ?>>
 					</label>
 					<label class="quote-notes-field">
-						<span>Nota al pie</span>
+						<span>Nota breve (página 1)</span>
 						<input name="notes" value="<?= h($quote['notes'] ?? 'Validez 15 días. Precios en pesos chilenos, neto + IVA.') ?>" <?= $locked ? 'readonly' : '' ?>>
 					</label>
 				</div>
@@ -143,7 +143,26 @@ foreach ($contacts as $c) {
 		<section class="quote-block is-solid">
 			<div class="quote-block-hd">
 				<div>
-					<h2>2. Partidas</h2>
+					<h2>2. Página 2 del PDF</h2>
+					<p class="muted">Condiciones, pago y texto institucional. Van precargados; ajústalos si este cliente necesita algo distinto.</p>
+				</div>
+			</div>
+			<div class="quote-page2-fields">
+				<label>
+					<span>Condiciones y modo de pago</span>
+					<textarea name="terms_text" rows="10" <?= $locked ? 'readonly' : '' ?>><?= h(\MizoCrm\Models\Quote::termsText($quote)) ?></textarea>
+				</label>
+				<label>
+					<span>Presentación Mizo</span>
+					<textarea name="about_text" rows="10" <?= $locked ? 'readonly' : '' ?>><?= h(\MizoCrm\Models\Quote::aboutText($quote)) ?></textarea>
+				</label>
+			</div>
+		</section>
+
+		<section class="quote-block is-solid">
+			<div class="quote-block-hd">
+				<div>
+					<h2>3. Partidas</h2>
 					<p class="muted">Busca en el catálogo, crea un producto si no existe, o usa un ítem libre. Ajusta margen y revisa la venta neta.</p>
 				</div>
 				<?php if (!$locked): ?>

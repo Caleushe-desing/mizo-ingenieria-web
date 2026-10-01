@@ -200,6 +200,20 @@ final class Quote extends Record
 		return $base . '-' . $next;
 	}
 
+	/** Condiciones / pago para la página 2 del PDF. */
+	public static function termsText(?array $quote): string
+	{
+		$text = trim((string) ($quote['terms_text'] ?? ''));
+		return $text !== '' ? $text : Config::defaultQuoteTerms();
+	}
+
+	/** Texto institucional para la página 2 del PDF. */
+	public static function aboutText(?array $quote): string
+	{
+		$text = trim((string) ($quote['about_text'] ?? ''));
+		return $text !== '' ? $text : Config::defaultQuoteAbout();
+	}
+
 	/** Venta neta unitaria desde costo con IVA y margen %. */
 	public static function netSaleFromCost(int $costWithIva, float $marginPercent): int
 	{
