@@ -46,16 +46,30 @@ $contactBits = array_values(array_filter([
 		</div>
 	</header>
 
+	<?php
+	$companyRut = trim((string) Config::RUT);
+	$clientRut = trim((string) ($quote['client_rut'] ?? ''));
+	?>
 	<section class="doc-parties">
 		<div class="doc-card">
 			<h2>De</h2>
-			<p><strong><?= h(Config::COMPANY) ?></strong></p>
+			<p class="doc-party-name">
+				<strong><?= h(Config::COMPANY) ?></strong>
+				<?php if ($companyRut !== ''): ?>
+					<span class="doc-rut">RUT <?= h($companyRut) ?></span>
+				<?php endif; ?>
+			</p>
 			<p><?= h(Config::EMAIL) ?> · <?= h(Config::PHONE) ?></p>
 			<p><?= h(Config::ADDRESS) ?> · mizo.cl</p>
 		</div>
 		<div class="doc-card">
 			<h2>Para</h2>
-			<p><strong><?= h($clientName !== '' ? $clientName : 'Cliente') ?></strong></p>
+			<p class="doc-party-name">
+				<strong><?= h($clientName !== '' ? $clientName : 'Cliente') ?></strong>
+				<?php if ($clientRut !== ''): ?>
+					<span class="doc-rut">RUT <?= h($clientRut) ?></span>
+				<?php endif; ?>
+			</p>
 			<?php if ($contactBits): ?>
 				<p><?= h(implode(' · ', $contactBits)) ?></p>
 			<?php endif; ?>

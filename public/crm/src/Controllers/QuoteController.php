@@ -229,6 +229,7 @@ final class QuoteController
 		$quote['contact_name'] = $client['contact_name'] ?? '';
 		$quote['client_email'] = $client['email'] ?? '';
 		$quote['client_phone'] = $client['phone'] ?? '';
+		$quote['client_rut'] = $client['rut'] ?? '';
 		$quote['client_city'] = $client['city'] ?? '';
 		$quote = ClientContact::applyToQuote($quote);
 		View::render('quotes/public', [

@@ -11,6 +11,7 @@ use MizoCrm\Http;
 use MizoCrm\Mailer;
 use MizoCrm\Models\Activity;
 use MizoCrm\Models\Client;
+use MizoCrm\Models\ClientContact;
 use MizoCrm\Models\Deal;
 use MizoCrm\Models\Product;
 use MizoCrm\Models\Quote;
@@ -243,10 +244,15 @@ final class WorkController
 			View::flash('error', 'Guarda la cotización antes de previsualizarla.');
 			Http::redirect('/t/' . $id);
 		}
-		$client = Client::find((int) $deal['client_id']);
+		$client = Client::find((int) $deal['client_id']) ?? [];
 		$quote['deal_title'] = $deal['title'] ?? '';
 		$quote['client_name'] = $client['name'] ?? '';
 		$quote['contact_name'] = $client['contact_name'] ?? '';
+		$quote['client_email'] = $client['email'] ?? '';
+		$quote['client_phone'] = $client['phone'] ?? '';
+		$quote['client_rut'] = $client['rut'] ?? '';
+		$quote['client_city'] = $client['city'] ?? '';
+		$quote = ClientContact::applyToQuote($quote);
 		View::render('quotes/public', [
 			'title' => 'Vista previa ' . $quote['number'],
 			'quote' => $quote,

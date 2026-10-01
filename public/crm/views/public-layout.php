@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h($title ?? 'Cotización Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(\MizoCrm\Http::url('/assets/app.css')) ?>?v=64">
+	<link rel="stylesheet" href="<?= h(\MizoCrm\Http::url('/assets/app.css')) ?>?v=65">
 </head>
 <body class="quote-doc">
 	<div class="quote-sheet">

@@ -584,6 +584,18 @@ body.quote-doc {
 	color: #333;
 }
 .doc-parties strong { color: #111; font-size: 14px; }
+.doc-party-name {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 8px 12px;
+}
+.doc-rut {
+	font-size: 12px;
+	font-weight: 600;
+	color: #555;
+	white-space: nowrap;
+}
 .doc-ref, .doc-items { padding-top: 10px; }
 .doc-items table {
 	width: 100%;
@@ -742,6 +754,7 @@ body.quote-doc {
 		margin-bottom: 1px !important;
 	}
 	.doc-parties strong { font-size: 12px !important; }
+	.doc-rut { font-size: 10px !important; }
 	.doc-ref,
 	.doc-items { padding-top: 7px !important; }
 	.doc-items table { font-size: 10px !important; margin-top: 4px !important; }
