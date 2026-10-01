@@ -2,6 +2,9 @@ ErrorDocument 404 /404.html
 
 RewriteEngine On
 RewriteRule ^crm/assets/ - [L]
+# Fotos del catálogo: servir archivos reales, no el front controller del CRM
+RewriteRule ^crm/uploads/ - [L]
+RewriteRule ^crm/api/ - [L]
 # Enlaces públicos de cotización: /q/{token} (también /crm/q/...)
 RewriteRule ^q(/.*)?$ /crm/index.php [QSA,L]
 RewriteCond %{REQUEST_FILENAME} !-f

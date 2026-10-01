@@ -210,7 +210,13 @@ const description = page.seoDescription;
 		img.className = 'h-full w-full object-contain p-3';
 		img.alt = alt;
 		img.loading = 'lazy';
+		img.decoding = 'async';
 		img.src = photos[0];
+		img.addEventListener('error', () => {
+			img.style.display = 'none';
+			const fallback = node('div', 'flex h-full w-full items-center justify-center text-[10px] uppercase tracking-[0.16em] text-charcoal/35', 'Sin foto');
+			frame.append(fallback);
+		});
 		const zoom = node('button', 'absolute inset-0 cursor-zoom-in');
 		zoom.type = 'button';
 		zoom.setAttribute('aria-label', 'Ver foto en grande');
@@ -224,6 +230,7 @@ const description = page.seoDescription;
 		const counter = node('span', 'pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 text-[10px] tracking-[0.16em] text-charcoal/45');
 		function show(next) {
 			index = (next + photos.length) % photos.length;
+			img.style.display = '';
 			img.src = photos[index];
 			if (photos.length > 1) counter.textContent = index + 1 + ' / ' + photos.length;
 		}
@@ -269,9 +276,22 @@ const description = page.seoDescription;
 		return wrap;
 	}
 
+	function productPhotos(item) {
+		if (!Array.isArray(item.imagenes)) return [];
+		return item.imagenes
+			.filter((src) => typeof src === 'string' && src !== '')
+			.map((src) => {
+				if (src.startsWith('/')) return src;
+				if (src.startsWith('crm/')) return '/' + src;
+				if (src.startsWith('uploads/productos/')) return '/crm/' + src;
+				return src;
+			})
+			.filter((src) => /\/crm\/uploads\/productos\//i.test(src));
+	}
+
 	function card(item, phone) {
 		const article = node('article', 'group flex flex-col overflow-hidden border border-white/10 bg-charcoal transition-all duration-300 hover:border-orange/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]');
-		const photos = Array.isArray(item.imagenes) ? item.imagenes.filter((src) => typeof src === 'string' && src.startsWith('/crm/uploads/productos/')) : [];
+		const photos = productPhotos(item);
 		const alt = item.nombre || item.sku || 'Producto';
 		if (photos.length) article.append(gallery(photos, alt));
 		else {
@@ -360,13 +380,19 @@ const description = page.seoDescription;
 			}
 		}
 
-		fetch(root.dataset.endpoint || '/crm/api/productos-visibles.php', { headers: { Accept: 'application/json' } })
+		const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+		const timer = controller ? setTimeout(() => controller.abort(), 20000) : 0;
+		fetch(root.dataset.endpoint || '/crm/api/productos-visibles.php', {
+			headers: { Accept: 'application/json' },
+			signal: controller ? controller.signal : undefined,
+			credentials: 'same-origin',
+		})
 			.then((response) => {
 				if (!response.ok) throw new Error('catalogo');
 				return response.json();
 			})
 			.then((data) => {
-				products = Array.isArray(data.productos) ? data.productos : [];
+				products = Array.isArray(data?.productos) ? data.productos : [];
 				if (products.length === 0) {
 					status.textContent = 'Todavía no hay productos publicados. Cuéntanos el recinto y te proponemos el hardware.';
 					return;
@@ -384,7 +410,10 @@ const description = page.seoDescription;
 				render();
 			})
 			.catch(() => {
-				status.textContent = 'No se pudo cargar el catálogo. Escríbenos y te proponemos el producto.';
+				status.textContent = 'No se pudo cargar el catálogo. Recarga la página o escríbenos por WhatsApp.';
+			})
+			.finally(() => {
+				if (timer) clearTimeout(timer);
 			});
 	}
 </script>
