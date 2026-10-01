@@ -22,6 +22,9 @@ if ($contacts === []) {
 			<h1>Editar cliente</h1>
 			<p>Empresa o lugar, RUT y varios contactos de ventas.</p>
 		</div>
+		<div>
+			<a class="btn btn-word" href="<?= h(Http::url('/marketing/nuevo?cliente=' . (int) $client['id'])) ?>">Enviar correo comercial</a>
+		</div>
 	</div>
 
 	<form class="paper form" method="post" action="<?= h(Http::url('/clientes/' . $client['id'])) ?>" data-contacts-form>

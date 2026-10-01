@@ -13,6 +13,7 @@ $onChat = str_starts_with($path, '/chat');
 $onBoard = $path === '/' || str_starts_with($path, '/tablero');
 $onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cotizaciones');
 $onCatalog = str_starts_with($path, '/catalogo');
+$onMarketing = str_starts_with($path, '/marketing');
 $onQuoteEditor = str_ends_with($path, '/cotizacion')
 	|| (bool) preg_match('#^/cotizaciones/\d+(?:/(?:enviar|correo|copiar|preview))?$#', $path);
 ?>
@@ -24,8 +25,11 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
 	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=68">
+	<?php if ($onMarketing): ?>
+		<link rel="stylesheet" href="<?= h(Http::url('/assets/marketing.css')) ?>?v=1">
+	<?php endif; ?>
 </head>
-<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?><?= $onQuoteEditor ? ' is-quote-editor' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
+<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?><?= $onMarketing ? ' is-marketing' : '' ?><?= $onQuoteEditor ? ' is-quote-editor' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">
 	<header class="titlebar">
 		<img src="/mizo-logo-footer.png" alt="Mizo">
 		<small>Clientes, cotizaciones y correo</small>
@@ -40,6 +44,7 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 			<a data-crm-section="tablero" data-crm-fixed data-crm-home="<?= h(Http::url('/')) ?>" class="<?= $onBoard ? 'is-on' : '' ?>" href="<?= h(Http::url('/')) ?>">Tablero</a>
 			<a data-crm-section="clientes" data-crm-fixed data-crm-home="<?= h(Http::url('/clientes')) ?>" class="<?= $onClients && !str_starts_with($path, '/cotizaciones') ? 'is-on' : '' ?>" href="<?= h(Http::url('/clientes')) ?>">Clientes</a>
 			<a data-crm-section="cotizaciones" data-crm-fixed data-crm-home="<?= h(Http::url('/cotizaciones')) ?>" class="<?= str_starts_with($path, '/cotizaciones') ? 'is-on' : '' ?>" href="<?= h(Http::url('/cotizaciones')) ?>">Cotizaciones</a>
+			<a data-crm-section="marketing" data-crm-home="<?= h(Http::url('/marketing')) ?>" class="<?= $onMarketing ? 'is-on' : '' ?>" href="<?= h(Http::url('/marketing')) ?>">Marketing</a>
 			<a id="nav-mail" data-crm-section="correo" data-crm-home="<?= h(Http::url('/correo')) ?>" class="<?= $onMail ? 'is-on' : '' ?>" href="<?= h(Http::url('/correo')) ?>">Correo <span class="mail-badge" id="mail-badge"<?= $unreadMail > 0 ? '' : ' hidden' ?>><?= (int) $unreadMail ?></span></a>
 			<a id="nav-chat" data-crm-section="chat" data-crm-home="<?= h(Http::url('/chat')) ?>" class="<?= $onChat ? 'is-on' : '' ?>" href="<?= h(Http::url('/chat')) ?>">Chat <span class="mail-badge" id="chat-badge"<?= $unreadChat > 0 ? '' : ' hidden' ?>><?= (int) $unreadChat ?></span></a>
 			<?php if (Auth::isAdmin()): ?>
@@ -70,6 +75,8 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 			<?php endif; ?>
 			<?php if ($onMail): ?>
 				<a class="btn btn-word" href="<?= h(Http::url('/correo/nuevo')) ?>">Nuevo correo</a>
+			<?php elseif ($onMarketing): ?>
+				<a class="btn btn-word" href="<?= h(Http::url('/marketing/nuevo')) ?>">Nuevo correo comercial</a>
 			<?php elseif ($onChat): ?>
 				<a class="btn btn-word" href="<?= h(Http::url('/chat')) ?>">Chats</a>
 			<?php elseif ($onClients && $path !== '/clientes/nuevo'): ?>

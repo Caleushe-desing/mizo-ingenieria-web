@@ -1,0 +1,71 @@
+/* Módulo Marketing — estilos propios, no altera chrome existente */
+body.is-marketing { background: #eef1f4; }
+body.is-marketing .workspace { max-width: 980px; margin: 0 auto; padding: 0 16px 32px; }
+.mkt-sheet .page-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 16px 0 12px;
+}
+.mkt-sheet .page-head h1 { margin: 0; font-size: 22px; color: #1f2328; }
+.mkt-sheet .file-kicker { margin: 0 0 4px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #0b6ea8; }
+.mkt-head-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.mkt-panel { margin: 0 0 16px; padding: 16px 18px; }
+.mkt-template-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 12px;
+	margin-top: 12px;
+}
+.mkt-template-card {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 14px 14px 16px;
+	border: 1px solid #d5dde6;
+	border-radius: 8px;
+	background: #fff;
+	text-decoration: none;
+	color: inherit;
+	transition: border-color .15s ease, box-shadow .15s ease;
+}
+.mkt-template-card:hover {
+	border-color: #1c9bd8;
+	box-shadow: 0 2px 10px rgba(28, 155, 216, .12);
+}
+.mkt-template-card strong { color: #0b6ea8; font-size: 15px; }
+.mkt-template-card span { font-size: 13px; color: #5b6570; line-height: 1.35; }
+.mkt-vars { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.mkt-vars li { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; font-size: 14px; }
+.mkt-vars code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12px;
+	background: #e8f6fc;
+	color: #0b6ea8;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+.mkt-compose { margin: 0; padding: 16px 18px; }
+.mkt-compose-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 12px;
+	margin-bottom: 12px;
+}
+.mkt-contacts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.mkt-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 14px; }
+.mkt-chip {
+	border: 1px solid #c5d5e2;
+	background: #f4f8fb;
+	color: #0b6ea8;
+	border-radius: 999px;
+	padding: 4px 10px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+}
+.mkt-chip:hover { background: #e8f6fc; border-color: #1c9bd8; }
+.mkt-options { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 12px; }
+.mkt-active { display: flex; flex-direction: column; gap: 6px; }

@@ -43,6 +43,11 @@ final class Database
 		self::ensureMailSchema($pdo);
 		self::ensureQuoteServiceSchema($pdo);
 		try {
+			self::ensureMarketingSchema($pdo);
+		} catch (\Throwable) {
+			// Módulo marketing opcional en installs parciales.
+		}
+		try {
 			Models\Pipeline::ensureRoles();
 		} catch (\Throwable) {
 			// Tablero aún no migrado en installs parciales.
@@ -652,6 +657,53 @@ final class Database
 				$pdo->exec('ALTER TABLE quotes ADD COLUMN sent_cc TEXT NOT NULL DEFAULT \'\'');
 			}
 			$pdo->exec('PRAGMA user_version = 24');
+			$version = 24;
+		}
+
+		if ($version < 25) {
+			self::ensureMarketingSchema($pdo);
+			$pdo->exec('PRAGMA user_version = 25');
+		}
+	}
+
+	/** Plantillas del módulo Marketing (aditivo; no altera tablas existentes). */
+	private static function ensureMarketingSchema(PDO $pdo): void
+	{
+		$pdo->exec(
+			'CREATE TABLE IF NOT EXISTS marketing_templates (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				slug TEXT NOT NULL UNIQUE,
+				name TEXT NOT NULL,
+				subject TEXT NOT NULL,
+				body TEXT NOT NULL,
+				active INTEGER NOT NULL DEFAULT 1,
+				position INTEGER NOT NULL DEFAULT 0,
+				created_at TEXT NOT NULL,
+				updated_at TEXT NOT NULL
+			)'
+		);
+		$exists = $pdo->prepare('SELECT id FROM marketing_templates WHERE slug = ? LIMIT 1');
+		$insert = $pdo->prepare(
+			'INSERT INTO marketing_templates (slug, name, subject, body, active, position, created_at, updated_at)
+			 VALUES (?, ?, ?, ?, 1, ?, ?, ?)'
+		);
+		$now = date('c');
+		$pos = 0;
+		foreach (Models\MarketingTemplate::defaults() as $row) {
+			$pos++;
+			$exists->execute([(string) $row['slug']]);
+			if ($exists->fetchColumn()) {
+				continue;
+			}
+			$insert->execute([
+				$row['slug'],
+				$row['name'],
+				$row['subject'],
+				$row['body'],
+				$pos,
+				$now,
+				$now,
+			]);
 		}
 	}
 

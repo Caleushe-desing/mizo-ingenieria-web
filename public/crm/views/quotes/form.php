@@ -64,6 +64,7 @@ foreach ($contacts as $c) {
 		<div class="quote-toolbar-actions">
 			<?php if ($quote): ?>
 				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" title="Crea un borrador nuevo y elige el proyecto">Copiar</a>
+				<a class="btn-text" href="<?= h(Http::url('/marketing/nuevo?cliente=' . (int) $client['id'] . '&cotizacion=' . (int) $quote['id'])) ?>">Correo comercial</a>
 			<?php endif; ?>
 			<?php if ($quote && trim((string) ($quote['last_email_html'] ?? '')) !== ''): ?>
 				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Ver correo enviado</a>

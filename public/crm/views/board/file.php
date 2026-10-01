@@ -187,6 +187,7 @@ if ($editContacts === []) {
 		?>
 		<?php if (!$mailable): ?>
 			<p class="muted">Agrega correos en Editar datos para escribirles desde aquí.</p>
+			<p style="margin-top:12px"><a class="btn btn-excel" href="<?= h(Http::url('/marketing/nuevo?cliente=' . (int) $client['id'])) ?>">Enviar correo comercial</a></p>
 		<?php else: ?>
 			<form method="get" action="<?= h(Http::url('/correo/nuevo')) ?>" class="contact-mail-pick">
 				<input type="hidden" name="cliente" value="<?= (int) $client['id'] ?>">
@@ -199,6 +200,7 @@ if ($editContacts === []) {
 				<?php endforeach; ?>
 				<p class="muted" style="margin:8px 0 0">Marca contactos y pulsa el botón (se abrirá el redactor con sus correos).</p>
 				<a class="btn btn-word" id="mail-selected-contacts" href="<?= h(Http::url('/correo/nuevo?cliente=' . $client['id'])) ?>">Escribir a seleccionados</a>
+				<a class="btn btn-excel" href="<?= h(Http::url('/marketing/nuevo?cliente=' . (int) $client['id'])) ?>">Enviar correo comercial</a>
 			</form>
 			<script>
 			(function () {
