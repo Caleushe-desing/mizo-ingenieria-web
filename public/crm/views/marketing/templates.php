@@ -4,6 +4,7 @@ use MizoCrm\Http;
 
 $templates = $templates ?? [];
 $variables = $variables ?? [];
+$mktTab = 'plantillas';
 ?>
 <div class="mkt-sheet">
 	<div class="page-head">
@@ -17,6 +18,8 @@ $variables = $variables ?? [];
 			<a class="btn-text" href="<?= h(Http::url('/marketing')) ?>">Volver</a>
 		</div>
 	</div>
+
+	<?php require __DIR__ . '/_nav.php'; ?>
 
 	<section class="paper mkt-panel">
 		<h2 class="section-title word">Variables</h2>

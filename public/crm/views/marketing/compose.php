@@ -41,9 +41,10 @@ $publicUrl = $publicUrl ?? '';
 		</div>
 		<div class="mkt-head-actions">
 			<a class="btn-text" href="<?= h(Http::url('/marketing')) ?>">Volver</a>
-			<a class="btn-text" href="<?= h(Http::url('/marketing/plantillas')) ?>">Plantillas</a>
+			<a class="btn-text" href="<?= h(Http::url('/marketing/recursos')) ?>">Recursos</a>
 		</div>
 	</div>
+	<?php $mktTab = 'correos'; require __DIR__ . '/_nav.php'; ?>
 
 	<form class="paper form mkt-compose" method="post" action="<?= h(Http::url('/marketing/enviar')) ?>">
 		<?= Csrf::field() ?>

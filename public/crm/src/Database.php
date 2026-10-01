@@ -663,10 +663,16 @@ final class Database
 		if ($version < 25) {
 			self::ensureMarketingSchema($pdo);
 			$pdo->exec('PRAGMA user_version = 25');
+			$version = 25;
+		}
+
+		if ($version < 26) {
+			self::ensureMarketingSchema($pdo);
+			$pdo->exec('PRAGMA user_version = 26');
 		}
 	}
 
-	/** Plantillas del módulo Marketing (aditivo; no altera tablas existentes). */
+	/** Plantillas y recursos del módulo Marketing (aditivo; no altera tablas existentes). */
 	private static function ensureMarketingSchema(PDO $pdo): void
 	{
 		$pdo->exec(
@@ -705,6 +711,28 @@ final class Database
 				$now,
 			]);
 		}
+
+		$pdo->exec(
+			'CREATE TABLE IF NOT EXISTS marketing_resources (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				kind TEXT NOT NULL,
+				category TEXT NOT NULL,
+				title TEXT NOT NULL,
+				description TEXT NOT NULL DEFAULT \'\',
+				file_path TEXT NOT NULL DEFAULT \'\',
+				thumb_path TEXT NOT NULL DEFAULT \'\',
+				original_name TEXT NOT NULL DEFAULT \'\',
+				mime TEXT NOT NULL DEFAULT \'\',
+				file_size INTEGER NOT NULL DEFAULT 0,
+				active INTEGER NOT NULL DEFAULT 1,
+				position INTEGER NOT NULL DEFAULT 0,
+				created_by INTEGER,
+				created_at TEXT NOT NULL,
+				updated_at TEXT NOT NULL
+			)'
+		);
+		$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mkt_resources_kind ON marketing_resources(kind, active)');
+		$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mkt_resources_cat ON marketing_resources(category, active)');
 	}
 
 	/** Producto interno del cotizador: oculto en la web pública. */

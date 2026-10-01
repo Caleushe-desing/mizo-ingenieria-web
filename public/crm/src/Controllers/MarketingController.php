@@ -15,11 +15,13 @@ use MizoCrm\Models\Client;
 use MizoCrm\Models\ClientContact;
 use MizoCrm\Models\Deal;
 use MizoCrm\Models\Mailbox;
+use MizoCrm\Models\MarketingResource;
 use MizoCrm\Models\MarketingTemplate;
 use MizoCrm\Models\Pipeline;
 use MizoCrm\Models\Quote;
 use MizoCrm\QuotePdf;
 use MizoCrm\View;
+use RuntimeException;
 
 final class MarketingController
 {
@@ -350,6 +352,260 @@ final class MarketingController
 		]);
 		View::flash('ok', 'Plantilla ocultada.');
 		Http::redirect('/marketing/plantillas');
+	}
+
+	public function resources(): void
+	{
+		Auth::requireUser();
+		$category = Http::string('categoria', 80);
+		$visual = MarketingResource::visual();
+		$documents = MarketingResource::documents();
+		if ($category !== '') {
+			$visual = array_values(array_filter(
+				$visual,
+				static fn(array $row): bool => (string) ($row['category'] ?? '') === $category
+			));
+			$documents = array_values(array_filter(
+				$documents,
+				static fn(array $row): bool => (string) ($row['category'] ?? '') === $category
+			));
+		}
+		View::render('marketing/resources', [
+			'title' => 'Recursos y material comercial',
+			'visual' => $visual,
+			'documents' => $documents,
+			'categories' => MarketingResource::categories(),
+			'kinds' => MarketingResource::kinds(),
+			'filterCategory' => $category,
+			'canManage' => Auth::isAdmin(),
+		]);
+	}
+
+	public function storeResource(): void
+	{
+		Csrf::check();
+		Auth::requireUser();
+		if (!Auth::isAdmin()) {
+			View::flash('error', 'Solo administración puede subir material oficial.');
+			Http::redirect('/marketing/recursos');
+		}
+
+		$title = Http::string('title', 160);
+		$description = Http::string('description', 500);
+		$category = Http::string('category', 80);
+		$kind = Http::string('kind', 20);
+		$allowedKinds = array_keys(MarketingResource::kinds());
+		$allowedCategories = MarketingResource::categories();
+		if ($title === '' || !in_array($kind, $allowedKinds, true) || !in_array($category, $allowedCategories, true)) {
+			View::flash('error', 'Completa título, tipo y categoría válidos.');
+			Http::redirect('/marketing/recursos');
+		}
+
+		try {
+			$stored = $this->storeUploadedResource();
+		} catch (RuntimeException $e) {
+			View::flash('error', $e->getMessage());
+			Http::redirect('/marketing/recursos');
+		}
+
+		$id = MarketingResource::insert([
+			'kind' => $kind,
+			'category' => $category,
+			'title' => $title,
+			'description' => $description,
+			'file_path' => '',
+			'thumb_path' => '',
+			'original_name' => $stored['original'],
+			'mime' => $stored['mime'],
+			'file_size' => $stored['size'],
+			'active' => 1,
+			'position' => MarketingResource::nextPosition(),
+			'created_by' => Auth::id(),
+			'created_at' => date('c'),
+			'updated_at' => date('c'),
+		]);
+
+		$dir = MarketingResource::storageRoot() . '/' . $id;
+		if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+			MarketingResource::delete($id);
+			View::flash('error', 'No se pudo crear la carpeta del recurso.');
+			Http::redirect('/marketing/recursos');
+		}
+
+		$dest = $dir . '/' . $stored['filename'];
+		if (!@rename($stored['tmp'], $dest) && !@move_uploaded_file($stored['tmp'], $dest)) {
+			if (!@copy($stored['tmp'], $dest)) {
+				MarketingResource::delete($id);
+				@unlink($stored['tmp']);
+				View::flash('error', 'No se pudo guardar el archivo.');
+				Http::redirect('/marketing/recursos');
+			}
+			@unlink($stored['tmp']);
+		}
+
+		$filePath = '/crm/uploads/marketing/' . $id . '/' . $stored['filename'];
+		$thumbPath = '';
+		if (str_starts_with($stored['mime'], 'image/')) {
+			$thumbName = $this->makeImageThumb($dest, $dir);
+			if ($thumbName !== null) {
+				$thumbPath = '/crm/uploads/marketing/' . $id . '/' . $thumbName;
+			}
+		}
+
+		MarketingResource::update($id, [
+			'file_path' => $filePath,
+			'thumb_path' => $thumbPath,
+			'updated_at' => date('c'),
+		]);
+
+		View::flash('ok', 'Recurso publicado en el centro de material comercial.');
+		Http::redirect('/marketing/recursos');
+	}
+
+	public function destroyResource(string $id): void
+	{
+		Csrf::check();
+		Auth::requireUser();
+		if (!Auth::isAdmin()) {
+			View::flash('error', 'Solo administración puede ocultar material oficial.');
+			Http::redirect('/marketing/recursos');
+		}
+		$row = MarketingResource::find((int) $id);
+		if (!$row) {
+			View::flash('error', 'Recurso no encontrado.');
+			Http::redirect('/marketing/recursos');
+		}
+		MarketingResource::update((int) $id, [
+			'active' => 0,
+			'updated_at' => date('c'),
+		]);
+		View::flash('ok', 'Recurso ocultado del centro de material.');
+		Http::redirect('/marketing/recursos');
+	}
+
+	public function downloadResource(string $id): void
+	{
+		Auth::requireUser();
+		$row = MarketingResource::find((int) $id);
+		if (!$row || empty($row['active'])) {
+			http_response_code(404);
+			echo 'Recurso no disponible.';
+			exit;
+		}
+		$path = MarketingResource::absolutePath($row);
+		if ($path === null) {
+			http_response_code(404);
+			echo 'Archivo no encontrado.';
+			exit;
+		}
+		$mime = trim((string) ($row['mime'] ?? '')) ?: 'application/octet-stream';
+		$filename = trim((string) ($row['original_name'] ?? '')) ?: basename($path);
+		$filename = preg_replace('/[\r\n"]+/', '', $filename) ?: 'recurso-mizo';
+		header('Content-Type: ' . $mime);
+		header('Content-Length: ' . (string) filesize($path));
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('X-Content-Type-Options: nosniff');
+		header('Cache-Control: private, no-store');
+		readfile($path);
+		exit;
+	}
+
+	/**
+	 * @return array{tmp:string,filename:string,original:string,mime:string,size:int}
+	 */
+	private function storeUploadedResource(): array
+	{
+		$file = $_FILES['archivo'] ?? null;
+		if (!is_array($file) || (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+			throw new RuntimeException('Sube un archivo de imagen o PDF.');
+		}
+		$size = (int) ($file['size'] ?? 0);
+		if ($size <= 0 || $size > 25 * 1024 * 1024) {
+			throw new RuntimeException('El archivo debe pesar como máximo 25 MB.');
+		}
+		$original = (string) ($file['name'] ?? 'archivo');
+		$ext = strtolower(pathinfo($original, PATHINFO_EXTENSION));
+		$allowed = [
+			'jpg' => 'image/jpeg',
+			'jpeg' => 'image/jpeg',
+			'png' => 'image/png',
+			'webp' => 'image/webp',
+			'gif' => 'image/gif',
+			'pdf' => 'application/pdf',
+		];
+		if (!isset($allowed[$ext])) {
+			throw new RuntimeException('Formato no permitido. Usa JPG, PNG, WEBP, GIF o PDF.');
+		}
+		$tmp = (string) ($file['tmp_name'] ?? '');
+		if ($tmp === '' || !is_uploaded_file($tmp)) {
+			throw new RuntimeException('La subida del archivo falló.');
+		}
+		$finfo = new \finfo(FILEINFO_MIME_TYPE);
+		$detected = (string) ($finfo->file($tmp) ?: '');
+		$mime = $allowed[$ext];
+		if ($detected !== '' && $detected !== $mime && !($ext === 'jpg' && $detected === 'image/jpeg')) {
+			// Algunos hostings reportan application/octet-stream; confiamos en la extensión validada.
+			if ($detected !== 'application/octet-stream') {
+				throw new RuntimeException('El contenido del archivo no coincide con su extensión.');
+			}
+		}
+		$safeBase = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', pathinfo($original, PATHINFO_FILENAME)) ?? 'recurso'));
+		$safeBase = trim($safeBase, '-') ?: 'recurso';
+		$filename = $safeBase . '-' . substr(bin2hex(random_bytes(4)), 0, 8) . '.' . ($ext === 'jpeg' ? 'jpg' : $ext);
+		$staging = sys_get_temp_dir() . '/mizo-mkt-' . $filename;
+		if (!@move_uploaded_file($tmp, $staging)) {
+			throw new RuntimeException('No se pudo preparar el archivo subido.');
+		}
+		return [
+			'tmp' => $staging,
+			'filename' => $filename,
+			'original' => $original,
+			'mime' => $mime,
+			'size' => $size,
+		];
+	}
+
+	private function makeImageThumb(string $source, string $dir): ?string
+	{
+		if (!function_exists('imagecreatetruecolor') || !function_exists('imagecreatefromstring')) {
+			return null;
+		}
+		$raw = @file_get_contents($source);
+		if ($raw === false || $raw === '') {
+			return null;
+		}
+		$src = @imagecreatefromstring($raw);
+		if ($src === false) {
+			return null;
+		}
+		$w = imagesx($src);
+		$h = imagesy($src);
+		if ($w < 1 || $h < 1) {
+			imagedestroy($src);
+			return null;
+		}
+		$max = 640;
+		$scale = min(1, $max / max($w, $h));
+		$tw = max(1, (int) round($w * $scale));
+		$th = max(1, (int) round($h * $scale));
+		$dst = imagecreatetruecolor($tw, $th);
+		imagealphablending($dst, false);
+		imagesavealpha($dst, true);
+		imagecopyresampled($dst, $src, 0, 0, 0, 0, $tw, $th, $w, $h);
+		$name = 'thumb.webp';
+		$path = $dir . '/' . $name;
+		$ok = false;
+		if (function_exists('imagewebp')) {
+			$ok = imagewebp($dst, $path, 82);
+		}
+		if (!$ok) {
+			$name = 'thumb.jpg';
+			$path = $dir . '/' . $name;
+			$ok = imagejpeg($dst, $path, 85);
+		}
+		imagedestroy($dst);
+		imagedestroy($src);
+		return $ok ? $name : null;
 	}
 
 	/** @param array<string, mixed> $user */

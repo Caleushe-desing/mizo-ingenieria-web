@@ -3,19 +3,22 @@ use MizoCrm\Http;
 
 $templates = $templates ?? [];
 $variables = $variables ?? [];
+$mktTab = 'correos';
 ?>
 <div class="mkt-sheet">
 	<div class="page-head">
 		<div>
 			<p class="file-kicker">Comunicaciones</p>
 			<h1>Marketing</h1>
-			<p>Redacta correos comerciales con plantillas y variables del CRM. El envío usa tu casilla de Correo.</p>
+			<p>Correos comerciales con plantillas, y material gráfico listo para vender y publicar.</p>
 		</div>
 		<div class="mkt-head-actions">
 			<a class="btn btn-word" href="<?= h(Http::url('/marketing/nuevo')) ?>">Nuevo correo comercial</a>
-			<a class="btn-text" href="<?= h(Http::url('/marketing/plantillas')) ?>">Plantillas</a>
+			<a class="btn btn-excel" href="<?= h(Http::url('/marketing/recursos')) ?>">Ver recursos</a>
 		</div>
 	</div>
+
+	<?php require __DIR__ . '/_nav.php'; ?>
 
 	<section class="paper mkt-panel">
 		<h2 class="section-title word">Plantillas listas</h2>
@@ -31,6 +34,14 @@ $variables = $variables ?? [];
 				<p class="muted">Aún no hay plantillas activas. Créalas en Plantillas.</p>
 			<?php endif; ?>
 		</div>
+	</section>
+
+	<section class="paper mkt-panel">
+		<h2 class="section-title word">Centro de recursos</h2>
+		<p class="muted">Flyers, piezas para redes y PDFs institucionales en un solo lugar.</p>
+		<p style="margin-top:12px">
+			<a class="btn btn-excel" href="<?= h(Http::url('/marketing/recursos')) ?>">Abrir Recursos y material comercial</a>
+		</p>
 	</section>
 
 	<section class="paper mkt-panel">
