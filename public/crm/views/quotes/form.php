@@ -63,10 +63,7 @@ foreach ($contacts as $c) {
 		</div>
 		<div class="quote-toolbar-actions">
 			<?php if ($quote): ?>
-				<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" style="display:inline">
-					<?= Csrf::field() ?>
-					<button class="btn" type="submit" title="Crea un borrador nuevo con el siguiente número correlativo">Copiar</button>
-				</form>
+				<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" title="Crea un borrador nuevo y elige el proyecto">Copiar</a>
 			<?php endif; ?>
 			<?php if ($quote && trim((string) ($quote['last_email_html'] ?? '')) !== ''): ?>
 				<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Ver correo enviado</a>
@@ -91,13 +88,18 @@ foreach ($contacts as $c) {
 				<small>Título, contacto, validez</small>
 			</summary>
 			<div class="quote-block-body">
-				<?php if (!$quote): ?>
+				<?php
+				$canChangeProject = !$quote || (string) ($quote['status'] ?? '') === 'borrador';
+				?>
+				<?php if ($canChangeProject && $projects): ?>
 					<label>
 						<span>Proyecto</span>
-						<select name="project_id" required>
-							<option value="">Elige el proyecto</option>
+						<select name="project_id" required <?= $locked ? 'disabled' : '' ?>>
+							<?php if (!$quote): ?>
+								<option value="">Elige el proyecto</option>
+							<?php endif; ?>
 							<?php foreach ($projects as $row): ?>
-								<option value="<?= (int) $row['id'] ?>" <?= (int) ($project['id'] ?? 0) === (int) $row['id'] ? 'selected' : '' ?>><?= h($row['title']) ?></option>
+								<option value="<?= (int) $row['id'] ?>" <?= (int) ($project['id'] ?? ($quote['deal_id'] ?? 0)) === (int) $row['id'] ? 'selected' : '' ?>><?= h($row['title']) ?></option>
 							<?php endforeach; ?>
 						</select>
 					</label>
@@ -329,10 +331,7 @@ foreach ($contacts as $c) {
 			<?php if (!$locked): ?>
 				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">Revisar envío / contactos</a>
 			<?php endif; ?>
-			<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" onsubmit="return confirm('¿Crear una copia con un número de cotización nuevo?');">
-				<?= Csrf::field() ?>
-				<button class="btn-text" type="submit">Copiar cotización</button>
-			</form>
+			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>">Copiar cotización</a>
 			<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Eliminar la cotización <?= h($quote['number']) ?>?');">
 				<?= Csrf::field() ?>
 				<button class="btn-danger-text" type="submit">Eliminar cotización</button>

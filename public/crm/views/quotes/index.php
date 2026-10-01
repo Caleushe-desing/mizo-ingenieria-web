@@ -91,10 +91,7 @@ $profitPositive = (int) $summary['profit'] >= 0;
 									<?php if (!empty($quote['last_email_html'])): ?>
 										<a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Correo</a>
 									<?php endif; ?>
-									<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" onsubmit="return confirm('¿Copiar <?= h($quote['number']) ?> con un número nuevo?');">
-										<?= Csrf::field() ?>
-										<button type="submit">Copiar</button>
-									</form>
+									<a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>">Copiar</a>
 								</div>
 							</td>
 							<td>

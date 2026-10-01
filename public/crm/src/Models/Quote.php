@@ -391,20 +391,26 @@ final class Quote extends Record
 
 	/**
 	 * Copia una cotización con un número correlativo nuevo (borrador).
-	 * Conserva partidas, textos y vínculo al mismo proyecto/cliente.
+	 * @param ?int $dealId proyecto destino del mismo cliente; null = el original
 	 */
-	public static function duplicate(int $quoteId, int $userId): ?int
+	public static function duplicate(int $quoteId, int $userId, ?int $dealId = null): ?int
 	{
 		$quote = self::find($quoteId);
 		if (!$quote) {
+			return null;
+		}
+		$clientId = (int) $quote['client_id'];
+		$targetDealId = $dealId !== null && $dealId > 0 ? $dealId : (int) $quote['deal_id'];
+		$deal = Deal::find($targetDealId);
+		if (!$deal || (int) $deal['client_id'] !== $clientId) {
 			return null;
 		}
 		$items = self::items($quoteId);
 		$now = date('c');
 		$id = self::insert([
 			'number' => self::nextNumber(),
-			'deal_id' => (int) $quote['deal_id'],
-			'client_id' => (int) $quote['client_id'],
+			'deal_id' => $targetDealId,
+			'client_id' => $clientId,
 			'status' => 'borrador',
 			'intro' => (string) ($quote['intro'] ?? ''),
 			'notes' => (string) ($quote['notes'] ?? ''),
@@ -441,7 +447,7 @@ final class Quote extends Record
 		}
 		$totals = self::saveItems($id, $copyItems);
 		self::update($id, [...$totals, 'updated_at' => $now, 'updated_by' => $userId]);
-		Deal::update((int) $quote['deal_id'], [
+		Deal::update($targetDealId, [
 			'amount' => $totals['total'],
 			'updated_at' => $now,
 		]);

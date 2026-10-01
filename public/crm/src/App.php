@@ -92,6 +92,7 @@ final class App
 			['GET', '#^/cotizaciones/(\d+)/correo$#', [Controllers\QuoteController::class, 'email']],
 			['GET', '#^/cotizaciones/(\d+)/enviar$#', [Controllers\QuoteController::class, 'prepareSend']],
 			['POST', '#^/cotizaciones/(\d+)/enviar$#', [Controllers\QuoteController::class, 'send']],
+			['GET', '#^/cotizaciones/(\d+)/copiar$#', [Controllers\QuoteController::class, 'prepareCopy']],
 			['POST', '#^/cotizaciones/(\d+)/copiar$#', [Controllers\QuoteController::class, 'duplicate']],
 			['POST', '#^/cotizaciones/(\d+)/eliminar$#', [Controllers\QuoteController::class, 'destroy']],
 			['GET', '#^/cotizaciones/(\d+)$#', [Controllers\QuoteController::class, 'show']],

@@ -50,9 +50,6 @@ $sentCc = trim((string) ($quote['sent_cc'] ?? ''));
 
 	<div class="quote-send-actions">
 		<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Editar cotización</a>
-		<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>" style="display:inline">
-			<?= Csrf::field() ?>
-			<button class="btn btn-excel" type="submit">Copiar con número nuevo</button>
-		</form>
+		<a class="btn btn-excel" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>">Copiar con número nuevo</a>
 	</div>
 </div>

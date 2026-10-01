@@ -166,6 +166,7 @@ final class QuoteController
 		View::render('quotes/form', [
 			'title' => $quote['number'],
 			'client' => $client,
+			'projects' => Client::deals((int) $client['id']),
 			'project' => Deal::find((int) $quote['deal_id']),
 			'quote' => $quote,
 			'items' => $items,
@@ -283,7 +284,29 @@ final class QuoteController
 		]);
 	}
 
-	/** Copia con número correlativo nuevo. */
+	/** Elige proyecto destino antes de copiar. */
+	public function prepareCopy(string $id): void
+	{
+		$quote = Quote::find((int) $id);
+		if (!$quote) {
+			Http::redirect('/');
+		}
+		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
+		$projects = Client::deals((int) $client['id']);
+		if ($projects === []) {
+			View::flash('error', 'Este cliente no tiene proyectos. Crea uno antes de copiar la cotización.');
+			Http::redirect('/tablero/cliente/' . $client['id'] . '/ficha');
+		}
+		View::render('quotes/copy', [
+			'title' => 'Copiar ' . $quote['number'],
+			'client' => $client,
+			'quote' => $quote,
+			'project' => Deal::find((int) $quote['deal_id']),
+			'projects' => $projects,
+		]);
+	}
+
+	/** Copia con número correlativo nuevo y proyecto elegido. */
 	public function duplicate(string $id): void
 	{
 		Csrf::check();
@@ -292,22 +315,32 @@ final class QuoteController
 			Http::redirect('/');
 		}
 		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
-		$newId = Quote::duplicate((int) $id, Auth::id());
+		$dealId = (int) ($_POST['project_id'] ?? 0);
+		if ($dealId < 1) {
+			$dealId = (int) $quote['deal_id'];
+		}
+		$deal = Deal::find($dealId);
+		if (!$deal || (int) $deal['client_id'] !== (int) $client['id']) {
+			View::flash('error', 'Elige un proyecto de este cliente para la copia.');
+			Http::redirect('/cotizaciones/' . $id . '/copiar');
+		}
+		$newId = Quote::duplicate((int) $id, Auth::id(), $dealId);
 		if (!$newId) {
 			View::flash('error', 'No se pudo copiar la cotización.');
-			Http::redirect('/cotizaciones/' . $id);
+			Http::redirect('/cotizaciones/' . $id . '/copiar');
 		}
 		$created = Quote::find($newId);
+		$projectNote = ' → ' . (string) ($deal['title'] ?? 'proyecto');
 		Activity::log(
 			'quote_created',
-			'Cotización ' . ($created['number'] ?? '') . ' copiada desde ' . ($quote['number'] ?? '') . '.',
+			'Cotización ' . ($created['number'] ?? '') . ' copiada desde ' . ($quote['number'] ?? '') . $projectNote . '.',
 			Auth::id(),
 			(int) $client['id'],
-			(int) $quote['deal_id'],
+			$dealId,
 			$newId
 		);
 		Client::update((int) $client['id'], ['updated_at' => date('c')]);
-		View::flash('ok', 'Copia creada como ' . ($created['number'] ?? '') . '. Es un borrador nuevo; puedes editarla y enviarla.');
+		View::flash('ok', 'Copia creada como ' . ($created['number'] ?? '') . ' en «' . ($deal['title'] ?? 'proyecto') . '».');
 		Http::redirect('/cotizaciones/' . $newId);
 	}
 
@@ -421,11 +454,23 @@ final class QuoteController
 			'updated_at' => $now,
 			'updated_by' => Auth::id(),
 		];
+		$dealId = (int) $quote['deal_id'];
+		// En borrador se puede reasignar a otro proyecto del mismo cliente.
+		if ((string) ($quote['status'] ?? '') === 'borrador') {
+			$postedDeal = (int) ($_POST['project_id'] ?? 0);
+			if ($postedDeal > 0) {
+				$target = Deal::find($postedDeal);
+				if ($target && (int) $target['client_id'] === $clientId) {
+					$dealId = $postedDeal;
+					$fields['deal_id'] = $dealId;
+				}
+			}
+		}
 		if (!empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true)) {
 			$fields['revision'] = $this->revisionLabel($quote);
 		}
 		Quote::update((int) $quote['id'], $fields);
-		Deal::update((int) $quote['deal_id'], [
+		Deal::update($dealId, [
 			'amount' => $totals['total'],
 			'updated_at' => $now,
 		]);
@@ -436,7 +481,7 @@ final class QuoteController
 			'Cotización ' . ($quote['number'] ?? '') . ' actualizada.' . $versionNote,
 			Auth::id(),
 			$clientId,
-			(int) $quote['deal_id'],
+			$dealId,
 			(int) $quote['id']
 		);
 		return (int) $quote['id'];
