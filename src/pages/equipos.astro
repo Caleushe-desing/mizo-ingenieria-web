@@ -18,47 +18,79 @@ const description = page.seoDescription;
 		webPageSchema({ name: title, description, url: absoluteUrl('/equipos') }),
 	])}
 >
-	<section class="relative overflow-hidden border-b border-white/10 bg-charcoal pt-28 text-white sm:pt-32">
-		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
-		<div class="relative mx-auto max-w-7xl px-4 pb-14 sm:px-6 sm:pb-16 lg:px-8">
+	<section class="relative overflow-hidden border-b border-ink/10 bg-surface pt-28 text-ink sm:pt-32">
+		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.04]"></div>
+		<div class="relative mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-12 lg:px-8">
 			<p class="mizo-kicker">{page.kicker}</p>
-			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] sm:text-5xl">{page.title}</h1>
+			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] text-ink sm:text-5xl">{page.title}</h1>
 			{page.lead && page.lead !== '-' && (
-				<p class="mt-5 max-w-2xl text-lg leading-8 text-white/80">
+				<p class="mt-4 max-w-2xl text-lg leading-8 text-ink/70">
 					{page.lead}
 				</p>
 			)}
+			<p class="mt-3 text-sm text-ink/50">Catálogo técnico de consulta · Sin precios de venta · Cotización a medida</p>
 		</div>
 	</section>
 
 	<section
 		id="vitrina"
-		class="bg-charcoal py-12 sm:py-16"
+		class="bg-paper py-8 sm:py-10"
 		data-endpoint="/crm/api/productos-visibles.php"
 		data-whatsapp={SITE.whatsapp}
 		aria-labelledby="vitrina-heading"
 	>
 		<div class="mx-auto max-w-[90rem] px-3 sm:px-5 lg:px-8">
-			<h2 id="vitrina-heading" class="sr-only">Productos visibles</h2>
-			<div id="vitrina-filtros" class="mb-6 hidden">
-				<label class="block">
-					<span class="sr-only">Buscar productos</span>
-					<input
-						id="vitrina-buscar"
-						type="search"
-						placeholder="Buscar por nombre, SKU o descripción"
-						autocomplete="off"
-						class="w-full border border-white/15 bg-transparent px-4 py-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-orange"
-					/>
-				</label>
-				<div id="vitrina-categorias" class="mt-3 flex flex-wrap gap-2" role="group" aria-label="Categorías"></div>
-				<p id="vitrina-conteo" class="mt-3 text-xs tracking-[0.14em] text-white/40" aria-live="polite"></p>
+			<h2 id="vitrina-heading" class="sr-only">Catálogo de equipos</h2>
+
+			<div class="shop-layout">
+				<aside id="vitrina-aside" class="shop-aside" aria-label="Filtros del catálogo">
+					<div class="shop-aside-card">
+						<p class="shop-aside-title">Categorías</p>
+						<nav id="vitrina-categorias" class="shop-cat-nav" role="navigation" aria-label="Categorías de equipos"></nav>
+					</div>
+					<div class="shop-aside-card shop-aside-note">
+						<p class="text-sm font-semibold text-ink">¿No encuentras el equipo?</p>
+						<p class="mt-1 text-sm leading-6 text-ink/65">Te ayudamos a elegir según el recinto y el uso. Sin precios publicados: cotizamos a medida.</p>
+						<a href="/contacto" class="mt-3 inline-flex text-sm font-bold text-accent hover:text-accent-hover">Solicitar asesoría →</a>
+					</div>
+				</aside>
+
+				<div class="shop-main">
+					<div id="vitrina-filtros" class="shop-toolbar hidden">
+						<label class="shop-search">
+							<span class="sr-only">Buscar equipos</span>
+							<svg class="shop-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+								<circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75"></circle>
+								<path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path>
+							</svg>
+							<input
+								id="vitrina-buscar"
+								type="search"
+								placeholder="Buscar por nombre, SKU, categoría o descripción"
+								autocomplete="off"
+							/>
+						</label>
+						<div class="shop-toolbar-meta">
+							<p id="vitrina-conteo" class="shop-count" aria-live="polite"></p>
+							<label class="shop-sort">
+								<span class="sr-only">Ordenar</span>
+								<select id="vitrina-orden" aria-label="Ordenar equipos">
+									<option value="nombre">Nombre A–Z</option>
+									<option value="categoria">Categoría</option>
+									<option value="sku">SKU</option>
+								</select>
+							</label>
+						</div>
+						<div id="vitrina-chips" class="shop-chips" role="group" aria-label="Filtro rápido"></div>
+					</div>
+
+					<p id="vitrina-estado" class="text-sm text-ink/55">Cargando catálogo…</p>
+					<div id="vitrina-lista"></div>
+					<noscript>
+						<p class="text-sm text-ink/55">Para ver los equipos, abre esta página con JavaScript o escríbenos por WhatsApp.</p>
+					</noscript>
+				</div>
 			</div>
-			<p id="vitrina-estado" class="text-sm text-white/60">Cargando productos…</p>
-			<div id="vitrina-lista"></div>
-			<noscript>
-				<p class="text-sm text-white/60">Para ver los productos activos, abre esta página con JavaScript o escríbenos por WhatsApp.</p>
-			</noscript>
 		</div>
 	</section>
 
@@ -68,6 +100,209 @@ const description = page.seoDescription;
 		whatsappHref={whatsappUrl('Hola Mizo, quiero cotizar un producto para mi recinto.')}
 	/>
 </Layout>
+
+<style>
+	.shop-layout {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1.25rem;
+		align-items: start;
+	}
+	@media (min-width: 1024px) {
+		.shop-layout {
+			grid-template-columns: 240px minmax(0, 1fr);
+			gap: 1.75rem;
+		}
+	}
+	.shop-aside {
+		display: grid;
+		gap: 0.85rem;
+	}
+	@media (min-width: 1024px) {
+		.shop-aside {
+			position: sticky;
+			top: 5.5rem;
+		}
+	}
+	.shop-aside-card {
+		background: #fff;
+		border: 1px solid rgba(24, 27, 32, 0.1);
+		border-radius: 12px;
+		padding: 1rem 1rem 0.85rem;
+	}
+	.shop-aside-title {
+		margin: 0 0 0.75rem;
+		font-size: 0.68rem;
+		font-weight: 800;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: #0b6ea8;
+	}
+	.shop-cat-nav {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+	.shop-cat-btn {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		width: 100%;
+		border: 0;
+		background: transparent;
+		border-radius: 8px;
+		padding: 0.55rem 0.65rem;
+		text-align: left;
+		font: inherit;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: rgba(24, 27, 32, 0.75);
+		cursor: pointer;
+		transition: background 0.2s, color 0.2s;
+	}
+	.shop-cat-btn:hover {
+		background: #e2f3fb;
+		color: #0e6491;
+	}
+	.shop-cat-btn.is-on {
+		background: #e2f3fb;
+		color: #0e6491;
+		box-shadow: inset 3px 0 0 #1c9bd8;
+	}
+	.shop-cat-count {
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: rgba(24, 27, 32, 0.4);
+	}
+	.shop-cat-btn.is-on .shop-cat-count {
+		color: #1c9bd8;
+	}
+	.shop-toolbar {
+		display: grid;
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+		background: #fff;
+		border: 1px solid rgba(24, 27, 32, 0.1);
+		border-radius: 12px;
+		padding: 0.85rem;
+	}
+	.shop-search {
+		position: relative;
+		display: block;
+	}
+	.shop-search-icon {
+		position: absolute;
+		left: 0.85rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: rgba(24, 27, 32, 0.4);
+		pointer-events: none;
+	}
+	.shop-search input {
+		width: 100%;
+		border: 1px solid rgba(24, 27, 32, 0.12);
+		border-radius: 10px;
+		background: #f8fafc;
+		padding: 0.8rem 0.9rem 0.8rem 2.5rem;
+		font: inherit;
+		font-size: 0.95rem;
+		color: #181b20;
+		outline: none;
+	}
+	.shop-search input:focus {
+		border-color: #1c9bd8;
+		background: #fff;
+		box-shadow: 0 0 0 3px rgba(28, 155, 216, 0.15);
+	}
+	.shop-toolbar-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+	.shop-count {
+		margin: 0;
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		color: rgba(24, 27, 32, 0.5);
+	}
+	.shop-sort select {
+		border: 1px solid rgba(24, 27, 32, 0.12);
+		border-radius: 8px;
+		background: #fff;
+		padding: 0.45rem 0.7rem;
+		font: inherit;
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: #181b20;
+	}
+	.shop-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+	@media (min-width: 1024px) {
+		.shop-chips { display: none; }
+	}
+	.shop-chip {
+		border: 1px solid rgba(24, 27, 32, 0.12);
+		background: #fff;
+		border-radius: 999px;
+		padding: 0.4rem 0.85rem;
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: rgba(24, 27, 32, 0.7);
+		cursor: pointer;
+	}
+	.shop-chip.is-on {
+		border-color: #f47b20;
+		background: #f47b20;
+		color: #fff;
+	}
+	.shop-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.85rem;
+	}
+	@media (min-width: 640px) {
+		.shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+	}
+	@media (min-width: 1100px) {
+		.shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+	}
+	.shop-card {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		background: #fff;
+		border: 1px solid rgba(24, 27, 32, 0.1);
+		border-radius: 12px;
+		transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+	}
+	.shop-card:hover {
+		border-color: rgba(28, 155, 216, 0.45);
+		box-shadow: 0 12px 28px rgba(15, 17, 20, 0.08);
+		transform: translateY(-2px);
+	}
+	.shop-card-body {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		padding: 0.85rem 0.9rem 1rem;
+	}
+	.shop-card-actions {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.4rem;
+		margin-top: auto;
+		padding-top: 0.85rem;
+	}
+</style>
 
 <script>
 	const root = document.getElementById('vitrina');
@@ -85,7 +320,7 @@ const description = page.seoDescription;
 
 	function mountOverlay(label) {
 		if (closeActive) closeActive();
-		const overlay = node('div', 'fixed inset-0 z-[70] flex items-center justify-center bg-charcoal/95 p-4');
+		const overlay = node('div', 'fixed inset-0 z-[70] flex items-center justify-center bg-ink/70 p-4 backdrop-blur-[2px]');
 		overlay.setAttribute('role', 'dialog');
 		overlay.setAttribute('aria-modal', 'true');
 		overlay.setAttribute('aria-label', label);
@@ -128,12 +363,12 @@ const description = page.seoDescription;
 		let index = start;
 		const { overlay, close, keys } = mountOverlay(alt);
 		const sheet = node('div', 'flex w-full max-w-6xl flex-col items-center');
-		const stage = node('div', 'relative flex h-[min(68vh,48rem)] w-full items-center justify-center bg-white');
+		const stage = node('div', 'relative flex h-[min(68vh,48rem)] w-full items-center justify-center rounded-xl bg-white shadow-card');
 		const img = document.createElement('img');
 		img.className = 'h-full w-full object-contain';
 		img.alt = alt;
 		stage.append(img);
-		const counter = node('p', 'mt-3 text-[11px] tracking-[0.18em] text-white/60');
+		const counter = node('p', 'mt-3 text-[11px] tracking-[0.18em] text-white/90');
 		function show(next) {
 			index = (next + photos.length) % photos.length;
 			img.src = photos[index];
@@ -143,13 +378,13 @@ const description = page.seoDescription;
 		}
 		show(start);
 		sheet.append(stage, counter);
-		const closeBtn = node('button', 'absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl font-light leading-none text-white/80 transition hover:bg-white hover:text-charcoal', '×');
+		const closeBtn = node('button', 'absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white text-xl font-light leading-none text-ink shadow-card transition hover:bg-orange hover:text-white', '×');
 		closeBtn.type = 'button';
 		closeBtn.setAttribute('aria-label', 'Cerrar');
 		closeBtn.addEventListener('click', close);
 		overlay.append(sheet, closeBtn);
 		if (photos.length > 1) {
-			const ghost = 'absolute top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white/80 backdrop-blur-sm transition hover:bg-white hover:text-charcoal';
+			const ghost = 'absolute top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-ink/10 bg-white text-ink shadow-card transition hover:bg-orange hover:text-white';
 			const prev = roundButton('Foto anterior', chevron('M8.5 3.5 5 7l3.5 3.5'), ghost + ' left-3 sm:left-6');
 			const next = roundButton('Foto siguiente', chevron('M5.5 3.5 9 7l-3.5 3.5'), ghost + ' right-3 sm:right-6');
 			prev.addEventListener('click', () => show(index - 1));
@@ -160,9 +395,7 @@ const description = page.seoDescription;
 				if (event.key === 'ArrowRight') show(index + 1);
 			};
 			let startX = 0;
-			stage.addEventListener('pointerdown', (event) => {
-				startX = event.clientX;
-			});
+			stage.addEventListener('pointerdown', (event) => { startX = event.clientX; });
 			stage.addEventListener('pointerup', (event) => {
 				const delta = event.clientX - startX;
 				if (delta > 40) show(index - 1);
@@ -173,11 +406,11 @@ const description = page.seoDescription;
 	}
 
 	function quoteLinks(item, phone) {
-		const quote = node('div', 'grid grid-cols-2 gap-1.5');
+		const quote = node('div', 'shop-card-actions');
 		const message = `Quiero cotizar el producto ${item.nombre || ''} (SKU ${item.sku || ''}).`;
-		const formLink = node('a', 'inline-flex items-center justify-center bg-orange px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-300 hover:bg-orange-hover', 'Cotizar');
+		const formLink = node('a', 'inline-flex items-center justify-center rounded-lg bg-orange px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.1em] text-white transition hover:bg-orange-hover', 'Cotizar');
 		formLink.href = `/contacto?sku=${encodeURIComponent(item.sku || '')}&mensaje=${encodeURIComponent(message)}`;
-		const whatsapp = node('a', 'inline-flex items-center justify-center border border-white/20 px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-300 hover:border-accent/80 hover:text-white', 'WhatsApp');
+		const whatsapp = node('a', 'inline-flex items-center justify-center rounded-lg border border-ink/15 px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.1em] text-ink transition hover:border-accent hover:text-accent', 'WhatsApp');
 		whatsapp.href = `https://wa.me/${phone}?text=${encodeURIComponent('Hola Mizo, ' + message)}`;
 		whatsapp.target = '_blank';
 		whatsapp.rel = 'noopener noreferrer';
@@ -186,16 +419,18 @@ const description = page.seoDescription;
 	}
 
 	function openInfo(item, phone) {
-		const { overlay, close } = mountOverlay(item.nombre || 'Información del producto');
-		const panel = node('div', 'relative max-h-[min(80vh,40rem)] w-full max-w-xl overflow-y-auto border border-white/10 bg-charcoal px-6 py-6 sm:px-8');
-		const closeBtn = node('button', 'absolute right-4 top-4 text-xs font-bold uppercase tracking-[0.14em] text-white/50 transition hover:text-white', 'Cerrar');
+		const { overlay, close } = mountOverlay(item.nombre || 'Información del equipo');
+		const panel = node('div', 'relative max-h-[min(80vh,40rem)] w-full max-w-xl overflow-y-auto rounded-xl border border-ink/10 bg-white px-6 py-6 shadow-card sm:px-8');
+		const closeBtn = node('button', 'absolute right-4 top-4 text-xs font-bold uppercase tracking-[0.14em] text-ink/40 transition hover:text-ink', 'Cerrar');
 		closeBtn.type = 'button';
 		closeBtn.addEventListener('click', close);
 		panel.append(closeBtn);
-		panel.append(node('p', 'pr-16 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Producto'));
-		panel.append(node('h3', 'mt-2 pr-16 text-2xl font-extrabold leading-snug', item.nombre || item.sku));
-		if (item.sku) panel.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
-		if (item.descripcion) panel.append(node('p', 'mt-5 whitespace-pre-wrap text-sm leading-7 text-white/75', item.descripcion));
+		panel.append(node('p', 'pr-16 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Equipo'));
+		panel.append(node('h3', 'mt-2 pr-16 text-2xl font-extrabold leading-snug text-ink', item.nombre || item.sku));
+		if (item.sku) panel.append(node('p', 'mt-2 font-mono text-xs text-ink/40', 'SKU ' + item.sku));
+		if (item.descripcion) panel.append(node('p', 'mt-5 whitespace-pre-wrap text-sm leading-7 text-ink/70', item.descripcion));
+		const note = node('p', 'mt-4 rounded-lg bg-accent-soft px-3 py-2 text-xs leading-5 text-accent-dark', 'Catálogo técnico · Sin precio de lista · Cotización según proyecto');
+		panel.append(note);
 		const quote = quoteLinks(item, phone);
 		quote.classList.add('mt-6');
 		panel.append(quote);
@@ -205,7 +440,7 @@ const description = page.seoDescription;
 
 	function gallery(photos, alt) {
 		const wrap = node('div', 'bg-white');
-		const frame = node('div', 'relative flex aspect-square items-center justify-center overflow-hidden bg-white touch-pan-y');
+		const frame = node('div', 'relative flex aspect-square items-center justify-center overflow-hidden bg-[#f8fafc] touch-pan-y');
 		const img = document.createElement('img');
 		img.className = 'h-full w-full object-contain p-3';
 		img.alt = alt;
@@ -214,8 +449,7 @@ const description = page.seoDescription;
 		img.src = photos[0];
 		img.addEventListener('error', () => {
 			img.style.display = 'none';
-			const fallback = node('div', 'flex h-full w-full items-center justify-center text-[10px] uppercase tracking-[0.16em] text-charcoal/35', 'Sin foto');
-			frame.append(fallback);
+			frame.append(node('div', 'flex h-full w-full items-center justify-center text-[10px] uppercase tracking-[0.16em] text-ink/30', 'Sin foto'));
 		});
 		const zoom = node('button', 'absolute inset-0 cursor-zoom-in');
 		zoom.type = 'button';
@@ -227,7 +461,7 @@ const description = page.seoDescription;
 		let index = 0;
 		let startX = 0;
 		let suppressClick = false;
-		const counter = node('span', 'pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 text-[10px] tracking-[0.16em] text-charcoal/45');
+		const counter = node('span', 'pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] tracking-[0.16em] text-ink/50 shadow-sm');
 		function show(next) {
 			index = (next + photos.length) % photos.length;
 			img.style.display = '';
@@ -236,16 +470,13 @@ const description = page.seoDescription;
 		}
 		show(0);
 		zoom.addEventListener('click', () => {
-			if (suppressClick) {
-				suppressClick = false;
-				return;
-			}
+			if (suppressClick) { suppressClick = false; return; }
 			openViewer(photos, alt, index, show);
 		});
 		if (photos.length < 2) return wrap;
 
 		function arrow(label, symbol) {
-			const button = node('button', 'absolute top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/85 text-charcoal/70 backdrop-blur-sm transition hover:bg-white hover:text-charcoal');
+			const button = node('button', 'absolute top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-ink/10 bg-white/90 text-ink/70 shadow-sm transition hover:bg-white hover:text-ink');
 			button.type = 'button';
 			button.setAttribute('aria-label', label);
 			button.innerHTML = symbol;
@@ -290,28 +521,23 @@ const description = page.seoDescription;
 	}
 
 	function card(item, phone) {
-		const article = node('article', 'group flex flex-col overflow-hidden border border-white/10 bg-charcoal transition-all duration-300 hover:border-orange/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]');
+		const article = node('article', 'shop-card group');
 		const photos = productPhotos(item);
-		const alt = item.nombre || item.sku || 'Producto';
+		const alt = item.nombre || item.sku || 'Equipo';
 		if (photos.length) article.append(gallery(photos, alt));
-		else {
-			const placeholder = node('div', 'flex aspect-square items-center justify-center bg-white/5 text-[10px] uppercase tracking-[0.16em] text-white/30', 'Sin foto');
-			article.append(placeholder);
-		}
-		const body = node('div', 'flex flex-1 flex-col px-3 py-3 sm:px-3.5 sm:py-4');
-		body.append(node('p', 'text-[0.6rem] font-bold uppercase tracking-[0.16em] text-orange', item.categoria || 'Producto'));
-		body.append(node('h3', 'mt-1.5 line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-white', item.nombre || item.sku));
-		if (item.sku) body.append(node('p', 'mt-1 font-mono text-[10px] text-white/35', item.sku));
+		else article.append(node('div', 'flex aspect-square items-center justify-center bg-[#f1f4f7] text-[10px] uppercase tracking-[0.16em] text-ink/30', 'Sin foto'));
+
+		const body = node('div', 'shop-card-body');
+		body.append(node('p', 'text-[0.6rem] font-bold uppercase tracking-[0.16em] text-orange', item.categoria || 'Equipo'));
+		body.append(node('h3', 'mt-1.5 line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-ink', item.nombre || item.sku));
 		if (item.descripcion) {
-			body.append(node('p', 'mt-2 line-clamp-2 text-xs leading-5 text-white/60', item.descripcion));
-			const more = node('button', 'mt-2 self-start text-[10px] font-bold uppercase tracking-[0.12em] text-orange transition hover:text-white', 'Ver más');
+			body.append(node('p', 'mt-2 line-clamp-2 text-xs leading-5 text-ink/55', item.descripcion));
+			const more = node('button', 'mt-2 self-start text-[10px] font-bold uppercase tracking-[0.12em] text-accent transition hover:text-accent-hover', 'Ver ficha');
 			more.type = 'button';
 			more.addEventListener('click', () => openInfo(item, phone));
 			body.append(more);
 		}
-		const quote = quoteLinks(item, phone);
-		quote.classList.add('mt-auto', 'pt-3');
-		body.append(quote);
+		body.append(quoteLinks(item, phone));
 		article.append(body);
 		return article;
 	}
@@ -328,12 +554,18 @@ const description = page.seoDescription;
 		const filters = document.getElementById('vitrina-filtros');
 		const search = document.getElementById('vitrina-buscar');
 		const categories = document.getElementById('vitrina-categorias');
+		const chips = document.getElementById('vitrina-chips');
 		const count = document.getElementById('vitrina-conteo');
-		const chipOn = 'border border-orange bg-orange px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white';
-		const chipOff = 'border border-white/15 bg-transparent px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white/80 transition-all duration-300 hover:border-accent/60 hover:text-white hover:shadow-glow';
+		const sortEl = document.getElementById('vitrina-orden');
 		let products = [];
 		let query = '';
 		let category = '';
+		let sortBy = 'nombre';
+
+		// Deep link ?categoria=
+		const params = new URLSearchParams(window.location.search);
+		const initialCat = params.get('categoria');
+		if (initialCat) category = fold(initialCat);
 
 		function matches(item) {
 			if (category && fold(item.categoria) !== category) return false;
@@ -342,42 +574,72 @@ const description = page.seoDescription;
 			return query.split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
 		}
 
-		function render() {
-			const visible = products.filter(matches);
-			list.replaceChildren();
-			if (count) {
-				count.textContent = visible.length === 1 ? '1 producto' : visible.length + ' productos';
+		function sorted(items) {
+			const copy = items.slice();
+			copy.sort((a, b) => {
+				const av = fold(a[sortBy] || a.nombre || '');
+				const bv = fold(b[sortBy] || b.nombre || '');
+				return av.localeCompare(bv, 'es');
+			});
+			return copy;
+		}
+
+		function categoryStats() {
+			const map = new Map();
+			for (const item of products) {
+				const name = String(item.categoria || '').trim() || 'Otros';
+				map.set(name, (map.get(name) || 0) + 1);
 			}
+			return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], 'es'));
+		}
+
+		function paintNav() {
+			const stats = categoryStats();
+			const total = products.length;
+			function paintInto(container, asChips) {
+				if (!container) return;
+				container.replaceChildren();
+				const options = [['', total, 'Todos'], ...stats.map(([name, n]) => [name, n, name])];
+				for (const [name, n, label] of options) {
+					const on = fold(name) === category || (name === '' && category === '');
+					const button = node('button', asChips ? ('shop-chip' + (on ? ' is-on' : '')) : ('shop-cat-btn' + (on ? ' is-on' : '')), '');
+					button.type = 'button';
+					button.setAttribute('aria-pressed', on ? 'true' : 'false');
+					if (asChips) {
+						button.textContent = label + (name === '' ? '' : ' · ' + n);
+					} else {
+						button.append(node('span', '', label));
+						button.append(node('span', 'shop-cat-count', String(n)));
+					}
+					button.addEventListener('click', () => {
+						category = fold(name);
+						const url = new URL(window.location.href);
+						if (name) url.searchParams.set('categoria', name);
+						else url.searchParams.delete('categoria');
+						history.replaceState({}, '', url.pathname + url.search + '#vitrina');
+						paintNav();
+						render();
+					});
+					container.append(button);
+				}
+			}
+			paintInto(categories, false);
+			paintInto(chips, true);
+		}
+
+		function render() {
+			const visible = sorted(products.filter(matches));
+			list.replaceChildren();
+			if (count) count.textContent = visible.length === 1 ? '1 equipo' : visible.length + ' equipos';
 			if (visible.length === 0) {
 				status.hidden = false;
-				status.textContent = 'Ningún producto coincide con esa búsqueda.';
+				status.textContent = 'Ningún equipo coincide con esa búsqueda.';
 				return;
 			}
 			status.hidden = true;
-			const grid = node('div', 'grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 lg:gap-4');
+			const grid = node('div', 'shop-grid');
 			for (const item of visible) grid.append(card(item, phone));
 			list.append(grid);
-		}
-
-		function paintChips(names) {
-			if (!categories) return;
-			categories.replaceChildren();
-			const options = ['', ...names];
-			for (const name of options) {
-				const button = node('button', name === category || (name === '' && category === '') ? chipOn : chipOff, name || 'Todos');
-				button.type = 'button';
-				button.setAttribute('aria-pressed', name === category || (name === '' && category === '') ? 'true' : 'false');
-				button.addEventListener('click', () => {
-					category = fold(name);
-					for (const chip of categories.querySelectorAll('button')) {
-						const on = chip === button;
-						chip.className = on ? chipOn : chipOff;
-						chip.setAttribute('aria-pressed', on ? 'true' : 'false');
-					}
-					render();
-				});
-				categories.append(button);
-			}
 		}
 
 		const endpoint = root.dataset.endpoint || '/crm/api/productos-visibles.php';
@@ -392,28 +654,30 @@ const description = page.seoDescription;
 				.then(async (response) => {
 					const text = await response.text();
 					if (!response.ok) throw new Error('http-' + response.status);
-					let data;
-					try {
-						data = JSON.parse(text);
-					} catch {
-						throw new Error('json');
-					}
-					return data;
+					return JSON.parse(text);
 				})
 				.then((data) => {
 					products = Array.isArray(data?.productos) ? data.productos : [];
 					if (products.length === 0) {
-						status.textContent = 'Todavía no hay productos publicados. Cuéntanos el recinto y te proponemos el hardware.';
+						status.textContent = 'Todavía no hay equipos publicados. Cuéntanos el recinto y te proponemos el hardware.';
 						return;
 					}
-					const names = [...new Set(products.map((item) => String(item.categoria || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
-					if (names.length > 1) paintChips(names);
-					else categories?.remove();
+					// Validate deep-link category
+					const names = new Set(products.map((item) => fold(item.categoria)));
+					if (category && !names.has(category)) category = '';
+					paintNav();
 					if (filters) filters.classList.remove('hidden');
 					if (search instanceof HTMLInputElement && !search.dataset.bound) {
 						search.dataset.bound = '1';
 						search.addEventListener('input', () => {
 							query = fold(search.value.trim());
+							render();
+						});
+					}
+					if (sortEl instanceof HTMLSelectElement && !sortEl.dataset.bound) {
+						sortEl.dataset.bound = '1';
+						sortEl.addEventListener('change', () => {
+							sortBy = sortEl.value || 'nombre';
 							render();
 						});
 					}

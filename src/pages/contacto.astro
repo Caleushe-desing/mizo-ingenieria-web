@@ -34,7 +34,7 @@ const channels = [
 ];
 
 const fieldClass =
-	'mt-2 w-full border border-white/15 bg-charcoal px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-accent';
+	'mt-2 w-full border border-ink/20 bg-surface px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-ink/40 focus:border-accent';
 ---
 
 <Layout
@@ -46,20 +46,20 @@ const fieldClass =
 		webPageSchema({ name: title, description, url: absoluteUrl('/contacto') }),
 	])}
 >
-	<section class="relative min-h-[100svh] overflow-hidden bg-charcoal pt-28 text-white sm:pt-32">
+	<section class="relative min-h-[100svh] overflow-hidden bg-paper pt-28 text-ink sm:pt-32">
 		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
 		<div class="pointer-events-none absolute -right-24 top-24 h-80 w-80 rounded-full bg-accent/10 blur-3xl"></div>
 		<div class="pointer-events-none absolute -left-16 bottom-0 h-72 w-72 bg-orange/10 blur-3xl"></div>
 
 		<div class="relative mx-auto grid max-w-6xl lg:grid-cols-[0.9fr_1.1fr]">
-			<div class="border-white/10 px-4 pb-10 sm:px-6 lg:border-r lg:px-8 lg:pb-16">
+			<div class="border-ink/10 px-4 pb-10 sm:px-6 lg:border-r lg:px-8 lg:pb-16">
 				<p class="mizo-kicker">{page.kicker}</p>
 				<h1 class="mt-4 max-w-md text-4xl font-extrabold leading-[1.1] sm:text-5xl">{page.title}</h1>
-				<p class="mt-5 max-w-md text-base leading-7 text-white/70">
+				<p class="mt-5 max-w-md text-base leading-7 text-ink/70">
 					{page.lead}
 				</p>
 
-				<dl class="mt-10 divide-y divide-white/10 border-y border-white/10">
+				<dl class="mt-10 divide-y divide-ink/10 border-y border-ink/10">
 					{channels.map((channel) => (
 						<div>
 							<a
@@ -68,58 +68,58 @@ const fieldClass =
 								rel={channel.external ? 'noopener noreferrer' : undefined}
 								class="group grid grid-cols-[7.5rem_1fr] items-center gap-4 py-6 transition-all duration-300 hover:bg-accent/10"
 							>
-								<dt class="text-[0.7rem] font-bold uppercase tracking-[0.18em] text-accent">{channel.label}</dt>
+								<dt class="text-[0.7rem] font-bold uppercase tracking-[0.18em] text-accent-dark">{channel.label}</dt>
 								<dd>
-									<p class="text-lg font-bold text-white group-hover:text-orange">{channel.value}</p>
-									<p class="mt-1 text-sm text-white/75">{channel.detail}</p>
+									<p class="text-lg font-bold text-ink group-hover:text-orange">{channel.value}</p>
+									<p class="mt-1 text-sm text-ink/75">{channel.detail}</p>
 								</dd>
 							</a>
 						</div>
 					))}
 				</dl>
 
-				<div class="mt-8 grid grid-cols-1 gap-px bg-white/10 sm:grid-cols-2">
-					<div class="bg-charcoal px-5 py-5">
-						<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/40">Cobertura</p>
+				<div class="mt-8 grid grid-cols-1 gap-px bg-ink/10 sm:grid-cols-2">
+					<div class="bg-surface px-5 py-5">
+						<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-ink/55">Cobertura</p>
 						<p class="mt-2 text-sm font-semibold leading-6">Frutillar, Santiago y sur de Chile</p>
 					</div>
-					<div class="bg-charcoal px-5 py-5">
-						<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/40">Horario</p>
+					<div class="bg-surface px-5 py-5">
+						<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-ink/55">Horario</p>
 						<p class="mt-2 text-sm font-semibold leading-6">Lunes a viernes · 9:00 a 18:00</p>
 					</div>
 				</div>
 			</div>
 
-			<div class="bg-charcoal-light/40 px-4 py-10 sm:px-6 lg:px-8 lg:py-0 lg:pb-16">
-				<div class="border border-white/10 bg-charcoal-light">
-					<div class="flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-7">
+			<div class="bg-surface/50 px-4 py-10 sm:px-6 lg:px-8 lg:py-0 lg:pb-16">
+				<div class="border border-ink/10 bg-surface shadow-card">
+					<div class="flex items-center justify-between border-b border-ink/10 px-5 py-4 sm:px-7">
 						<div>
 							<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Formulario de cotización</p>
-							<p class="mt-1 text-sm text-white/60">Los datos llegan a {SITE.email}</p>
+							<p class="mt-1 text-sm text-ink/60">Los datos llegan a {SITE.email}</p>
 						</div>
-						<span class="hidden h-10 w-10 items-center justify-center border border-accent/40 text-xs font-bold text-accent sm:flex">01</span>
+						<span class="hidden h-10 w-10 items-center justify-center border border-accent/40 text-xs font-bold text-accent-dark sm:flex">01</span>
 					</div>
 
 					<form id="contacto-form" class="p-5 sm:p-7" novalidate>
 						<input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
 						<input type="hidden" name="sku" value="" />
-						<p id="contacto-sku" class="mb-5 hidden border border-white/10 px-4 py-3 text-sm text-white/80"></p>
+						<p id="contacto-sku" class="mb-5 hidden border border-ink/10 px-4 py-3 text-sm text-ink/80"></p>
 						<div class="grid gap-5 sm:grid-cols-2">
 							<label class="block">
-								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white/70">Nombre</span>
+								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Nombre</span>
 								<input name="nombre" type="text" required class={fieldClass} />
 							</label>
 							<label class="block">
-								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white/70">Teléfono</span>
+								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Teléfono</span>
 								<input name="telefono" type="tel" required class={fieldClass} />
 							</label>
 							<label class="block sm:col-span-2">
-								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white/70">Correo</span>
+								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Correo</span>
 								<input name="correo" type="email" required class={fieldClass} />
 							</label>
 							<label class="block sm:col-span-2">
-								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white/70">Rubro</span>
-								<select name="servicio" required class={`${fieldClass} bg-charcoal`}>
+								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Rubro</span>
+								<select name="servicio" required class={`${fieldClass} bg-surface`}>
 									<option value="">Selecciona un rubro</option>
 									{INDUSTRIES.map((industry) => (
 										<option value={industry.title}>{industry.title}</option>
@@ -127,17 +127,17 @@ const fieldClass =
 								</select>
 							</label>
 							<label class="block sm:col-span-2">
-								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white/70">Mensaje</span>
+								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Mensaje</span>
 								<textarea name="mensaje" rows="6" required class={`${fieldClass} resize-y`}></textarea>
 							</label>
 						</div>
-						<div class="mt-7 flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+						<div class="mt-7 flex flex-col gap-3 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
 							<button type="submit" class="mizo-btn">
 								Enviar solicitud
 							</button>
-							<p class="text-xs leading-5 text-white/45">Respuesta en horario hábil · Frutillar y Santiago</p>
+							<p class="text-xs leading-5 text-ink/55">Respuesta en horario hábil · Frutillar y Santiago</p>
 						</div>
-						<p id="contacto-error" class="mt-4 hidden border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-200">
+						<p id="contacto-error" class="mt-4 hidden border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-700">
 							No se pudo enviar. Escríbenos por WhatsApp o a {SITE.email}.
 						</p>
 					</form>
@@ -145,7 +145,7 @@ const fieldClass =
 					<div id="contacto-ok" class="hidden px-5 py-16 text-center sm:px-7">
 						<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Solicitud recibida</p>
 						<h2 class="mt-4 text-3xl font-extrabold">Un ingeniero Mizo te contactará.</h2>
-						<p class="mx-auto mt-3 max-w-md text-white/65">Revisaremos tu recinto y el servicio solicitado para armar una propuesta concreta.</p>
+						<p class="mx-auto mt-3 max-w-md text-ink/65">Revisaremos tu recinto y el servicio solicitado para armar una propuesta concreta.</p>
 						<a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" class="mt-8 inline-flex bg-[#25D366] px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white">
 							Continuar por WhatsApp
 						</a>

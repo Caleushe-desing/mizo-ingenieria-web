@@ -48,17 +48,17 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="bg-charcoal py-20 sm:py-28" aria-labelledby="rubros-heading">
+	<section class="bg-paper py-20 sm:py-28" aria-labelledby="rubros-heading">
 		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
 			<p class="mizo-kicker">{home.rubrosKicker}</p>
-			<h2 id="rubros-heading" class="mt-3 max-w-2xl text-3xl font-extrabold leading-tight text-white sm:text-4xl">
+			<h2 id="rubros-heading" class="mt-3 max-w-2xl text-3xl font-extrabold leading-tight text-ink sm:text-4xl">
 				{home.rubrosTitle}
 			</h2>
 			<div class="mt-14 grid gap-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3 lg:gap-8">
 				{INDUSTRIES.map((industry) => (
 					<a
 						href={industryPath(industry.slug)}
-						class="mizo-card group relative flex h-full flex-col overflow-hidden rounded-sm border border-white/10 bg-charcoal hover:-translate-y-1 hover:border-accent/70"
+						class="mizo-card group relative flex h-full flex-col overflow-hidden rounded-sm border border-ink/10 bg-surface hover:-translate-y-1 hover:border-accent/70"
 					>
 						<div class="relative aspect-[4/3] overflow-hidden">
 							<Image
@@ -74,8 +74,8 @@ const jsonLd = graphSchema([
 						</div>
 						<div class="px-6 py-7 sm:px-7 sm:py-8">
 							<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">{industry.nav}</p>
-							<h3 class="mt-3 text-xl font-extrabold leading-snug text-white">{industry.title}</h3>
-							<p class="mt-3 text-sm leading-7 text-white/80">{industry.short}</p>
+							<h3 class="mt-3 text-xl font-extrabold leading-snug text-ink">{industry.title}</h3>
+							<p class="mt-3 text-sm leading-7 text-ink/75">{industry.short}</p>
 						</div>
 						<span class="pointer-events-none absolute inset-0 bg-accent/0 transition-all duration-300 group-hover:bg-accent/10" aria-hidden="true"></span>
 					</a>
@@ -84,14 +84,14 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="border-t border-white/10 bg-charcoal py-16 sm:py-24" aria-label="Marcas">
-		<ul class="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-white/10 sm:grid-cols-4 lg:grid-cols-7">
+	<section class="border-t border-ink/10 bg-surface py-16 sm:py-24" aria-label="Marcas">
+		<ul class="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-ink/10 sm:grid-cols-4 lg:grid-cols-7">
 			{BRANDS.map((brand) => (
-				<li class="flex h-20 items-center justify-center bg-charcoal px-4">
+				<li class="flex h-20 items-center justify-center bg-surface px-4">
 					<img
 						src={`/images/marcas/${brand.slug}.svg`}
 						alt={brand.name}
-						class="max-h-8 max-w-[110px] object-contain brightness-0 invert opacity-80"
+						class="max-h-8 max-w-[110px] object-contain brightness-0 opacity-70"
 						width="110"
 						height="32"
 						loading="lazy"

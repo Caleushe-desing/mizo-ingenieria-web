@@ -25,11 +25,11 @@ const {
 const supportPhotos = [soporteLocal, postventa, respuestaRapida, pagoTarjeta];
 ---
 
-<section class="border-t border-white/10 bg-charcoal py-20 sm:py-28" aria-label="Cotizar">
+<section class="border-t border-ink/10 bg-paper py-20 sm:py-28" aria-label="Cotizar">
 	<div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
 		<div>
-			<h2 class="text-2xl font-extrabold leading-tight text-white sm:text-3xl">{title}</h2>
-			<p class="mt-3 max-w-xl text-base leading-7 text-white/80">{text}</p>
+			<h2 class="text-2xl font-extrabold leading-tight text-ink sm:text-3xl">{title}</h2>
+			<p class="mt-3 max-w-xl text-base leading-7 text-ink/80">{text}</p>
 		</div>
 		<div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
 			<a href={quoteHref} class="mizo-btn">{content.cta.quoteLabel}</a>
@@ -38,7 +38,7 @@ const supportPhotos = [soporteLocal, postventa, respuestaRapida, pagoTarjeta];
 	</div>
 	<ul class="mx-auto mt-16 grid max-w-6xl gap-3 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
 		{SUPPORT_PROMISES.map((item, index) => (
-			<li class="mizo-card border border-white/10 bg-charcoal">
+			<li class="mizo-card border border-ink/10 bg-surface">
 				<Image
 					src={supportPhotos[index]}
 					alt={item.title}
@@ -50,8 +50,8 @@ const supportPhotos = [soporteLocal, postventa, respuestaRapida, pagoTarjeta];
 					loading="lazy"
 				/>
 				<div class="px-5 py-5">
-					<p class="text-sm font-extrabold text-white">{item.title}</p>
-					<p class="mt-2 text-sm leading-6 text-white/75">{item.detail}</p>
+					<p class="text-sm font-extrabold text-ink">{item.title}</p>
+					<p class="mt-2 text-sm leading-6 text-ink/75">{item.detail}</p>
 				</div>
 			</li>
 		))}

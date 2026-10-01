@@ -12,7 +12,7 @@ interface Props {
 const { label, image, eager = false, class: className = '' } = Astro.props;
 ---
 
-<figure class:list={['relative aspect-[16/10] overflow-hidden bg-charcoal-muted', className]}>
+<figure class:list={['relative aspect-[16/10] overflow-hidden bg-ink/5', className]}>
 	<Image
 		src={image}
 		alt={label}
