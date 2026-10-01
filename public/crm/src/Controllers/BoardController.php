@@ -17,7 +17,16 @@ final class BoardController
 {
 	public function index(): void
 	{
-		\MizoCrm\Models\Pipeline::reconcileOpen();
+		$synced = \MizoCrm\Models\Pipeline::reconcileOpen();
+		if ($synced > 0) {
+			View::flash(
+				'ok',
+				$synced === 1
+					? 'Se movió 1 tarjeta al estado correcto según su cotización enviada.'
+					: 'Se movieron ' . $synced . ' tarjetas al estado correcto según sus cotizaciones.'
+			);
+		}
+		$manual = \MizoCrm\Models\Pipeline::manualSlugs();
 		View::render('board/index', [
 			'title' => 'Tablero',
 			'stages' => \MizoCrm\Models\Stage::labels(),
@@ -27,10 +36,11 @@ final class BoardController
 			'services' => Config::services(),
 			'cards' => Deal::board(Auth::ownerScope()),
 			'invoiceCards' => \MizoCrm\Models\Invoice::kanban(Auth::ownerScope()),
-			'execMode' => !Auth::isAdmin(),
-			'execLimit' => Auth::isAdmin() ? '' : \MizoCrm\Models\Pipeline::executiveLimitSlug(),
-			'execBlock' => Auth::isAdmin() ? [] : \MizoCrm\Models\Pipeline::executiveBlockSlugs(),
-			'execAllow' => Auth::isAdmin() ? [] : \MizoCrm\Models\Pipeline::executiveSlugs(),
+			// Todos (admin y ejecutivo): solo Prospecto ↔ Llamada; el resto es automático.
+			'execMode' => true,
+			'execLimit' => \MizoCrm\Models\Pipeline::executiveLimitSlug(),
+			'execBlock' => \MizoCrm\Models\Pipeline::executiveBlockSlugs(),
+			'execAllow' => $manual,
 			'team' => Auth::isAdmin() ? User::team() : [],
 			'ownerFilter' => 0,
 		]);
@@ -269,8 +279,8 @@ final class BoardController
 		if (!isset(Config::stages()[$stage])) {
 			Http::json(['ok' => false, 'error' => 'Esa etapa no existe.'], 422);
 		}
-		if (!Auth::isAdmin() && !\MizoCrm\Models\Pipeline::withinExecutiveReach((string) $deal['stage'], $stage)) {
-			Http::json(['ok' => false, 'error' => 'Solo puedes mover la tarjeta hasta Presupuesto enviado.'], 422);
+		if (!\MizoCrm\Models\Pipeline::canManualMove((string) $deal['stage'], $stage)) {
+			Http::json(['ok' => false, 'error' => 'Solo puedes mover tarjetas entre Prospecto y Llamada. El resto avanza solo con cotizaciones y facturas.'], 422);
 		}
 		$now = date('c');
 		Deal::update((int) $deal['id'], [

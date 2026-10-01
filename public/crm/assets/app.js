@@ -2209,17 +2209,21 @@
 		return -1;
 	}
 	function outsideExecutive(node) {
-		if (!execMode || !node) return false;
+		// Con lista de columnas permitidas (Prospecto/Llamada): el resto no se arrastra.
+		if (!node) return true;
 		const stage = stageOf(node);
+		if (!stage) return true;
+		if (execAllow.length) {
+			return execAllow.indexOf(stage) === -1;
+		}
+		if (!execMode) return false;
 		if (stage && execBlock.indexOf(stage) !== -1) return true;
 		const col = columnOf(node);
 		if (execLimit) {
 			const limitCol = columnByStage(execLimit);
 			if (limitCol && col) return columnIndex(col) > columnIndex(limitCol);
 		}
-		if (!stage) return true;
-		if (!execAllow.length) return false;
-		return execAllow.indexOf(stage) === -1;
+		return false;
 	}
 	const csrf = board.getAttribute("data-csrf") || "";
 	const drawer = document.querySelector("[data-drawer]");

@@ -46,7 +46,7 @@ foreach ($invoiceCards as $invoice) {
 	<div class="kb-bar">
 		<div>
 			<h1>Tablero comercial</h1>
-			<p>Cada proyecto sigue en su hilera. Cada factura de venta es una tarjeta aparte, en Proyecto facturado o Factura pagada.</p>
+			<p>Solo puedes arrastrar entre Prospecto y Llamada. Desde presupuesto en adelante el tablero se mueve solo (cotización, aceptación y facturas).</p>
 		</div>
 		<div class="kb-filters">
 			<input type="search" data-kb-q placeholder="Buscar proyecto o cliente" autocomplete="off">
@@ -145,8 +145,8 @@ foreach ($invoiceCards as $invoice) {
 							$snippet = mb_strimwidth($snippet, 0, 72, '…', 'UTF-8');
 						}
 						?>
-						<article class="kb-card"
-							draggable="true"
+						<article class="kb-card<?= in_array($key, $execAllow, true) ? '' : ' is-locked' ?>"
+							draggable="<?= in_array($key, $execAllow, true) ? 'true' : 'false' ?>"
 							data-client="<?= (int) $card['client_id'] ?>"
 							data-deal="<?= (int) $card['deal_id'] ?>"
 							data-service="<?= h($service) ?>"

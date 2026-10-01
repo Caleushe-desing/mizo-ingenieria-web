@@ -153,46 +153,65 @@ final class Pipeline extends Record
 		self::move($deal, 'sent', 'El cliente no aceptó el presupuesto. La tarjeta sigue en «' . self::label('sent') . '».');
 	}
 
-	/** Columnas que el ejecutivo puede usar, de la primera hasta Presupuesto enviado inclusive. @return list<string> */
+	/**
+	 * Únicas columnas con arrastre manual: Prospecto ↔ Llamada.
+	 * Todo lo demás (diagnóstico, presupuesto, facturas…) es automático.
+	 * @return list<string>
+	 */
+	public static function manualSlugs(): array
+	{
+		self::ensureRoles();
+		$wanted = [
+			'nuevo' => ['prospecto', 'lead nuevo'],
+			'contactado' => ['llamada', 'contacto /', 'contacto realizado'],
+		];
+		$out = [];
+		$rows = self::stageRows();
+		foreach ($wanted as $slug => $hints) {
+			foreach ($rows as $row) {
+				if ((string) ($row['slug'] ?? '') === $slug) {
+					$out[] = $slug;
+					continue 2;
+				}
+			}
+			foreach ($rows as $row) {
+				$role = trim((string) ($row['role'] ?? ''));
+				if ($role !== '' || in_array((string) ($row['kind'] ?? 'open'), ['won', 'lost'], true)) {
+					continue;
+				}
+				$folded = self::fold((string) ($row['label'] ?? ''));
+				foreach ($hints as $hint) {
+					if (str_contains($folded, $hint)) {
+						$out[] = (string) $row['slug'];
+						continue 3;
+					}
+				}
+			}
+		}
+		return array_values(array_unique($out));
+	}
+
+	/** @return list<string> */
 	public static function executiveSlugs(): array
 	{
-		$rows = self::stageRows();
-		$boundary = self::boundaryRow($rows);
-		$out = [];
-		foreach ($rows as $row) {
-			if (self::isBlockedRole((string) ($row['role'] ?? ''))) {
-				continue;
-			}
-			if ($boundary !== null && (int) $row['position'] > (int) $boundary['position']) {
-				continue;
-			}
-			if ($boundary === null && in_array((string) ($row['kind'] ?? 'open'), ['won', 'lost'], true)) {
-				continue;
-			}
-			$out[] = (string) $row['slug'];
-		}
-		if ($boundary !== null) {
-			$slug = (string) $boundary['slug'];
-			if (!in_array($slug, $out, true) && !self::isBlockedRole((string) ($boundary['role'] ?? ''))) {
-				$out[] = $slug;
-			}
-		}
-		return $out;
+		return self::manualSlugs();
 	}
 
 	public static function executiveLimitSlug(): string
 	{
-		$boundary = self::boundaryRow(self::stageRows());
-		return $boundary ? (string) $boundary['slug'] : '';
+		$manual = self::manualSlugs();
+		return $manual !== [] ? (string) $manual[count($manual) - 1] : '';
 	}
 
 	/** @return list<string> */
 	public static function executiveBlockSlugs(): array
 	{
+		$manual = self::manualSlugs();
 		$out = [];
 		foreach (self::stageRows() as $row) {
-			if (self::isBlockedRole((string) ($row['role'] ?? ''))) {
-				$out[] = (string) $row['slug'];
+			$slug = (string) ($row['slug'] ?? '');
+			if ($slug !== '' && !in_array($slug, $manual, true)) {
+				$out[] = $slug;
 			}
 		}
 		return $out;
@@ -200,7 +219,12 @@ final class Pipeline extends Record
 
 	public static function withinExecutiveReach(string $from, string $to): bool
 	{
-		$allowed = self::executiveSlugs();
+		return self::canManualMove($from, $to);
+	}
+
+	public static function canManualMove(string $from, string $to): bool
+	{
+		$allowed = self::manualSlugs();
 		return in_array($from, $allowed, true) && in_array($to, $allowed, true);
 	}
 
@@ -209,11 +233,14 @@ final class Pipeline extends Record
 		self::reconcile($dealId);
 	}
 
-	/** Devuelve al tablero los proyectos cerrados antes de que lo pagado cubra el monto. */
-	public static function reconcileOpen(): void
+	/**
+	 * Repara el tablero: cotizaciones enviadas/aceptadas y facturas.
+	 * @return int cantidad de tarjetas movidas por cotización
+	 */
+	public static function reconcileOpen(): int
 	{
 		self::ensureRoles();
-		self::reconcileQuotes();
+		$moved = self::reconcileQuotes();
 		$ids = self::pdo()->query(
 			'SELECT id FROM deals WHERE COALESCE(archived, 0) = 1
 			 OR stage IN (SELECT slug FROM board_stages WHERE role IN (\'invoiced\', \'paid\'))'
@@ -221,19 +248,23 @@ final class Pipeline extends Record
 		foreach ($ids as $id) {
 			self::reconcile((int) $id);
 		}
+		return $moved;
 	}
 
 	/**
 	 * Alinea tarjetas abiertas con el estado real de sus cotizaciones.
-	 * Corrige proyectos que quedaron atrasados si el movimiento automático falló antes.
+	 * Corrige proyectos enviados que no se movieron a Presupuesto enviado.
+	 * @return int
 	 */
-	public static function reconcileQuotes(): void
+	public static function reconcileQuotes(): int
 	{
 		self::ensureRoles();
+		$moved = 0;
 		$stmt = self::pdo()->query(
 			"SELECT d.id, d.client_id, d.stage, d.archived,
 				(SELECT q.status FROM quotes q
-					WHERE q.deal_id = d.id AND q.status != 'borrador'
+					WHERE q.deal_id = d.id
+					  AND (q.status IN ('enviada','vista','aceptada','rechazada') OR q.sent_at IS NOT NULL AND q.sent_at != '')
 					ORDER BY
 						CASE q.status
 							WHEN 'aceptada' THEN 4
@@ -243,26 +274,41 @@ final class Pipeline extends Record
 							ELSE 1
 						END DESC,
 						q.id DESC
-					LIMIT 1) AS quote_status
+					LIMIT 1) AS quote_status,
+				(SELECT q.sent_at FROM quotes q
+					WHERE q.deal_id = d.id AND q.sent_at IS NOT NULL AND q.sent_at != ''
+					ORDER BY q.id DESC LIMIT 1) AS quote_sent_at
 			 FROM deals d
 			 WHERE COALESCE(d.archived, 0) = 0"
 		);
 		foreach ($stmt->fetchAll() as $deal) {
 			$status = (string) ($deal['quote_status'] ?? '');
-			if ($status === '') {
+			$sentAt = trim((string) ($deal['quote_sent_at'] ?? ''));
+			if ($status === '' && $sentAt === '') {
 				continue;
 			}
-			$current = self::rank(self::roleOf((string) $deal['stage']));
+			$before = (string) ($deal['stage'] ?? '');
+			$current = self::rank(self::roleOf($before));
 			if ($status === 'aceptada') {
-				if ($current < self::rank('invoiced')) {
-					self::move($deal, 'accepted', 'La tarjeta se alineó con el presupuesto aceptado.');
+				if ($current < self::rank('invoiced') && self::move($deal, 'accepted', 'La tarjeta se alineó con el presupuesto aceptado.')) {
+					$moved++;
 				}
 				continue;
 			}
-			if (in_array($status, ['enviada', 'vista', 'rechazada'], true) && $current < self::rank('accepted')) {
-				self::move($deal, 'sent', 'La tarjeta se alineó con el presupuesto enviado.');
+			$wasSent = in_array($status, ['enviada', 'vista', 'rechazada'], true) || $sentAt !== '';
+			if ($wasSent && $current < self::rank('accepted')) {
+				if (self::move($deal, 'sent', 'La tarjeta se alineó con el presupuesto enviado.')) {
+					$moved++;
+				} elseif ($before !== (string) (self::slug('sent') ?? '')) {
+					// Forzar si move no pudo por caché vieja
+					self::$stageRowsCache = null;
+					if (self::move($deal, 'sent', 'La tarjeta se alineó con el presupuesto enviado.')) {
+						$moved++;
+					}
+				}
 			}
 		}
+		return $moved;
 	}
 
 	public static function reconcile(int $dealId): void
@@ -343,14 +389,15 @@ final class Pipeline extends Record
 	}
 
 	/** @param array<string,mixed> $deal */
-	private static function move(array $deal, string $role, string $message): void
+	private static function move(array $deal, string $role, string $message): bool
 	{
 		$slug = self::slug($role);
 		if ($slug === null || (string) ($deal['stage'] ?? '') === $slug) {
-			return;
+			return false;
 		}
 		Deal::update((int) $deal['id'], ['stage' => $slug, 'updated_at' => date('c')]);
 		Activity::log('stage', $message, null, (int) ($deal['client_id'] ?? 0), (int) $deal['id']);
+		return true;
 	}
 
 	public static function slug(string $role): ?string
