@@ -42,6 +42,11 @@ final class Database
 		self::migrate($pdo);
 		self::ensureMailSchema($pdo);
 		self::ensureQuoteServiceSchema($pdo);
+		try {
+			Models\Pipeline::ensureRoles();
+		} catch (\Throwable) {
+			// Tablero aún no migrado en installs parciales.
+		}
 		return $pdo;
 	}
 

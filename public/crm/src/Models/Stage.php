@@ -131,6 +131,7 @@ final class Stage extends Record
 		if (!$row) {
 			throw new RuntimeException('Esa columna ya no existe.');
 		}
+		// Conserva role: lo usa el Pipeline para mover tarjetas automáticamente.
 		self::pdo()->prepare('UPDATE board_stages SET label = ?, color = ?, kind = ? WHERE slug = ?')->execute([
 			self::label($label),
 			self::color($color),
@@ -180,6 +181,14 @@ final class Stage extends Record
 		try {
 			if ($n > 0) {
 				$pdo->prepare('UPDATE deals SET stage = ?, updated_at = ? WHERE stage = ?')->execute([$moveTo, date('c'), $slug]);
+			}
+			// Si la columna eliminada tenía rol de Pipeline, pásalo a la de destino para no romper el auto-movimiento.
+			$roleStmt = $pdo->prepare('SELECT role FROM board_stages WHERE slug = ?');
+			$roleStmt->execute([$slug]);
+			$role = trim((string) ($roleStmt->fetchColumn() ?: ''));
+			if ($role !== '' && $moveTo !== '' && $moveTo !== $slug) {
+				$pdo->prepare("UPDATE board_stages SET role = ? WHERE slug = ? AND (role IS NULL OR role = '')")
+					->execute([$role, $moveTo]);
 			}
 			$pdo->prepare('DELETE FROM board_stages WHERE slug = ?')->execute([$slug]);
 			$pdo->commit();

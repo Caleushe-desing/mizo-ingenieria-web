@@ -559,9 +559,8 @@ final class QuoteController
 			$fields['last_mail_id'] = $mailId;
 		}
 		Quote::update((int) $quote['id'], $fields);
-		if (!$alreadySent) {
-			\MizoCrm\Models\Pipeline::onQuoteSent((int) $quote['deal_id']);
-		}
+		// Siempre: si el primer envío no movió la tarjeta (roles rotos, etc.), el reenvío la corrige.
+		\MizoCrm\Models\Pipeline::onQuoteSent((int) $quote['deal_id']);
 		$ccNote = $cc !== '' ? ' (cc ' . $cc . ')' : '';
 		Activity::log(
 			'quote_sent',

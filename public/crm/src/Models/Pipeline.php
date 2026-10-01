@@ -7,13 +7,98 @@ use MizoCrm\Record;
 
 final class Pipeline extends Record
 {
+	/** @var list<array<string,mixed>>|null */
+	private static ?array $stageRowsCache = null;
+
 	protected static function table(): string
 	{
 		return 'deals';
 	}
 
+	/** Repara roles de columnas del tablero (idempotente, seguro en cada boot). */
+	public static function ensureRoles(): void
+	{
+		$pdo = self::pdo();
+		try {
+			$cols = array_column($pdo->query('PRAGMA table_info(board_stages)')->fetchAll(), 'name');
+			if ($cols === []) {
+				return;
+			}
+			if (!in_array('role', $cols, true)) {
+				$pdo->exec("ALTER TABLE board_stages ADD COLUMN role TEXT NOT NULL DEFAULT ''");
+			}
+			$dealCols = array_column($pdo->query('PRAGMA table_info(deals)')->fetchAll(), 'name');
+			if ($dealCols !== [] && !in_array('archived', $dealCols, true)) {
+				$pdo->exec('ALTER TABLE deals ADD COLUMN archived INTEGER NOT NULL DEFAULT 0');
+			}
+		} catch (\Throwable) {
+			return;
+		}
+
+		$defaults = [
+			'sent' => ['propuesta', 'Presupuesto enviado', '#f47b20', ['presupuesto enviado', 'propuesta', 'cotizacion enviada']],
+			'accepted' => ['presupuesto-aceptado', 'Presupuesto aceptado', '#1c9bd8', ['presupuesto aceptado', 'aceptado']],
+			'invoiced' => ['proyecto-facturado', 'Proyecto facturado', '#0b6ea8', ['proyecto facturado', 'facturado']],
+			'paid' => ['factura-pagada', 'Factura pagada', '#1f8a4c', ['factura pagada', 'pagada']],
+		];
+
+		foreach ($defaults as $role => [$slug, $label, $color, $hints]) {
+			$hasRole = $pdo->prepare('SELECT slug FROM board_stages WHERE role = ? ORDER BY position ASC, id ASC LIMIT 1');
+			$hasRole->execute([$role]);
+			if ($hasRole->fetchColumn()) {
+				continue;
+			}
+
+			$bySlug = $pdo->prepare('SELECT slug FROM board_stages WHERE slug = ? LIMIT 1');
+			$bySlug->execute([$slug]);
+			if ($bySlug->fetchColumn()) {
+				$pdo->prepare("UPDATE board_stages SET role = ? WHERE slug = ? AND (role IS NULL OR role = '')")->execute([$role, $slug]);
+				continue;
+			}
+
+			$matched = null;
+			foreach ($pdo->query('SELECT slug, label, role FROM board_stages') as $row) {
+				if (trim((string) ($row['role'] ?? '')) !== '') {
+					continue;
+				}
+				$folded = self::fold((string) ($row['label'] ?? ''));
+				foreach ($hints as $hint) {
+					if (str_contains($folded, $hint)) {
+						$matched = (string) $row['slug'];
+						break 2;
+					}
+				}
+			}
+			if ($matched !== null) {
+				$pdo->prepare("UPDATE board_stages SET role = ? WHERE slug = ?")->execute([$role, $matched]);
+				continue;
+			}
+
+			$base = (int) $pdo->query("SELECT position FROM board_stages WHERE role = 'sent' OR slug = 'propuesta' ORDER BY position ASC LIMIT 1")->fetchColumn();
+			if ($base < 1) {
+				$base = (int) $pdo->query('SELECT COALESCE(MAX(position), 0) FROM board_stages')->fetchColumn();
+			}
+			$shift = match ($role) {
+				'sent' => 0,
+				'accepted' => 1,
+				'invoiced' => 2,
+				'paid' => 3,
+				default => 1,
+			};
+			$pdo->prepare('UPDATE board_stages SET position = position + 1 WHERE position > ?')->execute([$base + $shift - 1]);
+			$pdo->prepare(
+				'INSERT INTO board_stages (slug, label, color, position, kind, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+			)->execute([$slug, $label, $color, $base + $shift, 'open', $role, date('c')]);
+		}
+
+		$pdo->exec("UPDATE board_stages SET role = 'sent' WHERE slug = 'propuesta' AND (role IS NULL OR role = '')");
+		$pdo->exec("UPDATE board_stages SET label = 'Presupuesto enviado' WHERE slug = 'propuesta' AND label LIKE 'Propuesta / Cotiz%'");
+		self::$stageRowsCache = null;
+	}
+
 	public static function onQuoteSent(int $dealId): void
 	{
+		self::ensureRoles();
 		$deal = Deal::find($dealId);
 		if (!$deal || !empty($deal['archived'])) {
 			return;
@@ -21,12 +106,25 @@ final class Pipeline extends Record
 		if (self::rank(self::roleOf((string) $deal['stage'])) >= self::rank('accepted')) {
 			return;
 		}
-		Deal::update($dealId, ['job_status' => 'cotizado', 'updated_at' => date('c')]);
-		self::move($deal, 'sent', 'El presupuesto quedó en Presupuesto enviado.');
+		$slug = self::slug('sent');
+		$fields = [
+			'job_status' => 'cotizado',
+			'updated_at' => date('c'),
+		];
+		$moved = false;
+		if ($slug !== null && (string) $deal['stage'] !== $slug) {
+			$fields['stage'] = $slug;
+			$moved = true;
+		}
+		Deal::update($dealId, $fields);
+		if ($moved) {
+			Activity::log('stage', 'El presupuesto quedó en «' . self::label('sent') . '».', null, (int) $deal['client_id'], $dealId);
+		}
 	}
 
 	public static function onQuoteAccepted(int $dealId, int $total): void
 	{
+		self::ensureRoles();
 		$deal = Deal::find($dealId);
 		if (!$deal || !empty($deal['archived'])) {
 			return;
@@ -44,6 +142,7 @@ final class Pipeline extends Record
 
 	public static function onQuoteRejected(int $dealId): void
 	{
+		self::ensureRoles();
 		$deal = Deal::find($dealId);
 		if (!$deal || !empty($deal['archived'])) {
 			return;
@@ -51,7 +150,7 @@ final class Pipeline extends Record
 		if (self::rank(self::roleOf((string) $deal['stage'])) >= self::rank('accepted')) {
 			return;
 		}
-		self::move($deal, 'sent', 'El cliente no aceptó el presupuesto. La tarjeta sigue en Presupuesto enviado.');
+		self::move($deal, 'sent', 'El cliente no aceptó el presupuesto. La tarjeta sigue en «' . self::label('sent') . '».');
 	}
 
 	/** Columnas que el ejecutivo puede usar, de la primera hasta Presupuesto enviado inclusive. @return list<string> */
@@ -113,6 +212,8 @@ final class Pipeline extends Record
 	/** Devuelve al tablero los proyectos cerrados antes de que lo pagado cubra el monto. */
 	public static function reconcileOpen(): void
 	{
+		self::ensureRoles();
+		self::reconcileQuotes();
 		$ids = self::pdo()->query(
 			'SELECT id FROM deals WHERE COALESCE(archived, 0) = 1
 			 OR stage IN (SELECT slug FROM board_stages WHERE role IN (\'invoiced\', \'paid\'))'
@@ -122,37 +223,115 @@ final class Pipeline extends Record
 		}
 	}
 
+	/**
+	 * Alinea tarjetas abiertas con el estado real de sus cotizaciones.
+	 * Corrige proyectos que quedaron atrasados si el movimiento automático falló antes.
+	 */
+	public static function reconcileQuotes(): void
+	{
+		self::ensureRoles();
+		$stmt = self::pdo()->query(
+			"SELECT d.id, d.client_id, d.stage, d.archived,
+				(SELECT q.status FROM quotes q
+					WHERE q.deal_id = d.id AND q.status != 'borrador'
+					ORDER BY
+						CASE q.status
+							WHEN 'aceptada' THEN 4
+							WHEN 'enviada' THEN 3
+							WHEN 'vista' THEN 3
+							WHEN 'rechazada' THEN 2
+							ELSE 1
+						END DESC,
+						q.id DESC
+					LIMIT 1) AS quote_status
+			 FROM deals d
+			 WHERE COALESCE(d.archived, 0) = 0"
+		);
+		foreach ($stmt->fetchAll() as $deal) {
+			$status = (string) ($deal['quote_status'] ?? '');
+			if ($status === '') {
+				continue;
+			}
+			$current = self::rank(self::roleOf((string) $deal['stage']));
+			if ($status === 'aceptada') {
+				if ($current < self::rank('invoiced')) {
+					self::move($deal, 'accepted', 'La tarjeta se alineó con el presupuesto aceptado.');
+				}
+				continue;
+			}
+			if (in_array($status, ['enviada', 'vista', 'rechazada'], true) && $current < self::rank('accepted')) {
+				self::move($deal, 'sent', 'La tarjeta se alineó con el presupuesto enviado.');
+			}
+		}
+	}
+
 	public static function reconcile(int $dealId): void
 	{
+		self::ensureRoles();
 		$deal = Deal::find($dealId);
 		if (!$deal) {
 			return;
 		}
 		$sales = self::pdo()->prepare(
-			'SELECT COALESCE(SUM(CASE WHEN status = \'paid\' THEN total ELSE 0 END), 0) AS paid_total
-			 FROM sales_invoices WHERE deal_id = ?'
+			"SELECT COUNT(*) AS n,
+				COALESCE(SUM(total), 0) AS invoice_total,
+				COALESCE(SUM(CASE WHEN status = 'paid' THEN total ELSE 0 END), 0) AS paid_total,
+				SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) AS paid_count
+			 FROM sales_invoices WHERE deal_id = ?"
 		);
 		$sales->execute([$dealId]);
-		$paidTotal = (int) $sales->fetchColumn();
+		$row = $sales->fetch() ?: ['n' => 0, 'invoice_total' => 0, 'paid_total' => 0, 'paid_count' => 0];
+		$count = (int) $row['n'];
+		$paidTotal = (int) $row['paid_total'];
 		$target = self::target($dealId, $deal);
 		$covered = $target > 0 && $paidTotal >= $target;
-		if ($covered) {
-			if (!empty($deal['archived'])) {
+		$allPaid = $count > 0 && (int) $row['paid_count'] === $count;
+
+		if ($covered && $allPaid) {
+			if (!empty($deal['archived']) && self::roleOf((string) $deal['stage']) === 'paid') {
 				return;
 			}
-			Deal::update($dealId, ['archived' => 1, 'updated_at' => date('c')]);
-			Activity::log('stage', 'Lo pagado ya cubre el proyecto. Salió del tablero activo.', null, (int) $deal['client_id'], $dealId);
+			$fields = ['archived' => 1, 'updated_at' => date('c')];
+			$paid = self::slug('paid');
+			if ($paid !== null) {
+				$fields['stage'] = $paid;
+			}
+			Deal::update($dealId, $fields);
+			Activity::log('stage', 'Las facturas cubren el proyecto y están pagadas. Salió del tablero activo.', null, (int) $deal['client_id'], $dealId);
 			return;
 		}
+
 		$fields = ['updated_at' => date('c')];
 		$bringBack = false;
 		if (!empty($deal['archived'])) {
 			$fields['archived'] = 0;
 			$bringBack = true;
 		}
+
+		if ($count > 0) {
+			$wantRole = $allPaid ? 'paid' : 'invoiced';
+			$slug = self::slug($wantRole);
+			if ($slug !== null && (string) $deal['stage'] !== $slug
+				&& self::rank(self::roleOf((string) $deal['stage'])) <= self::rank($wantRole)) {
+				$fields['stage'] = $slug;
+				$bringBack = true;
+				Deal::update($dealId, $fields);
+				Activity::log(
+					'stage',
+					$allPaid
+						? 'La factura quedó pagada. La tarjeta pasó a «' . self::label('paid') . '».'
+						: 'Se registró una factura. La tarjeta pasó a «' . self::label('invoiced') . '».',
+					null,
+					(int) $deal['client_id'],
+					$dealId
+				);
+				return;
+			}
+		}
+
 		$role = self::roleOf((string) $deal['stage']);
 		$accepted = self::slug('accepted');
-		if ($accepted && in_array($role, ['invoiced', 'paid'], true) && (string) $deal['stage'] !== $accepted) {
+		if ($accepted && in_array($role, ['invoiced', 'paid'], true) && $count < 1 && (string) $deal['stage'] !== $accepted) {
 			$fields['stage'] = $accepted;
 			$bringBack = true;
 		}
@@ -167,19 +346,48 @@ final class Pipeline extends Record
 	private static function move(array $deal, string $role, string $message): void
 	{
 		$slug = self::slug($role);
-		if ($slug === null || (string) $deal['stage'] === $slug) {
+		if ($slug === null || (string) ($deal['stage'] ?? '') === $slug) {
 			return;
 		}
 		Deal::update((int) $deal['id'], ['stage' => $slug, 'updated_at' => date('c')]);
-		Activity::log('stage', $message, null, (int) $deal['client_id'], (int) $deal['id']);
+		Activity::log('stage', $message, null, (int) ($deal['client_id'] ?? 0), (int) $deal['id']);
 	}
 
 	public static function slug(string $role): ?string
 	{
-		$stmt = self::pdo()->prepare('SELECT slug FROM board_stages WHERE role = ? ORDER BY position ASC, id ASC LIMIT 1');
-		$stmt->execute([$role]);
-		$slug = $stmt->fetchColumn();
-		return $slug ? (string) $slug : null;
+		foreach (self::stageRows() as $row) {
+			if ((string) ($row['role'] ?? '') === $role) {
+				return (string) $row['slug'];
+			}
+		}
+		$fallbacks = [
+			'sent' => ['propuesta'],
+			'accepted' => ['presupuesto-aceptado'],
+			'invoiced' => ['proyecto-facturado'],
+			'paid' => ['factura-pagada'],
+		];
+		foreach ($fallbacks[$role] ?? [] as $slug) {
+			foreach (self::stageRows() as $row) {
+				if ((string) ($row['slug'] ?? '') === $slug) {
+					return $slug;
+				}
+			}
+		}
+		$hints = [
+			'sent' => ['presupuesto enviado', 'propuesta', 'cotizacion enviada'],
+			'accepted' => ['presupuesto aceptado'],
+			'invoiced' => ['proyecto facturado', 'facturado'],
+			'paid' => ['factura pagada', 'pagada'],
+		];
+		foreach (self::stageRows() as $row) {
+			$folded = self::fold((string) ($row['label'] ?? ''));
+			foreach ($hints[$role] ?? [] as $hint) {
+				if (str_contains($folded, $hint)) {
+					return (string) $row['slug'];
+				}
+			}
+		}
+		return null;
 	}
 
 	public static function label(string $role): string
@@ -194,23 +402,38 @@ final class Pipeline extends Record
 
 	private static function roleOf(string $slug): string
 	{
-		$stmt = self::pdo()->prepare('SELECT role FROM board_stages WHERE slug = ?');
-		$stmt->execute([$slug]);
-		$role = $stmt->fetchColumn();
-		return $role ? (string) $role : '';
+		foreach (self::stageRows() as $row) {
+			if ((string) ($row['slug'] ?? '') === $slug) {
+				$role = trim((string) ($row['role'] ?? ''));
+				if ($role !== '') {
+					return $role;
+				}
+				break;
+			}
+		}
+		$map = [
+			'propuesta' => 'sent',
+			'presupuesto-aceptado' => 'accepted',
+			'proyecto-facturado' => 'invoiced',
+			'factura-pagada' => 'paid',
+		];
+		return $map[$slug] ?? '';
 	}
 
 	/** @return list<array<string,mixed>> */
 	private static function stageRows(): array
 	{
-		static $rows = null;
-		if ($rows === null) {
-			$fetched = self::pdo()->query(
-				'SELECT slug, label, position, role, kind FROM board_stages ORDER BY position ASC, id ASC'
-			)->fetchAll();
-			$rows = $fetched ?: [];
+		if (self::$stageRowsCache === null) {
+			try {
+				$fetched = self::pdo()->query(
+					'SELECT slug, label, position, role, kind FROM board_stages ORDER BY position ASC, id ASC'
+				)->fetchAll();
+				self::$stageRowsCache = $fetched ?: [];
+			} catch (\Throwable) {
+				self::$stageRowsCache = [];
+			}
 		}
-		return $rows;
+		return self::$stageRowsCache;
 	}
 
 	/** @param list<array<string,mixed>> $rows */
