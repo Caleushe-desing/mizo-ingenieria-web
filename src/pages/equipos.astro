@@ -20,27 +20,29 @@ const description = page.seoDescription;
 >
 	<section class="relative overflow-hidden border-b border-white/10 bg-charcoal pt-28 text-white sm:pt-32">
 		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
-		<div class="relative mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-24 lg:px-8">
+		<div class="relative mx-auto max-w-7xl px-4 pb-14 sm:px-6 sm:pb-16 lg:px-8">
 			<p class="mizo-kicker">{page.kicker}</p>
 			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] sm:text-5xl">{page.title}</h1>
-			<p class="mt-5 max-w-2xl text-lg leading-8 text-white/80">
-				{page.lead}
-			</p>
+			{page.lead && page.lead !== '-' && (
+				<p class="mt-5 max-w-2xl text-lg leading-8 text-white/80">
+					{page.lead}
+				</p>
+			)}
 		</div>
 	</section>
 
 	<section
 		id="vitrina"
-		class="bg-charcoal py-20 sm:py-28"
+		class="bg-charcoal py-12 sm:py-16"
 		data-endpoint="/crm/api/productos-visibles.php"
 		data-whatsapp={SITE.whatsapp}
 		aria-labelledby="vitrina-heading"
 	>
-		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<h2 id="vitrina-heading" class="sr-only">Equipos visibles</h2>
-			<div id="vitrina-filtros" class="mb-8 hidden">
+		<div class="mx-auto max-w-[90rem] px-3 sm:px-5 lg:px-8">
+			<h2 id="vitrina-heading" class="sr-only">Productos visibles</h2>
+			<div id="vitrina-filtros" class="mb-6 hidden">
 				<label class="block">
-					<span class="sr-only">Buscar equipos</span>
+					<span class="sr-only">Buscar productos</span>
 					<input
 						id="vitrina-buscar"
 						type="search"
@@ -49,21 +51,21 @@ const description = page.seoDescription;
 						class="w-full border border-white/15 bg-transparent px-4 py-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-orange"
 					/>
 				</label>
-				<div id="vitrina-categorias" class="mt-4 flex flex-wrap gap-2" role="group" aria-label="Categorías"></div>
-				<p id="vitrina-conteo" class="mt-4 text-xs tracking-[0.14em] text-white/40" aria-live="polite"></p>
+				<div id="vitrina-categorias" class="mt-3 flex flex-wrap gap-2" role="group" aria-label="Categorías"></div>
+				<p id="vitrina-conteo" class="mt-3 text-xs tracking-[0.14em] text-white/40" aria-live="polite"></p>
 			</div>
-			<p id="vitrina-estado" class="text-sm text-white/60">Cargando equipos…</p>
+			<p id="vitrina-estado" class="text-sm text-white/60">Cargando productos…</p>
 			<div id="vitrina-lista"></div>
 			<noscript>
-				<p class="text-sm text-white/60">Para ver los equipos activos, abre esta página con JavaScript o escríbenos por WhatsApp.</p>
+				<p class="text-sm text-white/60">Para ver los productos activos, abre esta página con JavaScript o escríbenos por WhatsApp.</p>
 			</noscript>
 		</div>
 	</section>
 
 	<ConversionCta
-		title="¿El equipo depende del recinto?"
-		text="Cuéntanos el espacio. Te proponemos el componente que corresponde y lo dejamos instalado."
-		whatsappHref={whatsappUrl('Hola Mizo, quiero cotizar un equipo para mi recinto.')}
+		title="¿Necesitas ayuda para elegir?"
+		text="Cuéntanos el espacio. Te proponemos el producto que corresponde y lo dejamos instalado."
+		whatsappHref={whatsappUrl('Hola Mizo, quiero cotizar un producto para mi recinto.')}
 	/>
 </Layout>
 
@@ -171,11 +173,11 @@ const description = page.seoDescription;
 	}
 
 	function quoteLinks(item, phone) {
-		const quote = node('div', 'grid grid-cols-2 gap-2');
-		const message = `Quiero cotizar el equipo ${item.nombre || ''} (SKU ${item.sku || ''}).`;
-		const formLink = node('a', 'inline-flex items-center justify-center bg-orange px-3 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:bg-orange-hover hover:shadow-glow-orange', 'Formulario');
+		const quote = node('div', 'grid grid-cols-2 gap-1.5');
+		const message = `Quiero cotizar el producto ${item.nombre || ''} (SKU ${item.sku || ''}).`;
+		const formLink = node('a', 'inline-flex items-center justify-center bg-orange px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-300 hover:bg-orange-hover', 'Cotizar');
 		formLink.href = `/contacto?sku=${encodeURIComponent(item.sku || '')}&mensaje=${encodeURIComponent(message)}`;
-		const whatsapp = node('a', 'inline-flex items-center justify-center border border-white/20 px-3 py-3 text-center text-xs font-bold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:border-accent/80 hover:text-white hover:shadow-glow', 'WhatsApp');
+		const whatsapp = node('a', 'inline-flex items-center justify-center border border-white/20 px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-300 hover:border-accent/80 hover:text-white', 'WhatsApp');
 		whatsapp.href = `https://wa.me/${phone}?text=${encodeURIComponent('Hola Mizo, ' + message)}`;
 		whatsapp.target = '_blank';
 		whatsapp.rel = 'noopener noreferrer';
@@ -184,13 +186,13 @@ const description = page.seoDescription;
 	}
 
 	function openInfo(item, phone) {
-		const { overlay, close } = mountOverlay(item.nombre || 'Información del equipo');
+		const { overlay, close } = mountOverlay(item.nombre || 'Información del producto');
 		const panel = node('div', 'relative max-h-[min(80vh,40rem)] w-full max-w-xl overflow-y-auto border border-white/10 bg-charcoal px-6 py-6 sm:px-8');
 		const closeBtn = node('button', 'absolute right-4 top-4 text-xs font-bold uppercase tracking-[0.14em] text-white/50 transition hover:text-white', 'Cerrar');
 		closeBtn.type = 'button';
 		closeBtn.addEventListener('click', close);
 		panel.append(closeBtn);
-		panel.append(node('p', 'pr-16 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Equipo'));
+		panel.append(node('p', 'pr-16 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Producto'));
 		panel.append(node('h3', 'mt-2 pr-16 text-2xl font-extrabold leading-snug', item.nombre || item.sku));
 		if (item.sku) panel.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
 		if (item.descripcion) panel.append(node('p', 'mt-5 whitespace-pre-wrap text-sm leading-7 text-white/75', item.descripcion));
@@ -203,10 +205,11 @@ const description = page.seoDescription;
 
 	function gallery(photos, alt) {
 		const wrap = node('div', 'bg-white');
-		const frame = node('div', 'relative flex min-h-72 items-center justify-center overflow-hidden bg-white touch-pan-y sm:min-h-80');
+		const frame = node('div', 'relative flex aspect-square items-center justify-center overflow-hidden bg-white touch-pan-y');
 		const img = document.createElement('img');
-		img.className = 'max-h-80 w-full object-contain';
+		img.className = 'h-full w-full object-contain p-3';
 		img.alt = alt;
+		img.loading = 'lazy';
 		img.src = photos[0];
 		const zoom = node('button', 'absolute inset-0 cursor-zoom-in');
 		zoom.type = 'button';
@@ -218,7 +221,7 @@ const description = page.seoDescription;
 		let index = 0;
 		let startX = 0;
 		let suppressClick = false;
-		const counter = node('span', 'pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[11px] tracking-[0.18em] text-charcoal/50');
+		const counter = node('span', 'pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2 text-[10px] tracking-[0.16em] text-charcoal/45');
 		function show(next) {
 			index = (next + photos.length) % photos.length;
 			img.src = photos[index];
@@ -235,17 +238,17 @@ const description = page.seoDescription;
 		if (photos.length < 2) return wrap;
 
 		function arrow(label, symbol) {
-			const button = node('button', 'absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/80 text-charcoal/70 backdrop-blur-sm transition hover:bg-white hover:text-charcoal');
+			const button = node('button', 'absolute top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/85 text-charcoal/70 backdrop-blur-sm transition hover:bg-white hover:text-charcoal');
 			button.type = 'button';
 			button.setAttribute('aria-label', label);
 			button.innerHTML = symbol;
 			return button;
 		}
 		const prev = arrow('Foto anterior', chevron('M8.5 3.5 5 7l3.5 3.5'));
-		prev.classList.add('left-3');
+		prev.classList.add('left-2');
 		prev.addEventListener('click', () => show(index - 1));
 		const next = arrow('Foto siguiente', chevron('M5.5 3.5 9 7l-3.5 3.5'));
-		next.classList.add('right-3');
+		next.classList.add('right-2');
 		next.addEventListener('click', () => show(index + 1));
 		frame.append(prev, next, counter);
 
@@ -267,23 +270,27 @@ const description = page.seoDescription;
 	}
 
 	function card(item, phone) {
-		const article = node('article', 'mizo-card flex flex-col border border-white/10 bg-charcoal hover:border-accent/50');
+		const article = node('article', 'group flex flex-col overflow-hidden border border-white/10 bg-charcoal transition-all duration-300 hover:border-orange/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]');
 		const photos = Array.isArray(item.imagenes) ? item.imagenes.filter((src) => typeof src === 'string' && src.startsWith('/crm/uploads/productos/')) : [];
-		const alt = item.nombre || item.sku || 'Equipo';
+		const alt = item.nombre || item.sku || 'Producto';
 		if (photos.length) article.append(gallery(photos, alt));
-		const body = node('div', 'flex flex-1 flex-col px-6 py-7');
-		body.append(node('p', 'text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange', item.categoria || 'Equipo'));
-		body.append(node('h3', 'mt-2 text-lg font-extrabold leading-snug', item.nombre || item.sku));
-		if (item.sku) body.append(node('p', 'mt-2 font-mono text-xs text-white/40', item.sku));
+		else {
+			const placeholder = node('div', 'flex aspect-square items-center justify-center bg-white/5 text-[10px] uppercase tracking-[0.16em] text-white/30', 'Sin foto');
+			article.append(placeholder);
+		}
+		const body = node('div', 'flex flex-1 flex-col px-3 py-3 sm:px-3.5 sm:py-4');
+		body.append(node('p', 'text-[0.6rem] font-bold uppercase tracking-[0.16em] text-orange', item.categoria || 'Producto'));
+		body.append(node('h3', 'mt-1.5 line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-white', item.nombre || item.sku));
+		if (item.sku) body.append(node('p', 'mt-1 font-mono text-[10px] text-white/35', item.sku));
 		if (item.descripcion) {
-			body.append(node('p', 'mt-3 line-clamp-3 text-sm leading-6 text-white/75', item.descripcion));
-			const more = node('button', 'mt-3 self-start text-xs font-bold uppercase tracking-[0.14em] text-orange transition-all duration-300 hover:text-white', 'Información completa');
+			body.append(node('p', 'mt-2 line-clamp-2 text-xs leading-5 text-white/60', item.descripcion));
+			const more = node('button', 'mt-2 self-start text-[10px] font-bold uppercase tracking-[0.12em] text-orange transition hover:text-white', 'Ver más');
 			more.type = 'button';
 			more.addEventListener('click', () => openInfo(item, phone));
 			body.append(more);
 		}
 		const quote = quoteLinks(item, phone);
-		quote.classList.add('mt-5');
+		quote.classList.add('mt-auto', 'pt-3');
 		body.append(quote);
 		article.append(body);
 		return article;
@@ -319,15 +326,15 @@ const description = page.seoDescription;
 			const visible = products.filter(matches);
 			list.replaceChildren();
 			if (count) {
-				count.textContent = visible.length === 1 ? '1 equipo' : visible.length + ' equipos';
+				count.textContent = visible.length === 1 ? '1 producto' : visible.length + ' productos';
 			}
 			if (visible.length === 0) {
 				status.hidden = false;
-				status.textContent = 'Ningún equipo coincide con esa búsqueda.';
+				status.textContent = 'Ningún producto coincide con esa búsqueda.';
 				return;
 			}
 			status.hidden = true;
-			const grid = node('div', 'grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-10');
+			const grid = node('div', 'grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 lg:gap-4');
 			for (const item of visible) grid.append(card(item, phone));
 			list.append(grid);
 		}
@@ -361,7 +368,7 @@ const description = page.seoDescription;
 			.then((data) => {
 				products = Array.isArray(data.productos) ? data.productos : [];
 				if (products.length === 0) {
-					status.textContent = 'Todavía no hay equipos publicados. Cuéntanos el recinto y te proponemos el hardware.';
+					status.textContent = 'Todavía no hay productos publicados. Cuéntanos el recinto y te proponemos el hardware.';
 					return;
 				}
 				const names = [...new Set(products.map((item) => String(item.categoria || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
@@ -377,7 +384,7 @@ const description = page.seoDescription;
 				render();
 			})
 			.catch(() => {
-				status.textContent = 'No se pudo cargar el catálogo. Escríbenos y te proponemos el equipo.';
+				status.textContent = 'No se pudo cargar el catálogo. Escríbenos y te proponemos el producto.';
 			});
 	}
 </script>
