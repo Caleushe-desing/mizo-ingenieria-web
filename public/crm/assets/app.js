@@ -11,22 +11,29 @@
 		total: document.querySelector('[data-total]'),
 	};
 
-	function catalogMap() {
+	function catalogList() {
 		const el = document.getElementById('quote-catalog-json');
-		if (!el) return {};
+		if (!el) return [];
 		try {
 			const products = JSON.parse(el.textContent || '[]');
-			const map = {};
-			(products || []).forEach(function (product) {
-				if (product && product.id != null) map[String(product.id)] = product;
-			});
-			return map;
+			return Array.isArray(products) ? products : [];
 		} catch (e) {
-			return {};
+			return [];
 		}
 	}
 
+	function catalogMap() {
+		const map = {};
+		catalogList().forEach(function (product) {
+			if (product && product.id != null) map[String(product.id)] = product;
+		});
+		return map;
+	}
+
 	const catalog = catalogMap();
+	const products = catalogList();
+	let activeRow = null;
+	let pickerRoot = null;
 
 	function rows() {
 		return list.querySelectorAll('[data-item-row]');
@@ -73,6 +80,14 @@
 		}
 	}
 
+	function escapeHtml(value) {
+		return String(value == null ? '' : value)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+	}
+
 	function syncSupplierLink(row, product) {
 		const box = row.querySelector('[data-catalog-supplier]');
 		const empty = row.querySelector('[data-catalog-empty]');
@@ -98,6 +113,25 @@
 		}
 	}
 
+	function syncCatalogLabel(row, product) {
+		const label = row.querySelector('[data-catalog-label]');
+		const clear = row.querySelector('[data-catalog-clear]');
+		if (product) {
+			const text = ((product.sku || '') + ' — ' + (product.nombre || '')).replace(/^\s*—\s*/, '');
+			if (label) {
+				label.textContent = text;
+				label.hidden = false;
+			}
+			if (clear) clear.hidden = false;
+		} else {
+			if (label) {
+				label.textContent = '';
+				label.hidden = true;
+			}
+			if (clear) clear.hidden = true;
+		}
+	}
+
 	function applyCatalogProduct(row, productId) {
 		const pidInput = row.querySelector('[name="item_product_id[]"]');
 		const nameInput = row.querySelector('[name="item_name[]"]');
@@ -106,6 +140,7 @@
 		if (!productId) {
 			if (pidInput) pidInput.value = '';
 			syncSupplierLink(row, null);
+			syncCatalogLabel(row, null);
 			return;
 		}
 		const product = catalog[String(productId)];
@@ -118,6 +153,129 @@
 			costInput.value = cost > 0 ? String(cost) : '';
 		}
 		syncSupplierLink(row, product);
+		syncCatalogLabel(row, product);
+	}
+
+	function filterProducts(query) {
+		const term = String(query || '').trim().toLowerCase();
+		if (!term) return products.slice(0, 80);
+		return products.filter(function (product) {
+			const hay = [
+				product.sku,
+				product.nombre,
+				product.descripcion,
+				product.categoria,
+				product.proveedor_empresa,
+			].join(' ').toLowerCase();
+			return hay.indexOf(term) !== -1;
+		}).slice(0, 80);
+	}
+
+	function renderPickerResults(query) {
+		if (!pickerRoot) return;
+		const box = pickerRoot.querySelector('[data-catalog-results]');
+		if (!box) return;
+		const matches = filterProducts(query);
+		if (!matches.length) {
+			box.innerHTML = '<p class="muted catalog-picker-empty">No hay productos con esa búsqueda.</p>';
+			return;
+		}
+		box.innerHTML = matches.map(function (product) {
+			const cost = Number(product.precio_compra_iva) || 0;
+			const desc = String(product.descripcion || '').replace(/\s+/g, ' ').trim();
+			const short = desc.length > 140 ? desc.slice(0, 140) + '…' : desc;
+			return ''
+				+ '<button type="button" class="catalog-picker-item" data-catalog-choose="' + escapeHtml(product.id) + '">'
+				+ '<div class="catalog-picker-item-top">'
+				+ '<strong>' + escapeHtml(product.nombre || '') + '</strong>'
+				+ '<span class="catalog-picker-sku">' + escapeHtml(product.sku || '') + '</span>'
+				+ '</div>'
+				+ '<p>' + escapeHtml(short) + '</p>'
+				+ '<div class="catalog-picker-meta">'
+				+ '<span>' + escapeHtml(product.categoria || 'Sin categoría') + '</span>'
+				+ '<span>' + (cost > 0 ? formatMoney(cost) + ' c/IVA' : 'Sin costo') + '</span>'
+				+ '</div>'
+				+ '</button>';
+		}).join('');
+	}
+
+	function closePicker() {
+		if (!pickerRoot) return;
+		pickerRoot.hidden = true;
+		document.body.classList.remove('catalog-picker-open');
+		activeRow = null;
+	}
+
+	function openPicker(row) {
+		ensurePicker();
+		activeRow = row;
+		pickerRoot.hidden = false;
+		document.body.classList.add('catalog-picker-open');
+		const search = pickerRoot.querySelector('[data-catalog-search]');
+		if (search) {
+			search.value = '';
+			renderPickerResults('');
+			setTimeout(function () { search.focus(); }, 30);
+		}
+	}
+
+	function ensurePicker() {
+		if (pickerRoot) return pickerRoot;
+		pickerRoot = document.createElement('div');
+		pickerRoot.id = 'catalog-picker';
+		pickerRoot.className = 'catalog-picker';
+		pickerRoot.hidden = true;
+		pickerRoot.innerHTML = ''
+			+ '<div class="catalog-picker-backdrop" data-catalog-close></div>'
+			+ '<div class="catalog-picker-panel" role="dialog" aria-modal="true" aria-label="Buscar producto del catálogo">'
+			+ '<header class="catalog-picker-hd">'
+			+ '<div><p class="catalog-picker-kicker">Catálogo Mizo</p><h2>Buscar producto</h2></div>'
+			+ '<button type="button" class="btn" data-catalog-close>Cerrar</button>'
+			+ '</header>'
+			+ '<div class="catalog-picker-search">'
+			+ '<input type="search" data-catalog-search placeholder="Buscar por SKU, nombre, categoría o descripción…" autocomplete="off">'
+			+ '</div>'
+			+ '<div class="catalog-picker-results" data-catalog-results></div>'
+			+ '</div>';
+		document.body.appendChild(pickerRoot);
+
+		pickerRoot.addEventListener('click', function (event) {
+			const close = event.target.closest('[data-catalog-close]');
+			if (close) {
+				closePicker();
+				return;
+			}
+			const choose = event.target.closest('[data-catalog-choose]');
+			if (choose && activeRow) {
+				const targetRow = activeRow;
+				applyCatalogProduct(targetRow, choose.getAttribute('data-catalog-choose'));
+				recalc();
+				closePicker();
+				const focus = targetRow.querySelector('[name="item_margin[]"]') || targetRow.querySelector('[name="item_name[]"]');
+				if (focus) focus.focus();
+			}
+		});
+
+		const search = pickerRoot.querySelector('[data-catalog-search]');
+		if (search) {
+			search.addEventListener('input', function () {
+				renderPickerResults(search.value);
+			});
+			search.addEventListener('keydown', function (event) {
+				if (event.key === 'Escape') {
+					event.preventDefault();
+					closePicker();
+				}
+			});
+		}
+
+		document.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape' && pickerRoot && !pickerRoot.hidden) {
+				closePicker();
+			}
+		});
+
+		return pickerRoot;
 	}
 
 	function recalc() {
@@ -144,16 +302,24 @@
 		row.querySelectorAll('input, textarea').forEach(function (input) {
 			input.addEventListener('input', recalc);
 		});
-		const pick = row.querySelector('[data-catalog-pick]');
-		if (pick && !pick.dataset.bound) {
-			pick.dataset.bound = '1';
-			pick.addEventListener('change', function () {
-				applyCatalogProduct(row, pick.value);
+		const openBtn = row.querySelector('[data-catalog-open]');
+		if (openBtn && !openBtn.dataset.bound) {
+			openBtn.dataset.bound = '1';
+			openBtn.addEventListener('click', function () {
+				openPicker(row);
+			});
+		}
+		const clearBtn = row.querySelector('[data-catalog-clear]');
+		if (clearBtn && !clearBtn.dataset.bound) {
+			clearBtn.dataset.bound = '1';
+			clearBtn.addEventListener('click', function () {
+				applyCatalogProduct(row, '');
 				recalc();
 			});
 		}
 		const remove = row.querySelector('[data-remove]');
-		if (remove) {
+		if (remove && !remove.dataset.bound) {
+			remove.dataset.bound = '1';
 			remove.addEventListener('click', function () {
 				if (rows().length === 1) return;
 				row.remove();
@@ -168,6 +334,7 @@
 		const productId = pidInput ? String(pidInput.value || '') : '';
 		if (productId && catalog[productId]) {
 			syncSupplierLink(row, catalog[productId]);
+			syncCatalogLabel(row, catalog[productId]);
 		}
 	});
 	recalc();
@@ -184,18 +351,21 @@
 				else input.value = '';
 				if (name === 'item_price[]') input.readOnly = false;
 			});
-			const pick = row.querySelector('[data-catalog-pick]');
-			if (pick) {
-				pick.value = '';
-				delete pick.dataset.bound;
-			}
+			row.querySelectorAll('[data-catalog-open], [data-catalog-clear], [data-remove]').forEach(function (btn) {
+				delete btn.dataset.bound;
+			});
 			syncSupplierLink(row, null);
+			syncCatalogLabel(row, null);
 			const line = row.querySelector('[data-line]');
 			if (line) line.textContent = '$0';
 			list.appendChild(row);
 			bindRow(row);
-			const focus = pick || row.querySelector('[name="item_name[]"]') || row.querySelector('[name="item_description[]"]');
-			if (focus) focus.focus();
+			const openBtn = row.querySelector('[data-catalog-open]');
+			if (openBtn) openBtn.focus();
+			else {
+				const focus = row.querySelector('[name="item_name[]"]') || row.querySelector('[name="item_description[]"]');
+				if (focus) focus.focus();
+			}
 			recalc();
 		});
 	}
