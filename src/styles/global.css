@@ -19,22 +19,11 @@
 		inset: 0;
 		pointer-events: none;
 		z-index: 0;
-		background-color: #e2e8ef;
-		background-image: url('/images/bg-sound-waves.svg');
+		background-color: #cfd8e2;
+		background-image: url('/images/bg-sound-waves.svg?v=2');
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;
-	}
-
-	body::after {
-		content: '';
-		position: fixed;
-		inset: 0;
-		pointer-events: none;
-		z-index: 0;
-		background:
-			radial-gradient(ellipse 70% 45% at 12% 18%, rgba(28, 155, 216, 0.08), transparent 60%),
-			radial-gradient(ellipse 60% 40% at 88% 82%, rgba(244, 123, 32, 0.07), transparent 60%);
 	}
 
 	body > * {
