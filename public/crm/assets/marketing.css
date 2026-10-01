@@ -1,33 +1,70 @@
 /* Módulo Marketing — estilos propios, no altera chrome existente */
 body.is-marketing { background: #eef1f4; }
 body.is-marketing .workspace { max-width: 1240px; margin: 0 auto; padding: 0 16px 32px; }
-.mkt-free-toolbar {
+.mkt-file-btn { cursor: pointer; display: inline-flex; align-items: center; }
+.mkt-free-head { margin-bottom: 8px; }
+body.is-marketing .workspace:has(.mkt-free) {
+	max-width: none;
+	padding-bottom: 16px;
+}
+.mkt-free-studio {
+	display: flex;
+	flex-direction: column;
+	min-height: calc(100vh - 210px);
+	overflow: hidden;
+}
+.mkt-pro-toolbar {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
 	gap: 10px;
 	align-items: center;
-	margin-bottom: 12px;
+	margin-bottom: 10px;
+	flex-shrink: 0;
 }
-.mkt-free-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.mkt-file-btn { cursor: pointer; display: inline-flex; align-items: center; }
-.mkt-free-layout {
+.mkt-pro-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mkt-tool-sep {
+	width: 1px;
+	height: 24px;
+	background: #cfd8e3;
+	margin: 0 4px;
+}
+.mkt-pro-layout {
 	display: grid;
-	grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
-	gap: 16px;
-	align-items: start;
+	grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+	gap: 12px;
+	flex: 1;
+	min-height: 0;
+	align-items: stretch;
 }
-.mkt-free-sidebar h3 {
-	margin: 14px 0 8px;
+.mkt-pro-sidebar {
+	min-height: 0;
+	overflow: auto;
+	padding-right: 4px;
+	overscroll-behavior: contain;
+}
+.mkt-side-block {
+	border: 1px solid #d5dde6;
+	border-radius: 10px;
+	background: #fff;
+	margin-bottom: 10px;
+	padding: 0 10px 10px;
+}
+.mkt-side-block > summary {
+	cursor: pointer;
+	list-style: none;
 	font-size: 12px;
+	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: .04em;
 	color: #0b6ea8;
+	padding: 10px 0 8px;
 }
-.mkt-free-sidebar label { display: grid; gap: 4px; margin-bottom: 8px; font-size: 13px; }
-.mkt-free-sidebar input[type="text"],
-.mkt-free-sidebar textarea,
-.mkt-free-sidebar select {
+.mkt-side-block > summary::-webkit-details-marker { display: none; }
+.mkt-pro-sidebar label { display: grid; gap: 4px; margin-bottom: 8px; font-size: 13px; }
+.mkt-pro-sidebar input[type="text"],
+.mkt-pro-sidebar textarea,
+.mkt-pro-sidebar select {
 	width: 100%;
 	border: 1px solid #cfd8e3;
 	border-radius: 8px;
@@ -46,19 +83,47 @@ body.is-marketing .workspace { max-width: 1240px; margin: 0 auto; padding: 0 16p
 }
 .mkt-color-row { grid-template-columns: 1fr auto; align-items: center; }
 .mkt-text-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-.mkt-free-stage { min-width: 0; }
+.mkt-shape-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 6px;
+}
+.mkt-shape-btn {
+	border: 1px solid #d5dde6;
+	background: #f7fafc;
+	border-radius: 8px;
+	padding: 10px 0;
+	font-size: 18px;
+	cursor: pointer;
+	color: #1f2328;
+}
+.mkt-shape-btn:hover { border-color: #1c9bd8; background: #e8f6fc; }
+.mkt-save-btn { width: 100%; margin-top: 4px; }
+.mkt-pro-stage {
+	min-width: 0;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
 .mkt-canvas-shell {
-	background: #d5dde6;
+	background:
+		linear-gradient(45deg, #c8d0d8 25%, transparent 25%) 0 0 / 16px 16px,
+		linear-gradient(-45deg, #c8d0d8 25%, transparent 25%) 0 0 / 16px 16px,
+		#d5dde6;
 	border-radius: 12px;
-	padding: 16px;
+	padding: 8px;
+	flex: 1;
+	min-height: 420px;
 	display: grid;
 	place-items: center;
-	overflow: auto;
+	overflow: hidden;
 }
 .mkt-canvas-shell .canvas-container {
-	box-shadow: 0 12px 32px rgba(0,0,0,.2);
+	box-shadow: 0 12px 32px rgba(0,0,0,.22);
 	border-radius: 4px;
 	overflow: hidden;
+	max-width: 100%;
+	max-height: 100%;
 }
 .mkt-attach-note {
 	margin: 0 0 12px;
@@ -496,7 +561,10 @@ body.mkt-preview-open { overflow: hidden; }
 .mkt-stock-admin-body p { margin: 0; font-size: 13px; color: #5b6570; }
 @media (max-width: 960px) {
 	.mkt-studio-layout { grid-template-columns: 1fr; }
-	.mkt-free-layout { grid-template-columns: 1fr; }
+	.mkt-pro-layout { grid-template-columns: 1fr; }
+	.mkt-free-studio { min-height: auto; overflow: visible; }
+	.mkt-pro-sidebar { max-height: 42vh; }
+	.mkt-canvas-shell { min-height: 360px; }
 }
 @media (max-width: 720px) {
 	.mkt-doc-card { grid-template-columns: auto 1fr; }
