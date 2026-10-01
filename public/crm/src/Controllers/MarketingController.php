@@ -16,6 +16,7 @@ use MizoCrm\Models\Client;
 use MizoCrm\Models\ClientContact;
 use MizoCrm\Models\Deal;
 use MizoCrm\Models\Mailbox;
+use MizoCrm\Models\MarketingMedia;
 use MizoCrm\Models\MarketingResource;
 use MizoCrm\Models\MarketingTemplate;
 use MizoCrm\Models\Pipeline;
@@ -381,11 +382,125 @@ final class MarketingController
 			'canManage' => Auth::isAdmin(),
 			'studioTemplates' => FlyerStudio::templates(),
 			'studioBackgrounds' => FlyerStudio::backgrounds(),
+			'studioStock' => MarketingMedia::forStudio(),
+			'studioStockCategories' => MarketingMedia::categories(),
 			'studioBrand' => FlyerStudio::brand(),
 			'csrf' => Csrf::token(),
 			'saveDesignUrl' => Http::url('/marketing/recursos/diseno'),
 			'libraryUploadUrl' => Http::url('/marketing/recursos/biblioteca'),
 		]);
+	}
+
+	public function mediaLibrary(): void
+	{
+		Auth::requireUser();
+		$category = Http::string('categoria', 80);
+		View::render('marketing/media', [
+			'title' => 'Biblioteca de medios / Stock Mizo',
+			'items' => MarketingMedia::active($category !== '' ? $category : null),
+			'categories' => MarketingMedia::categories(),
+			'filterCategory' => $category,
+			'canManage' => Auth::isAdmin(),
+		]);
+	}
+
+	public function storeMedia(): void
+	{
+		Csrf::check();
+		$user = Auth::requireUser();
+		if (!Auth::isAdmin()) {
+			View::flash('error', 'Solo administración puede gestionar el stock Mizo.');
+			Http::redirect('/marketing/medios');
+		}
+		$title = Http::string('title', 160);
+		$description = Http::string('description', 400);
+		$category = Http::string('category', 80);
+		if ($title === '' || !in_array($category, MarketingMedia::categories(), true)) {
+			View::flash('error', 'Completa título y categoría válidos.');
+			Http::redirect('/marketing/medios');
+		}
+		$file = $_FILES['archivo'] ?? null;
+		if (!is_array($file) || (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+			View::flash('error', 'Sube una fotografía JPG, PNG o WEBP.');
+			Http::redirect('/marketing/medios');
+		}
+		$ext = strtolower(pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
+		$allowed = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp', 'gif' => 'image/gif'];
+		if (!isset($allowed[$ext])) {
+			View::flash('error', 'Formato no permitido para el stock.');
+			Http::redirect('/marketing/medios');
+		}
+		if ((int) ($file['size'] ?? 0) > 20 * 1024 * 1024) {
+			View::flash('error', 'La foto debe pesar máximo 20 MB.');
+			Http::redirect('/marketing/medios');
+		}
+
+		$id = MarketingMedia::insert([
+			'category' => $category,
+			'title' => $title,
+			'description' => $description,
+			'file_path' => '',
+			'thumb_path' => '',
+			'original_name' => (string) ($file['name'] ?? 'foto'),
+			'mime' => $allowed[$ext],
+			'file_size' => (int) ($file['size'] ?? 0),
+			'active' => 1,
+			'position' => MarketingMedia::nextPosition(),
+			'created_by' => (int) $user['id'],
+			'created_at' => date('c'),
+			'updated_at' => date('c'),
+		]);
+
+		$dir = MarketingMedia::storageRoot() . '/' . $id;
+		if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+			MarketingMedia::delete($id);
+			View::flash('error', 'No se pudo crear la carpeta del stock.');
+			Http::redirect('/marketing/medios');
+		}
+		$safe = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', pathinfo((string) $file['name'], PATHINFO_FILENAME)) ?? 'foto'));
+		$safe = trim($safe, '-') ?: 'foto';
+		$filename = $safe . '-' . substr(bin2hex(random_bytes(3)), 0, 6) . '.' . ($ext === 'jpeg' ? 'jpg' : $ext);
+		$dest = $dir . '/' . $filename;
+		if (!@move_uploaded_file((string) $file['tmp_name'], $dest)) {
+			MarketingMedia::delete($id);
+			View::flash('error', 'No se pudo guardar la fotografía.');
+			Http::redirect('/marketing/medios');
+		}
+		$filePath = '/crm/uploads/marketing/stock/' . $id . '/' . $filename;
+		$thumbPath = '';
+		$thumbName = $this->makeImageThumb($dest, $dir);
+		if ($thumbName !== null) {
+			$thumbPath = '/crm/uploads/marketing/stock/' . $id . '/' . $thumbName;
+		}
+		MarketingMedia::update($id, [
+			'file_path' => $filePath,
+			'thumb_path' => $thumbPath,
+			'file_size' => (int) filesize($dest),
+			'updated_at' => date('c'),
+		]);
+		View::flash('ok', 'Fotografía agregada al Stock Mizo.');
+		Http::redirect('/marketing/medios');
+	}
+
+	public function destroyMedia(string $id): void
+	{
+		Csrf::check();
+		Auth::requireUser();
+		if (!Auth::isAdmin()) {
+			View::flash('error', 'Solo administración puede ocultar fotos del stock.');
+			Http::redirect('/marketing/medios');
+		}
+		$row = MarketingMedia::find((int) $id);
+		if (!$row) {
+			View::flash('error', 'Imagen no encontrada.');
+			Http::redirect('/marketing/medios');
+		}
+		MarketingMedia::update((int) $id, [
+			'active' => 0,
+			'updated_at' => date('c'),
+		]);
+		View::flash('ok', 'Imagen ocultada del Stock Mizo.');
+		Http::redirect('/marketing/medios');
 	}
 
 	/** Guarda un flyer generado en el canvas (JPG/PNG/PDF) como recurso descargable. */

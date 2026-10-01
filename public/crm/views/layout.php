@@ -26,7 +26,7 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
 	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=68">
 	<?php if ($onMarketing): ?>
-		<link rel="stylesheet" href="<?= h(Http::url('/assets/marketing.css')) ?>?v=3">
+		<link rel="stylesheet" href="<?= h(Http::url('/assets/marketing.css')) ?>?v=4">
 	<?php endif; ?>
 </head>
 <body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?><?= $onMarketing ? ' is-marketing' : '' ?><?= $onQuoteEditor ? ' is-quote-editor' : '' ?>" data-crm-base="<?= h(Http::base()) ?>">

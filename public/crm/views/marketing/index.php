@@ -15,6 +15,7 @@ $mktTab = 'correos';
 		<div class="mkt-head-actions">
 			<a class="btn btn-word" href="<?= h(Http::url('/marketing/nuevo')) ?>">Nuevo correo comercial</a>
 			<a class="btn btn-excel" href="<?= h(Http::url('/marketing/recursos')) ?>">Ver recursos</a>
+			<a class="btn-text" href="<?= h(Http::url('/marketing/medios')) ?>">Stock Mizo</a>
 		</div>
 	</div>
 

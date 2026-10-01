@@ -11,6 +11,8 @@ $filterCategory = $filterCategory ?? '';
 $canManage = !empty($canManage);
 $studioTemplates = $studioTemplates ?? [];
 $studioBackgrounds = $studioBackgrounds ?? [];
+$studioStock = $studioStock ?? [];
+$studioStockCategories = $studioStockCategories ?? [];
 $studioBrand = $studioBrand ?? [];
 $csrf = $csrf ?? Csrf::token();
 $saveDesignUrl = $saveDesignUrl ?? Http::url('/marketing/recursos/diseno');
@@ -26,6 +28,7 @@ $mktTab = 'recursos';
 		</div>
 		<div class="mkt-head-actions">
 			<a class="btn btn-word" href="#estudio">Abrir estudio</a>
+			<a class="btn-text" href="<?= h(Http::url('/marketing/medios')) ?>">Stock Mizo</a>
 			<a class="btn-text" href="<?= h(Http::url('/marketing/nuevo')) ?>">Correo comercial</a>
 		</div>
 	</div>
@@ -35,6 +38,8 @@ $mktTab = 'recursos';
 	<section class="paper mkt-panel mkt-studio" id="estudio" data-mkt-studio
 		data-templates="<?= h(json_encode($studioTemplates, JSON_UNESCAPED_UNICODE)) ?>"
 		data-backgrounds="<?= h(json_encode($studioBackgrounds, JSON_UNESCAPED_UNICODE)) ?>"
+		data-stock="<?= h(json_encode($studioStock, JSON_UNESCAPED_UNICODE)) ?>"
+		data-stock-categories="<?= h(json_encode($studioStockCategories, JSON_UNESCAPED_UNICODE)) ?>"
 		data-brand="<?= h(json_encode($studioBrand, JSON_UNESCAPED_UNICODE)) ?>"
 		data-save-url="<?= h($saveDesignUrl) ?>"
 		data-csrf="<?= h($csrf) ?>">
@@ -63,6 +68,13 @@ $mktTab = 'recursos';
 						<button class="btn btn-excel" type="submit">Subir a biblioteca</button>
 					</form>
 				<?php endif; ?>
+
+				<h3>Imágenes de servicios / productos Mizo</h3>
+				<p class="muted mkt-stock-hint">Elige una foto real: reemplaza el fondo y mantiene la máscara de la plantilla para que el texto resalte.
+					<a href="<?= h(Http::url('/marketing/medios')) ?>">Administrar Stock Mizo</a>
+				</p>
+				<div class="mkt-stock-filters" data-studio-stock-filters></div>
+				<div class="mkt-stock-gallery" data-studio-stock></div>
 
 				<h3>Campos de la plantilla</h3>
 				<label><span>Título</span><input type="text" data-studio-title maxlength="120"></label>
@@ -274,4 +286,4 @@ $mktTab = 'recursos';
 		</section>
 	<?php endif; ?>
 </div>
-<script src="<?= h(Http::url('/assets/marketing-studio.js')) ?>?v=1"></script>
+<script src="<?= h(Http::url('/assets/marketing-studio.js')) ?>?v=2"></script>

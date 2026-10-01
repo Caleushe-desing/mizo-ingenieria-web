@@ -6,6 +6,8 @@
 
 	const templates = JSON.parse(root.getAttribute('data-templates') || '[]');
 	const backgrounds = JSON.parse(root.getAttribute('data-backgrounds') || '[]');
+	const stock = JSON.parse(root.getAttribute('data-stock') || '[]');
+	const stockCategories = JSON.parse(root.getAttribute('data-stock-categories') || '[]');
 	const brand = JSON.parse(root.getAttribute('data-brand') || '{}');
 	const saveUrl = root.getAttribute('data-save-url') || '';
 	const csrf = root.getAttribute('data-csrf') || '';
@@ -20,6 +22,8 @@
 	const els = {
 		templateGrid: root.querySelector('[data-studio-templates]'),
 		bgGrid: root.querySelector('[data-studio-backgrounds]'),
+		stockGrid: root.querySelector('[data-studio-stock]'),
+		stockFilters: root.querySelector('[data-studio-stock-filters]'),
 		title: root.querySelector('[data-studio-title]'),
 		description: root.querySelector('[data-studio-description]'),
 		cta: root.querySelector('[data-studio-cta]'),
@@ -41,6 +45,7 @@
 	const state = {
 		templateId: templates[0] ? templates[0].id : null,
 		backgroundId: templates[0] ? templates[0].background : 'grad-navy',
+		maskPreset: templates[0] ? templates[0].background : 'grad-navy',
 		accent: templates[0] ? templates[0].accent : '#1c9bd8',
 		title: templates[0] ? templates[0].fields.title : '',
 		description: templates[0] ? templates[0].fields.description : '',
@@ -49,9 +54,13 @@
 		fontSize: 72,
 		align: 'left',
 		color: '#ffffff',
-		logoMode: 'corner', // corner | watermark | off
+		logoMode: 'corner',
 		extraLayers: [],
 		bgImage: null,
+		photoImage: null,
+		photoId: null,
+		photoUrl: '',
+		stockFilter: '',
 		logoImage: null,
 	};
 
@@ -100,8 +109,6 @@
 		}
 		ctx.fillStyle = g;
 		ctx.fillRect(0, 0, W, H);
-
-		// Textura corporativa sutil
 		ctx.save();
 		ctx.globalAlpha = id === 'grad-light' ? 0.08 : 0.12;
 		ctx.strokeStyle = '#ffffff';
@@ -113,7 +120,6 @@
 			ctx.stroke();
 		}
 		ctx.restore();
-
 		if (id === 'grad-light') {
 			ctx.fillStyle = 'rgba(11, 110, 168, 0.12)';
 			ctx.fillRect(0, H * 0.62, W, H * 0.38);
@@ -123,13 +129,53 @@
 		}
 	}
 
-	function coverImage(img) {
+	function coverImage(img, withFlatOverlay) {
 		const scale = Math.max(W / img.width, H / img.height);
 		const tw = img.width * scale;
 		const th = img.height * scale;
 		ctx.drawImage(img, (W - tw) / 2, (H - th) / 2, tw, th);
-		ctx.fillStyle = 'rgba(0,0,0,0.35)';
-		ctx.fillRect(0, 0, W, H);
+		if (withFlatOverlay) {
+			ctx.fillStyle = 'rgba(0,0,0,0.35)';
+			ctx.fillRect(0, 0, W, H);
+		}
+	}
+
+	/** Máscara de plantilla sobre foto real: degradado inferior para legibilidad. */
+	function drawPhotoMask(presetId) {
+		const top = ctx.createLinearGradient(0, 0, 0, H * 0.45);
+		top.addColorStop(0, 'rgba(7, 21, 37, 0.45)');
+		top.addColorStop(1, 'rgba(7, 21, 37, 0)');
+		ctx.fillStyle = top;
+		ctx.fillRect(0, 0, W, H * 0.45);
+
+		const bottom = ctx.createLinearGradient(0, H * 0.35, 0, H);
+		if (presetId === 'grad-warm') {
+			bottom.addColorStop(0, 'rgba(42, 26, 18, 0)');
+			bottom.addColorStop(0.45, 'rgba(42, 26, 18, 0.55)');
+			bottom.addColorStop(1, 'rgba(20, 10, 6, 0.88)');
+		} else if (presetId === 'grad-light') {
+			bottom.addColorStop(0, 'rgba(244, 248, 251, 0)');
+			bottom.addColorStop(0.5, 'rgba(11, 110, 168, 0.35)');
+			bottom.addColorStop(1, 'rgba(11, 60, 100, 0.72)');
+		} else {
+			bottom.addColorStop(0, 'rgba(7, 21, 37, 0)');
+			bottom.addColorStop(0.4, 'rgba(7, 21, 37, 0.5)');
+			bottom.addColorStop(1, 'rgba(5, 12, 22, 0.9)');
+		}
+		ctx.fillStyle = bottom;
+		ctx.fillRect(0, H * 0.35, W, H * 0.65);
+
+		ctx.save();
+		ctx.globalAlpha = 0.1;
+		ctx.strokeStyle = '#ffffff';
+		ctx.lineWidth = 2;
+		for (let i = 0; i < 6; i++) {
+			ctx.beginPath();
+			ctx.moveTo(-80 + i * 200, H);
+			ctx.lineTo(220 + i * 200, 0);
+			ctx.stroke();
+		}
+		ctx.restore();
 	}
 
 	function wrapText(text, x, y, maxWidth, lineHeight, align) {
@@ -173,16 +219,23 @@
 
 	function render() {
 		ctx.clearRect(0, 0, W, H);
-		const bg = backgrounds.find(function (b) { return b.id === state.backgroundId; });
-		if (bg && bg.type === 'image' && state.bgImage) {
-			coverImage(state.bgImage);
+		const usingPhoto = !!state.photoImage;
+		if (usingPhoto) {
+			coverImage(state.photoImage, false);
+			drawPhotoMask(state.maskPreset || state.backgroundId || 'grad-navy');
 		} else {
-			drawPresetBackground(state.backgroundId || 'grad-navy');
+			const bg = backgrounds.find(function (b) { return b.id === state.backgroundId; });
+			if (bg && bg.type === 'image' && state.bgImage) {
+				coverImage(state.bgImage, true);
+			} else {
+				drawPresetBackground(state.backgroundId || 'grad-navy');
+			}
 		}
 
 		drawLogo();
 
-		const textColor = state.backgroundId === 'grad-light' ? '#1f2328' : state.color;
+		const lightText = !(state.maskPreset === 'grad-light' && !usingPhoto && state.backgroundId === 'grad-light');
+		const textColor = lightText ? state.color : '#1f2328';
 		const accent = state.accent || '#f47b20';
 		const pad = 72;
 		const maxW = W - pad * 2;
@@ -202,7 +255,6 @@
 		y += 40;
 		ctx.globalAlpha = 1;
 
-		// CTA pill
 		ctx.font = '700 28px "Segoe UI", Calibri, Arial, sans-serif';
 		const cta = String(state.cta || '');
 		const ctaW = Math.min(maxW, ctx.measureText(cta).width + 64);
@@ -215,7 +267,6 @@
 		ctx.textAlign = 'center';
 		ctx.fillText(cta, ctaX + ctaW / 2, ctaY + 42);
 
-		// Extra layers
 		state.extraLayers.forEach(function (layer) {
 			ctx.fillStyle = layer.color || '#ffffff';
 			ctx.font = (layer.bold ? '700 ' : '400 ') + (layer.size || 32) + 'px "Segoe UI", Calibri, Arial, sans-serif';
@@ -223,10 +274,9 @@
 			ctx.fillText(layer.text, layer.x, layer.y);
 		});
 
-		// Footer brand line
 		ctx.textAlign = 'left';
 		ctx.font = '600 22px "Segoe UI", Calibri, Arial, sans-serif';
-		ctx.fillStyle = state.backgroundId === 'grad-light' ? 'rgba(11,110,168,0.9)' : 'rgba(255,255,255,0.75)';
+		ctx.fillStyle = lightText ? 'rgba(255,255,255,0.75)' : 'rgba(11,110,168,0.9)';
 		ctx.fillText('Mizo Ingeniería · Hardware de grado profesional', pad, H - 56);
 	}
 
@@ -240,15 +290,23 @@
 		ctx.closePath();
 	}
 
+	function clearPhoto() {
+		state.photoImage = null;
+		state.photoId = null;
+		state.photoUrl = '';
+	}
+
 	function applyTemplate(tpl) {
 		if (!tpl) return;
 		state.templateId = tpl.id;
 		state.backgroundId = tpl.background;
+		state.maskPreset = tpl.background;
 		state.accent = tpl.accent;
 		state.title = tpl.fields.title;
 		state.description = tpl.fields.description;
 		state.cta = tpl.fields.cta;
 		state.category = tpl.category;
+		clearPhoto();
 		if (els.title) els.title.value = state.title;
 		if (els.description) els.description.value = state.description;
 		if (els.cta) els.cta.value = state.cta;
@@ -257,6 +315,7 @@
 		syncBgImage().then(render);
 		paintTemplateCards();
 		paintBgCards();
+		paintStock();
 	}
 
 	function paintTemplateCards() {
@@ -278,22 +337,27 @@
 	function paintBgCards() {
 		if (!els.bgGrid) return;
 		els.bgGrid.innerHTML = backgrounds.map(function (bg) {
+			const selected = !state.photoId && bg.id === state.backgroundId;
 			const swatch = bg.type === 'image'
 				? 'style="background-image:url(\'' + bg.url + '\')"'
 				: 'data-preset="' + bg.id + '"';
-			return '<button type="button" class="mkt-bg-swatch' + (bg.id === state.backgroundId ? ' is-on' : '') + '" data-bg-id="' + bg.id + '" title="' + escapeHtml(bg.name) + '">' +
+			return '<button type="button" class="mkt-bg-swatch' + (selected ? ' is-on' : '') + '" data-bg-id="' + bg.id + '" title="' + escapeHtml(bg.name) + '">' +
 				'<span class="mkt-bg-thumb" ' + swatch + '></span>' +
 				'<small>' + escapeHtml(bg.name) + '</small>' +
 				'</button>';
 		}).join('');
 		els.bgGrid.querySelectorAll('[data-bg-id]').forEach(function (btn) {
 			btn.addEventListener('click', function () {
+				clearPhoto();
 				state.backgroundId = btn.getAttribute('data-bg-id');
+				if (String(state.backgroundId).indexOf('grad-') === 0) {
+					state.maskPreset = state.backgroundId;
+				}
 				paintBgCards();
+				paintStock();
 				syncBgImage().then(render);
 			});
 		});
-		// paint preset thumbs via mini canvas style classes
 		els.bgGrid.querySelectorAll('[data-preset]').forEach(function (el) {
 			el.style.background = presetCss(el.getAttribute('data-preset'));
 		});
@@ -305,6 +369,83 @@
 		if (id === 'grad-slate') return 'linear-gradient(160deg,#1f2328,#4a5560)';
 		if (id === 'grad-light') return 'linear-gradient(160deg,#f4f8fb,#d7e7f2)';
 		return 'linear-gradient(160deg,#071525,#1c9bd8)';
+	}
+
+	function filteredStock() {
+		if (!state.stockFilter) return stock;
+		return stock.filter(function (item) { return item.category === state.stockFilter; });
+	}
+
+	function paintStockFilters() {
+		if (!els.stockFilters) return;
+		const cats = [''].concat(stockCategories);
+		els.stockFilters.innerHTML = cats.map(function (cat) {
+			const label = cat || 'Todas';
+			const on = state.stockFilter === cat ? ' is-on' : '';
+			return '<button type="button" class="mkt-filter' + on + '" data-stock-cat="' + escapeHtml(cat) + '">' + escapeHtml(label) + '</button>';
+		}).join('');
+		els.stockFilters.querySelectorAll('[data-stock-cat]').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				state.stockFilter = btn.getAttribute('data-stock-cat') || '';
+				paintStockFilters();
+				paintStock();
+			});
+		});
+	}
+
+	function paintStock() {
+		if (!els.stockGrid) return;
+		const items = filteredStock();
+		if (!items.length) {
+			els.stockGrid.innerHTML = '<p class="muted">No hay fotos en esta categoría. Sube stock en Biblioteca / Stock Mizo.</p>';
+			return;
+		}
+		els.stockGrid.innerHTML = items.map(function (item) {
+			const on = String(state.photoId) === String(item.id) ? ' is-on' : '';
+			const thumb = item.thumb || item.url;
+			return '<button type="button" class="mkt-stock-swatch' + on + '" data-stock-id="' + item.id + '" title="' + escapeHtml(item.title) + '">' +
+				'<span class="mkt-stock-thumb" style="background-image:url(\'' + thumb.replace(/'/g, '%27') + '\')"></span>' +
+				'<small>' + escapeHtml(item.category) + '</small>' +
+				'<strong>' + escapeHtml(item.title) + '</strong>' +
+				'</button>';
+		}).join('');
+		els.stockGrid.querySelectorAll('[data-stock-id]').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				const id = btn.getAttribute('data-stock-id');
+				const item = stock.find(function (s) { return String(s.id) === String(id); });
+				if (!item) return;
+				selectStock(item);
+			});
+		});
+	}
+
+	function selectStock(item) {
+		state.photoId = item.id;
+		state.photoUrl = item.url;
+		setStatus('Cargando foto…');
+		const tpl = currentTemplate();
+		if (tpl) {
+			state.maskPreset = tpl.background;
+			state.accent = tpl.accent;
+		}
+		const cached = bgCache[item.url];
+		const done = function (img) {
+			state.photoImage = img;
+			paintBgCards();
+			paintStock();
+			setStatus('Foto aplicada al flyer.');
+			render();
+		};
+		if (cached) {
+			done(cached);
+			return;
+		}
+		loadImage(item.url).then(function (img) {
+			bgCache[item.url] = img;
+			done(img);
+		}).catch(function () {
+			setStatus('No se pudo cargar la foto.', true);
+		});
 	}
 
 	function paintLayers() {
@@ -337,6 +478,9 @@
 	}
 
 	function syncBgImage() {
+		if (state.photoUrl) {
+			return Promise.resolve();
+		}
 		const bg = backgrounds.find(function (b) { return b.id === state.backgroundId; });
 		if (!bg || bg.type !== 'image' || !bg.url) {
 			state.bgImage = null;
@@ -415,7 +559,6 @@
 
 	function exportDataUrl(format) {
 		if (format === 'jpg' || format === 'jpeg' || format === 'pdf') {
-			// Fondo opaco para JPG/PDF
 			const tmp = document.createElement('canvas');
 			tmp.width = W;
 			tmp.height = H;
@@ -468,10 +611,11 @@
 			});
 	}
 
-	// Init
 	bindInputs();
 	paintTemplateCards();
 	paintBgCards();
+	paintStockFilters();
+	paintStock();
 	paintLayers();
 	if (els.title) els.title.value = state.title;
 	if (els.description) els.description.value = state.description;

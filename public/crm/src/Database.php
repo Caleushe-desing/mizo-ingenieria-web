@@ -669,6 +669,12 @@ final class Database
 		if ($version < 26) {
 			self::ensureMarketingSchema($pdo);
 			$pdo->exec('PRAGMA user_version = 26');
+			$version = 26;
+		}
+
+		if ($version < 27) {
+			self::ensureMarketingSchema($pdo);
+			$pdo->exec('PRAGMA user_version = 27');
 		}
 	}
 
@@ -733,6 +739,26 @@ final class Database
 		);
 		$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mkt_resources_kind ON marketing_resources(kind, active)');
 		$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mkt_resources_cat ON marketing_resources(category, active)');
+
+		$pdo->exec(
+			'CREATE TABLE IF NOT EXISTS marketing_media (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				category TEXT NOT NULL,
+				title TEXT NOT NULL,
+				description TEXT NOT NULL DEFAULT \'\',
+				file_path TEXT NOT NULL DEFAULT \'\',
+				thumb_path TEXT NOT NULL DEFAULT \'\',
+				original_name TEXT NOT NULL DEFAULT \'\',
+				mime TEXT NOT NULL DEFAULT \'\',
+				file_size INTEGER NOT NULL DEFAULT 0,
+				active INTEGER NOT NULL DEFAULT 1,
+				position INTEGER NOT NULL DEFAULT 0,
+				created_by INTEGER,
+				created_at TEXT NOT NULL,
+				updated_at TEXT NOT NULL
+			)'
+		);
+		$pdo->exec('CREATE INDEX IF NOT EXISTS idx_mkt_media_cat ON marketing_media(category, active)');
 	}
 
 	/** Producto interno del cotizador: oculto en la web pública. */
