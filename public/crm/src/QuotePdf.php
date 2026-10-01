@@ -48,8 +48,11 @@ final class QuotePdf
 		}
 		$logo = self::logoPath($publicRoot);
 		$token = trim((string) ($quote['token'] ?? ''));
-		$acceptUrl = $token !== '' ? App::absolute('/q/' . $token . '/aceptar') : '';
-		$rejectUrl = $token !== '' ? App::absolute('/q/' . $token . '/rechazar') : '';
+		$status = (string) ($quote['status'] ?? '');
+		// Incluye borrador: el adjunto del correo se genera antes de marcar "enviada".
+		$canDecide = $token !== '' && !in_array($status, ['aceptada', 'rechazada'], true);
+		$acceptUrl = $canDecide ? App::absolute('/q/' . $token . '/aceptar') : '';
+		$rejectUrl = $canDecide ? App::absolute('/q/' . $token . '/rechazar') : '';
 		$html = self::html($quote, $items, $logo, $acceptUrl, $rejectUrl);
 
 		$options = new \Dompdf\Options();

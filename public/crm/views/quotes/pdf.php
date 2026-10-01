@@ -148,41 +148,13 @@ $revision = trim((string) ($quote['revision'] ?? ''));
 			white-space: pre-wrap;
 		}
 		.compact .card { min-height: 0; }
-		.decide {
-			margin-top: 14px;
-			padding: 12px 10px;
-			border: 1px solid #e4e4e4;
-			text-align: center;
-		}
-		.decide p {
-			margin: 0 0 10px;
-			font-size: 11px;
-			color: #444;
-		}
-		.decide a {
-			display: inline-block;
-			padding: 9px 14px;
-			margin: 0 4px 4px;
-			font-size: 11px;
-			font-weight: 700;
-			text-decoration: none;
-		}
-		.btn-accept {
-			background: #f47b20;
-			color: #ffffff;
-		}
-		.btn-reject {
-			background: #ffffff;
-			color: #444444;
-			border: 1px solid #cccccc;
-		}
 	</style>
 </head>
 <body>
 <?php
-$canDecide = !in_array((string) ($quote['status'] ?? ''), ['aceptada', 'rechazada', 'borrador'], true)
-	&& ($acceptUrl ?? '') !== ''
-	&& ($rejectUrl ?? '') !== '';
+$acceptUrl = (string) ($acceptUrl ?? '');
+$rejectUrl = (string) ($rejectUrl ?? '');
+$canDecide = $acceptUrl !== '' && $rejectUrl !== '';
 ?>
 	<div class="page">
 		<table class="letterhead">
@@ -304,16 +276,20 @@ $canDecide = !in_array((string) ($quote['status'] ?? ''), ['aceptada', 'rechazad
 			</table>
 		</section>
 
-		<?php if (!empty($quote['notes'])): ?>
-			<section class="notes"><?= nl2br(h($quote['notes'])) ?></section>
+		<?php if ($canDecide): ?>
+			<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;border:1px solid #e4e4e4;">
+				<tr>
+					<td align="center" style="padding:12px 10px;">
+						<p style="margin:0 0 10px;font-size:11px;color:#444;">¿Esta propuesta se ajusta a lo requerido? Responde aquí (también puedes responder el correo).</p>
+						<a href="<?= h($acceptUrl) ?>" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:10px 16px;font-size:11px;font-weight:700;margin:0 4px 4px;">Aceptar presupuesto</a>
+						<a href="<?= h($rejectUrl) ?>" style="display:inline-block;background:#ffffff;color:#444444;text-decoration:none;padding:9px 15px;font-size:11px;font-weight:700;border:1px solid #cccccc;margin:0 4px 4px;">No por ahora</a>
+					</td>
+				</tr>
+			</table>
 		<?php endif; ?>
 
-		<?php if ($canDecide): ?>
-			<section class="decide">
-				<p>Si esta propuesta se ajusta a lo requerido, puedes responder aquí. También puedes responder el correo.</p>
-				<a class="btn-accept" href="<?= h($acceptUrl) ?>">Aceptar presupuesto</a>
-				<a class="btn-reject" href="<?= h($rejectUrl) ?>">No por ahora</a>
-			</section>
+		<?php if (!empty($quote['notes'])): ?>
+			<section class="notes"><?= nl2br(h($quote['notes'])) ?></section>
 		<?php endif; ?>
 
 		<footer class="foot">
@@ -374,6 +350,18 @@ $canDecide = !in_array((string) ($quote['status'] ?? ''), ['aceptada', 'rechazad
 				<div class="annex-body"><?= h($aboutText) ?></div>
 			</div>
 		</section>
+
+		<?php if ($canDecide): ?>
+			<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;border:1px solid #e4e4e4;">
+				<tr>
+					<td align="center" style="padding:12px 10px;">
+						<p style="margin:0 0 10px;font-size:11px;color:#444;">Respuesta al presupuesto</p>
+						<a href="<?= h($acceptUrl) ?>" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:10px 16px;font-size:11px;font-weight:700;margin:0 4px 4px;">Aceptar presupuesto</a>
+						<a href="<?= h($rejectUrl) ?>" style="display:inline-block;background:#ffffff;color:#444444;text-decoration:none;padding:9px 15px;font-size:11px;font-weight:700;border:1px solid #cccccc;margin:0 4px 4px;">No por ahora</a>
+					</td>
+				</tr>
+			</table>
+		<?php endif; ?>
 
 		<footer class="foot">
 			<p><strong>Mizo</strong> · Ingeniería e instalación profesional · <?= h(Config::PHONE) ?> · <?= h(Config::EMAIL) ?> · mizo.cl</p>
