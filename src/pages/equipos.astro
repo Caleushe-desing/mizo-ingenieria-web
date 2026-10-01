@@ -18,8 +18,8 @@ const description = page.seoDescription;
 		webPageSchema({ name: title, description, url: absoluteUrl('/equipos') }),
 	])}
 >
-	<section class="relative overflow-hidden border-b border-ink/10 bg-surface pt-28 text-ink sm:pt-32">
-		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.04]"></div>
+	<section class="relative overflow-hidden border-b border-ink/10 bg-surface/80 pt-28 text-ink sm:pt-32">
+		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.05]"></div>
 		<div class="relative mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-12 lg:px-8">
 			<p class="mizo-kicker">{page.kicker}</p>
 			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] text-ink sm:text-5xl">{page.title}</h1>
@@ -34,7 +34,7 @@ const description = page.seoDescription;
 
 	<section
 		id="vitrina"
-		class="bg-paper py-8 sm:py-10"
+		class="bg-transparent py-8 sm:py-10"
 		data-endpoint="/crm/api/productos-visibles.php"
 		data-whatsapp={SITE.whatsapp}
 		aria-labelledby="vitrina-heading"
@@ -272,8 +272,11 @@ const description = page.seoDescription;
 	@media (min-width: 640px) {
 		.shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 	}
-	@media (min-width: 1100px) {
+	@media (min-width: 900px) {
 		.shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+	}
+	@media (min-width: 1100px) {
+		.shop-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.9rem; }
 	}
 	.shop-card {
 		display: flex;

@@ -26,7 +26,7 @@ const ogImageURL = new URL(ogImage, Astro.site).href;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="theme-color" content="#f4f6f8" />
+		<meta name="theme-color" content="#e6ebf1" />
 		<link rel="icon" href="/favicon.png" type="image/png" />
 		<link rel="apple-touch-icon" href="/mizo-logo.png" />
 		<link rel="canonical" href={canonicalURL} />
@@ -50,7 +50,7 @@ const ogImageURL = new URL(ogImage, Astro.site).href;
 		<meta name="twitter:image" content={ogImageURL} />
 		{jsonLd ? <SeoJsonLd data={jsonLd} /> : null}
 	</head>
-	<body class="has-mobile-contact-bar flex min-h-screen flex-col bg-paper text-ink">
+	<body class="has-mobile-contact-bar flex min-h-screen flex-col text-ink">
 		<a
 			href="#contenido"
 			class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[80] focus:bg-surface focus:text-ink focus:px-3 focus:py-2 focus:text-sm focus:font-semibold"

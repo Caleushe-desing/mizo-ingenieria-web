@@ -9,7 +9,37 @@
 	}
 
 	body {
-		@apply bg-paper font-sans text-ink antialiased;
+		@apply font-sans text-ink antialiased;
+		background-color: #e6ebf1;
+		background-image:
+			radial-gradient(rgba(11, 110, 168, 0.09) 0.9px, transparent 0.9px),
+			radial-gradient(rgba(244, 123, 32, 0.05) 0.7px, transparent 0.7px),
+			linear-gradient(165deg, #f2f5f8 0%, #e4eaf1 48%, #dfe6ee 100%);
+		background-size: 22px 22px, 34px 34px, 100% 100%;
+		background-position: 0 0, 11px 17px, 0 0;
+		background-attachment: fixed;
+	}
+
+	body::before {
+		content: '';
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		z-index: 0;
+		opacity: 0.35;
+		background-image:
+			repeating-linear-gradient(
+				-18deg,
+				transparent,
+				transparent 11px,
+				rgba(28, 155, 216, 0.035) 11px,
+				rgba(28, 155, 216, 0.035) 12px
+			);
+	}
+
+	body > * {
+		position: relative;
+		z-index: 1;
 	}
 
 	img {
@@ -25,6 +55,13 @@
 	.mizo-grid {
 		background-image: linear-gradient(#1c9bd8 1px, transparent 1px), linear-gradient(90deg, #1c9bd8 1px, transparent 1px);
 		background-size: 72px 72px;
+	}
+
+	.mizo-texture {
+		background-color: rgba(244, 246, 248, 0.72);
+		background-image:
+			radial-gradient(rgba(11, 110, 168, 0.07) 0.85px, transparent 0.85px);
+		background-size: 20px 20px;
 	}
 
 	.mizo-kicker {
