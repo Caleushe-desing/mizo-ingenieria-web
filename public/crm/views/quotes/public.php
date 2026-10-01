@@ -15,9 +15,16 @@ if ($reference === '') {
 if ($reference === '' && $items) {
 	$reference = \MizoCrm\Models\Quote::itemLabel($items[0]);
 }
+$contactEmail = trim((string) ($quote['contact_email'] ?? $quote['client_email'] ?? ''));
+$contactBits = array_values(array_filter([
+	$contactName !== '' ? ('Contacto: ' . $contactName . (!empty($quote['contact_title']) ? ' · ' . $quote['contact_title'] : '')) : '',
+	$contactEmail,
+	!empty($quote['client_phone']) ? (string) $quote['client_phone'] : '',
+	!empty($quote['client_city']) ? (string) $quote['client_city'] : '',
+]));
 ?>
 <?php if ($preview): ?>
-	<div class="doc-banner">Vista previa interna — así lo verá el cliente</div>
+	<div class="doc-banner">Vista previa interna — así lo verá el cliente · Usa Imprimir / Guardar PDF</div>
 <?php endif; ?>
 
 <article class="doc">
@@ -30,7 +37,7 @@ if ($reference === '' && $items) {
 			<p class="doc-type">Cotización</p>
 			<p class="doc-number"><?= h($quote['number']) ?></p>
 			<?php if (trim((string) ($quote['revision'] ?? '')) !== ''): ?>
-				<p>Versión <?= h($quote['revision']) ?></p>
+				<p class="doc-rev">Versión <?= h($quote['revision']) ?></p>
 			<?php endif; ?>
 			<dl>
 				<div><dt>Fecha</dt><dd><?= h(when($issued, 'd-m-Y')) ?></dd></div>
@@ -43,23 +50,15 @@ if ($reference === '' && $items) {
 		<div class="doc-card">
 			<h2>De</h2>
 			<p><strong><?= h(Config::COMPANY) ?></strong></p>
-			<p><?= h(Config::EMAIL) ?></p>
-			<p><?= h(Config::PHONE) ?></p>
-			<p><?= h(Config::ADDRESS) ?></p>
-			<p>www.mizo.cl</p>
+			<p><?= h(Config::EMAIL) ?> · <?= h(Config::PHONE) ?></p>
+			<p><?= h(Config::ADDRESS) ?> · mizo.cl</p>
 		</div>
 		<div class="doc-card">
 			<h2>Para</h2>
 			<p><strong><?= h($clientName !== '' ? $clientName : 'Cliente') ?></strong></p>
-			<?php if ($contactName !== ''): ?>
-				<p>Contacto: <?= h($contactName) ?><?php if (!empty($quote['contact_title'])): ?> · <?= h($quote['contact_title']) ?><?php endif; ?></p>
+			<?php if ($contactBits): ?>
+				<p><?= h(implode(' · ', $contactBits)) ?></p>
 			<?php endif; ?>
-			<?php
-			$contactEmail = trim((string) ($quote['contact_email'] ?? $quote['client_email'] ?? ''));
-			?>
-			<?php if ($contactEmail !== ''): ?><p><?= h($contactEmail) ?></p><?php endif; ?>
-			<?php if (!empty($quote['client_phone'])): ?><p><?= h($quote['client_phone']) ?></p><?php endif; ?>
-			<?php if (!empty($quote['client_city'])): ?><p><?= h($quote['client_city']) ?></p><?php endif; ?>
 		</div>
 	</section>
 
@@ -75,11 +74,10 @@ if ($reference === '' && $items) {
 		<table>
 			<thead>
 				<tr>
-					<th class="is-num">Ítem</th>
+					<th class="is-num">#</th>
 					<th>Descripción</th>
 					<th class="is-num">Cant.</th>
-					<th>Unidad</th>
-					<th class="is-num">P. unitario neto</th>
+					<th class="is-num">P. unit. neto</th>
 					<th class="is-num">Total neto</th>
 				</tr>
 			</thead>
@@ -91,6 +89,8 @@ if ($reference === '' && $items) {
 				if ($detail !== '' && strcasecmp($detail, $label) === 0) {
 					$detail = '';
 				}
+				$qty = rtrim(rtrim(number_format((float) $item['quantity'], 2, ',', '.'), '0'), ',');
+				$unit = trim((string) ($item['unit'] ?? 'un'));
 				?>
 				<tr>
 					<td class="is-num"><?= (int) $i + 1 ?></td>
@@ -100,29 +100,30 @@ if ($reference === '' && $items) {
 							<div class="doc-item-detail"><?= nl2br(h($detail)) ?></div>
 						<?php endif; ?>
 					</td>
-					<td class="is-num"><?= h(rtrim(rtrim(number_format((float) $item['quantity'], 2, ',', '.'), '0'), ',')) ?></td>
-					<td><?= h($item['unit']) ?></td>
+					<td class="is-num"><?= h($qty) ?><?= $unit !== '' ? ' ' . h($unit) : '' ?></td>
 					<td class="is-num"><?= money((int) $item['unit_price']) ?></td>
 					<td class="is-num"><?= money((int) $item['total']) ?></td>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>
 		</table>
-		<table class="doc-totals">
-			<tr>
-				<th>Neto</th>
-				<td><?= money((int) $quote['subtotal']) ?></td>
-			</tr>
-			<tr>
-				<th>IVA <?= (int) $quote['tax_rate'] ?>%</th>
-				<td><?= money((int) $quote['tax']) ?></td>
-			</tr>
-			<tr class="is-grand">
-				<th>Total</th>
-				<td><?= money((int) $quote['total']) ?></td>
-			</tr>
-		</table>
-		<p class="doc-currency">Montos en pesos chilenos (CLP). IVA incluido en el total.</p>
+		<div class="doc-summary">
+			<table class="doc-totals">
+				<tr>
+					<th>Neto</th>
+					<td><?= money((int) $quote['subtotal']) ?></td>
+				</tr>
+				<tr>
+					<th>IVA <?= (int) $quote['tax_rate'] ?>%</th>
+					<td><?= money((int) $quote['tax']) ?></td>
+				</tr>
+				<tr class="is-grand">
+					<th>Total</th>
+					<td><?= money((int) $quote['total']) ?></td>
+				</tr>
+			</table>
+			<p class="doc-currency">Montos en CLP. IVA incluido en el total.</p>
+		</div>
 	</section>
 
 	<?php if (!empty($quote['notes'])): ?>
@@ -148,8 +149,7 @@ if ($reference === '' && $items) {
 	<?php endif; ?>
 
 	<footer class="doc-foot">
-		<p><strong>Mizo</strong> · Ingeniería e instalación profesional</p>
-		<p><?= h(Config::PHONE) ?> · <?= h(Config::EMAIL) ?> · mizo.cl</p>
+		<p><strong>Mizo</strong> · Ingeniería e instalación profesional · <?= h(Config::PHONE) ?> · <?= h(Config::EMAIL) ?> · mizo.cl</p>
 		<p>Frutillar y Santiago, Chile. Documento <?= h($quote['number']) ?>.</p>
 	</footer>
 </article>

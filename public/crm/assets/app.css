@@ -486,56 +486,65 @@ button, input, select, textarea { font: inherit; color: inherit; }
 	box-shadow: 0 18px 50px rgba(0,0,0,.16);
 }
 .quote-sheet .flash { margin: 0; }
+body.quote-doc {
+	background: #efefef;
+}
 .doc-banner {
 	background: #fff;
 	color: #5c5c5c;
 	text-align: center;
-	font-size: 12px;
+	font-size: 11px;
 	letter-spacing: .06em;
 	text-transform: uppercase;
-	padding: 8px 16px;
+	padding: 7px 14px;
 	font-weight: 600;
 	border-bottom: 1px solid #ececec;
 }
 .doc-letterhead {
 	display: flex;
 	justify-content: space-between;
-	gap: 24px;
+	gap: 18px;
 	align-items: flex-end;
 	background: #fff;
 	color: #161616;
-	padding: 28px 36px 22px;
+	padding: 18px 28px 14px;
 	border-bottom: 1px solid #ececec;
 }
 .doc-brand img {
-	height: 48px;
+	height: 38px;
 	width: auto;
 	display: block;
 }
 .doc-brand p {
-	margin: 10px 0 0;
-	font-size: 12px;
+	margin: 6px 0 0;
+	font-size: 11px;
 	letter-spacing: .04em;
 	color: #6a6a6a;
 }
 .doc-id { text-align: right; }
 .doc-type {
 	margin: 0;
-	font-size: 11px;
-	letter-spacing: .22em;
+	font-size: 10px;
+	letter-spacing: .18em;
 	text-transform: uppercase;
 	color: #f47b20;
 	font-weight: 700;
 }
 .doc-number {
-	margin: 4px 0 12px;
-	font-size: 26px;
+	margin: 2px 0 6px;
+	font-size: 22px;
 	font-weight: 700;
 	letter-spacing: .02em;
 	color: #161616;
+	line-height: 1.1;
+}
+.doc-rev {
+	margin: 0 0 6px;
+	font-size: 12px;
+	color: #666;
 }
 .doc-id dl { margin: 0; }
-.doc-id dl div { display: flex; justify-content: flex-end; gap: 10px; font-size: 12px; }
+.doc-id dl div { display: flex; justify-content: flex-end; gap: 8px; font-size: 11px; line-height: 1.35; }
 .doc-id dt { color: #8a8a8a; font-weight: 500; }
 .doc-id dd { margin: 0; color: #161616; }
 .doc-parties,
@@ -545,96 +554,105 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .doc-actions,
 .doc-status,
 .doc-foot {
-	padding-left: 36px;
-	padding-right: 36px;
+	padding-left: 28px;
+	padding-right: 28px;
 }
 .doc-parties {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	gap: 16px;
-	padding-top: 22px;
-	padding-bottom: 8px;
+	gap: 10px;
+	padding-top: 12px;
+	padding-bottom: 4px;
 }
 .doc-card {
 	background: #fff;
 	border: 1px solid #e4e4e4;
-	padding: 16px 18px;
+	padding: 10px 12px;
 }
 .doc h2 {
-	margin: 0 0 8px;
-	font-size: 11px;
-	letter-spacing: .16em;
+	margin: 0 0 4px;
+	font-size: 10px;
+	letter-spacing: .14em;
 	text-transform: uppercase;
 	color: #1c9bd8;
 	font-weight: 700;
 }
 .doc-parties p, .doc-ref p, .doc-notes p {
-	margin: 0 0 3px;
-	font-size: 14px;
-	line-height: 1.45;
+	margin: 0 0 2px;
+	font-size: 12.5px;
+	line-height: 1.35;
 	color: #333;
 }
-.doc-parties strong { color: #111; font-size: 16px; }
-.doc-ref, .doc-items { padding-top: 18px; }
+.doc-parties strong { color: #111; font-size: 14px; }
+.doc-ref, .doc-items { padding-top: 10px; }
 .doc-items table {
 	width: 100%;
 	border-collapse: collapse;
-	margin: 10px 0 0;
-	font-size: 13px;
+	margin: 6px 0 0;
+	font-size: 12px;
 }
 .doc-items thead th {
 	background: #fff;
 	color: #1c9bd8;
 	font-weight: 600;
 	text-align: left;
-	padding: 10px 8px;
+	padding: 6px 6px;
 	border: 0;
 	border-bottom: 2px solid #1c9bd8;
+	font-size: 11px;
 }
 .doc-items tbody td {
 	border: 0;
 	border-bottom: 1px solid #ececec;
-	padding: 11px 8px;
+	padding: 6px 6px;
 	vertical-align: top;
 	color: #222;
 }
+.doc-items tbody td strong {
+	font-size: 12.5px;
+	line-height: 1.3;
+}
 .doc-items .is-num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.doc-summary {
+	margin-top: 8px;
+}
 .doc-totals {
-	width: 280px !important;
-	margin: 16px 0 8px auto !important;
+	width: 240px !important;
+	margin: 0 0 4px auto !important;
 	border-collapse: collapse;
 }
 .doc-totals th, .doc-totals td {
 	border: 0 !important;
 	background: none !important;
 	color: #444 !important;
-	padding: 6px 0 !important;
+	padding: 3px 0 !important;
 	font-weight: 500;
+	font-size: 12px;
 }
 .doc-totals td { text-align: right; font-variant-numeric: tabular-nums; }
 .doc-totals .is-grand th,
 .doc-totals .is-grand td {
 	border-top: 2px solid #111 !important;
-	padding-top: 10px !important;
-	font-size: 16px;
+	padding-top: 7px !important;
+	font-size: 14px;
 	font-weight: 700;
 	color: #111 !important;
 }
 .doc-totals .is-grand td { color: #f47b20 !important; }
-.doc-currency { margin: 8px 0 0; font-size: 12px; color: #777; text-align: right; }
-.doc-notes { padding-top: 8px; padding-bottom: 8px; }
+.doc-currency { margin: 2px 0 0; font-size: 11px; color: #777; text-align: right; }
+.doc-notes { padding-top: 8px; padding-bottom: 4px; }
 .doc-actions {
-	padding-top: 20px;
-	padding-bottom: 8px;
+	padding-top: 14px;
+	padding-bottom: 6px;
 	border-top: 1px solid #ececec;
-	margin-top: 16px;
+	margin-top: 10px;
 }
-.doc-actions p { margin: 0 0 14px; color: #555; font-size: 14px; }
+.doc-actions p { margin: 0 0 10px; color: #555; font-size: 13px; }
 .doc-accept, .doc-decline {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 11px 18px;
+	padding: 9px 14px;
 	margin-right: 8px;
 	border: 1px solid transparent;
 	font-weight: 700;
@@ -643,23 +661,158 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .doc-accept { background: #f47b20; color: #fff; }
 .doc-decline { background: #fff; color: #444; border-color: #ccc; }
 .doc-status {
-	margin: 20px 36px 0;
-	padding: 12px 14px !important;
+	margin: 12px 28px 0;
+	padding: 9px 12px !important;
 	background: #fff;
 	border: 1px solid #e4e4e4;
-	font-size: 14px;
+	font-size: 13px;
 	color: #333;
 }
 .doc-status.is-ok { border-color: #c9e2d0; }
 .doc-foot {
-	margin-top: 28px;
-	padding: 18px 36px 28px;
-	border-top: 3px solid #f47b20;
+	margin-top: 14px;
+	padding: 10px 28px 18px;
+	border-top: 2px solid #f47b20;
 	color: #777;
-	font-size: 12px;
+	font-size: 11px;
 }
-.doc-foot p { margin: 0 0 3px; }
+.doc-foot p { margin: 0 0 2px; }
 .doc-foot strong { color: #111; }
+.doc-item-detail {
+	margin-top: 2px;
+	color: #555;
+	font-size: 11.5px;
+	line-height: 1.35;
+}
+
+/* PDF / impresión A4: cabecera + ítems compactos; 2.ª hoja con encabezado de tabla y bloques enteros */
+@page {
+	size: A4;
+	margin: 10mm 11mm 12mm;
+}
+@media print {
+	html, body.quote-doc {
+		background: #fff !important;
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+	.quote-sheet {
+		margin: 0 !important;
+		max-width: none !important;
+		box-shadow: none !important;
+		border: 0 !important;
+	}
+	.doc-banner,
+	.doc-actions,
+	.doc-status,
+	.flash {
+		display: none !important;
+	}
+	.doc-letterhead,
+	.doc-parties,
+	.doc-ref,
+	.doc-items,
+	.doc-notes,
+	.doc-foot {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+	.doc-letterhead {
+		padding: 0 0 8px !important;
+		align-items: flex-end;
+		gap: 12px;
+	}
+	.doc-brand img { height: 30px !important; }
+	.doc-brand p { margin-top: 4px !important; font-size: 9.5px !important; }
+	.doc-number { font-size: 17px !important; margin: 1px 0 4px !important; }
+	.doc-type { font-size: 9px !important; }
+	.doc-id dl div { font-size: 10px !important; }
+	.doc-parties {
+		gap: 8px !important;
+		padding-top: 8px !important;
+		padding-bottom: 2px !important;
+	}
+	.doc-card { padding: 7px 9px !important; }
+	.doc h2 { margin: 0 0 3px !important; font-size: 9px !important; }
+	.doc-parties p,
+	.doc-ref p,
+	.doc-notes p {
+		font-size: 10.5px !important;
+		line-height: 1.3 !important;
+		margin-bottom: 1px !important;
+	}
+	.doc-parties strong { font-size: 12px !important; }
+	.doc-ref,
+	.doc-items { padding-top: 7px !important; }
+	.doc-items table { font-size: 10px !important; margin-top: 4px !important; }
+	.doc-items thead th {
+		padding: 4px 4px !important;
+		font-size: 9.5px !important;
+	}
+	.doc-items tbody td {
+		padding: 4px 4px !important;
+	}
+	.doc-items tbody td strong { font-size: 10.5px !important; }
+	.doc-item-detail {
+		font-size: 9.5px !important;
+		line-height: 1.28 !important;
+		margin-top: 1px !important;
+	}
+	.doc-summary { margin-top: 6px !important; }
+	.doc-totals {
+		width: 210px !important;
+		margin: 0 0 2px auto !important;
+	}
+	.doc-totals th,
+	.doc-totals td {
+		padding: 2px 0 !important;
+		font-size: 10.5px !important;
+	}
+	.doc-totals .is-grand th,
+	.doc-totals .is-grand td {
+		padding-top: 5px !important;
+		font-size: 12px !important;
+	}
+	.doc-currency { font-size: 9.5px !important; margin-top: 1px !important; }
+	.doc-notes { padding-top: 6px !important; padding-bottom: 2px !important; }
+	.doc-foot {
+		margin-top: 8px !important;
+		padding: 7px 0 0 !important;
+		border-top-width: 2px !important;
+		font-size: 9.5px !important;
+	}
+
+	/* Distribución en 1–2 hojas */
+	.doc-letterhead,
+	.doc-parties,
+	.doc-ref,
+	.doc-card,
+	.doc-summary,
+	.doc-notes,
+	.doc-foot {
+		break-inside: avoid;
+		page-break-inside: avoid;
+	}
+	.doc-items thead {
+		display: table-header-group;
+	}
+	.doc-items tfoot {
+		display: table-footer-group;
+	}
+	.doc-items tr {
+		break-inside: avoid;
+		page-break-inside: avoid;
+	}
+	.doc-summary {
+		break-before: avoid;
+		page-break-before: avoid;
+	}
+	.doc-notes,
+	.doc-foot {
+		orphans: 3;
+		widows: 3;
+	}
+}
 
 .workspace-mail { max-width: 1180px; }
 .mail-badge {
@@ -1485,10 +1638,10 @@ body.is-chat .flash {
 	.quote-sheet { margin: 0; box-shadow: none; }
 	.totals { flex-direction: column; align-items: flex-end; gap: 8px; }
 	.doc-letterhead, .doc-parties { display: block; }
-	.doc-id { text-align: left; margin-top: 18px; }
+	.doc-id { text-align: left; margin-top: 12px; }
 	.doc-id dl div { justify-content: flex-start; }
-	.doc-letterhead, .doc-parties, .doc-ref, .doc-items, .doc-notes, .doc-actions, .doc-foot { padding-left: 20px; padding-right: 20px; }
-	.doc-status { margin-left: 20px; margin-right: 20px; }
+	.doc-letterhead, .doc-parties, .doc-ref, .doc-items, .doc-notes, .doc-actions, .doc-foot { padding-left: 18px; padding-right: 18px; }
+	.doc-status { margin-left: 18px; margin-right: 18px; }
 }
 
 /* Contactos, bandeja avanzada y adjuntos */
@@ -3051,12 +3204,6 @@ body.service-cost-open {
 	background: #f4f7fa;
 	color: #0f1114;
 	font-weight: 600;
-}
-.doc-item-detail {
-	margin-top: 4px;
-	color: #555;
-	font-size: 13px;
-	line-height: 1.45;
 }
 .quote-totals {
 	margin-top: 8px;
