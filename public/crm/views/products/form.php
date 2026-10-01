@@ -53,9 +53,9 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 		<textarea name="descripcion" required rows="6"><?= h($product['descripcion'] ?? '') ?></textarea>
 	</label>
 	<label>
-		<span>Precio de compra con IVA</span>
+		<span>Precio de compra con IVA (referencia proveedor)</span>
 		<input name="precio_compra_iva" inputmode="numeric" value="<?= (int) ($product['precio_compra_iva'] ?? 0) > 0 ? h((string) (int) $product['precio_compra_iva']) : '' ?>" placeholder="0">
-		<span class="muted" style="display:block;margin-top:4px;font-size:0.9em">Costo interno. En la cotización se combina con el margen % para obtener la venta neta al cliente.</span>
+		<span class="muted" style="display:block;margin-top:4px;font-size:0.9em">Costo de referencia. En el cotizador se combina con el margen % de cada partida para calcular la venta neta al cliente.</span>
 	</label>
 	<label>
 		<span>Categoría</span>
@@ -71,8 +71,9 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 		<input name="proveedor_empresa" required maxlength="160" value="<?= h($product['proveedor_empresa'] ?? '') ?>" placeholder="Distribuidor en Chile">
 	</label>
 	<label>
-		<span>Enlace del proveedor</span>
+		<span>Enlace URL del proveedor</span>
 		<input name="proveedor_link" type="url" required maxlength="500" value="<?= h($product['proveedor_link'] ?? '') ?>" placeholder="https://">
+		<span class="muted" style="display:block;margin-top:4px;font-size:0.9em">Para verificar el precio publicado. También queda disponible desde el cotizador al elegir este producto.</span>
 	</label>
 	<label>
 		<span>Visibilidad</span>
@@ -83,6 +84,67 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 		<a class="btn" href="<?= h(Http::url('/catalogo')) ?>">Volver</a>
 	</div>
 </form>
+
+<?php if ($isEdit): ?>
+	<?php
+	$quoteUsage = $quoteUsage ?? [];
+	$quoteIds = [];
+	foreach ($quoteUsage as $usageRow) {
+		$quoteIds[(int) $usageRow['id']] = true;
+	}
+	$distinctQuotes = count($quoteIds);
+	?>
+	<section class="paper product-usage" id="trazabilidad" style="max-width:920px;margin-top:20px">
+		<h2 class="section-title word">Trazabilidad en cotizaciones</h2>
+		<p class="muted">
+			<?php if ($distinctQuotes === 0): ?>
+				Este producto aún no aparece en ninguna cotización.
+			<?php else: ?>
+				Considerado en <?= (int) $distinctQuotes ?> cotización<?= $distinctQuotes === 1 ? '' : 'es' ?>
+				(<?= count($quoteUsage) ?> partida<?= count($quoteUsage) === 1 ? '' : 's' ?>).
+			<?php endif; ?>
+		</p>
+		<?php if ($quoteUsage): ?>
+			<div class="table-wrap">
+				<table class="sheet">
+					<thead>
+						<tr>
+							<th>Cotización</th>
+							<th>Cliente</th>
+							<th>Fecha</th>
+							<th>Estado</th>
+							<th>Cant.</th>
+							<th>Costo c/IVA</th>
+							<th>Margen %</th>
+							<th>Venta neta</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php foreach ($quoteUsage as $usage): ?>
+						<?php
+						$when = $usage['sent_at'] ?: ($usage['created_at'] ?? null);
+						$margin = (float) ($usage['margin_percent'] ?? 0);
+						?>
+						<tr>
+							<td><?= h($usage['number']) ?></td>
+							<td><?= h($usage['client_name'] ?? '') ?></td>
+							<td><?= h(when($when, 'd-m-Y')) ?></td>
+							<td><?= h(quote_status_label((string) ($usage['status'] ?? ''))) ?></td>
+							<td><?= h(rtrim(rtrim(number_format((float) ($usage['quantity'] ?? 0), 2, '.', ''), '0'), '.') ?: '0') ?> <?= h($usage['unit'] ?? 'un') ?></td>
+							<td><?= (int) ($usage['cost_price'] ?? 0) > 0 ? money((int) $usage['cost_price']) : '—' ?></td>
+							<td><?= $margin > 0 ? h(rtrim(rtrim(number_format($margin, 2, '.', ''), '0'), '.') . '%') : '—' ?></td>
+							<td><?= money((int) ($usage['unit_price'] ?? 0)) ?></td>
+							<td><a href="<?= h(Http::url('/cotizaciones/' . $usage['id'])) ?>">Abrir</a></td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		<?php endif; ?>
+	</section>
+<?php endif; ?>
+
 <script>
 (function () {
 	var root = document.querySelector('[data-product-gallery]');

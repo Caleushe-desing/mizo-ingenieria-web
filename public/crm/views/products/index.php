@@ -2,7 +2,7 @@
 <div class="page-head">
 	<div>
 		<h1>Catálogo de productos</h1>
-		<p>Equipos de referencia para cotizar. El precio de compra con IVA alimenta el cotizador; el enlace abre la ficha del distribuidor.</p>
+		<p>Equipos de referencia para cotizar. Ordenados por uso en cotizaciones. El precio de compra y el enlace del proveedor alimentan al cotizador.</p>
 	</div>
 	<a class="btn btn-word" href="<?= h(Http::url('/catalogo/nuevo')) ?>">Nuevo producto</a>
 </div>
@@ -42,6 +42,7 @@
 						<th>Nombre</th>
 						<th>Categoría</th>
 						<th>Compra c/IVA</th>
+						<th>Cotizaciones</th>
 						<th>Proveedor</th>
 						<th>Enlace</th>
 						<th>Estado</th>
@@ -50,12 +51,22 @@
 				</thead>
 				<tbody>
 				<?php foreach ($products as $product): ?>
-					<?php $host = parse_url((string) $product['proveedor_link'], PHP_URL_HOST) ?: 'Abrir'; ?>
+					<?php
+					$host = parse_url((string) $product['proveedor_link'], PHP_URL_HOST) ?: 'Abrir';
+					$quoteCount = (int) ($product['quote_count'] ?? 0);
+					?>
 					<tr>
 						<td><?= h($product['sku']) ?></td>
 						<td><?= h($product['nombre']) ?></td>
 						<td><?= h($product['categoria']) ?></td>
 						<td><?= (int) ($product['precio_compra_iva'] ?? 0) > 0 ? money((int) $product['precio_compra_iva']) : '—' ?></td>
+						<td>
+							<?php if ($quoteCount > 0): ?>
+								<a href="<?= h(Http::url('/catalogo/' . $product['id'])) ?>#trazabilidad"><?= (int) $quoteCount ?></a>
+							<?php else: ?>
+								<span class="muted">0</span>
+							<?php endif; ?>
+						</td>
 						<td><?= h($product['proveedor_empresa']) ?></td>
 						<td><a href="<?= h($product['proveedor_link']) ?>" target="_blank" rel="noopener noreferrer"><?= h($host) ?></a></td>
 						<td><?= (int) $product['activo'] === 1 ? 'Visible' : 'Oculto' ?></td>

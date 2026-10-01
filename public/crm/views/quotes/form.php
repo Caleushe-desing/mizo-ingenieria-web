@@ -194,6 +194,18 @@ $action = $quote
 							<?php endif; ?>
 							<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
 							<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $locked ? 'readonly' : '' ?>>
+							<?php
+							$supplierHref = '';
+							if ($productId > 0) {
+								foreach ($catalogProducts as $catalogProduct) {
+									if ((int) $catalogProduct['id'] === $productId) {
+										$supplierHref = (string) ($catalogProduct['proveedor_link'] ?? '');
+										break;
+									}
+								}
+							}
+							?>
+							<a class="btn-text catalog-supplier-link" data-catalog-link href="<?= h($supplierHref !== '' ? $supplierHref : '#') ?>" target="_blank" rel="noopener noreferrer"<?= $supplierHref === '' ? ' hidden' : '' ?>>Ver precio proveedor</a>
 						</td>
 						<td>
 							<textarea name="item_description[]" rows="3" placeholder="Especificaciones técnicas, notas, alcance…" <?= $locked ? 'readonly' : '' ?>><?= h($detail) ?></textarea>

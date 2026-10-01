@@ -65,6 +65,19 @@
 		}
 	}
 
+	function syncSupplierLink(row, product) {
+		const link = row.querySelector('[data-catalog-link]');
+		if (!link) return;
+		const href = product && product.proveedor_link ? String(product.proveedor_link) : '';
+		if (href) {
+			link.href = href;
+			link.hidden = false;
+		} else {
+			link.href = '#';
+			link.hidden = true;
+		}
+	}
+
 	function applyCatalogProduct(row, productId) {
 		const pidInput = row.querySelector('[name="item_product_id[]"]');
 		const nameInput = row.querySelector('[name="item_name[]"]');
@@ -72,6 +85,7 @@
 		const costInput = row.querySelector('[name="item_cost[]"]');
 		if (!productId) {
 			if (pidInput) pidInput.value = '';
+			syncSupplierLink(row, null);
 			return;
 		}
 		const product = catalog[String(productId)];
@@ -83,6 +97,7 @@
 			const cost = Number(product.precio_compra_iva) || 0;
 			costInput.value = cost > 0 ? String(cost) : '';
 		}
+		syncSupplierLink(row, product);
 	}
 
 	function recalc() {
@@ -147,6 +162,7 @@
 				pick.value = '';
 				delete pick.dataset.bound;
 			}
+			syncSupplierLink(row, null);
 			const line = row.querySelector('[data-line]');
 			if (line) line.textContent = '$0';
 			list.appendChild(row);

@@ -98,6 +98,7 @@ final class ProductController
 		View::render('products/form', [
 			'title' => 'Editar producto',
 			'product' => $product,
+			'quoteUsage' => Product::quoteAppearances((int) $product['id']),
 		]);
 	}
 
@@ -116,6 +117,7 @@ final class ProductController
 				'title' => 'Editar producto',
 				'product' => $data + ['id' => (int) $product['id']],
 				'error' => $error,
+				'quoteUsage' => Product::quoteAppearances((int) $product['id']),
 			]);
 			return;
 		}

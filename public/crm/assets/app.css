@@ -2194,6 +2194,13 @@ body.is-clients .quote-sheet [data-add-item] {
 	font-size: 0.85em;
 	padding: 4px 6px;
 }
+.quote-product-cell .catalog-supplier-link {
+	align-self: flex-start;
+	font-size: 0.82em;
+}
+.product-usage .table-wrap {
+	margin-top: 10px;
+}
 .quote-lines input[data-sale-net][readonly] {
 	background: #f4f7fa;
 	color: #0f1114;

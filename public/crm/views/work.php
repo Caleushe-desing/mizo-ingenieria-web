@@ -197,6 +197,18 @@ $tab = $deal ? 'actividad' : 'datos';
 								<?php endif; ?>
 								<input type="hidden" name="item_product_id[]" value="<?= $productId > 0 ? (string) $productId : '' ?>">
 								<input name="item_name[]" value="<?= h($name) ?>" placeholder="Nombre del producto" <?= $quoteLocked ? 'readonly' : '' ?>>
+								<?php
+								$supplierHref = '';
+								if ($productId > 0) {
+									foreach ($catalogProducts as $catalogProduct) {
+										if ((int) $catalogProduct['id'] === $productId) {
+											$supplierHref = (string) ($catalogProduct['proveedor_link'] ?? '');
+											break;
+										}
+									}
+								}
+								?>
+								<a class="btn-text catalog-supplier-link" data-catalog-link href="<?= h($supplierHref !== '' ? $supplierHref : '#') ?>" target="_blank" rel="noopener noreferrer"<?= $supplierHref === '' ? ' hidden' : '' ?>>Ver precio proveedor</a>
 							</td>
 							<td><textarea name="item_description[]" rows="2" placeholder="Especificaciones…" <?= $quoteLocked ? 'readonly' : '' ?>><?= h($detail) ?></textarea></td>
 							<td><input name="item_quantity[]" value="<?= h((string) ($item['quantity'] ?? 1)) ?>" <?= $quoteLocked ? 'readonly' : '' ?>></td>
