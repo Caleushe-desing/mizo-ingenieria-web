@@ -351,18 +351,6 @@ $canDecide = $acceptUrl !== '' && $rejectUrl !== '';
 			</div>
 		</section>
 
-		<?php if ($canDecide): ?>
-			<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;border:1px solid #e4e4e4;">
-				<tr>
-					<td align="center" style="padding:12px 10px;">
-						<p style="margin:0 0 10px;font-size:11px;color:#444;">Respuesta al presupuesto</p>
-						<a href="<?= h($acceptUrl) ?>" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:10px 16px;font-size:11px;font-weight:700;margin:0 4px 4px;">Aceptar presupuesto</a>
-						<a href="<?= h($rejectUrl) ?>" style="display:inline-block;background:#ffffff;color:#444444;text-decoration:none;padding:9px 15px;font-size:11px;font-weight:700;border:1px solid #cccccc;margin:0 4px 4px;">No por ahora</a>
-					</td>
-				</tr>
-			</table>
-		<?php endif; ?>
-
 		<footer class="foot">
 			<p><strong>Mizo</strong> · Ingeniería e instalación profesional · <?= h(Config::PHONE) ?> · <?= h(Config::EMAIL) ?> · mizo.cl</p>
 			<p>Frutillar y Santiago, Chile. Documento <?= h($quote['number']) ?> · Página 2 de 2</p>
