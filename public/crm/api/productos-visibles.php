@@ -7,42 +7,49 @@ use MizoCrm\Models\Product;
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
-header('Cache-Control: public, max-age=60');
+header('Cache-Control: public, max-age=30');
 header('Access-Control-Allow-Origin: *');
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
 	http_response_code(405);
-	echo json_encode(['ok' => false, 'productos' => []], JSON_UNESCAPED_UNICODE);
+	echo json_encode(['ok' => false, 'productos' => [], 'error' => 'Método no permitido'], JSON_UNESCAPED_UNICODE);
 	exit;
 }
 
 try {
-	$rows = Product::visible();
-} catch (Throwable) {
-	$rows = [];
-}
+	try {
+		$rows = Product::visible();
+	} catch (Throwable) {
+		$rows = [];
+	}
 
-$crmRoot = dirname(__DIR__);
-$productos = [];
-foreach ($rows as $row) {
-	$productos[] = [
-		'sku' => plain($row['sku'] ?? '', 80),
-		'nombre' => plain($row['nombre'] ?? '', 180),
-		'descripcion' => plain($row['descripcion'] ?? '', 4000),
-		'categoria' => plain($row['categoria'] ?? '', 80),
-		'imagenes' => resolveProductImages($row, $crmRoot),
-	];
-}
+	$crmRoot = dirname(__DIR__);
+	$productos = [];
+	foreach ($rows as $row) {
+		$productos[] = [
+			'sku' => catalog_plain($row['sku'] ?? '', 80),
+			'nombre' => catalog_plain($row['nombre'] ?? '', 180),
+			'descripcion' => catalog_plain($row['descripcion'] ?? '', 4000),
+			'categoria' => catalog_plain($row['categoria'] ?? '', 80),
+			'imagenes' => catalog_resolve_images($row, $crmRoot),
+		];
+	}
 
-echo json_encode(['ok' => true, 'productos' => $productos], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+	echo json_encode(['ok' => true, 'productos' => $productos], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+} catch (Throwable $e) {
+	http_response_code(500);
+	echo json_encode([
+		'ok' => false,
+		'productos' => [],
+		'error' => 'No se pudo leer el catálogo.',
+	], JSON_UNESCAPED_UNICODE);
+}
 
 /**
- * Solo rutas locales existentes. No descarga remota (eso colgaba el catálogo).
- *
  * @param array<string, mixed> $row
  * @return list<string>
  */
-function resolveProductImages(array $row, string $crmRoot): array
+function catalog_resolve_images(array $row, string $crmRoot): array
 {
 	$candidates = [];
 	$decoded = json_decode((string) ($row['imagenes'] ?? ''), true);
@@ -57,7 +64,7 @@ function resolveProductImages(array $row, string $crmRoot): array
 	$found = [];
 	$folders = [];
 	foreach ($candidates as $path) {
-		$normalized = normalizeProductImagePath($path);
+		$normalized = catalog_normalize_image_path($path);
 		if ($normalized === null) {
 			continue;
 		}
@@ -84,7 +91,10 @@ function resolveProductImages(array $row, string $crmRoot): array
 			if (!is_dir($dir)) {
 				continue;
 			}
-			$files = scandir($dir) ?: [];
+			$files = @scandir($dir);
+			if (!is_array($files)) {
+				continue;
+			}
 			natcasesort($files);
 			foreach ($files as $name) {
 				if ($name === '.' || $name === '..') {
@@ -105,7 +115,7 @@ function resolveProductImages(array $row, string $crmRoot): array
 	return array_values(array_unique($found));
 }
 
-function normalizeProductImagePath(string $path): ?string
+function catalog_normalize_image_path(string $path): ?string
 {
 	$path = trim($path);
 	if ($path === '') {
@@ -115,11 +125,11 @@ function normalizeProductImagePath(string $path): ?string
 		$path = $m[1];
 	}
 	$path = str_replace('\\', '/', $path);
-	if (str_starts_with($path, 'crm/uploads/productos/')) {
+	if (strpos($path, 'crm/uploads/productos/') === 0) {
 		$path = '/' . $path;
-	} elseif (str_starts_with($path, 'uploads/productos/')) {
+	} elseif (strpos($path, 'uploads/productos/') === 0) {
 		$path = '/crm/' . $path;
-	} elseif (str_starts_with($path, '/uploads/productos/')) {
+	} elseif (strpos($path, '/uploads/productos/') === 0) {
 		$path = '/crm' . $path;
 	}
 	if (!preg_match('#^/crm/uploads/productos/[A-Za-z0-9_-]+/[^/]+\.(jpe?g|png|webp|gif)$#i', $path)) {
@@ -128,7 +138,7 @@ function normalizeProductImagePath(string $path): ?string
 	return $path;
 }
 
-function plain(mixed $value, int $max): string
+function catalog_plain(mixed $value, int $max): string
 {
 	$text = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $value)) ?: '');
 	return function_exists('mb_substr') ? mb_substr($text, 0, $max, 'UTF-8') : substr($text, 0, $max);

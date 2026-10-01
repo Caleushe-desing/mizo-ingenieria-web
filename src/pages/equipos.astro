@@ -380,40 +380,57 @@ const description = page.seoDescription;
 			}
 		}
 
-		const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-		const timer = controller ? setTimeout(() => controller.abort(), 20000) : 0;
-		fetch(root.dataset.endpoint || '/crm/api/productos-visibles.php', {
-			headers: { Accept: 'application/json' },
-			signal: controller ? controller.signal : undefined,
-			credentials: 'same-origin',
-		})
-			.then((response) => {
-				if (!response.ok) throw new Error('catalogo');
-				return response.json();
+		const endpoint = root.dataset.endpoint || '/crm/api/productos-visibles.php';
+		function loadCatalog(attempt) {
+			const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+			const timer = controller ? setTimeout(() => controller.abort(), 45000) : 0;
+			fetch(endpoint, {
+				headers: { Accept: 'application/json' },
+				signal: controller ? controller.signal : undefined,
+				cache: 'no-store',
 			})
-			.then((data) => {
-				products = Array.isArray(data?.productos) ? data.productos : [];
-				if (products.length === 0) {
-					status.textContent = 'Todavía no hay productos publicados. Cuéntanos el recinto y te proponemos el hardware.';
-					return;
-				}
-				const names = [...new Set(products.map((item) => String(item.categoria || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
-				if (names.length > 1) paintChips(names);
-				else categories?.remove();
-				if (filters) filters.classList.remove('hidden');
-				if (search instanceof HTMLInputElement) {
-					search.addEventListener('input', () => {
-						query = fold(search.value.trim());
-						render();
-					});
-				}
-				render();
-			})
-			.catch(() => {
-				status.textContent = 'No se pudo cargar el catálogo. Recarga la página o escríbenos por WhatsApp.';
-			})
-			.finally(() => {
-				if (timer) clearTimeout(timer);
-			});
+				.then(async (response) => {
+					const text = await response.text();
+					if (!response.ok) throw new Error('http-' + response.status);
+					let data;
+					try {
+						data = JSON.parse(text);
+					} catch {
+						throw new Error('json');
+					}
+					return data;
+				})
+				.then((data) => {
+					products = Array.isArray(data?.productos) ? data.productos : [];
+					if (products.length === 0) {
+						status.textContent = 'Todavía no hay productos publicados. Cuéntanos el recinto y te proponemos el hardware.';
+						return;
+					}
+					const names = [...new Set(products.map((item) => String(item.categoria || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+					if (names.length > 1) paintChips(names);
+					else categories?.remove();
+					if (filters) filters.classList.remove('hidden');
+					if (search instanceof HTMLInputElement && !search.dataset.bound) {
+						search.dataset.bound = '1';
+						search.addEventListener('input', () => {
+							query = fold(search.value.trim());
+							render();
+						});
+					}
+					render();
+				})
+				.catch(() => {
+					if (attempt < 2) {
+						status.textContent = 'Reintentando cargar el catálogo…';
+						setTimeout(() => loadCatalog(attempt + 1), 800);
+						return;
+					}
+					status.textContent = 'No se pudo cargar el catálogo. Recarga la página o escríbenos por WhatsApp.';
+				})
+				.finally(() => {
+					if (timer) clearTimeout(timer);
+				});
+		}
+		loadCatalog(1);
 	}
 </script>
