@@ -105,7 +105,7 @@ $publicUrl = (string) ($publicUrl ?? '');
 			<div class="quote-block-hd">
 				<div>
 					<h2>Vista previa del correo</h2>
-					<p class="muted">Así se verá el mensaje. Al confirmar se adjunta el PDF de la cotización y el botón abre la versión web.</p>
+					<p class="muted">Así se verá el mensaje. Arriba va el botón <strong>Descargar presupuesto</strong>; al enviar también se adjunta el mismo PDF.</p>
 				</div>
 			</div>
 			<div class="quote-send-body">

@@ -118,7 +118,7 @@ final class Mailer
 					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:18px;">
 						<tr>
 							<td align="center" style="padding:0;">
-								<a href="' . h($downloadUrl) . '" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:14px 26px;font-weight:bold;font-size:15px;letter-spacing:.03em;border-radius:4px;">Descargar cotización</a>
+								<a href="' . h($downloadUrl) . '" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:14px 26px;font-weight:bold;font-size:15px;letter-spacing:.03em;border-radius:4px;">Descargar presupuesto</a>
 							</td>
 						</tr>
 						<tr>
@@ -159,7 +159,7 @@ final class Mailer
 					</table>
 					<div style="clear:both;"></div>
 					<p style="margin:28px 0 0;text-align:center;">
-						<a href="' . h($downloadUrl) . '" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:14px 22px;font-weight:bold;font-size:14px;letter-spacing:.03em;border-radius:4px;">Descargar cotización</a>
+						<a href="' . h($downloadUrl) . '" style="display:inline-block;background:#f47b20;color:#ffffff;text-decoration:none;padding:14px 22px;font-weight:bold;font-size:14px;letter-spacing:.03em;border-radius:4px;">Descargar presupuesto</a>
 					</p>
 					<p style="margin:12px 0 0;text-align:center;">
 						<a href="' . h($publicUrl) . '" style="color:#0b6ea8;font-size:13px;text-decoration:underline;">Ver cotización completa en el navegador</a>
