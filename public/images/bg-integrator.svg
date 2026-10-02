@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+	<defs>
+		<linearGradient id="base" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" stop-color="#f5f7fa"/>
+			<stop offset="45%" stop-color="#e8edf2"/>
+			<stop offset="100%" stop-color="#d5dde6"/>
+		</linearGradient>
+		<linearGradient id="band" x1="0%" y1="0%" x2="100%" y2="0%">
+			<stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+			<stop offset="35%" stop-color="#ffffff" stop-opacity="0.55"/>
+			<stop offset="65%" stop-color="#ffffff" stop-opacity="0.2"/>
+			<stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+		</linearGradient>
+		<radialGradient id="glowA" cx="8%" cy="0%" r="55%">
+			<stop offset="0%" stop-color="#1c9bd8" stop-opacity="0.1"/>
+			<stop offset="100%" stop-color="#1c9bd8" stop-opacity="0"/>
+		</radialGradient>
+		<radialGradient id="glowB" cx="100%" cy="100%" r="50%">
+			<stop offset="0%" stop-color="#f47b20" stop-opacity="0.07"/>
+			<stop offset="100%" stop-color="#f47b20" stop-opacity="0"/>
+		</radialGradient>
+		<pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+			<path d="M48 0 H0 V48" fill="none" stroke="#6b7c8d" stroke-opacity="0.08" stroke-width="1"/>
+		</pattern>
+		<pattern id="gridBold" width="192" height="192" patternUnits="userSpaceOnUse">
+			<path d="M192 0 H0 V192" fill="none" stroke="#5a6b7c" stroke-opacity="0.1" stroke-width="1.25"/>
+		</pattern>
+	</defs>
+
+	<rect width="1600" height="1000" fill="url(#base)"/>
+	<rect width="1600" height="1000" fill="url(#glowA)"/>
+	<rect width="1600" height="1000" fill="url(#glowB)"/>
+	<rect width="1600" height="1000" fill="url(#grid)"/>
+	<rect width="1600" height="1000" fill="url(#gridBold)"/>
+
+	<!-- Soft architectural light band -->
+	<g transform="rotate(-12 800 500)" opacity="0.55">
+		<rect x="-200" y="380" width="2000" height="140" fill="url(#band)"/>
+	</g>
+	<g transform="rotate(-12 800 500)" opacity="0.25">
+		<rect x="-200" y="560" width="2000" height="40" fill="#1c9bd8" fill-opacity="0.08"/>
+	</g>
+</svg>

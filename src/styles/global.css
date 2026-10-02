@@ -10,17 +10,18 @@
 
 	body {
 		@apply font-sans text-ink antialiased;
-		background-color: #d8e0e8;
+		background-color: #e8edf2;
 	}
 
+	/* Fondo tipo ingenieria AV: gris tecnico + grilla blueprint suave */
 	body::before {
 		content: '';
 		position: fixed;
 		inset: 0;
 		pointer-events: none;
 		z-index: 0;
-		background-color: #cfd8e2;
-		background-image: url('/images/bg-sound-waves.svg?v=4');
+		background-color: #e8edf2;
+		background-image: url('/images/bg-integrator.svg?v=1');
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;
