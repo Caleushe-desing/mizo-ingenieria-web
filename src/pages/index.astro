@@ -48,7 +48,7 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="bg-transparent py-20 sm:py-28" aria-labelledby="rubros-heading">
+	<section class="mizo-band mizo-band-gray py-20 sm:py-28" aria-labelledby="rubros-heading">
 		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
 			<p class="mizo-kicker">{home.rubrosKicker}</p>
 			<h2 id="rubros-heading" class="mt-3 max-w-2xl text-3xl font-extrabold leading-tight text-ink sm:text-4xl">
@@ -84,10 +84,10 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="border-t border-ink/10 bg-transparent py-16 sm:py-24" aria-label="Marcas">
+	<section class="mizo-band mizo-band-white border-t border-ink/10 py-16 sm:py-24" aria-label="Marcas">
 		<ul class="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-ink/10 sm:grid-cols-4 lg:grid-cols-7">
 			{BRANDS.map((brand) => (
-				<li class="flex h-20 items-center justify-center bg-surface/75 px-4 backdrop-blur-[2px]">
+				<li class="flex h-20 items-center justify-center bg-surface px-4">
 					<img
 						src={`/images/marcas/${brand.slug}.svg`}
 						alt={brand.name}

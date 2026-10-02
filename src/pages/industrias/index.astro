@@ -18,7 +18,7 @@ const jsonLd = graphSchema([
 ---
 
 <Layout title={title} description={description} jsonLd={jsonLd}>
-	<section class="relative overflow-hidden border-b border-ink/10 bg-surface/75 pt-28 text-ink sm:pt-32">
+	<section class="mizo-band mizo-band-white relative overflow-hidden border-b border-ink/10 pt-28 text-ink sm:pt-32">
 		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
 		<div class="relative mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-24 lg:px-8">
 			<p class="mizo-kicker">{page.kicker}</p>
@@ -29,7 +29,7 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="bg-transparent py-20 sm:py-28">
+	<section class="mizo-band mizo-band-gray py-20 sm:py-28">
 		<div class="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8">
 			{INDUSTRIES.map((industry) => (
 				<a

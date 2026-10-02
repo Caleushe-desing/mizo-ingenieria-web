@@ -13,25 +13,6 @@
 		background-color: #e8edf2;
 	}
 
-	/* Fondo tipo ingenieria AV: gris tecnico + grilla blueprint suave */
-	body::before {
-		content: '';
-		position: fixed;
-		inset: 0;
-		pointer-events: none;
-		z-index: 0;
-		background-color: #e8edf2;
-		background-image: url('/images/bg-integrator.svg?v=2');
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
-	}
-
-	body > * {
-		position: relative;
-		z-index: 1;
-	}
-
 	img {
 		@apply max-w-full h-auto;
 	}
@@ -45,13 +26,6 @@
 	.mizo-grid {
 		background-image: linear-gradient(#1c9bd8 1px, transparent 1px), linear-gradient(90deg, #1c9bd8 1px, transparent 1px);
 		background-size: 72px 72px;
-	}
-
-	.mizo-texture {
-		background-color: rgba(244, 246, 248, 0.72);
-		background-image:
-			radial-gradient(rgba(11, 110, 168, 0.07) 0.85px, transparent 0.85px);
-		background-size: 20px 20px;
 	}
 
 	.mizo-kicker {
@@ -69,11 +43,112 @@
 	.mizo-card {
 		@apply transition-all duration-300 hover:shadow-glow;
 	}
+
+	/* Franjas por fila de contenido + rectangulos laterales */
+	.mizo-band {
+		position: relative;
+		overflow: hidden;
+		isolation: isolate;
+	}
+
+	.mizo-band > * {
+		position: relative;
+		z-index: 1;
+	}
+
+	.mizo-band-white {
+		background-color: #ffffff;
+	}
+
+	.mizo-band-gray {
+		background-color: #e6ebf1;
+	}
+
+	.mizo-band-soft {
+		background-color: #f3f5f8;
+	}
+
+	.mizo-band-slate {
+		background-color: #d9e0e8;
+	}
+
+	.mizo-band::before,
+	.mizo-band::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	/* Rectangulo lateral izquierdo (apilado) */
+	.mizo-band::before {
+		left: 0;
+		width: clamp(18px, 3.2vw, 56px);
+		background:
+			linear-gradient(180deg, #1c9bd8 0 28%, transparent 28% 36%, #c5ced8 36% 64%, transparent 64% 72%, #f47b20 72% 100%);
+		opacity: 0.9;
+	}
+
+	/* Rectangulo lateral derecho (apilado invertido) */
+	.mizo-band::after {
+		right: 0;
+		width: clamp(14px, 2.4vw, 40px);
+		background:
+			linear-gradient(180deg, #c5ced8 0 22%, transparent 22% 30%, #f47b20 30% 52%, transparent 52% 60%, #1c9bd8 60% 100%);
+		opacity: 0.75;
+	}
+
+	.mizo-band-gray::before {
+		background:
+			linear-gradient(180deg, #ffffff 0 24%, transparent 24% 32%, #1c9bd8 32% 58%, transparent 58% 66%, #f47b20 66% 100%);
+	}
+
+	.mizo-band-gray::after {
+		background:
+			linear-gradient(180deg, #f47b20 0 20%, transparent 20% 30%, #ffffff 30% 55%, transparent 55% 65%, #0b6ea8 65% 100%);
+	}
+
+	.mizo-band-soft::before {
+		background:
+			linear-gradient(180deg, #d5dde6 0 30%, transparent 30% 40%, #1c9bd8 40% 70%, transparent 70% 78%, #ffffff 78% 100%);
+	}
+
+	.mizo-band-soft::after {
+		width: clamp(10px, 1.8vw, 28px);
+		background:
+			linear-gradient(180deg, #0b6ea8 0 35%, transparent 35% 48%, #f47b20 48% 100%);
+	}
+
+	.mizo-band-slate::before {
+		background:
+			linear-gradient(180deg, #ffffff 0 18%, transparent 18% 26%, #f47b20 26% 48%, transparent 48% 56%, #1c9bd8 56% 100%);
+	}
+
+	.mizo-band-slate::after {
+		background:
+			linear-gradient(180deg, #1c9bd8 0 40%, transparent 40% 55%, #ffffff 55% 100%);
+	}
+
+	/* Sin laterales (para heroes con foto) */
+	.mizo-band-plain::before,
+	.mizo-band-plain::after {
+		display: none;
+	}
 }
 
 @media (max-width: 639px) {
 	body.has-mobile-contact-bar {
 		padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+	}
+
+	.mizo-band::before {
+		width: 10px;
+	}
+
+	.mizo-band::after {
+		width: 8px;
 	}
 }
 
