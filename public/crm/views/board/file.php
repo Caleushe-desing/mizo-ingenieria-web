@@ -85,9 +85,10 @@ if ($editContacts === []) {
 		</div>
 	</section>
 
+	<?php $canPurgeProjects = !empty($canPurgeProjects); ?>
 	<section class="paper file-panel" data-file-panel="proyectos" hidden>
 		<div class="fold-body">
-		<p class="muted">Cada proyecto es una tarjeta del tablero. Desde ahí ves sus notas y cotizaciones.</p>
+		<p class="muted">Cada proyecto es una tarjeta del tablero. Al finalizar se archiva como Finalizado y se conserva el historial.</p>
 		<?php if (!$projects): ?>
 			<p class="muted">Este cliente todavía no tiene proyectos.</p>
 		<?php else: ?>
@@ -127,10 +128,22 @@ if ($editContacts === []) {
 								<small>Agrega contactos en los datos del cliente.</small>
 							<?php endif; ?>
 						</div>
-						<form method="post" action="<?= h(Http::url('/proyectos/' . $project['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Eliminar el proyecto <?= h($project['title']) ?>? Se borran sus cotizaciones y notas. El cliente se mantiene.');">
-							<?= Csrf::field() ?>
-							<button class="btn-danger-text" type="submit">Eliminar</button>
-						</form>
+						<div class="project-lifecycle-actions">
+							<?php if (empty($project['archived'])): ?>
+								<form method="post" action="<?= h(Http::url('/proyectos/' . $project['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Marcar el proyecto <?= h($project['title']) ?> como Finalizado? Se conserva el historial (cotizaciones, facturas y notas).');">
+									<?= Csrf::field() ?>
+									<button class="btn-text" type="submit">Finalizar</button>
+								</form>
+							<?php else: ?>
+								<small class="muted">Finalizado · historial conservado</small>
+							<?php endif; ?>
+							<?php if (!empty($canPurgeProjects)): ?>
+								<form method="post" action="<?= h(Http::url('/proyectos/' . $project['id'] . '/eliminar-permanente')) ?>" onsubmit="return confirm('¿ELIMINAR PERMANENTEMENTE el proyecto <?= h($project['title']) ?>? Esta acción es irreversible y borra cotizaciones, facturas y notas asociadas.');">
+									<?= Csrf::field() ?>
+									<button class="btn-danger-text" type="submit">Eliminar permanente</button>
+								</form>
+							<?php endif; ?>
+						</div>
 					</li>
 				<?php endforeach; ?>
 			</ul>

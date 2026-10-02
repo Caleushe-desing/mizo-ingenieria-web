@@ -92,6 +92,6 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 		<?php endif; ?>
 		<?= $content ?>
 	</main>
-	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=65"></script>
+	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=66"></script>
 </body>
 </html>

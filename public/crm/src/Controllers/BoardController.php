@@ -53,11 +53,15 @@ final class BoardController
 		$byDeal = Deal::contactsByDeal(array_map(static fn(array $row): int => (int) $row['id'], $deals));
 		$projects = [];
 		foreach ($deals as $row) {
+			$archived = !empty($row['archived']);
 			$projects[] = [
 				'id' => (int) $row['id'],
 				'title' => (string) $row['title'],
 				'service' => Config::services()[$row['service']] ?? (string) $row['service'],
-				'stage_label' => Config::stages()[$row['stage']] ?? (string) $row['stage'],
+				'stage_label' => $archived
+					? 'Finalizado'
+					: (Config::stages()[$row['stage']] ?? (string) $row['stage']),
+				'archived' => $archived,
 				'contacts' => $byDeal[(int) $row['id']] ?? [],
 			];
 		}
@@ -70,6 +74,7 @@ final class BoardController
 			'mails' => \MizoCrm\Models\MailMessage::forClient(Auth::id(), (int) $id),
 			'projects' => $projects,
 			'services' => Config::services(),
+			'canPurgeProjects' => Auth::isAdmin(),
 			'team' => Auth::isAdmin() ? User::team() : [],
 			'audit' => Auth::isAdmin() ? \MizoCrm\Models\AdminReport::client((int) $client['id']) : null,
 		]);
@@ -127,6 +132,7 @@ final class BoardController
 		Http::redirect('/tablero/cliente/' . $client['id'] . '/ficha');
 	}
 
+	/** Soft-close: marca el proyecto como Finalizado y conserva cotizaciones/facturas/historial. */
 	public function destroyProject(string $id): void
 	{
 		Csrf::check();
@@ -136,12 +142,53 @@ final class BoardController
 		}
 		$client = Auth::requireClient(Client::find((int) $deal['client_id']));
 		$title = (string) $deal['title'];
-		Deal::purge((int) $deal['id']);
-		View::flash('ok', 'Se eliminó el proyecto ' . $title . '. El cliente sigue en la lista.');
+		if (!empty($deal['archived'])) {
+			View::flash('ok', 'El proyecto ' . $title . ' ya estaba finalizado.');
+		} else {
+			Deal::finalize((int) $deal['id']);
+			Activity::log(
+				'stage',
+				'Proyecto «' . $title . '» marcado como Finalizado. Se conservan cotizaciones, facturas y notas.',
+				Auth::id(),
+				(int) $client['id'],
+				(int) $deal['id']
+			);
+			View::flash('ok', 'Proyecto ' . $title . ' marcado como Finalizado. El historial se conservó.');
+		}
 		if (Http::string('volver', 20) === 'tablero') {
 			Http::redirect('/');
 		}
 		Http::redirect('/tablero/cliente/' . $client['id'] . '/ficha');
+	}
+
+	/** Borrado físico: solo administrador, para limpiar proyectos de prueba. */
+	public function purgeProject(string $id): void
+	{
+		Csrf::check();
+		if (!Auth::isAdmin()) {
+			View::flash('error', 'Solo un administrador puede eliminar un proyecto de forma permanente.');
+			Http::redirect('/');
+		}
+		$deal = Deal::find((int) $id);
+		if (!$deal) {
+			Http::redirect('/');
+		}
+		$client = Auth::requireClient(Client::find((int) $deal['client_id']));
+		$title = (string) $deal['title'];
+		$clientId = (int) $client['id'];
+		Deal::purge((int) $deal['id']);
+		Activity::log(
+			'stage',
+			'Eliminación permanente del proyecto «' . $title . '» (admin).',
+			Auth::id(),
+			$clientId,
+			null
+		);
+		View::flash('ok', 'Se eliminó permanentemente el proyecto ' . $title . '.');
+		if (Http::string('volver', 20) === 'tablero') {
+			Http::redirect('/');
+		}
+		Http::redirect('/tablero/cliente/' . $clientId . '/ficha');
 	}
 
 	public function project(string $id): void
@@ -205,7 +252,10 @@ final class BoardController
 			'deal' => [
 				'id' => (int) $deal['id'],
 				'stage' => (string) $deal['stage'],
-				'stage_label' => Config::stages()[$deal['stage']] ?? $deal['stage'],
+				'stage_label' => !empty($deal['archived'])
+					? 'Finalizado'
+					: (Config::stages()[$deal['stage']] ?? $deal['stage']),
+				'archived' => !empty($deal['archived']),
 				'service' => $service,
 				'service_label' => Config::services()[$service] ?? $service,
 				'amount' => (int) $deal['amount'],
@@ -217,6 +267,7 @@ final class BoardController
 			'notes' => $notes,
 			'quotes' => $quotes,
 			'contacts' => $people,
+			'can_purge' => Auth::isAdmin(),
 		]);
 	}
 

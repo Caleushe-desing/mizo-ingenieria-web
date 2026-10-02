@@ -80,6 +80,7 @@ final class App
 			['POST', '#^/clientes/(\d+)/proyecto$#', [Controllers\BoardController::class, 'storeProject']],
 			['POST', '#^/proyectos/(\d+)/contactos$#', [Controllers\BoardController::class, 'assignContacts']],
 			['POST', '#^/proyectos/(\d+)/eliminar$#', [Controllers\BoardController::class, 'destroyProject']],
+			['POST', '#^/proyectos/(\d+)/eliminar-permanente$#', [Controllers\BoardController::class, 'purgeProject']],
 			['GET', '#^/proyectos/(\d+)/cotizacion$#', [Controllers\QuoteController::class, 'createForDeal']],
 			['POST', '#^/proyectos/(\d+)/cotizacion$#', [Controllers\QuoteController::class, 'storeForDeal']],
 			['POST', '#^/clientes/(\d+)/comentarios/(\d+)/eliminar$#', [Controllers\ClientController::class, 'destroyComment']],

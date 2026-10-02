@@ -77,6 +77,15 @@ final class Deal extends Record
 		return $stmt->fetchAll();
 	}
 
+	/** Soft-close: archiva el proyecto como Finalizado sin borrar historial. */
+	public static function finalize(int $dealId): void
+	{
+		self::update($dealId, [
+			'archived' => 1,
+			'updated_at' => date('c'),
+		]);
+	}
+
 	public static function purge(int $dealId): void
 	{
 		$pdo = self::pdo();
@@ -91,6 +100,16 @@ final class Deal extends Record
 				$pdo->prepare("DELETE FROM activities WHERE quote_id IN ({$placeholders})")->execute($quoteIds);
 			}
 			$pdo->prepare('DELETE FROM quotes WHERE deal_id = ?')->execute([$dealId]);
+			try {
+				$pdo->prepare('DELETE FROM sales_invoices WHERE deal_id = ?')->execute([$dealId]);
+			} catch (\Throwable) {
+				// Tabla opcional según versión de esquema.
+			}
+			try {
+				$pdo->prepare('DELETE FROM purchase_invoices WHERE deal_id = ?')->execute([$dealId]);
+			} catch (\Throwable) {
+				// Tabla opcional según versión de esquema.
+			}
 			$pdo->prepare('DELETE FROM deal_contacts WHERE deal_id = ?')->execute([$dealId]);
 			$pdo->prepare('DELETE FROM activities WHERE deal_id = ?')->execute([$dealId]);
 			$pdo->prepare('DELETE FROM deals WHERE id = ?')->execute([$dealId]);

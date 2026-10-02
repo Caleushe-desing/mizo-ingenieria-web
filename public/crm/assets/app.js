@@ -2518,10 +2518,19 @@
 			+ '<section class="kb-block"><h3>Cotizaciones de este proyecto</h3>'
 			+ '<ul class="kb-quotes">' + (quotes || '<li class="kb-quote is-empty"><p>Sin cotizaciones todavía.</p></li>') + "</ul>"
 			+ '<div class="kb-actions"><a class="is-primary" href="' + base + "/proyectos/" + id + '/cotizacion">Nueva cotización</a>'
-			+ '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'¿Eliminar este proyecto? Se borran sus cotizaciones y notas. El cliente se mantiene.\');">'
-			+ '<input type="hidden" name="_csrf" value="' + escapeHtml(csrf) + '">'
-			+ '<input type="hidden" name="volver" value="tablero">'
-			+ '<button type="submit" class="is-danger">Eliminar proyecto</button></form></div></section>'
+			+ (deal.archived
+				? '<span class="muted">Proyecto finalizado · historial conservado</span>'
+				: '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar" onsubmit="return confirm(\'¿Marcar este proyecto como Finalizado? Se conservan cotizaciones, facturas y notas.\');">'
+					+ '<input type="hidden" name="_csrf" value="' + escapeHtml(csrf) + '">'
+					+ '<input type="hidden" name="volver" value="tablero">'
+					+ '<button type="submit">Finalizar proyecto</button></form>')
+			+ (data.can_purge
+				? '<form method="post" action="' + base + "/proyectos/" + id + '/eliminar-permanente" onsubmit="return confirm(\'¿ELIMINAR PERMANENTEMENTE este proyecto? Esta acción es irreversible y borra cotizaciones, facturas y notas.\');">'
+					+ '<input type="hidden" name="_csrf" value="' + escapeHtml(csrf) + '">'
+					+ '<input type="hidden" name="volver" value="tablero">'
+					+ '<button type="submit" class="is-danger">Eliminar permanente</button></form>'
+				: '')
+			+ '</div></section>'
 			+ '<section class="kb-block"><h3>Notas del proyecto</h3><ul class="kb-notes" data-project-notes>' + (notes || "<li><p>Sin notas de este proyecto.</p></li>") + "</ul>"
 			+ '<form class="kb-note-form" data-note-form><textarea name="message" required placeholder="Nota de este proyecto"></textarea><button type="submit">Guardar nota</button></form></section>';
 
