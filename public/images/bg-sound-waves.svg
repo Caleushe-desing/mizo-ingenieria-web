@@ -1,92 +1,59 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
 	<defs>
 		<linearGradient id="base" x1="0%" y1="0%" x2="100%" y2="100%">
-			<stop offset="0%" stop-color="#f4f6f8"/>
-			<stop offset="35%" stop-color="#e4eaef"/>
-			<stop offset="70%" stop-color="#ced8e2"/>
-			<stop offset="100%" stop-color="#b7c4d1"/>
+			<stop offset="0%" stop-color="#eef2f6"/>
+			<stop offset="40%" stop-color="#d5dde6"/>
+			<stop offset="100%" stop-color="#b8c5d2"/>
 		</linearGradient>
-		<radialGradient id="glowBlue" cx="16%" cy="20%" r="48%">
-			<stop offset="0%" stop-color="#1c9bd8" stop-opacity="0.22"/>
-			<stop offset="50%" stop-color="#1c9bd8" stop-opacity="0.07"/>
+		<radialGradient id="glowBlue" cx="18%" cy="18%" r="50%">
+			<stop offset="0%" stop-color="#1c9bd8" stop-opacity="0.28"/>
 			<stop offset="100%" stop-color="#1c9bd8" stop-opacity="0"/>
 		</radialGradient>
-		<radialGradient id="glowOrange" cx="86%" cy="80%" r="42%">
-			<stop offset="0%" stop-color="#f47b20" stop-opacity="0.16"/>
-			<stop offset="55%" stop-color="#f47b20" stop-opacity="0.05"/>
+		<radialGradient id="glowOrange" cx="85%" cy="82%" r="45%">
+			<stop offset="0%" stop-color="#f47b20" stop-opacity="0.2"/>
 			<stop offset="100%" stop-color="#f47b20" stop-opacity="0"/>
 		</radialGradient>
-		<linearGradient id="waveSilver" x1="0%" y1="0%" x2="100%" y2="0%">
-			<stop offset="0%" stop-color="#7a8a9a" stop-opacity="0"/>
-			<stop offset="15%" stop-color="#6a7b8c" stop-opacity="0.75"/>
-			<stop offset="50%" stop-color="#5a6b7c" stop-opacity="0.45"/>
-			<stop offset="85%" stop-color="#7a8a9a" stop-opacity="0.7"/>
-			<stop offset="100%" stop-color="#7a8a9a" stop-opacity="0"/>
-		</linearGradient>
-		<linearGradient id="waveBlue" x1="0%" y1="0%" x2="100%" y2="0%">
-			<stop offset="0%" stop-color="#1c9bd8" stop-opacity="0"/>
-			<stop offset="35%" stop-color="#1c9bd8" stop-opacity="0.45"/>
-			<stop offset="70%" stop-color="#0b6ea8" stop-opacity="0.25"/>
-			<stop offset="100%" stop-color="#1c9bd8" stop-opacity="0"/>
-		</linearGradient>
-		<linearGradient id="waveOrange" x1="0%" y1="0%" x2="100%" y2="0%">
-			<stop offset="0%" stop-color="#f47b20" stop-opacity="0"/>
-			<stop offset="50%" stop-color="#f47b20" stop-opacity="0.38"/>
-			<stop offset="100%" stop-color="#f47b20" stop-opacity="0"/>
-		</linearGradient>
 	</defs>
 
 	<rect width="1600" height="1000" fill="url(#base)"/>
 	<rect width="1600" height="1000" fill="url(#glowBlue)"/>
 	<rect width="1600" height="1000" fill="url(#glowOrange)"/>
 
-	<!-- Ondas concéntricas -->
-	<g fill="none" stroke="#6f8090" stroke-opacity="0.38">
-		<circle cx="200" cy="160" r="70" stroke-width="1.4"/>
-		<circle cx="200" cy="160" r="130" stroke-width="1.5"/>
-		<circle cx="200" cy="160" r="200" stroke-width="1.6"/>
-		<circle cx="200" cy="160" r="280" stroke-width="1.4"/>
-		<circle cx="200" cy="160" r="370" stroke-width="1.2"/>
-		<circle cx="200" cy="160" r="470" stroke-width="1"/>
-	</g>
-	<g fill="none" stroke="#1c9bd8" stroke-opacity="0.28">
-		<circle cx="200" cy="160" r="100" stroke-width="2"/>
-		<circle cx="200" cy="160" r="240" stroke-width="1.6"/>
-		<circle cx="200" cy="160" r="420" stroke-width="1.2"/>
-	</g>
-	<g fill="none" stroke="#8a97a5" stroke-opacity="0.32">
-		<circle cx="1420" cy="840" r="60" stroke-width="1.3"/>
-		<circle cx="1420" cy="840" r="120" stroke-width="1.4"/>
-		<circle cx="1420" cy="840" r="190" stroke-width="1.4"/>
-		<circle cx="1420" cy="840" r="270" stroke-width="1.2"/>
-		<circle cx="1420" cy="840" r="360" stroke-width="1"/>
-	</g>
-	<g fill="none" stroke="#f47b20" stroke-opacity="0.22">
-		<circle cx="1420" cy="840" r="155" stroke-width="2"/>
-		<circle cx="1420" cy="840" r="310" stroke-width="1.3"/>
+	<!-- Círculos de propagación -->
+	<g fill="none">
+		<circle cx="180" cy="140" r="80" stroke="#5d6e7e" stroke-opacity="0.45" stroke-width="2"/>
+		<circle cx="180" cy="140" r="150" stroke="#5d6e7e" stroke-opacity="0.4" stroke-width="2"/>
+		<circle cx="180" cy="140" r="230" stroke="#1c9bd8" stroke-opacity="0.35" stroke-width="2.5"/>
+		<circle cx="180" cy="140" r="320" stroke="#5d6e7e" stroke-opacity="0.35" stroke-width="2"/>
+		<circle cx="180" cy="140" r="420" stroke="#1c9bd8" stroke-opacity="0.25" stroke-width="2"/>
+		<circle cx="180" cy="140" r="530" stroke="#5d6e7e" stroke-opacity="0.28" stroke-width="1.5"/>
+		<circle cx="1450" cy="860" r="90" stroke="#5d6e7e" stroke-opacity="0.4" stroke-width="2"/>
+		<circle cx="1450" cy="860" r="170" stroke="#f47b20" stroke-opacity="0.3" stroke-width="2.5"/>
+		<circle cx="1450" cy="860" r="260" stroke="#5d6e7e" stroke-opacity="0.35" stroke-width="2"/>
+		<circle cx="1450" cy="860" r="360" stroke="#f47b20" stroke-opacity="0.2" stroke-width="2"/>
 	</g>
 
-	<!-- Waveforms -->
-	<path d="M-40 300 C 80 230, 200 370, 320 300 S 560 230, 680 300 S 920 370, 1040 300 S 1280 230, 1400 300 S 1640 370, 1760 300" fill="none" stroke="url(#waveSilver)" stroke-width="3" stroke-linecap="round"/>
-	<path d="M-40 370 C 100 310, 220 430, 340 370 S 580 310, 700 370 S 940 430, 1060 370 S 1300 310, 1420 370 S 1660 430, 1780 370" fill="none" stroke="url(#waveBlue)" stroke-width="2.6" stroke-linecap="round"/>
-	<path d="M-40 440 C 90 390, 210 490, 330 440 S 570 390, 690 440 S 930 490, 1050 440 S 1290 390, 1410 440 S 1650 490, 1770 440" fill="none" stroke="#708090" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round"/>
-	<path d="M-40 510 C 110 450, 230 570, 350 510 S 590 450, 710 510 S 950 570, 1070 510 S 1310 450, 1430 510 S 1670 570, 1790 510" fill="none" stroke="url(#waveOrange)" stroke-width="2.4" stroke-linecap="round"/>
-	<path d="M-40 580 C 80 540, 200 620, 320 580 S 560 540, 680 580 S 920 620, 1040 580 S 1280 540, 1400 580 S 1640 620, 1760 580" fill="none" stroke="#5f7080" stroke-opacity="0.42" stroke-width="1.8" stroke-linecap="round"/>
-	<path d="M-40 650 C 95 610, 215 690, 335 650 S 575 610, 695 650 S 935 690, 1055 650 S 1295 610, 1415 650 S 1655 690, 1775 650" fill="none" stroke="#1c9bd8" stroke-opacity="0.2" stroke-width="1.6" stroke-linecap="round"/>
+	<!-- Waveforms grandes -->
+	<path d="M-50 280 C 90 180, 230 380, 370 280 S 650 180, 790 280 S 1070 380, 1210 280 S 1490 180, 1630 280 S 1910 380, 2050 280" fill="none" stroke="#4a5a6a" stroke-opacity="0.55" stroke-width="4" stroke-linecap="round"/>
+	<path d="M-50 360 C 110 270, 250 450, 390 360 S 670 270, 810 360 S 1090 450, 1230 360 S 1510 270, 1650 360 S 1930 450, 2070 360" fill="none" stroke="#1c9bd8" stroke-opacity="0.42" stroke-width="3.5" stroke-linecap="round"/>
+	<path d="M-50 440 C 100 360, 240 520, 380 440 S 660 360, 800 440 S 1080 520, 1220 440 S 1500 360, 1640 440 S 1920 520, 2060 440" fill="none" stroke="#6a7a8a" stroke-opacity="0.5" stroke-width="3" stroke-linecap="round"/>
+	<path d="M-50 520 C 120 430, 260 610, 400 520 S 680 430, 820 520 S 1100 610, 1240 520 S 1520 430, 1660 520 S 1940 610, 2080 520" fill="none" stroke="#f47b20" stroke-opacity="0.35" stroke-width="3.2" stroke-linecap="round"/>
+	<path d="M-50 600 C 90 540, 230 660, 370 600 S 650 540, 790 600 S 1070 660, 1210 600 S 1490 540, 1630 600 S 1910 660, 2050 600" fill="none" stroke="#3d4d5d" stroke-opacity="0.4" stroke-width="2.5" stroke-linecap="round"/>
+	<path d="M-50 680 C 105 620, 245 740, 385 680 S 665 620, 805 680 S 1085 740, 1225 680 S 1505 620, 1645 680 S 1925 740, 2065 680" fill="none" stroke="#1c9bd8" stroke-opacity="0.28" stroke-width="2.2" stroke-linecap="round"/>
 
 	<!-- Ecualizador -->
 	<g>
-		<rect x="1160" y="120" width="8" height="40" rx="2" fill="#7a8a9a" fill-opacity="0.28"/>
-		<rect x="1174" y="100" width="8" height="60" rx="2" fill="#1c9bd8" fill-opacity="0.28"/>
-		<rect x="1188" y="132" width="8" height="28" rx="2" fill="#7a8a9a" fill-opacity="0.28"/>
-		<rect x="1202" y="88" width="8" height="72" rx="2" fill="#f47b20" fill-opacity="0.25"/>
-		<rect x="1216" y="112" width="8" height="48" rx="2" fill="#7a8a9a" fill-opacity="0.28"/>
-		<rect x="1230" y="96" width="8" height="64" rx="2" fill="#1c9bd8" fill-opacity="0.26"/>
-		<rect x="1244" y="128" width="8" height="32" rx="2" fill="#7a8a9a" fill-opacity="0.28"/>
-		<rect x="1258" y="80" width="8" height="80" rx="2" fill="#1c9bd8" fill-opacity="0.3"/>
-		<rect x="1272" y="108" width="8" height="52" rx="2" fill="#f47b20" fill-opacity="0.22"/>
-		<rect x="1286" y="92" width="8" height="68" rx="2" fill="#7a8a9a" fill-opacity="0.3"/>
-		<rect x="1300" y="118" width="8" height="42" rx="2" fill="#1c9bd8" fill-opacity="0.24"/>
-		<rect x="1314" y="104" width="8" height="56" rx="2" fill="#7a8a9a" fill-opacity="0.28"/>
+		<rect x="1120" y="90" width="10" height="50" rx="3" fill="#5d6e7e" fill-opacity="0.4"/>
+		<rect x="1138" y="60" width="10" height="80" rx="3" fill="#1c9bd8" fill-opacity="0.4"/>
+		<rect x="1156" y="105" width="10" height="35" rx="3" fill="#5d6e7e" fill-opacity="0.4"/>
+		<rect x="1174" y="45" width="10" height="95" rx="3" fill="#f47b20" fill-opacity="0.38"/>
+		<rect x="1192" y="75" width="10" height="65" rx="3" fill="#5d6e7e" fill-opacity="0.4"/>
+		<rect x="1210" y="55" width="10" height="85" rx="3" fill="#1c9bd8" fill-opacity="0.42"/>
+		<rect x="1228" y="100" width="10" height="40" rx="3" fill="#5d6e7e" fill-opacity="0.4"/>
+		<rect x="1246" y="35" width="10" height="105" rx="3" fill="#1c9bd8" fill-opacity="0.45"/>
+		<rect x="1264" y="70" width="10" height="70" rx="3" fill="#f47b20" fill-opacity="0.35"/>
+		<rect x="1282" y="50" width="10" height="90" rx="3" fill="#5d6e7e" fill-opacity="0.42"/>
+		<rect x="1300" y="85" width="10" height="55" rx="3" fill="#1c9bd8" fill-opacity="0.38"/>
+		<rect x="1318" y="65" width="10" height="75" rx="3" fill="#5d6e7e" fill-opacity="0.4"/>
 	</g>
 </svg>
