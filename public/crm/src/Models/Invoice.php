@@ -220,7 +220,7 @@ final class Invoice extends Record
 			JOIN clients c ON c.id = s.client_id
 			JOIN deals d ON d.id = s.deal_id
 			LEFT JOIN users u ON u.id = COALESCE(d.owner_id, c.owner_id)
-			WHERE 1=1';
+			WHERE COALESCE(d.archived, 0) = 0';
 		$params = [];
 		if ($ownerId) {
 			$sql .= ' AND ((d.owner_id IS NOT NULL AND d.owner_id = ?) OR (d.owner_id IS NULL AND c.owner_id = ?))';

@@ -350,6 +350,11 @@ final class Pipeline extends Record
 		$fields = ['updated_at' => date('c')];
 		$bringBack = false;
 		if (!empty($deal['archived'])) {
+			// Solo reaparece si se cerró solo por pago completo y el cobro dejó de cubrir.
+			// Un Finalizado manual (cualquier otra etapa) se queda fuera del tablero.
+			if (self::roleOf((string) $deal['stage']) !== 'paid') {
+				return;
+			}
 			$fields['archived'] = 0;
 			$bringBack = true;
 		}

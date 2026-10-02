@@ -99,7 +99,7 @@ final class Stage extends Record
 	public static function dealCounts(): array
 	{
 		$out = [];
-		$rows = self::pdo()->query('SELECT stage, COUNT(*) AS n FROM deals GROUP BY stage')->fetchAll();
+		$rows = self::pdo()->query('SELECT stage, COUNT(*) AS n FROM deals WHERE COALESCE(archived, 0) = 0 GROUP BY stage')->fetchAll();
 		foreach ($rows as $row) {
 			$out[(string) $row['stage']] = (int) $row['n'];
 		}
