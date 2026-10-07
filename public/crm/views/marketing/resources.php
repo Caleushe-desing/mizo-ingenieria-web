@@ -25,7 +25,7 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 		<div>
 			<p class="file-kicker">Marketing</p>
 			<h1>Estudio de diseño profesional</h1>
-			<p>Control total: plantillas editables, tipografías de impacto, formas, capas y quitar fondo.</p>
+			<p>Workspace tipo Photoshop: capas, herramientas, propiedades y lienzo WYSIWYG al tamaño exacto de cada red.</p>
 		</div>
 		<div class="mkt-head-actions">
 			<a class="btn-text" href="<?= h(Http::url('/marketing/medios')) ?>">Stock Mizo</a>
@@ -35,7 +35,7 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 
 	<?php require __DIR__ . '/_nav.php'; ?>
 
-	<section class="paper mkt-panel mkt-free-studio" id="estudio"
+	<section class="paper mkt-panel mkt-free-studio mkt-ps" id="estudio"
 		data-free-studio
 		data-save-url="<?= h($saveDesignUrl) ?>"
 		data-csrf="<?= h($csrf) ?>"
@@ -47,95 +47,70 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 		data-design-json="<?= h($editJson) ?>"
 		data-logo="/mizo-logo-footer.png">
 
-		<div class="mkt-pro-toolbar">
-			<div class="mkt-pro-tools">
-				<button type="button" class="btn btn-word" data-act="add-text">Texto</button>
-				<button type="button" class="btn btn-word" data-act="add-logo">Logo</button>
-				<label class="btn btn-excel mkt-file-btn">
-					Importar imagen
-					<input type="file" accept="image/*" data-act="upload-image" hidden>
+		<div class="mkt-ps-menubar">
+			<div class="mkt-ps-menu-left">
+				<strong class="mkt-ps-brand">Mizo Studio</strong>
+				<label class="mkt-ps-format">
+					<span>Formato</span>
+					<select data-canvas-format aria-label="Formato de red social">
+						<option value="feed" selected>Feed 4:5 · 1080×1350</option>
+						<option value="post">Post 1:1 · 1080×1080</option>
+						<option value="story">Story 9:16 · 1080×1920</option>
+						<option value="landscape">Horizontal · 1920×1080</option>
+					</select>
 				</label>
-				<button type="button" class="btn btn-word" data-act="remove-bg" disabled data-remove-bg>Quitar fondo</button>
-				<button type="button" class="btn btn-word" data-act="preview">Vista previa</button>
-				<span class="mkt-tool-sep" aria-hidden="true"></span>
-				<button type="button" class="btn-text" data-act="layer-up" title="Subir nivel">▲ Capa</button>
-				<button type="button" class="btn-text" data-act="layer-down" title="Bajar nivel">▼ Capa</button>
-				<button type="button" class="btn-text" data-act="front">Al frente</button>
-				<button type="button" class="btn-text" data-act="back">Al fondo</button>
-				<button type="button" class="btn-text" data-act="delete">Eliminar</button>
+				<span class="mkt-ps-size" data-canvas-size-label>1080 × 1350 px</span>
 			</div>
-			<p class="mkt-studio-status" data-studio-status></p>
+			<div class="mkt-ps-menu-right">
+				<button type="button" class="mkt-ps-btn" data-act="preview">Vista previa</button>
+				<button type="button" class="mkt-ps-btn is-primary" data-act="save">Guardar</button>
+				<p class="mkt-studio-status" data-studio-status></p>
+			</div>
 		</div>
 
-		<div class="mkt-pro-layout">
-			<aside class="mkt-pro-sidebar" data-pro-sidebar>
+		<div class="mkt-ps-workspace">
+			<aside class="mkt-ps-toolbox" aria-label="Herramientas">
+				<button type="button" class="mkt-ps-tool is-on" data-tool="select" title="Seleccionar (V)">↖</button>
+				<button type="button" class="mkt-ps-tool" data-act="add-text" title="Texto (T)">T</button>
+				<button type="button" class="mkt-ps-tool" data-shape="rect" title="Rectángulo">▭</button>
+				<button type="button" class="mkt-ps-tool" data-shape="circle" title="Círculo">●</button>
+				<button type="button" class="mkt-ps-tool" data-shape="triangle" title="Triángulo">▲</button>
+				<button type="button" class="mkt-ps-tool" data-shape="line" title="Línea">／</button>
+				<button type="button" class="mkt-ps-tool" data-act="add-logo" title="Logo Mizo">◎</button>
+				<label class="mkt-ps-tool mkt-file-btn" title="Importar imagen">
+					⇧
+					<input type="file" accept="image/*" data-act="upload-image" hidden>
+				</label>
+				<button type="button" class="mkt-ps-tool" data-act="remove-bg" data-remove-bg disabled title="Quitar fondo">✂</button>
+				<span class="mkt-ps-tool-sep"></span>
+				<button type="button" class="mkt-ps-tool" data-act="delete" title="Eliminar">⌫</button>
+			</aside>
+
+			<aside class="mkt-ps-panel mkt-ps-panel-left" data-pro-sidebar>
 				<details class="mkt-side-block" open>
-					<summary>Plantillas prediseñadas</summary>
-					<p class="muted mkt-stock-hint">Todo es editable: textos, formas, colores y fondos.</p>
+					<summary>Plantillas</summary>
 					<div class="mkt-stock-filters" data-tpl-filters></div>
 					<div class="mkt-bg-tpl-gallery" data-tpl-gallery></div>
 				</details>
-
 				<details class="mkt-side-block" open>
-					<summary>Formas geométricas</summary>
-					<label class="mkt-color-row"><span>Color de forma</span><input type="color" value="#f47b20" data-shape-color></label>
+					<summary>Formas</summary>
+					<label class="mkt-color-row"><span>Color</span><input type="color" value="#f47b20" data-shape-color></label>
 					<div class="mkt-shape-grid">
 						<button type="button" class="mkt-shape-btn" data-shape="rect" title="Rectángulo">▭</button>
-						<button type="button" class="mkt-shape-btn" data-shape="round" title="Bloque redondeado">▢</button>
+						<button type="button" class="mkt-shape-btn" data-shape="round" title="Redondeado">▢</button>
 						<button type="button" class="mkt-shape-btn" data-shape="circle" title="Círculo">●</button>
 						<button type="button" class="mkt-shape-btn" data-shape="triangle" title="Triángulo">▲</button>
 						<button type="button" class="mkt-shape-btn" data-shape="line" title="Línea">／</button>
-						<button type="button" class="mkt-shape-btn" data-shape="bar" title="Barra acento">▬</button>
+						<button type="button" class="mkt-shape-btn" data-shape="bar" title="Barra">▬</button>
 					</div>
 				</details>
-
-				<details class="mkt-side-block" open>
-					<summary>Tipografía y objeto</summary>
-					<label><span>Fuente</span>
-						<select data-font>
-							<option value="Montserrat">Montserrat Black</option>
-							<option value="Bebas Neue">Bebas Neue</option>
-							<option value="Oswald">Oswald</option>
-							<option value="Anton">Anton</option>
-							<option value="Archivo Black">Archivo Black</option>
-							<option value="Poppins">Poppins ExtraBold</option>
-							<option value="Barlow Condensed">Barlow Condensed</option>
-							<option value="Rajdhani">Rajdhani</option>
-							<option value="Space Grotesk">Space Grotesk</option>
-							<option value="Impact">Impact</option>
-							<option value="Arial Black">Arial Black</option>
-							<option value="Segoe UI">Segoe UI</option>
-						</select>
-					</label>
-					<label><span>Tamaño</span><input type="range" min="18" max="160" value="64" data-font-size></label>
-					<label class="mkt-color-row"><span>Color texto / relleno</span><input type="color" value="#ffffff" data-text-color></label>
-					<div class="mkt-text-actions">
-						<button type="button" class="btn-text" data-act="bold">Negrita</button>
-						<button type="button" class="btn-text" data-act="align-left">Izq.</button>
-						<button type="button" class="btn-text" data-act="align-center">Centro</button>
-						<button type="button" class="btn-text" data-act="align-right">Der.</button>
-					</div>
-					<label class="mkt-color-row"><span>Fondo lienzo</span><input type="color" value="#0b1c2c" data-bg-color></label>
-					<div class="mkt-palette" data-bg-palette>
-						<button type="button" data-bg="#0b1c2c" style="background:#0b1c2c" title="Navy"></button>
-						<button type="button" data-bg="#0b6ea8" style="background:#0b6ea8" title="Azul Mizo"></button>
-						<button type="button" data-bg="#1c9bd8" style="background:#1c9bd8" title="Celeste"></button>
-						<button type="button" data-bg="#f47b20" style="background:#f47b20" title="Naranja"></button>
-						<button type="button" data-bg="#111418" style="background:#111418" title="Negro"></button>
-						<button type="button" data-bg="#ffffff" style="background:#ffffff;border:1px solid #cfd8e3" title="Blanco"></button>
-						<button type="button" data-bg="#f4f1ea" style="background:#f4f1ea" title="Marfil"></button>
-					</div>
-				</details>
-
 				<details class="mkt-side-block">
 					<summary>Stock Mizo</summary>
-					<p class="muted mkt-stock-hint">Inserta fotos; usa «Quitar fondo» con la imagen seleccionada.</p>
 					<div class="mkt-stock-filters" data-stock-filters></div>
 					<div class="mkt-stock-gallery" data-stock-gallery></div>
 				</details>
-
-				<details class="mkt-side-block" open>
-					<summary>Guardar en CRM</summary>
+				<details class="mkt-side-block">
+					<summary>Guardar</summary>
 					<label><span>Título</span><input type="text" data-save-title maxlength="160" value="<?= h($editResource['title'] ?? 'Diseño Mizo') ?>"></label>
 					<label><span>Categoría</span>
 						<select data-save-category>
@@ -150,23 +125,98 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 							<option value="social" <?= ($editResource['kind'] ?? '') === 'social' ? 'selected' : '' ?>>Redes sociales</option>
 						</select>
 					</label>
-					<label><span>Formato</span>
+					<label><span>Archivo</span>
 						<select data-save-format>
 							<option value="png">PNG</option>
 							<option value="jpg" selected>JPG</option>
 						</select>
 					</label>
-					<label><span>Nota de uso</span><textarea rows="2" data-save-desc maxlength="500"><?= h($editResource['description'] ?? '') ?></textarea></label>
+					<label><span>Nota</span><textarea rows="2" data-save-desc maxlength="500"><?= h($editResource['description'] ?? '') ?></textarea></label>
 					<button type="button" class="btn btn-word mkt-save-btn" data-act="save">Guardar diseño</button>
 					<button type="button" class="btn-text" data-act="clear">Lienzo nuevo</button>
 				</details>
 			</aside>
 
-			<div class="mkt-pro-stage">
+			<div class="mkt-pro-stage mkt-ps-stage">
+				<div class="mkt-ps-stage-meta">
+					<span>WYSIWYG · exporta a tamaño real</span>
+					<span data-zoom-label>100%</span>
+				</div>
 				<div class="mkt-canvas-shell" data-canvas-shell>
 					<canvas id="mizo-free-canvas" width="<?= $canvasWidth ?>" height="<?= $canvasHeight ?>"></canvas>
 				</div>
 			</div>
+
+			<aside class="mkt-ps-panel mkt-ps-panel-right">
+				<div class="mkt-ps-panel-section">
+					<h3>Propiedades</h3>
+					<div class="mkt-ps-props" data-props-panel>
+						<p class="mkt-ps-empty" data-props-empty>Selecciona una capa para editar.</p>
+						<div class="mkt-ps-props-body" data-props-body hidden>
+							<label><span>Opacidad</span>
+								<input type="range" min="0" max="100" value="100" data-opacity>
+								<em data-opacity-label>100%</em>
+							</label>
+							<label class="mkt-color-row"><span>Relleno</span><input type="color" value="#ffffff" data-text-color></label>
+							<label><span>Fuente</span>
+								<select data-font>
+									<option value="Montserrat">Montserrat</option>
+									<option value="Bebas Neue">Bebas Neue</option>
+									<option value="Oswald">Oswald</option>
+									<option value="Anton">Anton</option>
+									<option value="Archivo Black">Archivo Black</option>
+									<option value="Poppins">Poppins</option>
+									<option value="Barlow Condensed">Barlow Condensed</option>
+									<option value="Rajdhani">Rajdhani</option>
+									<option value="Space Grotesk">Space Grotesk</option>
+									<option value="Impact">Impact</option>
+									<option value="Arial Black">Arial Black</option>
+									<option value="Segoe UI">Segoe UI</option>
+								</select>
+							</label>
+							<label><span>Tamaño texto</span><input type="range" min="18" max="160" value="64" data-font-size></label>
+							<div class="mkt-text-actions">
+								<button type="button" class="btn-text" data-act="bold">Negrita</button>
+								<button type="button" class="btn-text" data-act="align-left">Izq.</button>
+								<button type="button" class="btn-text" data-act="align-center">Centro</button>
+								<button type="button" class="btn-text" data-act="align-right">Der.</button>
+							</div>
+							<hr class="mkt-ps-hr">
+							<label class="mkt-ps-check"><input type="checkbox" data-stroke-on> <span>Trazo / borde</span></label>
+							<label class="mkt-color-row"><span>Color trazo</span><input type="color" value="#ffffff" data-stroke-color></label>
+							<label><span>Grosor trazo</span><input type="range" min="0" max="40" value="0" data-stroke-width></label>
+							<hr class="mkt-ps-hr">
+							<label class="mkt-ps-check"><input type="checkbox" data-shadow-on> <span>Sombra paralela</span></label>
+							<label class="mkt-color-row"><span>Color sombra</span><input type="color" value="#000000" data-shadow-color></label>
+							<label><span>Desenfoque</span><input type="range" min="0" max="60" value="12" data-shadow-blur></label>
+							<label><span>Distancia X</span><input type="range" min="-40" max="40" value="4" data-shadow-x></label>
+							<label><span>Distancia Y</span><input type="range" min="-40" max="40" value="6" data-shadow-y></label>
+						</div>
+						<hr class="mkt-ps-hr">
+						<label class="mkt-color-row"><span>Fondo lienzo</span><input type="color" value="#0b1c2c" data-bg-color></label>
+						<div class="mkt-palette" data-bg-palette>
+							<button type="button" data-bg="#0b1c2c" style="background:#0b1c2c" title="Navy"></button>
+							<button type="button" data-bg="#0b6ea8" style="background:#0b6ea8" title="Azul"></button>
+							<button type="button" data-bg="#1c9bd8" style="background:#1c9bd8" title="Celeste"></button>
+							<button type="button" data-bg="#f47b20" style="background:#f47b20" title="Naranja"></button>
+							<button type="button" data-bg="#111418" style="background:#111418" title="Negro"></button>
+							<button type="button" data-bg="#ffffff" style="background:#ffffff;border:1px solid #cfd8e3" title="Blanco"></button>
+						</div>
+					</div>
+				</div>
+				<div class="mkt-ps-panel-section mkt-ps-layers-wrap">
+					<div class="mkt-ps-layers-hd">
+						<h3>Capas</h3>
+						<div class="mkt-ps-layer-acts">
+							<button type="button" class="mkt-ps-mini" data-act="layer-up" title="Subir">▲</button>
+							<button type="button" class="mkt-ps-mini" data-act="layer-down" title="Bajar">▼</button>
+							<button type="button" class="mkt-ps-mini" data-act="front" title="Al frente">⤴</button>
+							<button type="button" class="mkt-ps-mini" data-act="back" title="Al fondo">⤵</button>
+						</div>
+					</div>
+					<ul class="mkt-ps-layers" data-layers-list></ul>
+				</div>
+			</aside>
 		</div>
 
 		<div class="mkt-preview-modal" data-preview-modal hidden>
@@ -248,4 +298,4 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 	</section>
 </div>
 <script src="<?= h(Http::url('/assets/fabric.min.js')) ?>?v=531"></script>
-<script src="<?= h(Http::url('/assets/marketing-free-canvas.js')) ?>?v=4"></script>
+<script src="<?= h(Http::url('/assets/marketing-free-canvas.js')) ?>?v=6"></script>

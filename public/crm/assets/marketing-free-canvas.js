@@ -4,8 +4,8 @@
 	const root = document.querySelector('[data-free-studio]');
 	if (!root || typeof fabric === 'undefined') return;
 
-	const W = parseInt(root.getAttribute('data-width') || '1080', 10);
-	const H = parseInt(root.getAttribute('data-height') || '1350', 10);
+	let W = parseInt(root.getAttribute('data-width') || '1080', 10);
+	let H = parseInt(root.getAttribute('data-height') || '1350', 10);
 	const saveUrl = root.getAttribute('data-save-url') || '';
 	const csrf = root.getAttribute('data-csrf') || '';
 	const logoUrl = root.getAttribute('data-logo') || '/mizo-logo-footer.png';
@@ -39,6 +39,22 @@
 	const previewModal = root.querySelector('[data-preview-modal]');
 	const previewImage = root.querySelector('[data-preview-image]');
 	const previewCaption = root.querySelector('[data-preview-caption]');
+	const layersList = root.querySelector('[data-layers-list]');
+	const propsEmpty = root.querySelector('[data-props-empty]');
+	const propsBody = root.querySelector('[data-props-body]');
+	const opacityInput = root.querySelector('[data-opacity]');
+	const opacityLabel = root.querySelector('[data-opacity-label]');
+	const strokeOn = root.querySelector('[data-stroke-on]');
+	const strokeColor = root.querySelector('[data-stroke-color]');
+	const strokeWidth = root.querySelector('[data-stroke-width]');
+	const shadowOn = root.querySelector('[data-shadow-on]');
+	const shadowColor = root.querySelector('[data-shadow-color]');
+	const shadowBlur = root.querySelector('[data-shadow-blur]');
+	const shadowX = root.querySelector('[data-shadow-x]');
+	const shadowY = root.querySelector('[data-shadow-y]');
+	const formatSelect = root.querySelector('[data-canvas-format]');
+	const sizeLabel = root.querySelector('[data-canvas-size-label]');
+	const zoomLabel = root.querySelector('[data-zoom-label]');
 
 	let stockFilter = '';
 	let tplFilter = 'minimalistas';
@@ -46,6 +62,14 @@
 	let previewFormat = 'story';
 	let displayZoom = 1;
 	let removeBgModule = null;
+	let syncingProps = false;
+
+	const FORMAT_PRESETS = {
+		feed: { w: 1080, h: 1350, label: 'Feed 4:5 · 1080×1350', preview: 'feed' },
+		post: { w: 1080, h: 1080, label: 'Post 1:1 · 1080×1080', preview: 'post' },
+		story: { w: 1080, h: 1920, label: 'Story 9:16 · 1080×1920', preview: 'story' },
+		landscape: { w: 1920, h: 1080, label: 'Horizontal · 1920×1080', preview: 'feed' },
+	};
 
 	const TPL_CATS = [
 		{ id: 'minimalistas', label: 'Minimalistas' },
@@ -96,9 +120,16 @@
 		}).join('');
 	}
 
+	function updateSizeBadge() {
+		if (sizeLabel) sizeLabel.textContent = W + ' × ' + H + ' px';
+		if (zoomLabel) zoomLabel.textContent = Math.round(displayZoom * 100) + '%';
+		root.setAttribute('data-width', String(W));
+		root.setAttribute('data-height', String(H));
+	}
+
 	function fitToScreen() {
 		if (!shell) return;
-		const pad = 8;
+		const pad = 16;
 		const availW = Math.max(120, shell.clientWidth - pad * 2);
 		const availH = Math.max(120, shell.clientHeight - pad * 2);
 		const zoom = Math.min(availW / W, availH / H);
@@ -107,6 +138,15 @@
 		canvas.setZoom(displayZoom);
 		canvas.calcOffset();
 		canvas.requestRenderAll();
+		updateSizeBadge();
+	}
+
+	function setCanvasFormat(key) {
+		const preset = FORMAT_PRESETS[key] || FORMAT_PRESETS.feed;
+		previewFormat = preset.preview || key;
+		applyLogicalSize(preset.w, preset.h);
+		refreshLayers();
+		setStatus('Lienzo ' + preset.label + ' · el archivo exportado usa este tamaño exacto (' + preset.w + '×' + preset.h + ').');
 	}
 
 	function withExportZoom(fn) {
@@ -138,9 +178,29 @@
 	}
 
 	function exportJson() {
-		return withExportZoom(function () {
-			return JSON.stringify(canvas.toJSON(['selectable', 'evented', 'name']));
+		const data = canvas.toJSON(['selectable', 'evented', 'name', 'visible', 'hasControls']);
+		data.canvasWidth = W;
+		data.canvasHeight = H;
+		data.formatKey = formatSelect ? formatSelect.value : 'feed';
+		return JSON.stringify(data);
+	}
+
+	function syncFormatSelect() {
+		if (!formatSelect) return;
+		const match = Object.keys(FORMAT_PRESETS).find(function (key) {
+			return FORMAT_PRESETS[key].w === W && FORMAT_PRESETS[key].h === H;
 		});
+		if (match) formatSelect.value = match;
+	}
+
+	function applyLogicalSize(nextW, nextH, skipFit) {
+		W = Math.max(100, parseInt(nextW, 10) || W);
+		H = Math.max(100, parseInt(nextH, 10) || H);
+		canvas.setWidth(W);
+		canvas.setHeight(H);
+		syncFormatSelect();
+		updateSizeBadge();
+		if (!skipFit) fitToScreen();
 	}
 
 	/* ---------- Editable design templates (Fabric objects) ---------- */
@@ -337,6 +397,7 @@
 		paintTemplates();
 		canvas.discardActiveObject();
 		fitToScreen();
+		refreshLayers();
 		setStatus('Plantilla «' + tpl.name + '» cargada. Todo es editable.');
 	}
 
@@ -467,6 +528,7 @@
 		}
 		canvas.requestRenderAll();
 		syncObjectControls();
+		refreshLayers();
 	}
 
 	function layerFront() {
@@ -474,6 +536,7 @@
 		if (!obj) return;
 		canvas.bringToFront(obj);
 		canvas.requestRenderAll();
+		refreshLayers();
 	}
 
 	function layerBack() {
@@ -481,6 +544,7 @@
 		if (!obj) return;
 		canvas.sendToBack(obj);
 		canvas.requestRenderAll();
+		refreshLayers();
 	}
 
 	function layerUp() {
@@ -488,6 +552,7 @@
 		if (!obj) return;
 		canvas.bringForward(obj);
 		canvas.requestRenderAll();
+		refreshLayers();
 	}
 
 	function layerDown() {
@@ -495,6 +560,7 @@
 		if (!obj) return;
 		canvas.sendBackwards(obj);
 		canvas.requestRenderAll();
+		refreshLayers();
 	}
 
 	function applyFill(value) {
@@ -513,21 +579,122 @@
 		canvas.requestRenderAll();
 	}
 
+	function layerLabel(obj) {
+		if (!obj) return 'Capa';
+		if (obj.name) return String(obj.name);
+		if (isText(obj)) return String(obj.text || 'Texto').slice(0, 28);
+		if (isImage(obj)) return 'Imagen';
+		if (obj.type === 'line') return 'Línea';
+		if (obj.type === 'circle') return 'Círculo';
+		if (obj.type === 'triangle') return 'Triángulo';
+		if (obj.type === 'rect') return 'Rectángulo';
+		return obj.type || 'Capa';
+	}
+
+	function refreshLayers() {
+		if (!layersList) return;
+		const objs = canvas.getObjects().slice().reverse();
+		const active = selected();
+		if (!objs.length) {
+			layersList.innerHTML = '<li class="mkt-ps-layer"><strong style="grid-column:1/-1;opacity:.6">Sin capas</strong></li>';
+			return;
+		}
+		layersList.innerHTML = objs.map(function (obj, visualIndex) {
+			const realIndex = objs.length - 1 - visualIndex;
+			const on = active === obj ? ' is-active' : '';
+			const hidden = obj.visible === false ? ' is-hidden' : '';
+			const eye = obj.visible === false ? '○' : '●';
+			const lock = obj.selectable === false ? '🔒' : '🔓';
+			return '<li class="mkt-ps-layer' + on + hidden + '" data-layer-index="' + realIndex + '">' +
+				'<button type="button" data-layer-vis title="Mostrar/ocultar">' + eye + '</button>' +
+				'<button type="button" data-layer-lock title="Bloquear">' + lock + '</button>' +
+				'<strong>' + escapeHtml(layerLabel(obj)) + '</strong></li>';
+		}).join('');
+	}
+
 	function syncObjectControls() {
 		const obj = selected();
 		if (removeBgBtn) removeBgBtn.disabled = !isImage(obj);
-		if (!obj) return;
+		refreshLayers();
+		if (!obj || obj.type === 'activeSelection') {
+			if (propsEmpty) propsEmpty.hidden = false;
+			if (propsBody) propsBody.hidden = true;
+			return;
+		}
+		if (propsEmpty) propsEmpty.hidden = true;
+		if (propsBody) propsBody.hidden = false;
+		syncingProps = true;
+		const opacityPct = Math.round((obj.opacity == null ? 1 : obj.opacity) * 100);
+		if (opacityInput) opacityInput.value = String(opacityPct);
+		if (opacityLabel) opacityLabel.textContent = opacityPct + '%';
 		if (isText(obj)) {
 			if (fontSelect) fontSelect.value = obj.fontFamily || 'Montserrat';
 			if (fontSize) fontSize.value = String(obj.fontSize || 64);
 			if (textColor) textColor.value = toHex(obj.fill) || '#ffffff';
-		} else if (obj.fill && typeof obj.fill === 'string' && obj.fill.charAt(0) === '#') {
+		} else if (obj.fill && typeof obj.fill === 'string' && obj.fill !== 'transparent') {
 			if (textColor) textColor.value = toHex(obj.fill);
 			if (shapeColor) shapeColor.value = toHex(obj.fill);
 		} else if (obj.stroke && typeof obj.stroke === 'string') {
 			if (textColor) textColor.value = toHex(obj.stroke);
 			if (shapeColor) shapeColor.value = toHex(obj.stroke);
 		}
+		const hasStroke = !!(obj.stroke && (obj.strokeWidth || 0) > 0);
+		if (strokeOn) strokeOn.checked = hasStroke;
+		if (strokeColor && obj.stroke) strokeColor.value = toHex(obj.stroke);
+		if (strokeWidth) strokeWidth.value = String(obj.strokeWidth || 0);
+		const sh = obj.shadow;
+		if (shadowOn) shadowOn.checked = !!sh;
+		if (sh) {
+			if (shadowColor) shadowColor.value = toHex(sh.color || '#000000');
+			if (shadowBlur) shadowBlur.value = String(sh.blur || 0);
+			if (shadowX) shadowX.value = String(sh.offsetX || 0);
+			if (shadowY) shadowY.value = String(sh.offsetY || 0);
+		}
+		syncingProps = false;
+	}
+
+	function applyOpacity(pct) {
+		const obj = selected();
+		if (!obj || syncingProps) return;
+		obj.set('opacity', Math.max(0, Math.min(100, pct)) / 100);
+		if (opacityLabel) opacityLabel.textContent = Math.round(pct) + '%';
+		canvas.requestRenderAll();
+		refreshLayers();
+	}
+
+	function applyStrokeFromUi() {
+		const obj = selected();
+		if (!obj || syncingProps) return;
+		const on = strokeOn && strokeOn.checked;
+		let width = strokeWidth ? parseInt(strokeWidth.value, 10) || 0 : 0;
+		const color = strokeColor ? strokeColor.value : '#ffffff';
+		if (on && width <= 0) {
+			width = 2;
+			if (strokeWidth) strokeWidth.value = '2';
+		}
+		if (!on || width <= 0) {
+			obj.set({ stroke: null, strokeWidth: 0 });
+		} else {
+			obj.set({ stroke: color, strokeWidth: width });
+		}
+		canvas.requestRenderAll();
+	}
+
+	function applyShadowFromUi() {
+		const obj = selected();
+		if (!obj || syncingProps) return;
+		if (!shadowOn || !shadowOn.checked) {
+			obj.set('shadow', null);
+			canvas.requestRenderAll();
+			return;
+		}
+		obj.set('shadow', new fabric.Shadow({
+			color: (shadowColor && shadowColor.value) || 'rgba(0,0,0,0.45)',
+			blur: shadowBlur ? parseInt(shadowBlur.value, 10) || 0 : 12,
+			offsetX: shadowX ? parseInt(shadowX.value, 10) || 0 : 4,
+			offsetY: shadowY ? parseInt(shadowY.value, 10) || 0 : 6,
+		}));
+		canvas.requestRenderAll();
 	}
 
 	function setSolidBackground(color) {
@@ -547,6 +714,7 @@
 		setSolidBackground('#0b1c2c');
 		addText();
 		paintTemplates();
+		refreshLayers();
 		setStatus('Lienzo nuevo listo.');
 	}
 
@@ -916,7 +1084,65 @@
 	canvas.on('selection:updated', syncObjectControls);
 	canvas.on('selection:cleared', function () {
 		if (removeBgBtn) removeBgBtn.disabled = true;
+		if (propsEmpty) propsEmpty.hidden = false;
+		if (propsBody) propsBody.hidden = true;
+		refreshLayers();
 	});
+	canvas.on('object:added', refreshLayers);
+	canvas.on('object:removed', refreshLayers);
+	canvas.on('object:modified', refreshLayers);
+
+	if (formatSelect) {
+		formatSelect.addEventListener('change', function () {
+			setCanvasFormat(formatSelect.value);
+		});
+	}
+	if (opacityInput) {
+		opacityInput.addEventListener('input', function () {
+			applyOpacity(parseInt(opacityInput.value, 10) || 100);
+		});
+	}
+	[strokeOn, strokeColor, strokeWidth].forEach(function (el) {
+		if (!el) return;
+		el.addEventListener('input', applyStrokeFromUi);
+		el.addEventListener('change', applyStrokeFromUi);
+	});
+	[shadowOn, shadowColor, shadowBlur, shadowX, shadowY].forEach(function (el) {
+		if (!el) return;
+		el.addEventListener('input', applyShadowFromUi);
+		el.addEventListener('change', applyShadowFromUi);
+	});
+
+	if (layersList) {
+		layersList.addEventListener('click', function (event) {
+			const row = event.target.closest('[data-layer-index]');
+			if (!row) return;
+			const idx = parseInt(row.getAttribute('data-layer-index'), 10);
+			const obj = canvas.getObjects()[idx];
+			if (!obj) return;
+			if (event.target.closest('[data-layer-vis]')) {
+				obj.set('visible', obj.visible === false);
+				canvas.requestRenderAll();
+				refreshLayers();
+				return;
+			}
+			if (event.target.closest('[data-layer-lock]')) {
+				const unlock = obj.selectable === false;
+				obj.set({ selectable: unlock, evented: unlock, hasControls: unlock });
+				if (!unlock && selected() === obj) {
+					canvas.discardActiveObject();
+					syncObjectControls();
+				}
+				canvas.requestRenderAll();
+				refreshLayers();
+				return;
+			}
+			if (obj.selectable === false) return;
+			canvas.setActiveObject(obj);
+			canvas.requestRenderAll();
+			syncObjectControls();
+		});
+	}
 
 	window.addEventListener('resize', fitToScreen);
 	if (window.ResizeObserver && shell) {
@@ -928,21 +1154,41 @@
 	paintTemplates();
 	paintStockFilters();
 	paintStock();
+	refreshLayers();
+
+	root.querySelectorAll('[data-tool]').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			root.querySelectorAll('[data-tool]').forEach(function (el) { el.classList.remove('is-on'); });
+			btn.classList.add('is-on');
+			canvas.discardActiveObject();
+			canvas.requestRenderAll();
+			syncObjectControls();
+		});
+	});
 
 	function boot() {
+		syncFormatSelect();
 		fitToScreen();
 		if (initialJson) {
 			try {
+				const parsed = JSON.parse(initialJson);
+				if (parsed && parsed.canvasWidth && parsed.canvasHeight) {
+					applyLogicalSize(parsed.canvasWidth, parsed.canvasHeight, true);
+				} else if (parsed && parsed.formatKey && FORMAT_PRESETS[parsed.formatKey]) {
+					const preset = FORMAT_PRESETS[parsed.formatKey];
+					applyLogicalSize(preset.w, preset.h, true);
+				}
 				canvas.loadFromJSON(initialJson, function () {
 					fitToScreen();
-					setStatus('Diseño cargado para editar.');
+					refreshLayers();
+					setStatus('Diseño cargado · ' + W + '×' + H + ' px (tamaño de exportación).');
 				});
 			} catch (e) {
 				setStatus('No se pudo reabrir el JSON del diseño.', true);
 				addText();
 			}
 		} else {
-			setStatus('Elige una plantilla o empieza desde cero.');
+			setStatus('Elige formato de red, plantilla o empieza desde cero. Lo que ves = lo exportado.');
 		}
 	}
 
