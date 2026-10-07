@@ -294,4 +294,4 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 	</section>
 </div>
 <script src="<?= h(Http::url('/assets/fabric.min.js')) ?>?v=531"></script>
-<script src="<?= h(Http::url('/assets/marketing-free-canvas.js')) ?>?v=8"></script>
+<script src="<?= h(Http::url('/assets/marketing-free-canvas.js')) ?>?v=9"></script>

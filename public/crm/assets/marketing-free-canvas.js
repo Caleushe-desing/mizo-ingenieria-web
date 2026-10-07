@@ -879,21 +879,28 @@
 	}
 
 	function refreshPreview() {
+		const phone = root.querySelector('.mkt-phone');
 		const screen = root.querySelector('[data-preview-screen]');
-		if (screen) {
-			const maxH = Math.max(240, Math.min(window.innerHeight * 0.68, 760));
-			const maxW = Math.max(180, Math.min(window.innerWidth * 0.72, 420));
-			let dispW = maxW;
-			let dispH = dispW * (H / W);
-			if (dispH > maxH) {
-				dispH = maxH;
-				dispW = dispH * (W / H);
-			}
-			screen.style.width = Math.round(dispW) + 'px';
-			screen.style.height = Math.round(dispH) + 'px';
-			screen.style.aspectRatio = 'auto';
-			screen.style.maxHeight = 'none';
+		const chromeX = 24;
+		const chromeY = 60;
+		const maxW = Math.max(180, Math.min(460, window.innerWidth - 72));
+		const maxH = Math.max(220, Math.min(window.innerHeight * 0.7, 680));
+		let dispW = maxW - chromeX;
+		let dispH = dispW * (H / W);
+		if (dispH > maxH - chromeY) {
+			dispH = maxH - chromeY;
+			dispW = dispH * (W / H);
 		}
+		dispW = Math.max(120, Math.round(dispW));
+		dispH = Math.max(120, Math.round(dispH));
+		if (screen) {
+			screen.style.width = dispW + 'px';
+			screen.style.height = dispH + 'px';
+			screen.style.maxWidth = '100%';
+			screen.style.maxHeight = 'none';
+			screen.style.aspectRatio = W + ' / ' + H;
+		}
+		if (phone) phone.style.width = (dispW + chromeX) + 'px';
 		if (previewCaption) {
 			previewCaption.textContent = 'Archivo completo · ' + currentFormatLabel() + ' · ' + W + ' × ' + H + ' px';
 		}
