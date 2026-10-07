@@ -93,6 +93,9 @@ $profitPositive = (int) $summary['profit'] >= 0;
 								<span class="quotes-status quotes-status-<?= h($statusKey) ?>"><?= h($statusLabel) ?></span>
 								<div class="quotes-row-actions">
 									<a href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Abrir</a>
+									<?php if (!empty($quote['sent_at']) || in_array($statusKey, ['enviada', 'vista', 'aceptada', 'rechazada'], true)): ?>
+										<a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/reenviar')) ?>">Reenviar</a>
+									<?php endif; ?>
 									<?php if (!empty($quote['last_email_html'])): ?>
 										<a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Correo</a>
 									<?php endif; ?>

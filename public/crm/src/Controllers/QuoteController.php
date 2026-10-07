@@ -202,16 +202,41 @@ final class QuoteController
 	/** Pantalla previa: contactos, Cc y vista del correo antes de enviar. */
 	public function prepareSend(string $id): void
 	{
-		$quote = Quote::find((int) $id);
+		$this->renderSendForm((int) $id, false);
+	}
+
+	/** Reenvío directo: misma cotización y número, sin crear REV. */
+	public function prepareResend(string $id): void
+	{
+		$this->renderSendForm((int) $id, true);
+	}
+
+	public function send(string $id): void
+	{
+		Csrf::check();
+		$this->deliver((int) $id, false);
+	}
+
+	public function resend(string $id): void
+	{
+		Csrf::check();
+		$this->deliver((int) $id, true);
+	}
+
+	/** @param bool $directResend true = reutilizar la cotización sin fork/REV */
+	private function renderSendForm(int $id, bool $directResend): void
+	{
+		$quote = Quote::find($id);
 		if (!$quote) {
 			Http::redirect('/');
 		}
 		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
-		if (in_array((string) $quote['status'], ['aceptada', 'rechazada'], true)) {
-			View::flash('error', 'Esa cotización ya fue respondida y no se puede enviar de nuevo.');
-			Http::redirect('/cotizaciones/' . $id);
+		$status = (string) $quote['status'];
+		if (!$directResend && in_array($status, ['aceptada', 'rechazada'], true)) {
+			View::flash('error', 'Esa cotización ya fue respondida. Usa «Reenviar cotización» para mandarla otra vez sin nueva versión.');
+			Http::redirect('/cotizaciones/' . $id . '/reenviar');
 		}
-		$items = Quote::items((int) $id);
+		$items = Quote::items($id);
 		$hasItems = false;
 		foreach ($items as $item) {
 			if (Quote::itemLabel($item) !== '') {
@@ -242,9 +267,9 @@ final class QuoteController
 		$html = Mailer::quoteHtml($quote, $items, $client, $url, $user);
 		$version = trim((string) ($quote['revision'] ?? ''));
 		$subject = 'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' — Mizo';
-		$alreadySent = !empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true);
+		$alreadySent = !empty($quote['sent_at']) || in_array($status, ['enviada', 'vista', 'aceptada', 'rechazada'], true);
 		View::render('quotes/send', [
-			'title' => 'Enviar ' . $quote['number'],
+			'title' => ($directResend ? 'Reenviar ' : 'Enviar ') . $quote['number'],
 			'client' => $client,
 			'quote' => $quote,
 			'items' => $items,
@@ -253,15 +278,10 @@ final class QuoteController
 			'emailHtml' => $html,
 			'publicUrl' => $url,
 			'alreadySent' => $alreadySent,
+			'directResend' => $directResend,
 			'selectedContact' => (int) ($quote['contact_id'] ?? 0),
 			'selectedCc' => Mime::emailsFromString((string) ($quote['sent_cc'] ?? '')),
 		]);
-	}
-
-	public function send(string $id): void
-	{
-		Csrf::check();
-		$this->deliver((int) $id);
 	}
 
 	/** Ver el último correo enviado de esta cotización. */
@@ -537,17 +557,19 @@ final class QuoteController
 		];
 	}
 
-	private function deliver(int $quoteId): void
+	/** @param bool $directResend true = misma cotización/número, sin crear REV */
+	private function deliver(int $quoteId, bool $directResend = false): void
 	{
 		$quote = Quote::find($quoteId);
 		if (!$quote) {
 			Http::redirect('/');
 		}
-		$alreadySent = !empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista'], true);
+		$alreadySent = !empty($quote['sent_at']) || in_array((string) $quote['status'], ['enviada', 'vista', 'aceptada', 'rechazada'], true);
 		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
-		if (in_array((string) $quote['status'], ['aceptada', 'rechazada'], true)) {
-			View::flash('error', 'Esa cotización ya fue respondida y no se puede enviar de nuevo.');
-			Http::redirect('/cotizaciones/' . $quoteId);
+		$failPath = $directResend ? '/cotizaciones/' . $quoteId . '/reenviar' : '/cotizaciones/' . $quoteId . '/enviar';
+		if (!$directResend && in_array((string) $quote['status'], ['aceptada', 'rechazada'], true)) {
+			View::flash('error', 'Esa cotización ya fue respondida. Usa «Reenviar cotización» para mandarla sin nueva versión.');
+			Http::redirect('/cotizaciones/' . $quoteId . '/reenviar');
 		}
 
 		$recipients = $this->recipientsFromSendPost((int) $client['id'], $quote);
@@ -555,18 +577,18 @@ final class QuoteController
 		$cc = $recipients['cc'];
 		$contactId = $recipients['contact_id'];
 
-		// Reenvío: nueva fila en listados (cliente + cotizaciones); la anterior se conserva.
-		if ($alreadySent) {
+		// Nueva versión (REV): crea fila aparte. El reenvío directo salta este paso.
+		if ($alreadySent && !$directResend) {
 			$postedRev = strtoupper(trim(Http::string('revision', 24)));
 			$postedRev = preg_replace('/\s+/', '-', $postedRev) ?? '';
 			if ($postedRev === '' || !preg_match('/^[A-Z0-9][A-Z0-9\-]{0,23}$/', $postedRev)) {
 				View::flash('error', 'Indica la versión con letras y números, por ejemplo REV-01 o OC.');
-				Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
+				Http::redirect($failPath);
 			}
 			$forkId = Quote::forkRevision($quoteId, Auth::id(), $postedRev);
 			if (!$forkId) {
 				View::flash('error', 'No se pudo crear la nueva versión para enviar.');
-				Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
+				Http::redirect($failPath);
 			}
 			$quoteId = $forkId;
 			$alreadySent = false;
@@ -579,10 +601,13 @@ final class QuoteController
 			'updated_at' => date('c'),
 			'updated_by' => Auth::id(),
 		];
-		$postedRev = strtoupper(trim(Http::string('revision', 24)));
-		$postedRev = preg_replace('/\s+/', '-', $postedRev) ?? '';
-		if ($postedRev !== '' && preg_match('/^[A-Z0-9][A-Z0-9\-]{0,23}$/', $postedRev)) {
-			$fieldsPre['revision'] = $postedRev;
+		// En reenvío directo no tocamos revision/number; en envío normal sí se puede fijar REV.
+		if (!$directResend) {
+			$postedRev = strtoupper(trim(Http::string('revision', 24)));
+			$postedRev = preg_replace('/\s+/', '-', $postedRev) ?? '';
+			if ($postedRev !== '' && preg_match('/^[A-Z0-9][A-Z0-9\-]{0,23}$/', $postedRev)) {
+				$fieldsPre['revision'] = $postedRev;
+			}
 		}
 		Quote::update($quoteId, $fieldsPre);
 
@@ -604,7 +629,7 @@ final class QuoteController
 		}
 		if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
 			View::flash('error', 'Elige un destinatario con correo válido.');
-			Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
+			Http::redirect($failPath);
 		}
 
 		$quote = ClientContact::applyToQuote($quote);
@@ -652,10 +677,10 @@ final class QuoteController
 				$hint .= ' PDF: ' . $pdfSkipped;
 			}
 			View::flash('error', 'No se pudo enviar el correo. ' . $hint . ' La cotización quedó guardada.');
-			Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
+			Http::redirect($failPath);
 		}
+		$prevStatus = (string) ($quote['status'] ?? '');
 		$fields = [
-			'status' => 'enviada',
 			'sent_at' => date('c'),
 			'sent_to' => $to,
 			'sent_cc' => $cc,
@@ -664,16 +689,23 @@ final class QuoteController
 			'updated_at' => date('c'),
 			'updated_by' => Auth::id(),
 		];
+		// Reenvío directo no cambia aceptada/rechazada; solo actualiza destinatario y copia del correo.
+		if (!in_array($prevStatus, ['aceptada', 'rechazada'], true)) {
+			$fields['status'] = 'enviada';
+		}
 		if ($mailId > 0) {
 			$fields['last_mail_id'] = $mailId;
 		}
 		Quote::update((int) $quote['id'], $fields);
-		// Siempre: si el primer envío no movió la tarjeta (roles rotos, etc.), el reenvío la corrige.
-		\MizoCrm\Models\Pipeline::onQuoteSent((int) $quote['deal_id']);
+		if (!$directResend || !in_array($prevStatus, ['aceptada', 'rechazada'], true)) {
+			\MizoCrm\Models\Pipeline::onQuoteSent((int) $quote['deal_id']);
+		}
 		$ccNote = $cc !== '' ? ' (cc ' . $cc . ')' : '';
+		$actionLabel = $directResend ? 'reenviada' : 'enviada';
 		Activity::log(
 			'quote_sent',
-			'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' enviada a ' . $to . $ccNote . '.',
+			'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' ' . $actionLabel . ' a ' . $to . $ccNote
+				. ($directResend ? ' (sin nueva versión).' : '.'),
 			Auth::id(),
 			(int) $quote['client_id'],
 			(int) $quote['deal_id'],
@@ -687,9 +719,13 @@ final class QuoteController
 		} else {
 			$pdfNote = '';
 		}
-		View::flash('ok', $alreadySent
-			? 'Versión ' . ($version !== '' ? $version : $quote['number']) . ' enviada a ' . $to . '.' . $pdfNote
-			: 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '.' . $pdfNote);
+		if ($directResend) {
+			View::flash('ok', 'Cotización ' . $quote['number'] . ' reenviada a ' . $to . ' (misma versión).' . $pdfNote);
+		} elseif ($alreadySent) {
+			View::flash('ok', 'Versión ' . ($version !== '' ? $version : $quote['number']) . ' enviada a ' . $to . '.' . $pdfNote);
+		} else {
+			View::flash('ok', 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '.' . $pdfNote);
+		}
 		Http::redirect('/cotizaciones/' . $quoteId . '/correo');
 	}
 

@@ -6,16 +6,25 @@ $contacts = $contacts ?? [];
 $selectedContact = (int) ($selectedContact ?? 0);
 $selectedCc = $selectedCc ?? [];
 $alreadySent = !empty($alreadySent);
+$directResend = !empty($directResend);
 $emailHtml = (string) ($emailHtml ?? '');
 $subject = (string) ($subject ?? '');
 $publicUrl = (string) ($publicUrl ?? '');
+$formAction = $directResend
+	? Http::url('/cotizaciones/' . $quote['id'] . '/reenviar')
+	: Http::url('/cotizaciones/' . $quote['id'] . '/enviar');
 ?>
 <div class="client-sheet quote-sheet quote-send-sheet">
 	<header class="quote-toolbar">
 		<div>
-			<p class="file-kicker">Enviar cotización</p>
+			<p class="file-kicker"><?= $directResend ? 'Reenviar cotización' : 'Enviar cotización' ?></p>
 			<h1><?= h($quote['number']) ?><?php if (trim((string) ($quote['revision'] ?? '')) !== ''): ?> · <?= h($quote['revision']) ?><?php endif; ?></h1>
-			<p><?= h($client['name']) ?> · Revisa destinatarios y el correo antes de enviar</p>
+			<p>
+				<?= h($client['name']) ?> ·
+				<?= $directResend
+					? 'Misma cotización y número; solo cambias destinatarios'
+					: 'Revisa destinatarios y el correo antes de enviar' ?>
+			</p>
 		</div>
 		<div class="quote-toolbar-actions">
 			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Volver a editar</a>
@@ -23,7 +32,13 @@ $publicUrl = (string) ($publicUrl ?? '');
 		</div>
 	</header>
 
-	<form class="quote-send-layout" method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">
+	<?php if ($directResend): ?>
+		<p class="quote-notice">Reenvío directo: se usa el PDF y el número actuales. No se crea REV ni otra fila en el listado. Si necesitas una versión nueva (REV-01, OC…), usa <a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">Enviar revisión</a>.</p>
+	<?php elseif ($alreadySent): ?>
+		<p class="quote-notice">Esta cotización ya se envió. Aquí crearás una <strong>nueva versión</strong> (REV). Para mandar la misma sin cambiar el número, usa <a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/reenviar')) ?>">Reenviar cotización</a>.</p>
+	<?php endif; ?>
+
+	<form class="quote-send-layout" method="post" action="<?= h($formAction) ?>">
 		<?= Csrf::field() ?>
 
 		<section class="quote-block is-solid quote-send-panel">
@@ -35,8 +50,8 @@ $publicUrl = (string) ($publicUrl ?? '');
 			</div>
 			<div class="quote-send-body">
 				<?php
-				$showRevision = !empty($alreadySent) || trim((string) ($quote['revision'] ?? '')) !== '';
-				$revisionRequired = !empty($alreadySent);
+				$showRevision = !$directResend && ($alreadySent || trim((string) ($quote['revision'] ?? '')) !== '');
+				$revisionRequired = !$directResend && $alreadySent;
 				?>
 				<?php if ($showRevision): ?>
 					<label>
@@ -122,7 +137,13 @@ $publicUrl = (string) ($publicUrl ?? '');
 
 		<div class="quote-send-actions">
 			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'])) ?>">Cancelar</a>
-			<button class="btn btn-word" type="submit"><?= $alreadySent ? 'Enviar revisión' : 'Confirmar y enviar' ?></button>
+			<?php if ($directResend): ?>
+				<button class="btn btn-word" type="submit">Reenviar cotización</button>
+			<?php elseif ($alreadySent): ?>
+				<button class="btn btn-word" type="submit">Enviar revisión</button>
+			<?php else: ?>
+				<button class="btn btn-word" type="submit">Confirmar y enviar</button>
+			<?php endif; ?>
 		</div>
 	</form>
 </div>

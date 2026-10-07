@@ -15,7 +15,7 @@ $onClients = str_starts_with($path, '/clientes') || str_starts_with($path, '/cot
 $onCatalog = str_starts_with($path, '/catalogo');
 $onMarketing = str_starts_with($path, '/marketing');
 $onQuoteEditor = str_ends_with($path, '/cotizacion')
-	|| (bool) preg_match('#^/cotizaciones/\d+(?:/(?:enviar|correo|copiar|preview))?$#', $path);
+	|| (bool) preg_match('#^/cotizaciones/\d+(?:/(?:enviar|reenviar|correo|copiar|preview))?$#', $path);
 ?>
 <!doctype html>
 <html lang="es-CL">

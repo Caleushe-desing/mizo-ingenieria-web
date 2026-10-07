@@ -91,6 +91,8 @@ final class App
 			['GET', '#^/clientes$#', [Controllers\ClientController::class, 'index']],
 			['GET', '#^/cotizaciones/(\d+)/preview$#', [Controllers\QuoteController::class, 'preview']],
 			['GET', '#^/cotizaciones/(\d+)/correo$#', [Controllers\QuoteController::class, 'email']],
+			['GET', '#^/cotizaciones/(\d+)/reenviar$#', [Controllers\QuoteController::class, 'prepareResend']],
+			['POST', '#^/cotizaciones/(\d+)/reenviar$#', [Controllers\QuoteController::class, 'resend']],
 			['GET', '#^/cotizaciones/(\d+)/enviar$#', [Controllers\QuoteController::class, 'prepareSend']],
 			['POST', '#^/cotizaciones/(\d+)/enviar$#', [Controllers\QuoteController::class, 'send']],
 			['GET', '#^/cotizaciones/(\d+)/copiar$#', [Controllers\QuoteController::class, 'prepareCopy']],

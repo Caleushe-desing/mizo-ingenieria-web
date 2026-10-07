@@ -36,13 +36,12 @@ use MizoCrm\Http;
 				<p>Respuesta: <?= $quote['responded_at'] ? when($quote['responded_at']) : '—' ?></p>
 				<p><a href="<?= h($publicUrl) ?>" target="_blank" rel="noopener">Abrir enlace del cliente</a></p>
 				<p><a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/preview')) ?>">Ver como cliente</a></p>
-				<?php if (!in_array($quote['status'], ['aceptada', 'rechazada'], true)): ?>
-					<form class="form" method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">
-						<?= Csrf::field() ?>
-						<label><span>Enviar a</span><input name="sent_to" type="email" value="<?= h($quote['sent_to'] ?: $client['email']) ?>" required></label>
-						<button class="btn" type="submit">Enviar cotización</button>
-					</form>
-				<?php endif; ?>
+				<p>
+					<a class="btn" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/reenviar')) ?>">Reenviar cotización</a>
+					<?php if (!in_array($quote['status'], ['aceptada', 'rechazada'], true)): ?>
+						<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">Nueva versión (REV)</a>
+					<?php endif; ?>
+				</p>
 			</div>
 		</div>
 		<div class="card">

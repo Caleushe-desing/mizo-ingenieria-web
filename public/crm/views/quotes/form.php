@@ -69,15 +69,20 @@ foreach ($contacts as $c) {
 			<?php if ($quote && trim((string) ($quote['last_email_html'] ?? '')) !== ''): ?>
 				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Ver correo enviado</a>
 			<?php endif; ?>
+			<?php if ($quote && ($sentAlready || $locked)): ?>
+				<a class="btn btn-word" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/reenviar')) ?>">Reenviar cotización</a>
+			<?php endif; ?>
 			<?php if (!$locked): ?>
 				<button class="btn btn-excel" type="submit" form="quote-form" name="intent" value="save">Guardar</button>
-				<button class="btn btn-word" type="submit" form="quote-form" name="intent" value="send"><?= $sentAlready ? 'Revisar y enviar' : 'Revisar y enviar' ?></button>
+				<button class="btn btn-word" type="submit" form="quote-form" name="intent" value="send"><?= $sentAlready ? 'Nueva versión' : 'Revisar y enviar' ?></button>
 			<?php endif; ?>
 		</div>
 	</header>
 
 	<?php if ($sentAlready && !$locked): ?>
-		<p class="quote-notice">Esta cotización ya se envió. Al enviar una versión (REV-01, OC u otra) puedes elegir contactos, ver el correo y confirmar antes de mandarlo.</p>
+		<p class="quote-notice">Esta cotización ya se envió. Usa <strong>Reenviar cotización</strong> para mandarla otra vez sin cambiar el número, o <strong>Nueva versión</strong> para crear un REV-01 / OC.</p>
+	<?php elseif ($locked): ?>
+		<p class="quote-notice">Puedes <a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/reenviar')) ?>">reenviar esta cotización</a> a otro contacto sin crear una versión nueva.</p>
 	<?php endif; ?>
 
 	<form id="quote-form" class="form quote-work" method="post" action="<?= h($action) ?>">
@@ -329,8 +334,9 @@ foreach ($contacts as $c) {
 			<?php if (trim((string) ($quote['last_email_html'] ?? '')) !== ''): ?>
 				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/correo')) ?>">Ver correo enviado</a>
 			<?php endif; ?>
+			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/reenviar')) ?>">Reenviar cotización</a>
 			<?php if (!$locked): ?>
-				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">Revisar envío / contactos</a>
+				<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">Nueva versión (REV)</a>
 			<?php endif; ?>
 			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/copiar')) ?>">Copiar cotización</a>
 			<form method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/eliminar')) ?>" onsubmit="return confirm('¿Eliminar la cotización <?= h($quote['number']) ?>?');">
