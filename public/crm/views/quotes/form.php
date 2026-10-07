@@ -85,6 +85,38 @@ foreach ($contacts as $c) {
 		<p class="quote-notice">Puedes <a href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/reenviar')) ?>">reenviar esta cotización</a> a otro contacto sin crear una versión nueva.</p>
 	<?php endif; ?>
 
+	<?php if ($quote): ?>
+		<?php
+		$currentStatus = (string) ($quote['status'] ?? 'borrador');
+		$statusUi = $currentStatus === 'vista' ? 'enviada' : $currentStatus;
+		?>
+		<section class="quote-status-panel" aria-label="Estado de la cotización">
+			<div class="quote-status-panel-hd">
+				<div>
+					<strong>Estado comercial</strong>
+					<p class="muted">Si el cliente confirmó por teléfono, WhatsApp o correo externo, márcalo aquí. El tablero y el historial se actualizan al instante.</p>
+				</div>
+				<span class="quotes-status quotes-status-<?= h($currentStatus) ?>"><?= h(quote_status_label($currentStatus)) ?></span>
+			</div>
+			<form class="quote-status-form" method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/estado')) ?>">
+				<?= Csrf::field() ?>
+				<label>
+					<span>Cambiar a</span>
+					<select name="status" required>
+						<option value="pendiente" <?= in_array($statusUi, ['borrador', 'enviada', 'vista'], true) ? 'selected' : '' ?>>Pendiente</option>
+						<option value="aceptada" <?= $statusUi === 'aceptada' ? 'selected' : '' ?>>Aceptada</option>
+						<option value="rechazada" <?= $statusUi === 'rechazada' ? 'selected' : '' ?>>Rechazada</option>
+					</select>
+				</label>
+				<label class="quote-status-note">
+					<span>Nota (opcional)</span>
+					<input name="note" maxlength="200" placeholder="Ej: confirmó por WhatsApp">
+				</label>
+				<button class="btn btn-word" type="submit">Actualizar estado</button>
+			</form>
+		</section>
+	<?php endif; ?>
+
 	<form id="quote-form" class="form quote-work" method="post" action="<?= h($action) ?>">
 		<?= Csrf::field() ?>
 

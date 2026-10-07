@@ -307,6 +307,98 @@ final class QuoteController
 		]);
 	}
 
+	/**
+	 * Cambio manual de estado desde el CRM (teléfono, WhatsApp, correo externo).
+	 * Pendiente = enviada (esperando respuesta del cliente).
+	 */
+	public function setStatus(string $id): void
+	{
+		Csrf::check();
+		$quote = Quote::find((int) $id);
+		if (!$quote) {
+			Http::redirect('/');
+		}
+		$client = Auth::requireClient(Client::find((int) $quote['client_id']));
+		$raw = Http::string('status', 20);
+		// Alias de UI: pendiente → enviada
+		$status = $raw === 'pendiente' ? 'enviada' : $raw;
+		$allowed = ['enviada', 'aceptada', 'rechazada'];
+		if (!in_array($status, $allowed, true)) {
+			View::flash('error', 'Estado no válido. Elige Pendiente, Aceptada o Rechazada.');
+			Http::redirect('/cotizaciones/' . $id);
+		}
+		$prev = (string) ($quote['status'] ?? '');
+		if ($prev === $status) {
+			View::flash('ok', 'La cotización ya estaba en «' . quote_status_label($status) . '».');
+			Http::redirect('/cotizaciones/' . $id);
+		}
+
+		$now = date('c');
+		$fields = [
+			'status' => $status,
+			'updated_at' => $now,
+			'updated_by' => Auth::id(),
+		];
+		if ($status === 'aceptada' || $status === 'rechazada') {
+			$fields['responded_at'] = $now;
+			if (empty($quote['sent_at'])) {
+				$fields['sent_at'] = $now;
+			}
+		} else {
+			// Pendiente: limpia respuesta para reabrir el ciclo.
+			$fields['responded_at'] = null;
+			if (empty($quote['sent_at'])) {
+				$fields['sent_at'] = $now;
+			}
+		}
+		Quote::update((int) $quote['id'], $fields);
+
+		$dealId = (int) $quote['deal_id'];
+		$number = (string) $quote['number'];
+		$rev = trim((string) ($quote['revision'] ?? ''));
+		$label = $number . ($rev !== '' ? ' ' . $rev : '');
+		$note = trim(Http::string('note', 200));
+		$suffix = $note !== '' ? ' Motivo: ' . $note : '';
+
+		if ($status === 'aceptada') {
+			\MizoCrm\Models\Pipeline::onQuoteAccepted($dealId, (int) $quote['total'], 'manual');
+			Activity::log(
+				'quote_accepted',
+				'Cotización ' . $label . ' marcada como Aceptada en el CRM (manual).' . $suffix,
+				Auth::id(),
+				(int) $client['id'],
+				$dealId,
+				(int) $quote['id']
+			);
+			View::flash('ok', 'Cotización ' . $label . ' marcada como Aceptada. El tablero se actualizó.');
+		} elseif ($status === 'rechazada') {
+			\MizoCrm\Models\Pipeline::onQuoteRejected($dealId, 'manual');
+			Activity::log(
+				'quote_rejected',
+				'Cotización ' . $label . ' marcada como Rechazada en el CRM (manual).' . $suffix,
+				Auth::id(),
+				(int) $client['id'],
+				$dealId,
+				(int) $quote['id']
+			);
+			View::flash('ok', 'Cotización ' . $label . ' marcada como Rechazada.');
+		} else {
+			\MizoCrm\Models\Pipeline::onQuotePending($dealId);
+			\MizoCrm\Models\Pipeline::onQuoteSent($dealId);
+			Activity::log(
+				'quote_updated',
+				'Cotización ' . $label . ' vuelta a Pendiente en el CRM (manual).' . $suffix,
+				Auth::id(),
+				(int) $client['id'],
+				$dealId,
+				(int) $quote['id']
+			);
+			View::flash('ok', 'Cotización ' . $label . ' quedó en Pendiente (enviada).');
+		}
+		Client::update((int) $client['id'], ['updated_at' => $now]);
+		Http::redirect('/cotizaciones/' . $id);
+	}
+
 	/** Elige proyecto destino antes de copiar. */
 	public function prepareCopy(string $id): void
 	{

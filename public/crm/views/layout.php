@@ -24,7 +24,7 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=68">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=69">
 	<?php if ($onMarketing): ?>
 		<link rel="stylesheet" href="<?= h(Http::url('/assets/marketing.css')) ?>?v=7">
 	<?php endif; ?>

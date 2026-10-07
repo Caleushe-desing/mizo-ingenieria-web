@@ -42,6 +42,25 @@ use MizoCrm\Http;
 						<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/enviar')) ?>">Nueva versión (REV)</a>
 					<?php endif; ?>
 				</p>
+				<form class="form quote-status-form" method="post" action="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/estado')) ?>" style="margin-top:14px">
+					<?= Csrf::field() ?>
+					<label>
+						<span>Estado comercial</span>
+						<select name="status" required>
+							<?php
+							$statusUi = in_array((string) $quote['status'], ['borrador', 'vista'], true) ? 'enviada' : (string) $quote['status'];
+							?>
+							<option value="pendiente" <?= in_array($statusUi, ['enviada', 'borrador'], true) || $quote['status'] === 'vista' ? 'selected' : '' ?>>Pendiente</option>
+							<option value="aceptada" <?= $quote['status'] === 'aceptada' ? 'selected' : '' ?>>Aceptada</option>
+							<option value="rechazada" <?= $quote['status'] === 'rechazada' ? 'selected' : '' ?>>Rechazada</option>
+						</select>
+					</label>
+					<label>
+						<span>Nota (opcional)</span>
+						<input name="note" maxlength="200" placeholder="Ej: aceptó por teléfono">
+					</label>
+					<button class="btn" type="submit">Actualizar estado</button>
+				</form>
 			</div>
 		</div>
 		<div class="card">

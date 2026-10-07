@@ -122,7 +122,8 @@ final class Pipeline extends Record
 		}
 	}
 
-	public static function onQuoteAccepted(int $dealId, int $total): void
+	/** @param 'client'|'manual' $source */
+	public static function onQuoteAccepted(int $dealId, int $total, string $source = 'client'): void
 	{
 		self::ensureRoles();
 		$deal = Deal::find($dealId);
@@ -136,11 +137,15 @@ final class Pipeline extends Record
 		}
 		Deal::update($dealId, $fields);
 		if (isset($fields['stage'])) {
-			Activity::log('stage', 'El cliente aceptó el presupuesto. La tarjeta pasó a «' . self::label('accepted') . '».', null, (int) $deal['client_id'], $dealId);
+			$msg = $source === 'manual'
+				? 'Cotización marcada como aceptada en el CRM. La tarjeta pasó a «' . self::label('accepted') . '».'
+				: 'El cliente aceptó el presupuesto. La tarjeta pasó a «' . self::label('accepted') . '».';
+			Activity::log('stage', $msg, null, (int) $deal['client_id'], $dealId);
 		}
 	}
 
-	public static function onQuoteRejected(int $dealId): void
+	/** @param 'client'|'manual' $source */
+	public static function onQuoteRejected(int $dealId, string $source = 'client'): void
 	{
 		self::ensureRoles();
 		$deal = Deal::find($dealId);
@@ -148,9 +153,39 @@ final class Pipeline extends Record
 			return;
 		}
 		if (self::rank(self::roleOf((string) $deal['stage'])) >= self::rank('accepted')) {
+			// Si estaba aceptada y ahora se rechaza manualmente, vuelve a presupuesto enviado.
+			if ($source === 'manual' && self::roleOf((string) $deal['stage']) === 'accepted') {
+				self::move(
+					$deal,
+					'sent',
+					'Cotización marcada como rechazada en el CRM. La tarjeta volvió a «' . self::label('sent') . '».'
+				);
+			}
 			return;
 		}
-		self::move($deal, 'sent', 'El cliente no aceptó el presupuesto. La tarjeta sigue en «' . self::label('sent') . '».');
+		$msg = $source === 'manual'
+			? 'Cotización marcada como rechazada en el CRM. La tarjeta sigue en «' . self::label('sent') . '».'
+			: 'El cliente no aceptó el presupuesto. La tarjeta sigue en «' . self::label('sent') . '».';
+		self::move($deal, 'sent', $msg);
+	}
+
+	/** Vuelve a pendiente (presupuesto enviado) si la tarjeta estaba en aceptada y aún no facturada. */
+	public static function onQuotePending(int $dealId): void
+	{
+		self::ensureRoles();
+		$deal = Deal::find($dealId);
+		if (!$deal || !empty($deal['archived'])) {
+			return;
+		}
+		$role = self::roleOf((string) $deal['stage']);
+		if ($role !== 'accepted') {
+			return;
+		}
+		self::move(
+			$deal,
+			'sent',
+			'Cotización vuelta a pendiente en el CRM. La tarjeta regresó a «' . self::label('sent') . '».'
+		);
 	}
 
 	/**

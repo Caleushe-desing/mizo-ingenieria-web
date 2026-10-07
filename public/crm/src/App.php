@@ -98,6 +98,7 @@ final class App
 			['GET', '#^/cotizaciones/(\d+)/copiar$#', [Controllers\QuoteController::class, 'prepareCopy']],
 			['POST', '#^/cotizaciones/(\d+)/copiar$#', [Controllers\QuoteController::class, 'duplicate']],
 			['POST', '#^/cotizaciones/(\d+)/eliminar$#', [Controllers\QuoteController::class, 'destroy']],
+			['POST', '#^/cotizaciones/(\d+)/estado$#', [Controllers\QuoteController::class, 'setStatus']],
 			['GET', '#^/cotizaciones/(\d+)$#', [Controllers\QuoteController::class, 'show']],
 			['POST', '#^/cotizaciones/(\d+)$#', [Controllers\QuoteController::class, 'update']],
 			['GET', '#^/cotizaciones$#', [Controllers\QuoteController::class, 'index']],
