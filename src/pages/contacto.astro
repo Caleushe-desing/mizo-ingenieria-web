@@ -132,7 +132,7 @@ const fieldClass =
 							</label>
 						</div>
 						<div class="mt-7 flex flex-col gap-3 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-							<button type="submit" class="mizo-btn">
+							<button type="submit" class="mizo-btn" data-ads-conversion>
 								Enviar solicitud
 							</button>
 							<p class="text-xs leading-5 text-ink/55">Respuesta en horario hábil · Frutillar y Santiago</p>
@@ -192,6 +192,10 @@ const fieldClass =
 					if (!response.ok) throw new Error('send-failed');
 					form.classList.add('hidden');
 					ok.classList.remove('hidden');
+					// Conversión Google Ads solo tras envío exitoso (sitio público).
+					if (typeof gtag_report_conversion === 'function') {
+						gtag_report_conversion();
+					}
 				} catch {
 					error.classList.remove('hidden');
 				}

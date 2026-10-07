@@ -56,6 +56,25 @@ const ogImageURL = new URL(ogImage, Astro.site).href;
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
 			gtag('config', 'AW-18499749972');
+
+			function gtag_report_conversion(url) {
+				var callback = function () {
+					if (typeof url != 'undefined') {
+						window.location = url;
+					}
+				};
+				if (typeof gtag !== 'function') {
+					callback();
+					return false;
+				}
+				gtag('event', 'conversion', {
+					send_to: 'AW-18499749972/JgvaCJquwZQdENSQr_VE',
+					value: 1.0,
+					currency: 'CLP',
+					event_callback: callback
+				});
+				return false;
+			}
 		</script>
 	</head>
 	<body class="has-mobile-contact-bar flex min-h-screen flex-col text-ink">
