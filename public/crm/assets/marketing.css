@@ -18,7 +18,9 @@ body.is-marketing .workspace:has(.mkt-free) {
 	border: 1px solid #1a1a1a;
 	color: #e8e8e8;
 	padding: 0;
-	min-height: calc(100vh - 180px);
+	height: calc(100vh - 168px);
+	min-height: 520px;
+	max-height: calc(100vh - 168px);
 }
 .mkt-ps .mkt-canvas-shell {
 	background:
@@ -389,7 +391,8 @@ body.is-marketing .workspace:has(.mkt-free) {
 	border-radius: 0;
 	padding: 16px;
 	flex: 1;
-	min-height: 420px;
+	min-height: 0;
+	height: 100%;
 	display: grid;
 	place-items: center;
 	overflow: hidden;
@@ -849,6 +852,12 @@ body.mkt-preview-open { overflow: hidden; }
 	.mkt-ps-stage { grid-column: 1 / -1; }
 	.mkt-ps-panel-right { grid-column: 1 / -1; max-height: 36vh; }
 	.mkt-free-studio { min-height: auto; overflow: visible; }
+	.mkt-free-studio.mkt-ps {
+		height: auto;
+		max-height: none;
+		min-height: 0;
+	}
+	.mkt-ps .mkt-canvas-shell { min-height: 68vh; height: 68vh; }
 	.mkt-pro-sidebar { max-height: 42vh; }
 	.mkt-canvas-shell { min-height: 360px; }
 }

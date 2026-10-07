@@ -129,13 +129,17 @@
 
 	function fitToScreen() {
 		if (!shell) return;
-		const pad = 16;
-		const availW = Math.max(120, shell.clientWidth - pad * 2);
-		const availH = Math.max(120, shell.clientHeight - pad * 2);
+		const pad = 20;
+		const availW = Math.max(80, shell.clientWidth - pad * 2);
+		const availH = Math.max(80, shell.clientHeight - pad * 2);
 		const zoom = Math.min(availW / W, availH / H);
-		displayZoom = Math.max(0.08, Math.min(1, zoom));
-		canvas.setDimensions({ width: W * displayZoom, height: H * displayZoom });
-		canvas.setZoom(displayZoom);
+		displayZoom = (isFinite(zoom) && zoom > 0) ? zoom : 0.2;
+		canvas.setZoom(1);
+		canvas.setDimensions({ width: W, height: H });
+		canvas.setDimensions({
+			width: Math.max(1, Math.round(W * displayZoom)),
+			height: Math.max(1, Math.round(H * displayZoom)),
+		}, { cssOnly: true });
 		canvas.calcOffset();
 		canvas.requestRenderAll();
 		updateSizeBadge();
@@ -150,9 +154,6 @@
 	}
 
 	function withExportZoom(fn) {
-		const prev = canvas.getZoom();
-		const prevW = canvas.getWidth();
-		const prevH = canvas.getHeight();
 		canvas.setZoom(1);
 		canvas.setDimensions({ width: W, height: H });
 		canvas.requestRenderAll();
@@ -160,9 +161,7 @@
 		try {
 			result = fn();
 		} finally {
-			canvas.setZoom(prev);
-			canvas.setDimensions({ width: prevW, height: prevH });
-			canvas.requestRenderAll();
+			fitToScreen();
 		}
 		return result;
 	}
