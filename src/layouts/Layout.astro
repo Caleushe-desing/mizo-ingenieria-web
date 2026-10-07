@@ -49,6 +49,14 @@ const ogImageURL = new URL(ogImage, Astro.site).href;
 		<meta name="twitter:description" content={description} />
 		<meta name="twitter:image" content={ogImageURL} />
 		{jsonLd ? <SeoJsonLd data={jsonLd} /> : null}
+		<!-- Google tag (gtag.js) — solo sitio público; el CRM no usa este layout -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18499749972"></script>
+		<script is:inline>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'AW-18499749972');
+		</script>
 	</head>
 	<body class="has-mobile-contact-bar flex min-h-screen flex-col text-ink">
 		<a
