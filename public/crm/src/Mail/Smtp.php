@@ -19,10 +19,12 @@ final class Smtp
 			throw new RuntimeException('No hay destinatarios válidos.');
 		}
 
+		// Cotizaciones con PDF (Dompdf) superan 100 KB: hace falta más tiempo y escritura completa.
+		$timeout = strlen($rfc822) > 80_000 ? 90 : 30;
 		if ($port === 465) {
-			$fp = Socket::open('ssl://' . $host . ':' . $port);
+			$fp = Socket::open('ssl://' . $host . ':' . $port, $timeout);
 		} else {
-			$fp = Socket::open('tcp://' . $host . ':' . $port);
+			$fp = Socket::open('tcp://' . $host . ':' . $port, $timeout);
 		}
 
 		try {
@@ -42,11 +44,29 @@ final class Smtp
 			}
 			self::cmd($fp, 'DATA', 354);
 			$payload = preg_replace('/^\./m', '..', str_replace("\n", "\r\n", str_replace("\r\n", "\n", $rfc822))) ?? $rfc822;
-			fwrite($fp, $payload . "\r\n.\r\n");
+			self::writeAll($fp, $payload . "\r\n.\r\n");
 			self::expect($fp, 250);
-			fwrite($fp, "QUIT\r\n");
+			self::writeAll($fp, "QUIT\r\n");
 		} finally {
 			fclose($fp);
+		}
+	}
+
+	/** fwrite puede escribir solo una parte del buffer; con PDF adjunto eso rompe el DATA SMTP. */
+	private static function writeAll($fp, string $data): void
+	{
+		$length = strlen($data);
+		$offset = 0;
+		while ($offset < $length) {
+			$chunk = fwrite($fp, substr($data, $offset));
+			if ($chunk === false || $chunk === 0) {
+				$meta = stream_get_meta_data($fp);
+				if (!empty($meta['timed_out'])) {
+					throw new RuntimeException('Tiempo de espera agotado al enviar el correo con adjunto.');
+				}
+				throw new RuntimeException('No se pudo completar el envío del correo al servidor SMTP.');
+			}
+			$offset += $chunk;
 		}
 	}
 

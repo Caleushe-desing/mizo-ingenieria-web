@@ -622,16 +622,35 @@ final class QuoteController
 		$html = Mailer::quoteHtml($quote, $items, $client, $url, $user);
 		$version = trim((string) ($quote['revision'] ?? ''));
 		$subject = 'Cotización ' . $quote['number'] . ($version !== '' ? ' ' . $version : '') . ' — Mizo';
+		@set_time_limit(120);
 		$attachments = [];
+		$pdfSkipped = '';
 		$pdf = \MizoCrm\QuotePdf::attachment($quote, $items);
 		if ($pdf !== null) {
 			$attachments[] = $pdf;
+		} elseif (\MizoCrm\QuotePdf::lastError() !== '') {
+			$pdfSkipped = \MizoCrm\QuotePdf::lastError();
 		}
 		$mailId = Mailer::send($to, $subject, $html, $user['email'] ?? '', $cc, $attachments);
+		// Tras el cambio a Dompdf el PDF es más pesado: si SMTP falla solo con adjunto, reintenta sin él.
+		if ($mailId === false && $attachments !== []) {
+			$smtpError = Mailer::lastError();
+			$mailId = Mailer::send($to, $subject, $html, $user['email'] ?? '', $cc, []);
+			if ($mailId !== false) {
+				$attachments = [];
+				$pdfSkipped = $smtpError !== '' ? $smtpError : 'el servidor rechazó el adjunto';
+			}
+		}
 		if ($mailId === false) {
-			$hint = \MizoCrm\Models\Mailbox::forUser(Auth::id())
-				? 'Revisa la clave de tu casilla en Correo.'
-				: 'Conecta tu casilla en Correo para que el cliente te responda ahí.';
+			$hint = Mailer::lastError();
+			if ($hint === '') {
+				$hint = \MizoCrm\Models\Mailbox::forUser(Auth::id())
+					? 'Revisa la clave de tu casilla en Correo.'
+					: 'Conecta tu casilla en Correo para que el cliente te responda ahí.';
+			}
+			if ($pdfSkipped !== '') {
+				$hint .= ' PDF: ' . $pdfSkipped;
+			}
 			View::flash('error', 'No se pudo enviar el correo. ' . $hint . ' La cotización quedó guardada.');
 			Http::redirect('/cotizaciones/' . $quoteId . '/enviar');
 		}
@@ -661,7 +680,13 @@ final class QuoteController
 			(int) $quote['id']
 		);
 		Client::update((int) $quote['client_id'], ['updated_at' => date('c')]);
-		$pdfNote = $attachments !== [] ? ' Con PDF adjunto.' : '';
+		if ($attachments !== []) {
+			$pdfNote = ' Con PDF adjunto.';
+		} elseif ($pdfSkipped !== '') {
+			$pdfNote = ' Sin PDF adjunto (' . $pdfSkipped . '). El cliente puede descargarlo desde el botón del correo.';
+		} else {
+			$pdfNote = '';
+		}
 		View::flash('ok', $alreadySent
 			? 'Versión ' . ($version !== '' ? $version : $quote['number']) . ' enviada a ' . $to . '.' . $pdfNote
 			: 'Cotización ' . $quote['number'] . ' enviada a ' . $to . '.' . $pdfNote);

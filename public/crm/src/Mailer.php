@@ -5,6 +5,13 @@ namespace MizoCrm;
 
 final class Mailer
 {
+	private static string $lastError = '';
+
+	public static function lastError(): string
+	{
+		return self::$lastError;
+	}
+
 	/**
 	 * Envía HTML. Con casilla conectada guarda copia en Enviados.
 	 * @param list<array{filename:string,mime:string,content:string}> $attachments
@@ -18,6 +25,7 @@ final class Mailer
 		string $cc = '',
 		array $attachments = [],
 	): int|false {
+		self::$lastError = '';
 		$user = Auth::user();
 		if ($user && Models\Mailbox::forUser((int) $user['id'])) {
 			try {
@@ -26,7 +34,11 @@ final class Mailer
 					$clientId = Models\MailMessage::clientIdFor((int) $user['id'], $cc);
 				}
 				return Models\Mailbox::deliver((int) $user['id'], $user, $to, $subject, $html, '', $clientId, $cc, $attachments);
-			} catch (\RuntimeException) {
+			} catch (\RuntimeException $e) {
+				self::$lastError = $e->getMessage();
+				return false;
+			} catch (\Throwable $e) {
+				self::$lastError = 'Error al enviar: ' . $e->getMessage();
 				return false;
 			}
 		}
@@ -36,6 +48,7 @@ final class Mailer
 			$rfc822 = Mail\Mime::build($fromName, $fromEmail, $to, $subject, $html, '', $cc, $attachments);
 			$split = preg_split("/\r\n\r\n/", $rfc822, 2);
 			if (!is_array($split) || count($split) < 2) {
+				self::$lastError = 'No se pudo armar el correo con el PDF adjunto.';
 				return false;
 			}
 			[$rawHeaders, $body] = $split;
@@ -51,6 +64,9 @@ final class Mailer
 			}
 			$encoded = '=?UTF-8?B?' . base64_encode($subject) . '?=';
 			$ok = @mail($to, $encoded, (string) $body, implode("\r\n", $pass));
+			if (!$ok) {
+				self::$lastError = 'mail() del servidor rechazó el envío con adjunto.';
+			}
 			return $ok ? 0 : false;
 		}
 		$from = $fromName . ' <' . $fromEmail . '>';
@@ -68,6 +84,9 @@ final class Mailer
 		}
 		$encoded = '=?UTF-8?B?' . base64_encode($subject) . '?=';
 		$ok = @mail($to, $encoded, $html, implode("\r\n", $headers));
+		if (!$ok) {
+			self::$lastError = 'mail() del servidor rechazó el envío.';
+		}
 		return $ok ? 0 : false;
 	}
 
