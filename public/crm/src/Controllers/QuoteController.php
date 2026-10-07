@@ -16,6 +16,7 @@ use MizoCrm\Models\ClientContact;
 use MizoCrm\Models\Deal;
 use MizoCrm\Models\Product;
 use MizoCrm\Models\Quote;
+use MizoCrm\Models\QuoteSend;
 use MizoCrm\View;
 
 final class QuoteController
@@ -172,6 +173,7 @@ final class QuoteController
 			'items' => $items,
 			'catalogProducts' => Product::forQuoting(),
 			'publicUrl' => App::absolute('/q/' . $quote['token']),
+			'sendHistory' => QuoteSend::forQuote((int) $quote['id']),
 		]);
 	}
 
@@ -281,6 +283,7 @@ final class QuoteController
 			'directResend' => $directResend,
 			'selectedContact' => (int) ($quote['contact_id'] ?? 0),
 			'selectedCc' => Mime::emailsFromString((string) ($quote['sent_cc'] ?? '')),
+			'sendHistory' => QuoteSend::forQuote((int) $quote['id']),
 		]);
 	}
 
@@ -304,6 +307,7 @@ final class QuoteController
 			'subject' => (string) ($quote['last_email_subject'] ?? ''),
 			'emailHtml' => $html,
 			'mailId' => (int) ($quote['last_mail_id'] ?? 0),
+			'sendHistory' => QuoteSend::forQuote((int) $quote['id']),
 		]);
 	}
 
@@ -803,6 +807,20 @@ final class QuoteController
 			(int) $quote['deal_id'],
 			(int) $quote['id']
 		);
+		try {
+			QuoteSend::record(
+				(int) $quote['id'],
+				Auth::id(),
+				$to,
+				$cc,
+				$contactId,
+				$directResend ? 'resend' : 'send',
+				is_int($mailId) ? $mailId : null,
+				$attachments !== []
+			);
+		} catch (\Throwable) {
+			// El correo ya salió; no bloquear por fallo de bitácora.
+		}
 		Client::update((int) $quote['client_id'], ['updated_at' => date('c')]);
 		if ($attachments !== []) {
 			$pdfNote = ' Con PDF adjunto.';

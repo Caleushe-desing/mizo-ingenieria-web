@@ -2718,6 +2718,45 @@ body.is-clients .quote-sheet [data-add-item] {
 	.quote-status-form label,
 	.quote-status-note { min-width: 100%; flex: 1 1 100%; }
 }
+.quote-send-log {
+	margin: 18px 0 8px;
+	padding: 14px 16px;
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+}
+.quote-send-log-hd strong { display: block; font-size: 14px; }
+.quote-send-log-hd .muted { margin: 4px 0 12px; font-size: 12px; }
+.quote-send-log-empty { margin: 12px 0; font-size: 13px; }
+.quote-send-log-table-wrap { overflow-x: auto; }
+.quote-send-log-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+.quote-send-log-table th,
+.quote-send-log-table td {
+	padding: 8px 10px;
+	border-bottom: 1px solid #eef2f7;
+	text-align: left;
+	vertical-align: top;
+}
+.quote-send-log-table th {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	color: #64748b;
+	font-weight: 600;
+}
+.quote-send-kind {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+}
+.quote-send-kind-send { background: #e8f1fb; color: #1d4f91; }
+.quote-send-kind-resend { background: #fff7ed; color: #9a4b08; }
 .quote-work .section-title { margin-top: 8px; }
 .sheet-edit textarea {
 	width: 100%;

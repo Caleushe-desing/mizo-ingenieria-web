@@ -360,6 +360,60 @@ foreach ($contacts as $c) {
 		</div>
 	</form>
 
+	<?php
+	$sendHistory = $sendHistory ?? [];
+	if ($quote && $sendHistory):
+	?>
+		<section class="quote-send-log" aria-label="Historial de envíos">
+			<div class="quote-send-log-hd">
+				<strong>Historial de envíos y reenvíos</strong>
+				<p class="muted">Bitácora de auditoría: fecha, usuario interno y destinatario. Los reenvíos no crean versión nueva.</p>
+			</div>
+			<div class="quote-send-log-table-wrap">
+				<table class="quote-send-log-table">
+					<thead>
+						<tr>
+							<th>Fecha y hora</th>
+							<th>Tipo</th>
+							<th>Enviado por</th>
+							<th>Destinatario</th>
+							<th>Cc</th>
+							<th>PDF</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php foreach ($sendHistory as $row): ?>
+						<?php
+						$kind = (string) ($row['kind'] ?? 'send');
+						$who = trim((string) ($row['user_name'] ?? '')) !== ''
+							? (string) $row['user_name']
+							: (trim((string) ($row['user_email'] ?? '')) !== '' ? (string) $row['user_email'] : 'Usuario');
+						$destName = trim((string) ($row['contact_name'] ?? ''));
+						$destEmail = trim((string) ($row['to_email'] ?? ''));
+						$dest = $destName !== '' ? ($destName . ' · ' . $destEmail) : $destEmail;
+						$cc = trim((string) ($row['cc_email'] ?? ''));
+						?>
+						<tr>
+							<td><?= h(when($row['sent_at'] ?? null, 'd-m-Y H:i')) ?></td>
+							<td>
+								<span class="quote-send-kind quote-send-kind-<?= h($kind) ?>">
+									<?= $kind === 'resend' ? 'Reenvío' : 'Envío' ?>
+								</span>
+							</td>
+							<td><?= h($who) ?></td>
+							<td><?= h($dest !== '' ? $dest : '—') ?></td>
+							<td><?= h($cc !== '' ? $cc : '—') ?></td>
+							<td><?= !empty($row['had_pdf']) ? 'Sí' : 'No' ?></td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		</section>
+	<?php elseif ($quote && !empty($quote['sent_at'])): ?>
+		<p class="muted quote-send-log-empty">Aún no hay bitácora de reenvíos. El próximo envío o reenvío quedará registrado aquí.</p>
+	<?php endif; ?>
+
 	<?php if ($quote): ?>
 		<div class="client-sheet-links">
 			<a class="btn-text" href="<?= h(Http::url('/cotizaciones/' . $quote['id'] . '/preview')) ?>" target="_blank" rel="noopener">Ver como la ve el cliente</a>

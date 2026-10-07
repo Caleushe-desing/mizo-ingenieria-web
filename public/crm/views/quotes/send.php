@@ -120,6 +120,42 @@ $formAction = $directResend
 			</div>
 		</section>
 
+		<?php $sendHistory = $sendHistory ?? []; ?>
+		<?php if ($directResend && $sendHistory): ?>
+			<section class="quote-block is-solid quote-send-panel">
+				<div class="quote-block-hd">
+					<div>
+						<h2>Envíos anteriores</h2>
+						<p class="muted">Registro de auditoría de esta cotización (mismo número).</p>
+					</div>
+				</div>
+				<div class="quote-send-body">
+					<div class="quote-send-log-table-wrap">
+						<table class="quote-send-log-table">
+							<thead>
+								<tr>
+									<th>Fecha</th>
+									<th>Tipo</th>
+									<th>Por</th>
+									<th>Para</th>
+								</tr>
+							</thead>
+							<tbody>
+							<?php foreach (array_slice($sendHistory, 0, 8) as $row): ?>
+								<tr>
+									<td><?= h(when($row['sent_at'] ?? null, 'd-m-Y H:i')) ?></td>
+									<td><?= (($row['kind'] ?? '') === 'resend') ? 'Reenvío' : 'Envío' ?></td>
+									<td><?= h($row['user_name'] ?? 'Usuario') ?></td>
+									<td><?= h($row['to_email'] ?? '—') ?></td>
+								</tr>
+							<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		<?php endif; ?>
+
 		<section class="quote-block is-solid quote-send-panel">
 			<div class="quote-block-hd">
 				<div>

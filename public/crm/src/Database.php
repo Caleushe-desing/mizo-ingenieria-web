@@ -42,6 +42,7 @@ final class Database
 		self::migrate($pdo);
 		self::ensureMailSchema($pdo);
 		self::ensureQuoteServiceSchema($pdo);
+		self::ensureQuoteSendSchema($pdo);
 		try {
 			self::ensureMarketingSchema($pdo);
 		} catch (\Throwable) {
@@ -797,6 +798,34 @@ final class Database
 			$now,
 			$now,
 		]);
+	}
+
+	/** Bitácora de envíos/reenvíos de cotización para auditoría. */
+	private static function ensureQuoteSendSchema(PDO $pdo): void
+	{
+		try {
+			$pdo->exec(
+				<<<'SQL'
+				CREATE TABLE IF NOT EXISTS quote_sends (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					quote_id INTEGER NOT NULL,
+					user_id INTEGER,
+					contact_id INTEGER,
+					to_email TEXT NOT NULL,
+					cc_email TEXT NOT NULL DEFAULT '',
+					kind TEXT NOT NULL DEFAULT 'send',
+					mail_id INTEGER,
+					had_pdf INTEGER NOT NULL DEFAULT 0,
+					sent_at TEXT NOT NULL,
+					FOREIGN KEY (quote_id) REFERENCES quotes(id) ON DELETE CASCADE
+				);
+				CREATE INDEX IF NOT EXISTS idx_quote_sends_quote ON quote_sends(quote_id);
+				CREATE INDEX IF NOT EXISTS idx_quote_sends_sent ON quote_sends(sent_at);
+				SQL
+			);
+		} catch (\Throwable) {
+			// Installs parciales sin tabla quotes todavía.
+		}
 	}
 
 	/** Garantiza desglose de servicio y textos de página 2 aunque el schema venga atrasado. */
