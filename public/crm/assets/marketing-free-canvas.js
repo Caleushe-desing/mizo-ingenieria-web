@@ -857,27 +857,11 @@
 	}
 
 	/* ---------- Preview ---------- */
-	function exportForPreview(format) {
-		const meta = PREVIEW_META[format] || PREVIEW_META.story;
-		const src = exportDataUrl('png', 1);
-		return new Promise(function (resolve) {
-			const img = new Image();
-			img.onload = function () {
-				const out = document.createElement('canvas');
-				out.width = meta.tw;
-				out.height = meta.th;
-				const ctx = out.getContext('2d');
-				ctx.fillStyle = canvas.backgroundColor || '#0b1c2c';
-				ctx.fillRect(0, 0, meta.tw, meta.th);
-				const scale = Math.max(meta.tw / img.width, meta.th / img.height);
-				const dw = img.width * scale;
-				const dh = img.height * scale;
-				ctx.drawImage(img, (meta.tw - dw) / 2, (meta.th - dh) / 2, dw, dh);
-				resolve(out.toDataURL('image/jpeg', 0.92));
-			};
-			img.onerror = function () { resolve(src); };
-			img.src = src;
-		});
+	function currentFormatLabel() {
+		const key = formatSelect ? formatSelect.value : '';
+		const preset = FORMAT_PRESETS[key];
+		if (preset && preset.w === W && preset.h === H) return preset.label;
+		return W + '×' + H;
 	}
 
 	function openPreview() {
@@ -896,21 +880,25 @@
 	}
 
 	function refreshPreview() {
-		const meta = PREVIEW_META[previewFormat] || PREVIEW_META.story;
-		const phone = root.querySelector('.mkt-phone');
-		if (phone) {
-			phone.classList.remove('is-story', 'is-post', 'is-feed');
-			phone.classList.add(meta.phoneClass);
+		const screen = root.querySelector('[data-preview-screen]');
+		if (screen) {
+			const maxH = Math.max(240, Math.min(window.innerHeight * 0.68, 760));
+			const maxW = Math.max(180, Math.min(window.innerWidth * 0.72, 420));
+			let dispW = maxW;
+			let dispH = dispW * (H / W);
+			if (dispH > maxH) {
+				dispH = maxH;
+				dispW = dispH * (W / H);
+			}
+			screen.style.width = Math.round(dispW) + 'px';
+			screen.style.height = Math.round(dispH) + 'px';
+			screen.style.aspectRatio = 'auto';
+			screen.style.maxHeight = 'none';
 		}
-		if (previewCaption) previewCaption.textContent = meta.label;
-		root.querySelectorAll('[data-preview-format]').forEach(function (btn) {
-			btn.classList.toggle('is-on', btn.getAttribute('data-preview-format') === previewFormat);
-		});
-		if (previewImage) {
-			exportForPreview(previewFormat).then(function (url) {
-				previewImage.src = url;
-			});
+		if (previewCaption) {
+			previewCaption.textContent = 'Archivo completo · ' + currentFormatLabel() + ' · ' + W + ' × ' + H + ' px';
 		}
+		if (previewImage) previewImage.src = exportDataUrl('png', 1);
 	}
 
 	/* ---------- Save ---------- */

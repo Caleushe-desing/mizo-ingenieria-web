@@ -223,12 +223,8 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 			<div class="mkt-preview-backdrop" data-preview-close></div>
 			<div class="mkt-preview-dialog" role="dialog" aria-modal="true" aria-label="Vista previa real">
 				<div class="mkt-preview-head">
-					<strong>Simulador móvil</strong>
-					<div class="mkt-preview-formats" data-preview-formats>
-						<button type="button" class="mkt-filter is-on" data-preview-format="story">Story / WhatsApp</button>
-						<button type="button" class="mkt-filter" data-preview-format="post">Post cuadrado</button>
-						<button type="button" class="mkt-filter" data-preview-format="feed">Feed vertical</button>
-					</div>
+					<strong>Archivo completo</strong>
+					<p class="muted">Misma imagen que el lienzo y que el archivo que se guarda.</p>
 					<button type="button" class="btn-text" data-preview-close>Cerrar</button>
 				</div>
 				<div class="mkt-phone">
@@ -298,4 +294,4 @@ $editJson = $editResource ? (string) ($editResource['design_json'] ?? '') : '';
 	</section>
 </div>
 <script src="<?= h(Http::url('/assets/fabric.min.js')) ?>?v=531"></script>
-<script src="<?= h(Http::url('/assets/marketing-free-canvas.js')) ?>?v=6"></script>
+<script src="<?= h(Http::url('/assets/marketing-free-canvas.js')) ?>?v=7"></script>
