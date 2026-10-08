@@ -40,7 +40,30 @@
 	var url = '/crm/api/visita.php';
 	if (navigator.sendBeacon) {
 		navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
-		return;
+	} else {
+		fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true, credentials: 'same-origin' }).catch(function () {});
 	}
-	fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true, credentials: 'same-origin' }).catch(function () {});
+
+	function beat() {
+		var pulse = JSON.stringify({
+			action: 'presencia',
+			visitor: visitor,
+			session: session,
+			path: window.location.pathname || '/',
+			title: document.title || '',
+			referrer: document.referrer || ''
+		});
+		fetch('/crm/api/sitio-vivo.php', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: pulse,
+			keepalive: true,
+			credentials: 'same-origin'
+		}).catch(function () {});
+	}
+	beat();
+	setInterval(beat, 15000);
+	document.addEventListener('visibilitychange', function () {
+		if (!document.hidden) beat();
+	});
 })();

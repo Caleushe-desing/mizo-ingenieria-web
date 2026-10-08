@@ -8,6 +8,14 @@ use MizoCrm\Models\MailMessage;
 $path = Http::path();
 $unreadMail = !empty($user) ? MailMessage::unreadCount((int) $user['id']) : 0;
 $unreadChat = !empty($user) ? ChatMessage::unreadCount((int) $user['id']) : 0;
+$liveUnread = 0;
+if (Auth::isAdmin()) {
+	try {
+		$liveUnread = \MizoCrm\Models\SiteLive::unread();
+	} catch (\Throwable $e) {
+		$liveUnread = 0;
+	}
+}
 $onMail = str_starts_with($path, '/correo');
 $onChat = str_starts_with($path, '/chat');
 $onBoard = $path === '/' || str_starts_with($path, '/tablero');
@@ -24,7 +32,7 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?= h(($title ?? 'Clientes') . ' | Mizo') ?></title>
-	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=70">
+	<link rel="stylesheet" href="<?= h(Http::url('/assets/app.css')) ?>?v=71">
 	<?php if ($onMarketing): ?>
 		<link rel="stylesheet" href="<?= h(Http::url('/assets/marketing.css')) ?>?v=12">
 	<?php endif; ?>
@@ -51,7 +59,7 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 				<a data-crm-section="facturas" data-crm-home="<?= h(Http::url('/facturas')) ?>" class="<?= str_starts_with($path, '/facturas') ? 'is-on' : '' ?>" href="<?= h(Http::url('/facturas')) ?>">Facturas</a>
 				<a data-crm-section="contabilidad" data-crm-home="<?= h(Http::url('/contabilidad')) ?>" class="<?= str_starts_with($path, '/contabilidad') ? 'is-on' : '' ?>" href="<?= h(Http::url('/contabilidad')) ?>">Contabilidad</a>
 				<a data-crm-section="sitio" data-crm-home="<?= h(Http::url('/sitio')) ?>" class="<?= str_starts_with($path, '/sitio') ? 'is-on' : '' ?>" href="<?= h(Http::url('/sitio')) ?>">Sitio</a>
-				<a data-crm-section="visitas" data-crm-home="<?= h(Http::url('/visitas')) ?>" class="<?= str_starts_with($path, '/visitas') ? 'is-on' : '' ?>" href="<?= h(Http::url('/visitas')) ?>">Visitas</a>
+				<a data-crm-section="visitas" data-crm-home="<?= h(Http::url('/visitas')) ?>" class="<?= str_starts_with($path, '/visitas') ? 'is-on' : '' ?>" href="<?= h(Http::url('/visitas')) ?>">Visitas <span class="mail-badge"<?= $liveUnread > 0 ? '' : ' hidden' ?>><?= (int) $liveUnread ?></span></a>
 				<a data-crm-section="catalogo" data-crm-home="<?= h(Http::url('/catalogo')) ?>" class="<?= $onCatalog ? 'is-on' : '' ?>" href="<?= h(Http::url('/catalogo')) ?>">Catálogo</a>
 				<a data-crm-section="control" data-crm-home="<?= h(Http::url('/admin')) ?>" class="<?= str_starts_with($path, '/admin') ? 'is-on' : '' ?>" href="<?= h(Http::url('/admin')) ?>">Control</a>
 				<a data-crm-section="equipo" data-crm-home="<?= h(Http::url('/equipo')) ?>" class="<?= $path === '/equipo' ? 'is-on' : '' ?>" href="<?= h(Http::url('/equipo')) ?>">Equipo</a>

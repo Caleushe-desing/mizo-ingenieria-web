@@ -1,4 +1,5 @@
 <?php
+use MizoCrm\Csrf;
 use MizoCrm\Http;
 
 $report = $report ?? [];
@@ -35,6 +36,27 @@ $bar = static function (array $rows): void {
 				<a class="btn<?= $days === $value ? ' btn-word' : '' ?>" href="<?= h(Http::url('/visitas?dias=' . $value)) ?>"><?= h($label) ?></a>
 			<?php endforeach; ?>
 		</div>
+	</div>
+
+	<div class="admin-grid" id="vivo-panel" data-vivo="<?= h(Http::url('/visitas/vivo')) ?>" data-reply="<?= h(Http::url('/visitas/chat')) ?>" data-csrf="<?= h(Csrf::token()) ?>">
+		<section class="admin-card">
+			<h2>En el sitio ahora <span id="vivo-count">0</span></h2>
+			<ul class="vivo-list" id="vivo-list"><li class="muted">Nadie en este momento.</li></ul>
+		</section>
+		<section class="admin-card">
+			<h2>Chat del sitio</h2>
+			<div class="vivo-chat">
+				<ul class="vivo-chats" id="vivo-chats"><li class="muted">Sin conversaciones.</li></ul>
+				<div>
+					<div class="vivo-thread" id="vivo-thread"><p class="muted">Elige una conversación para responder.</p></div>
+					<form id="vivo-reply">
+						<input type="hidden" name="chat_id" id="vivo-chat-id" value="">
+						<textarea name="body" rows="2" placeholder="Escribe la respuesta…" required></textarea>
+						<button class="btn btn-word" type="submit">Enviar</button>
+					</form>
+				</div>
+			</div>
+		</section>
 	</div>
 
 	<div class="admin-kpis">
@@ -168,4 +190,75 @@ $bar = static function (array $rows): void {
 .visit-bars span, .visit-bars em { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .visit-bars em { font-style: normal; text-align: right; color: #605e5c; }
 .visit-bars b { display: block; height: 8px; background: #1c9bd8; border-radius: 99px; min-width: 2px; }
+.vivo-list, .vivo-chats { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 280px; overflow: auto; }
+.vivo-list li, .vivo-chats button { border: 1px solid #d6e4f0; background: #fff; border-radius: 8px; padding: 8px 10px; text-align: left; }
+.vivo-chats button { width: 100%; cursor: pointer; font: inherit; }
+.vivo-chats button.is-on { border-color: #1c9bd8; background: #f4f8fc; }
+.vivo-chat { display: grid; grid-template-columns: 180px 1fr; gap: 12px; }
+.vivo-thread { min-height: 180px; max-height: 260px; overflow: auto; display: grid; gap: 8px; align-content: start; }
+.vivo-msg { padding: 8px 10px; border-radius: 8px; background: #f4f8fc; }
+.vivo-msg.is-mizo { background: #fff4ea; }
+.vivo-msg small { display: block; color: #605e5c; }
+#vivo-reply { display: grid; gap: 8px; margin-top: 8px; }
+#vivo-reply textarea { width: 100%; }
+@media (max-width: 720px) { .vivo-chat { grid-template-columns: 1fr; } }
 </style>
+<script>
+(function () {
+	var panel = document.getElementById('vivo-panel');
+	if (!panel) return;
+	var chatId = 0;
+	function text(value) {
+		return String(value || '').replace(/[&<>"']/g, function (c) {
+			return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+		});
+	}
+	function paint(data) {
+		var online = data.online || [];
+		document.getElementById('vivo-count').textContent = String(online.length);
+		var list = document.getElementById('vivo-list');
+		list.innerHTML = online.length ? online.map(function (row) {
+			return '<li><strong>' + text(row.path) + '</strong><br><span class="muted">' + text(row.device || 'Visitante') + (row.referrer ? ' · ' + text(row.referrer) : ' · Directo') + '</span></li>';
+		}).join('') : '<li class="muted">Nadie en este momento.</li>';
+		var chats = data.chats || [];
+		document.getElementById('vivo-chats').innerHTML = chats.length ? chats.map(function (row) {
+			return '<li><button type="button" data-chat="' + row.id + '" class="' + (Number(row.id) === chatId ? 'is-on' : '') + '"><strong>' + text(row.visitor_name || 'Visitante') + (Number(row.unread) > 0 ? ' · nuevo' : '') + '</strong><br><span class="muted">' + text(row.preview || row.page || '') + '</span></button></li>';
+		}).join('') : '<li class="muted">Sin conversaciones.</li>';
+		if (chatId && Array.isArray(data.thread)) {
+			var thread = document.getElementById('vivo-thread');
+			thread.innerHTML = data.thread.length ? data.thread.map(function (msg) {
+				return '<div class="vivo-msg' + (msg.author === 'mizo' ? ' is-mizo' : '') + '"><small>' + (msg.author === 'mizo' ? 'Mizo' : 'Visitante') + ' · ' + text(String(msg.created_at || '').slice(11, 16)) + '</small>' + text(msg.body) + '</div>';
+			}).join('') : '<p class="muted">Sin mensajes.</p>';
+			thread.scrollTop = thread.scrollHeight;
+		}
+	}
+	function load() {
+		var url = panel.getAttribute('data-vivo') + (chatId ? '?chat=' + chatId : '');
+		fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+			.then(function (res) { return res.json(); })
+			.then(paint)
+			.catch(function () {});
+	}
+	document.getElementById('vivo-chats').addEventListener('click', function (event) {
+		var button = event.target.closest('[data-chat]');
+		if (!button) return;
+		chatId = Number(button.getAttribute('data-chat')) || 0;
+		document.getElementById('vivo-chat-id').value = String(chatId);
+		load();
+	});
+	document.getElementById('vivo-reply').addEventListener('submit', function (event) {
+		event.preventDefault();
+		if (!chatId) return;
+		var form = event.currentTarget;
+		var body = new FormData(form);
+		body.append('_csrf', panel.getAttribute('data-csrf') || '');
+		body.set('chat_id', String(chatId));
+		fetch(panel.getAttribute('data-reply'), { method: 'POST', body: body, credentials: 'same-origin', headers: { Accept: 'application/json' } })
+			.then(function (res) { return res.json(); })
+			.then(function () { form.body.value = ''; load(); })
+			.catch(function () {});
+	});
+	load();
+	setInterval(load, 4000);
+})();
+</script>

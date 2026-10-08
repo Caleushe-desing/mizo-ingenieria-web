@@ -753,6 +753,46 @@ final class Database
 			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_site_visits_at ON site_visits(visited_at)');
 			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_site_visits_visitor ON site_visits(visitor_id, visited_at)');
 			$pdo->exec('PRAGMA user_version = 32');
+			$version = 32;
+		}
+
+		if ($version < 33) {
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS site_presence (
+					visitor_id TEXT PRIMARY KEY,
+					session_id TEXT NOT NULL DEFAULT \'\',
+					path TEXT NOT NULL DEFAULT \'/\',
+					title TEXT NOT NULL DEFAULT \'\',
+					referrer TEXT NOT NULL DEFAULT \'\',
+					device TEXT NOT NULL DEFAULT \'\',
+					ip TEXT NOT NULL DEFAULT \'\',
+					last_seen TEXT NOT NULL
+				)'
+			);
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS site_chats (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					visitor_id TEXT NOT NULL,
+					visitor_name TEXT NOT NULL DEFAULT \'\',
+					page TEXT NOT NULL DEFAULT \'/\',
+					status TEXT NOT NULL DEFAULT \'abierto\',
+					created_at TEXT NOT NULL,
+					updated_at TEXT NOT NULL
+				)'
+			);
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_site_chats_visitor ON site_chats(visitor_id, updated_at)');
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS site_chat_messages (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					chat_id INTEGER NOT NULL,
+					author TEXT NOT NULL,
+					body TEXT NOT NULL,
+					created_at TEXT NOT NULL,
+					seen INTEGER NOT NULL DEFAULT 0
+				)'
+			);
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_site_chat_messages_chat ON site_chat_messages(chat_id, id)');
+			$pdo->exec('PRAGMA user_version = 33');
 		}
 	}
 

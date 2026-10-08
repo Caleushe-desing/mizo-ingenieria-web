@@ -20,6 +20,24 @@ final class VisitController
 			'title' => 'Visitas del sitio',
 			'days' => $days,
 			'report' => VisitReport::summary($days),
+			'live' => \MizoCrm\Models\SiteLive::snapshot(),
 		]);
+	}
+
+	public function live(): void
+	{
+		Auth::requireAdmin();
+		$chatId = max(0, (int) ($_GET['chat'] ?? 0));
+		\MizoCrm\Http::json(\MizoCrm\Models\SiteLive::snapshot($chatId));
+	}
+
+	public function reply(): void
+	{
+		\MizoCrm\Csrf::check();
+		Auth::requireAdmin();
+		$chatId = (int) ($_POST['chat_id'] ?? 0);
+		$body = trim(\MizoCrm\Http::text('body', 2000));
+		$ok = \MizoCrm\Models\SiteLive::reply($chatId, $body);
+		\MizoCrm\Http::json(['ok' => $ok, 'error' => $ok ? '' : 'No se pudo enviar.']);
 	}
 }
