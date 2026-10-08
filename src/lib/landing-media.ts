@@ -1,17 +1,22 @@
 import type { ImageMetadata } from 'astro';
-import auditoriosHero from '../assets/industrias/auditorios-hero.jpg';
-import auditoriosLinearray from '../assets/industrias/auditorios-linearray.jpg';
-import auditoriosDante from '../assets/industrias/auditorios-dante.jpg';
-import educacionProyeccion from '../assets/industrias/educacion-proyeccion.jpg';
-import educacionActo from '../assets/industrias/educacion-acto.jpg';
-import auditoriosLed from '../assets/industrias/auditorios-led.jpg';
-import restaurantesSonido from '../assets/industrias/restaurantes-sonido.jpg';
-import restaurantesHero from '../assets/industrias/restaurantes-hero.jpg';
-import gimnasiosZonas from '../assets/industrias/gimnasios-zonas.jpg';
-import educacionHero from '../assets/industrias/educacion-hero.jpg';
-import educacionControl from '../assets/industrias/educacion-control.jpg';
-import gimnasiosPantallas from '../assets/industrias/gimnasios-pantallas.jpg';
-import restaurantesPantalla from '../assets/industrias/restaurantes-pantalla.jpg';
+import iglesiaHero from '../assets/instalaciones/iglesia-hero.jpg';
+import iglesiaParlantes from '../assets/instalaciones/iglesia-parlantes.jpg';
+import iglesiaCulto from '../assets/instalaciones/iglesia-culto.jpg';
+import proyectoresHero from '../assets/instalaciones/proyectores-hero.jpg';
+import proyectoresMontaje from '../assets/instalaciones/proyectores-montaje.jpg';
+import proyectoresSala from '../assets/instalaciones/proyectores-sala.jpg';
+import ambientalHero from '../assets/instalaciones/ambiental-hero.jpg';
+import ambientalTecho from '../assets/instalaciones/ambiental-techo.jpg';
+import ambientalTerraza from '../assets/instalaciones/ambiental-terraza.jpg';
+import interactivoHero from '../assets/instalaciones/interactivo-hero.jpg';
+import interactivoToque from '../assets/instalaciones/interactivo-toque.jpg';
+import interactivoAula from '../assets/instalaciones/interactivo-aula.jpg';
+import parlantesHero from '../assets/instalaciones/parlantes-hero.jpg';
+import parlantesMuro from '../assets/instalaciones/parlantes-muro.jpg';
+import parlantesRack from '../assets/instalaciones/parlantes-rack.jpg';
+import videowallHero from '../assets/instalaciones/videowall-hero.jpg';
+import videowallMontaje from '../assets/instalaciones/videowall-montaje.jpg';
+import videowallRetail from '../assets/instalaciones/videowall-retail.jpg';
 
 export type LandingMedia = {
 	hero: ImageMetadata;
@@ -20,27 +25,27 @@ export type LandingMedia = {
 
 export const landingMedia: Record<string, LandingMedia> = {
 	'parlantes-para-iglesias': {
-		hero: auditoriosHero,
-		gallery: [auditoriosLinearray, auditoriosDante, educacionActo],
+		hero: iglesiaHero,
+		gallery: [iglesiaParlantes, iglesiaCulto, iglesiaHero],
 	},
 	'instalacion-de-proyectores': {
-		hero: educacionProyeccion,
-		gallery: [educacionHero, auditoriosLed, educacionActo],
+		hero: proyectoresHero,
+		gallery: [proyectoresMontaje, proyectoresSala, proyectoresHero],
 	},
 	'instalacion-de-musica-ambiental': {
-		hero: restaurantesSonido,
-		gallery: [restaurantesHero, gimnasiosZonas, restaurantesPantalla],
+		hero: ambientalHero,
+		gallery: [ambientalTecho, ambientalTerraza, ambientalHero],
 	},
 	'proyectores-interactivos': {
-		hero: educacionProyeccion,
-		gallery: [educacionControl, educacionHero, educacionActo],
+		hero: interactivoHero,
+		gallery: [interactivoToque, interactivoAula, interactivoHero],
 	},
 	'instalacion-de-parlantes': {
-		hero: auditoriosLinearray,
-		gallery: [auditoriosHero, gimnasiosZonas, restaurantesSonido],
+		hero: parlantesHero,
+		gallery: [parlantesMuro, parlantesRack, parlantesHero],
 	},
 	'instalacion-de-video-wall': {
-		hero: auditoriosLed,
-		gallery: [gimnasiosPantallas, restaurantesPantalla, auditoriosHero],
+		hero: videowallHero,
+		gallery: [videowallMontaje, videowallRetail, videowallHero],
 	},
 };

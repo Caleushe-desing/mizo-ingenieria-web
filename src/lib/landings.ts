@@ -32,9 +32,9 @@ export const LANDINGS: readonly Landing[] = [
 			'Instalación, calibración y postventa en Chile',
 		],
 		galleryAlts: [
-			'Sistema de parlantes en un auditorio',
-			'Línea de audio profesional en sala',
-			'Control de sonido para palabra y música',
+			'Parlantes en el interior de una iglesia',
+			'Columnas de audio junto al altar',
+			'Culto con parlantes en el escenario',
 		],
 	},
 	{
@@ -55,9 +55,9 @@ export const LANDINGS: readonly Landing[] = [
 			'Puesta en marcha y capacitación de uso',
 		],
 		galleryAlts: [
-			'Proyección en sala de clases o auditorio',
-			'Pantalla de gran formato en un recinto',
-			'Instalación visual profesional',
+			'Proyector de techo en un auditorio',
+			'Montaje de un proyector',
+			'Sala con pantalla de proyección',
 		],
 	},
 	{
@@ -78,9 +78,9 @@ export const LANDINGS: readonly Landing[] = [
 			'Integración prolija en cielo, muro o exterior cubierto',
 		],
 		galleryAlts: [
-			'Música ambiental en un comedor',
-			'Audio por zonas en un local',
-			'Altavoces integrados al recinto',
+			'Música ambiental en un restaurante',
+			'Parlante de techo en un local',
+			'Parlantes de terraza',
 		],
 	},
 	{
@@ -101,9 +101,9 @@ export const LANDINGS: readonly Landing[] = [
 			'Inducción de uso para quien opera el equipo',
 		],
 		galleryAlts: [
-			'Proyección interactiva en un aula',
-			'Sala con imagen de gran formato',
-			'Control visual en un recinto educativo',
+			'Proyector interactivo en un aula',
+			'Uso táctil de la proyección',
+			'Proyector de corto alcance en sala',
 		],
 	},
 	{
@@ -124,9 +124,9 @@ export const LANDINGS: readonly Landing[] = [
 			'Garantía de 12 meses en la integración',
 		],
 		galleryAlts: [
-			'Instalación de parlantes en auditorio',
-			'Audio profesional en sala',
-			'Altavoces para cobertura de un recinto',
+			'Instalación de un parlante de techo',
+			'Parlantes de muro en un salón',
+			'Rack de amplificación',
 		],
 	},
 	{
@@ -147,9 +147,9 @@ export const LANDINGS: readonly Landing[] = [
 			'Contenido listo para operar en el día a día',
 		],
 		galleryAlts: [
-			'Pantalla LED de gran formato',
-			'Visuales en auditorio',
-			'Imagen de alto brillo en un recinto',
+			'Video wall LED en un lobby',
+			'Montaje de paneles LED',
+			'Video wall en un local',
 		],
 	},
 ];
