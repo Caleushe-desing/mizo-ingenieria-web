@@ -8,11 +8,17 @@ export type LandingFaq = {
 	a: string;
 };
 
+export type RelatedSolution = {
+	industry: string;
+	solution: string;
+};
+
 export type LandingExtra = {
 	audiences: readonly LandingBlock[];
 	included: readonly string[];
 	steps: readonly LandingBlock[];
 	faqs: readonly LandingFaq[];
+	related: readonly RelatedSolution[];
 };
 
 export const landingExtras: Record<string, LandingExtra> = {
@@ -44,6 +50,11 @@ export const landingExtras: Record<string, LandingExtra> = {
 			{ q: '¿Trabajan fuera de Santiago?', a: 'Sí. Mizo instala en Frutillar, Santiago y el resto de Chile. La visita y la puesta en marcha se coordinan según el recinto.' },
 			{ q: '¿Quién queda a cargo si algo falla después?', a: 'La integración tiene 12 meses de garantía y un canal de postventa para consultas de operación o ajustes.' },
 		],
+		related: [
+			{ industry: 'auditorios', solution: 'sonorizacion' },
+			{ industry: 'auditorios', solution: 'dsp' },
+			{ industry: 'instituciones-educativas', solution: 'sonorizacion' },
+		],
 	},
 	'instalacion-de-proyectores': {
 		audiences: [
@@ -72,6 +83,11 @@ export const landingExtras: Record<string, LandingExtra> = {
 			{ q: '¿Incluyen la pantalla?', a: 'Sí, cuando el muro no sirve como superficie. Lo dejamos definido en la cotización: pantalla, tamaño y tipo.' },
 			{ q: '¿Pueden conectar el computador que ya tenemos?', a: 'Sí. Dejamos HDMI o la vía inalámbrica que use la sala, y lo probamos con ese equipo.' },
 			{ q: '¿Hacen mantención después?', a: 'La instalación queda con 12 meses de garantía. También se puede coordinar revisión de foco, lámpara o filtro según el modelo.' },
+		],
+		related: [
+			{ industry: 'instituciones-educativas', solution: 'proyeccion' },
+			{ industry: 'auditorios', solution: 'video' },
+			{ industry: 'entretenimiento-residencial', solution: 'home-cinema' },
 		],
 	},
 	'instalacion-de-musica-ambiental': {
@@ -102,6 +118,11 @@ export const landingExtras: Record<string, LandingExtra> = {
 			{ q: '¿Sirve para un local que ya está funcionando?', a: 'Sí. Coordinamos el montaje para interferir lo menos posible con el servicio.' },
 			{ q: '¿Qué música pueden poner?', a: 'Integramos la fuente que el local ya usa o una simple de operar. La licencia de la música la define el local; nosotros dejamos el sistema sonando bien.' },
 		],
+		related: [
+			{ industry: 'restaurantes', solution: 'sonido-ambiental' },
+			{ industry: 'gimnasios', solution: 'audio-zonas' },
+			{ industry: 'entretenimiento-residencial', solution: 'quinchos' },
+		],
 	},
 	'proyectores-interactivos': {
 		audiences: [
@@ -130,6 +151,11 @@ export const landingExtras: Record<string, LandingExtra> = {
 			{ q: '¿Funciona con el computador del colegio?', a: 'Lo conectamos y probamos con ese equipo. Si falta un adaptador o un puerto, queda anotado en la instalación.' },
 			{ q: '¿La sombra del profesor tapa la imagen?', a: 'El montaje de corto alcance y la posición del proyector se eligen justamente para reducir esa sombra.' },
 			{ q: '¿Se puede recalibrar después?', a: 'Sí. Dejamos el procedimiento explicado y, dentro de la garantía, apoyamos si la sala se desalinea.' },
+		],
+		related: [
+			{ industry: 'instituciones-educativas', solution: 'proyeccion' },
+			{ industry: 'instituciones-educativas', solution: 'intercomunicacion' },
+			{ industry: 'auditorios', solution: 'video' },
 		],
 	},
 	'instalacion-de-parlantes': {
@@ -160,6 +186,12 @@ export const landingExtras: Record<string, LandingExtra> = {
 			{ q: '¿El cableado queda a la vista?', a: 'No si hay camino por cielo, muro o canaleta. Lo dejamos previsto en la instalación.' },
 			{ q: '¿Sirve para música y para avisos?', a: 'Sí. Se puede separar el uso por zona o por canal, según cómo opere el recinto.' },
 		],
+		related: [
+			{ industry: 'auditorios', solution: 'sonorizacion' },
+			{ industry: 'restaurantes', solution: 'sonido-ambiental' },
+			{ industry: 'gimnasios', solution: 'audio-zonas' },
+			{ industry: 'instituciones-educativas', solution: 'sonorizacion' },
+		],
 	},
 	'instalacion-de-video-wall': {
 		audiences: [
@@ -188,6 +220,11 @@ export const landingExtras: Record<string, LandingExtra> = {
 			{ q: '¿Funciona con luz de día?', a: 'Sí, si el brillo se elige para ese lugar. Un lobby con vidrio no usa el mismo panel que una sala oscura.' },
 			{ q: '¿Quién cambia el contenido?', a: 'Dejamos una fuente simple y una inducción. No hace falta un técnico para publicar el aviso del día.' },
 			{ q: '¿Se puede ampliar después?', a: 'Si la estructura y el procesamiento se dejan previstos, el muro puede crecer. Lo conversamos al definir el primer tamaño.' },
+		],
+		related: [
+			{ industry: 'auditorios', solution: 'video' },
+			{ industry: 'restaurantes', solution: 'pantallas-led' },
+			{ industry: 'gimnasios', solution: 'pantallas' },
 		],
 	},
 };
