@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import PhotoSlot from './PhotoSlot.astro';
 import QuoteForm from './QuoteForm.astro';
+import { landingExtras } from '../lib/landing-extras';
 import { landingMedia } from '../lib/landing-media';
 import { LANDINGS, landingPath, landingWhatsapp, type Landing } from '../lib/landings';
 import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
@@ -16,8 +17,10 @@ const path = landingPath(landing.slug);
 const mensaje = `Hola, quiero cotizar ${landing.keyword}.`;
 const others = LANDINGS.filter((item) => item.slug !== landing.slug);
 
-if (!media) {
-	throw new Error(`Sin imágenes para ${landing.slug}`);
+const extra = landingExtras[landing.slug];
+
+if (!media || !extra) {
+	throw new Error(`Sin contenido para ${landing.slug}`);
 }
 
 const jsonLd = graphSchema([
@@ -28,6 +31,14 @@ const jsonLd = graphSchema([
 		description: landing.seoDescription,
 		url: absoluteUrl(path),
 	}),
+	{
+		'@type': 'FAQPage',
+		mainEntity: extra.faqs.map((item) => ({
+			'@type': 'Question',
+			name: item.q,
+			acceptedAnswer: { '@type': 'Answer', text: item.a },
+		})),
+	},
 ]);
 ---
 
@@ -68,9 +79,27 @@ const jsonLd = graphSchema([
 			<h2 class="mt-3 text-3xl font-extrabold">Instalaciones del mismo estándar</h2>
 			<div class="mt-8 grid gap-4 sm:grid-cols-3">
 				{media.gallery.map((image, index) => (
-					<PhotoSlot label={landing.galleryAlts[index]} image={image} />
+					<figure>
+						<PhotoSlot label={landing.galleryAlts[index]} image={image} />
+						<figcaption class="mt-3 text-sm font-semibold leading-6 text-ink/75">{landing.galleryAlts[index]}</figcaption>
+					</figure>
 				))}
 			</div>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-white border-y border-ink/10 py-16 sm:py-20">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Dónde se usa</p>
+			<h2 class="mt-3 max-w-2xl text-3xl font-extrabold">Pensado para el recinto, no para un paquete genérico.</h2>
+			<ul class="mt-10 grid gap-4 md:grid-cols-3">
+				{extra.audiences.map((item) => (
+					<li class="border border-ink/10 bg-surface p-6">
+						<h3 class="text-xl font-extrabold">{item.title}</h3>
+						<p class="mt-3 text-sm leading-7 text-ink/75">{item.text}</p>
+					</li>
+				))}
+			</ul>
 		</div>
 	</section>
 
@@ -89,6 +118,55 @@ const jsonLd = graphSchema([
 					</li>
 				))}
 			</ul>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-gray py-16 sm:py-20">
+		<div class="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+			<div>
+				<p class="mizo-kicker">Alcance</p>
+				<h2 class="mt-3 text-3xl font-extrabold">Qué incluye la instalación</h2>
+				<p class="mt-4 text-sm leading-7 text-ink/75">La cotización detalla equipos y obra. Este es el alcance con el que trabajamos este servicio.</p>
+			</div>
+			<ul class="grid gap-3 sm:grid-cols-2">
+				{extra.included.map((item) => (
+					<li class="flex gap-3 border border-ink/10 bg-surface px-4 py-4 text-sm leading-6 text-ink/85">
+						<span class="mt-1 h-2 w-2 shrink-0 bg-orange"></span>
+						<span>{item}</span>
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-soft border-t border-ink/10 py-16 sm:py-20">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Cómo trabajamos</p>
+			<h2 class="mt-3 max-w-2xl text-3xl font-extrabold">De la visita a la puesta en marcha.</h2>
+			<ol class="mt-10 grid gap-4 md:grid-cols-2">
+				{extra.steps.map((step, index) => (
+					<li class="border border-ink/10 bg-surface p-6">
+						<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange">{String(index + 1).padStart(2, '0')}</p>
+						<h3 class="mt-3 text-xl font-extrabold">{step.title}</h3>
+						<p class="mt-3 text-sm leading-7 text-ink/75">{step.text}</p>
+					</li>
+				))}
+			</ol>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-white border-y border-ink/10 py-16 sm:py-20">
+		<div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Preguntas frecuentes</p>
+			<h2 class="mt-3 text-3xl font-extrabold">Antes de cotizar</h2>
+			<div class="mt-8 divide-y divide-ink/10 border-y border-ink/10">
+				{extra.faqs.map((item) => (
+					<details class="group py-4">
+						<summary class="cursor-pointer list-none text-base font-extrabold text-ink">{item.q}</summary>
+						<p class="mt-3 text-sm leading-7 text-ink/75">{item.a}</p>
+					</details>
+				))}
+			</div>
 		</div>
 	</section>
 
@@ -114,11 +192,13 @@ const jsonLd = graphSchema([
 	<section class="border-t border-ink/10 py-14">
 		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
 			<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-accent-dark">Otras instalaciones</p>
-			<ul class="mt-4 flex flex-wrap gap-2">
+			<ul class="mt-6 grid gap-3 sm:grid-cols-2">
 				{others.map((item) => (
 					<li>
-						<a href={landingPath(item.slug)} class="inline-flex border border-ink/15 bg-surface px-3 py-2 text-sm font-semibold text-ink/80 hover:border-accent hover:text-ink">
-							{item.nav}
+						<a href={landingPath(item.slug)} class="block border border-ink/10 bg-surface p-5 hover:border-accent">
+							<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-orange">Instalación</p>
+							<h3 class="mt-2 text-lg font-extrabold">{item.title}</h3>
+							<p class="mt-2 text-sm leading-6 text-ink/70">{item.lead}</p>
 						</a>
 					</li>
 				))}
