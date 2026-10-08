@@ -37,13 +37,28 @@
 	<?php if (!$products): ?>
 		<p class="muted">Todavía no hay equipos<?= ($q ?? '') !== '' ? ' con esa búsqueda' : ' en el catálogo' ?>.</p>
 	<?php else: ?>
+		<form id="asignar-landing" method="post" action="<?= h(Http::url('/catalogo/destacados/agregar')) ?>" class="form" style="display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:12px">
+			<?= Csrf::field() ?>
+			<label style="min-width:240px;margin:0">
+				<span>Agregar seleccionados a</span>
+				<select name="landing" required>
+					<option value="">Elige la landing</option>
+					<?php foreach (($landings ?? []) as $slug => $label): ?>
+						<option value="<?= h($slug) ?>"><?= h($label) ?></option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+			<button class="btn btn-word" type="submit">Agregar</button>
+		</form>
 		<div class="table-wrap">
 			<table class="sheet">
 				<thead>
 					<tr>
+						<th></th>
 						<th>SKU</th>
 						<th>Nombre</th>
 						<th>Categoría</th>
+						<th>Landings</th>
 						<th>Compra c/IVA</th>
 						<th>Cotizaciones</th>
 						<th>Proveedor</th>
@@ -59,6 +74,7 @@
 					$quoteCount = (int) ($product['quote_count'] ?? 0);
 					?>
 					<tr>
+						<td><input form="asignar-landing" type="checkbox" name="ids[]" value="<?= (int) $product['id'] ?>" aria-label="Seleccionar <?= h($product['nombre']) ?>"></td>
 						<td><?= h($product['sku']) ?></td>
 						<td>
 							<?= h($product['nombre']) ?>
@@ -67,6 +83,14 @@
 							<?php endif; ?>
 						</td>
 						<td><?= h($product['categoria']) ?></td>
+						<td>
+							<?php $tags = $onLanding[(int) $product['id']] ?? []; ?>
+							<?php if ($tags): ?>
+								<span class="muted"><?= h(implode(', ', $tags)) ?></span>
+							<?php else: ?>
+								<span class="muted">—</span>
+							<?php endif; ?>
+						</td>
 						<td><?= (int) ($product['precio_compra_iva'] ?? 0) > 0 ? money((int) $product['precio_compra_iva']) : '—' ?></td>
 						<td>
 							<?php if ($quoteCount > 0): ?>

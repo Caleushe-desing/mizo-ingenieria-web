@@ -53,6 +53,15 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
+	<section class="mizo-band mizo-band-gray border-b border-ink/10 py-16 sm:py-20" data-featured hidden data-landing={landing.slug}>
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Catálogo</p>
+			<h2 class="mt-3 text-3xl font-extrabold">Productos destacados</h2>
+			<p class="mt-3 max-w-2xl text-sm leading-7 text-ink/70">Equipos que usamos en este tipo de instalación. Cotiza el que necesitas y lo integramos en el recinto.</p>
+			<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-featured-list></div>
+		</div>
+	</section>
+
 	<section class="mizo-band mizo-band-gray py-16 sm:py-20" aria-label="Galería">
 		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
 			<p class="mizo-kicker">En terreno</p>
@@ -80,15 +89,6 @@ const jsonLd = graphSchema([
 					</li>
 				))}
 			</ul>
-		</div>
-	</section>
-
-	<section class="mizo-band mizo-band-gray border-y border-ink/10 py-16 sm:py-20" data-featured hidden data-landing={landing.slug}>
-		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<p class="mizo-kicker">Catálogo</p>
-			<h2 class="mt-3 text-3xl font-extrabold">Productos destacados</h2>
-			<p class="mt-3 max-w-2xl text-sm leading-7 text-ink/70">Equipos que usamos en este tipo de instalación. Cotiza el que necesitas y lo integramos en el recinto.</p>
-			<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-featured-list></div>
 		</div>
 	</section>
 

@@ -220,6 +220,50 @@ final class Product extends Record
 		}
 	}
 
+	public static function addToLanding(string $slug, array $productIds): int
+	{
+		if (!isset(self::landings()[$slug])) {
+			return 0;
+		}
+		$pdo = static::pdo();
+		$max = $pdo->prepare('SELECT COALESCE(MAX(position), -1) FROM product_landing_features WHERE landing_slug = ?');
+		$max->execute([$slug]);
+		$position = (int) $max->fetchColumn() + 1;
+		$exists = $pdo->prepare('SELECT 1 FROM product_landing_features WHERE product_id = ? AND landing_slug = ?');
+		$insert = $pdo->prepare(
+			'INSERT INTO product_landing_features (product_id, landing_slug, position) VALUES (?, ?, ?)'
+		);
+		$added = 0;
+		foreach ($productIds as $id) {
+			$id = (int) $id;
+			if ($id <= 0) {
+				continue;
+			}
+			$product = self::find($id);
+			if (!$product || self::isProfessionalService($product)) {
+				continue;
+			}
+			$exists->execute([$id, $slug]);
+			if ($exists->fetch()) {
+				continue;
+			}
+			$insert->execute([$id, $slug, $position]);
+			$position++;
+			$added++;
+		}
+		return $added;
+	}
+
+	public static function removeFromLanding(string $slug, int $productId): void
+	{
+		if (!isset(self::landings()[$slug]) || $productId <= 0) {
+			return;
+		}
+		static::pdo()->prepare(
+			'DELETE FROM product_landing_features WHERE product_id = ? AND landing_slug = ?'
+		)->execute([$productId, $slug]);
+	}
+
 	public static function visible(): array
 	{
 		$stmt = static::pdo()->query(

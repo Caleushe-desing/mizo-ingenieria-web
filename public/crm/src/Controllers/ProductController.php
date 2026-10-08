@@ -17,10 +17,19 @@ final class ProductController
 	{
 		Auth::requireAdmin();
 		$query = Http::string('q', 80);
+		$labels = Product::landings();
+		$onLanding = [];
+		foreach (Product::landingAssignments() as $slug => $ids) {
+			foreach ($ids as $id) {
+				$onLanding[$id][] = $labels[$slug] ?? $slug;
+			}
+		}
 		View::render('products/index', [
 			'title' => 'Catálogo',
 			'products' => Product::catalog($query),
 			'q' => $query,
+			'landings' => $labels,
+			'onLanding' => $onLanding,
 		]);
 	}
 
@@ -103,6 +112,38 @@ final class ProductController
 			)),
 			'assigned' => Product::landingAssignments(),
 		]);
+	}
+
+	public function addFeatures(): void
+	{
+		Auth::requireAdmin();
+		Csrf::check();
+		$slug = Http::string('landing', 80);
+		$ids = $_POST['ids'] ?? [];
+		if (!is_array($ids)) {
+			$ids = [];
+		}
+		if (!isset(Product::landings()[$slug])) {
+			View::flash('error', 'Elige la landing donde quieres publicar los productos.');
+			Http::redirect('/catalogo');
+		}
+		$added = Product::addToLanding($slug, $ids);
+		$label = Product::landings()[$slug];
+		View::flash('ok', $added > 0
+			? $added . ' producto' . ($added === 1 ? '' : 's') . ' agregado' . ($added === 1 ? '' : 's') . ' a ' . $label . '.'
+			: 'Esos productos ya estaban en ' . $label . '.');
+		$back = Http::string('volver', 80);
+		Http::redirect($back === 'destacados' ? '/catalogo/destacados' : '/catalogo');
+	}
+
+	public function removeFeature(): void
+	{
+		Auth::requireAdmin();
+		Csrf::check();
+		$slug = Http::string('landing', 80);
+		Product::removeFromLanding($slug, Http::int('product_id'));
+		View::flash('ok', 'Producto quitado de la landing.');
+		Http::redirect('/catalogo/destacados');
 	}
 
 	public function saveFeatures(): void
