@@ -43,7 +43,15 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 		<link rel="stylesheet" href="<?= h(Http::url('/assets/marketing.css')) ?>?v=12">
 	<?php endif; ?>
 </head>
-<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?><?= $onMarketing ? ' is-marketing' : '' ?><?= $onQuoteEditor ? ' is-quote-editor' : '' ?>" data-crm-base="<?= h(Http::base()) ?>"<?= Auth::isAdmin() ? ' data-vivo="' . h(Http::url('/visitas/vivo')) . '"' : '' ?>>
+<?php
+	$vapidPublic = '';
+	try {
+		$vapidPublic = WebPush::publicKey();
+	} catch (\Throwable $e) {
+		$vapidPublic = '';
+	}
+?>
+<body class="<?= $onMail ? 'is-gmail' : '' ?><?= $onChat ? ' is-chat' : '' ?><?= $onBoard ? ' is-board' : '' ?><?= $onClients ? ' is-clients' : '' ?><?= $onMarketing ? ' is-marketing' : '' ?><?= $onQuoteEditor ? ' is-quote-editor' : '' ?>" data-crm-base="<?= h(Http::base()) ?>" data-vapid="<?= h($vapidPublic) ?>" data-csrf="<?= h(Csrf::token()) ?>"<?= Auth::isAdmin() ? ' data-vivo="' . h(Http::url('/visitas/vivo')) . '"' : '' ?>>
 	<header class="titlebar">
 		<img src="/mizo-logo-footer.png" alt="Mizo">
 		<small>Clientes, cotizaciones y correo</small>
@@ -110,6 +118,11 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 		<?= $content ?>
 	</main>
 	<script src="<?= h(Http::url('/assets/app.js')) ?>?v=66"></script>
+	<div id="crm-push" class="crm-install" hidden>
+		<p id="crm-push-copy">Activa los avisos para recibir leads, correos y chats aunque el CRM esté cerrado.</p>
+		<button type="button" id="crm-push-go">Activar avisos</button>
+		<button type="button" id="crm-push-no">Ahora no</button>
+	</div>
 	<div id="crm-install" class="crm-install" hidden>
 		<p id="crm-install-copy">Instala Mizo CRM en este celular para abrirlo como una aplicación.</p>
 		<button type="button" id="crm-install-go">Instalar</button>
@@ -117,8 +130,62 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 	</div>
 	<script>
 	(function () {
+		function vapidKey(value) {
+			var pad = '='.repeat((4 - (value.length % 4)) % 4);
+			var raw = atob(value.replace(/-/g, '+').replace(/_/g, '/') + pad);
+			var out = new Uint8Array(raw.length);
+			for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+			return out;
+		}
+		function subscribePush() {
+			var vapid = document.body.getAttribute('data-vapid') || '';
+			var csrf = document.body.getAttribute('data-csrf') || '';
+			if (!vapid || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+			navigator.serviceWorker.ready.then(function (reg) {
+				return reg.pushManager.getSubscription().then(function (sub) {
+					if (sub) return sub;
+					return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey(vapid) });
+				});
+			}).then(function (sub) {
+				return fetch('<?= h(Http::url('/push/suscribir')) ?>', {
+					method: 'POST',
+					credentials: 'same-origin',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ _csrf: csrf, subscription: sub.toJSON() })
+				});
+			}).catch(function () {});
+		}
 		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('<?= h(Http::url('/sw.js')) ?>', { scope: '/crm/' }).catch(function () {});
+			navigator.serviceWorker.register('<?= h(Http::url('/sw.js')) ?>', { scope: '/crm/' }).then(function () {
+				if (window.Notification && Notification.permission === 'granted') subscribePush();
+			}).catch(function () {});
+		}
+		var pushBox = document.getElementById('crm-push');
+		var pushCopy = document.getElementById('crm-push-copy');
+		var pushDismissed = false;
+		try { pushDismissed = localStorage.getItem('crm-push-no') === '1'; } catch (error) {}
+		if (pushBox && window.Notification && Notification.permission === 'default' && !pushDismissed) {
+			if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone)) {
+				pushCopy.textContent = 'En iPhone instala Mizo CRM y luego activa los avisos. Solo así llegan con la app cerrada.';
+			}
+			pushBox.hidden = false;
+		}
+		var pushGo = document.getElementById('crm-push-go');
+		if (pushGo) {
+			pushGo.addEventListener('click', function () {
+				if (!window.Notification) return;
+				Notification.requestPermission().then(function (perm) {
+					if (perm === 'granted') subscribePush();
+					if (pushBox) pushBox.hidden = true;
+				});
+			});
+		}
+		var pushNo = document.getElementById('crm-push-no');
+		if (pushNo) {
+			pushNo.addEventListener('click', function () {
+				if (pushBox) pushBox.hidden = true;
+				try { localStorage.setItem('crm-push-no', '1'); } catch (error) {}
+			});
 		}
 		var box = document.getElementById('crm-install');
 		var copy = document.getElementById('crm-install-copy');

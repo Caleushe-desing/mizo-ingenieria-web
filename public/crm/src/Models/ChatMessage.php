@@ -73,13 +73,27 @@ final class ChatMessage extends Record
 
 	public static function send(int $fromId, int $toId, string $body): int
 	{
-		return self::insert([
+		$id = self::insert([
 			'from_user_id' => $fromId,
 			'to_user_id' => $toId,
 			'body' => $body,
 			'seen' => 0,
 			'created_at' => date('c'),
 		]);
+		$name = self::pdo()->prepare('SELECT name FROM users WHERE id = ?');
+		$name->execute([$fromId]);
+		$from = trim((string) $name->fetchColumn());
+		if ($from === '') {
+			$from = 'Equipo';
+		}
+		\MizoCrm\WebPush::notifyUsers(
+			[$toId],
+			'Mensaje interno',
+			$from . ': ' . $body,
+			'/crm/chat/' . $fromId,
+			'chat-' . $fromId
+		);
+		return $id;
 	}
 
 	public static function markSeen(int $userId, int $peerId): void

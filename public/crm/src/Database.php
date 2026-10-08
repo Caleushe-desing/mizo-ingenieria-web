@@ -794,6 +794,22 @@ final class Database
 			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_site_chat_messages_chat ON site_chat_messages(chat_id, id)');
 			$pdo->exec('PRAGMA user_version = 33');
 		}
+
+		if ($version < 34) {
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS push_subscriptions (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					user_id INTEGER NOT NULL,
+					endpoint TEXT NOT NULL UNIQUE,
+					p256dh TEXT NOT NULL,
+					auth TEXT NOT NULL,
+					created_at TEXT NOT NULL,
+					updated_at TEXT NOT NULL
+				)'
+			);
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user ON push_subscriptions(user_id)');
+			$pdo->exec('PRAGMA user_version = 34');
+		}
 	}
 
 	/** Plantillas y recursos del módulo Marketing (aditivo; no altera tablas existentes). */

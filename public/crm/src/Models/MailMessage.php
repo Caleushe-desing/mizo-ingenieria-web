@@ -158,7 +158,7 @@ final class MailMessage extends Record
 				return (int) $id;
 			}
 		}
-		return self::insert([
+		$id = self::insert([
 			'user_id' => $userId,
 			'folder' => $folder,
 			'uid' => $data['uid'] ?: null,
@@ -178,6 +178,24 @@ final class MailMessage extends Record
 			'client_id' => $data['client_id'] ?: null,
 			'created_at' => $now,
 		]);
+		if ($folder === 'inbox' && (int) ($data['seen'] ?? 0) === 0) {
+			$sentAt = strtotime((string) ($data['sent_at'] ?? ''));
+			if ($sentAt === false || $sentAt >= time() - 20 * 60) {
+				$from = trim((string) ($data['from_name'] ?? ''));
+				if ($from === '') {
+					$from = trim((string) ($data['from_email'] ?? 'Correo nuevo'));
+				}
+				$subject = trim((string) ($data['subject'] ?? ''));
+				\MizoCrm\WebPush::notifyUsers(
+					[$userId],
+					'Nuevo correo',
+					$subject !== '' ? $from . ' — ' . $subject : $from,
+					'/crm/correo',
+					'mail'
+				);
+			}
+		}
+		return $id;
 	}
 
 	/** @param list<int> $ids */

@@ -174,6 +174,16 @@ function incoming(PDO $pdo, string $visitor, array $data): array
 	}
 	$pdo->prepare("INSERT INTO site_chat_messages (chat_id, author, body, created_at, seen) VALUES (?, 'visitor', ?, ?, 0)")
 		->execute([$chatId, $body, $now]);
+	try {
+		require_once dirname(__DIR__) . '/src/Autoload.php';
+		\MizoCrm\WebPush::notifyStaff(
+			'Chat de la web',
+			$name . ': ' . $body,
+			'/crm/visitas',
+			'web-chat'
+		);
+	} catch (Throwable $e) {
+	}
 	return messages($pdo, $visitor);
 }
 

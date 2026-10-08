@@ -20,5 +20,7 @@ final class LeadIngest
 			$note .= "\n" . $mensaje;
 		}
 		Models\Activity::log('lead', $note, null, $clientId);
+		$detail = trim($nombre . ($servicio !== '' ? ' · ' . $servicio : ''));
+		WebPush::notifyStaff('Nuevo cliente en la web', $detail !== '' ? $detail : 'Llegó una consulta desde mizo.cl', '/crm/', 'lead');
 	}
 }

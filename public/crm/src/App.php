@@ -138,6 +138,7 @@ final class App
 			['GET', '#^/sitio/editar$#', [Controllers\SiteController::class, 'edit']],
 			['POST', '#^/sitio/guardar$#', [Controllers\SiteController::class, 'save']],
 			['POST', '#^/sitio/imagen$#', [Controllers\SiteController::class, 'upload']],
+			['POST', '#^/push/suscribir$#', [Controllers\PushController::class, 'subscribe']],
 			['GET', '#^/visitas/vivo$#', [Controllers\VisitController::class, 'live']],
 			['POST', '#^/visitas/chat$#', [Controllers\VisitController::class, 'reply']],
 			['GET', '#^/visitas$#', [Controllers\VisitController::class, 'index']],
