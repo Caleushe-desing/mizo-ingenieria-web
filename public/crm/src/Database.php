@@ -720,6 +720,39 @@ final class Database
 				$pdo->exec("ALTER TABLE site_pages ADD COLUMN html TEXT NOT NULL DEFAULT ''");
 			}
 			$pdo->exec('PRAGMA user_version = 31');
+			$version = 31;
+		}
+
+		if ($version < 32) {
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS site_visits (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					visited_at TEXT NOT NULL,
+					visitor_id TEXT NOT NULL,
+					session_id TEXT NOT NULL,
+					path TEXT NOT NULL,
+					title TEXT NOT NULL DEFAULT \'\',
+					referrer TEXT NOT NULL DEFAULT \'\',
+					source TEXT NOT NULL DEFAULT \'\',
+					utm_source TEXT NOT NULL DEFAULT \'\',
+					utm_medium TEXT NOT NULL DEFAULT \'\',
+					utm_campaign TEXT NOT NULL DEFAULT \'\',
+					utm_term TEXT NOT NULL DEFAULT \'\',
+					utm_content TEXT NOT NULL DEFAULT \'\',
+					gclid INTEGER NOT NULL DEFAULT 0,
+					fbclid INTEGER NOT NULL DEFAULT 0,
+					device TEXT NOT NULL DEFAULT \'\',
+					browser TEXT NOT NULL DEFAULT \'\',
+					os TEXT NOT NULL DEFAULT \'\',
+					language TEXT NOT NULL DEFAULT \'\',
+					screen TEXT NOT NULL DEFAULT \'\',
+					country TEXT NOT NULL DEFAULT \'\',
+					ip TEXT NOT NULL DEFAULT \'\'
+				)'
+			);
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_site_visits_at ON site_visits(visited_at)');
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_site_visits_visitor ON site_visits(visitor_id, visited_at)');
+			$pdo->exec('PRAGMA user_version = 32');
 		}
 	}
 
