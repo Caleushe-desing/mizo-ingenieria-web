@@ -57,7 +57,7 @@
 			return '<section class="mizo-band mizo-band-gray border-b border-ink/10 py-16 sm:py-20"><div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">' +
 				'<h2 class="text-3xl font-extrabold">' + esc(block.title || 'Productos destacados') + '</h2>' +
 				(block.text ? '<p class="mt-3 max-w-2xl text-sm leading-7 text-ink/70">' + esc(block.text) + '</p>' : '') +
-				'<div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5" data-cms-products="' + esc(block.landing) + '"></div></div></section>';
+				'<div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4" data-cms-products="' + esc(block.landing) + '"></div></div></section>';
 		}
 		return '';
 	}
