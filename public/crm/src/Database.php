@@ -696,6 +696,21 @@ final class Database
 			);
 			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_product_landing_slug ON product_landing_features(landing_slug, position)');
 			$pdo->exec('PRAGMA user_version = 29');
+			$version = 29;
+		}
+
+		if ($version < 30) {
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS site_pages (
+					path TEXT PRIMARY KEY,
+					title TEXT NOT NULL DEFAULT \'\',
+					description TEXT NOT NULL DEFAULT \'\',
+					blocks TEXT NOT NULL DEFAULT \'[]\',
+					active INTEGER NOT NULL DEFAULT 0,
+					updated_at TEXT NOT NULL
+				)'
+			);
+			$pdo->exec('PRAGMA user_version = 30');
 		}
 	}
 
