@@ -4000,3 +4000,46 @@ body.is-clients .btn-word, body.is-clients .kb-enroll, .kb-enroll, .kb-go {
 .tip-box { display: none; position: absolute; z-index: 30; left: 0; top: 24px; width: min(280px, 70vw); background: #1f2328; color: #fff; border-radius: 10px; padding: 10px 12px; font-size: 13px; font-weight: 400; line-height: 1.45; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
 .tip:hover .tip-box, .tip:focus-within .tip-box { display: block; }
 .stat-num { font-variant-numeric: tabular-nums; }
+
+.crm-install {
+	position: fixed;
+	left: 12px;
+	right: 12px;
+	bottom: 12px;
+	z-index: 80;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	padding: 12px;
+	background: #1e3d6e;
+	color: #fff;
+	border-radius: 12px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+}
+.crm-install[hidden] { display: none !important; }
+.crm-install p { margin: 0; flex: 1 1 180px; font-size: 14px; }
+.crm-install button {
+	border: 0;
+	border-radius: 8px;
+	padding: 10px 12px;
+	font-weight: 700;
+	cursor: pointer;
+}
+#crm-install-go { background: #f47b20; color: #fff; }
+#crm-install-no { background: transparent; color: #fff; }
+
+@media (max-width: 720px) {
+	.titlebar small { display: none; }
+	.workspace { padding: 12px 10px calc(28px + env(safe-area-inset-bottom, 0px)); }
+	.page-head, .admin-page .page-head { flex-direction: column; align-items: stretch; }
+	.page-head h1 { font-size: 22px; }
+	.page-head-actions, .admin-filters { width: 100%; }
+	.page-head-actions .btn, .admin-filters input, .admin-filters select { width: 100%; min-width: 0; }
+	.admin-grid, .grid-2, .doc-parties, .gmail-split { grid-template-columns: 1fr; }
+	.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+	input, select, textarea, button { font-size: 16px; }
+	.form label, .panel { min-width: 0; }
+	.ribbon-actions .btn { padding: 8px 10px; }
+	body { padding-bottom: env(safe-area-inset-bottom, 0px); }
+}

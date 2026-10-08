@@ -16,6 +16,18 @@ final class SiteLive
 		)->fetchColumn();
 	}
 
+	public static function code(string $visitorId): string
+	{
+		$n = hexdec(substr(hash('sha256', $visitorId), 0, 8));
+		$alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+		$code = '';
+		for ($i = 0; $i < 5; $i++) {
+			$code .= $alphabet[$n % 32];
+			$n = intdiv($n, 32);
+		}
+		return 'MZ-' . $code;
+	}
+
 	public static function snapshot(int $chatId = 0): array
 	{
 		$pdo = self::pdo();
@@ -31,6 +43,7 @@ final class SiteLive
 		$online = [];
 		foreach ($onlineStmt->fetchAll() as $row) {
 			$online[] = [
+				'code' => self::code((string) $row['visitor_id']),
 				'path' => (string) $row['path'],
 				'title' => (string) $row['title'],
 				'referrer' => (string) $row['referrer'],
@@ -38,14 +51,20 @@ final class SiteLive
 				'last_seen' => (string) $row['last_seen'],
 			];
 		}
-		$chats = $pdo->query(
-			"SELECT c.id, c.visitor_name, c.page, c.updated_at,
+		$chats = [];
+		$rows = $pdo->query(
+			"SELECT c.id, c.visitor_id, c.visitor_name, c.page, c.updated_at,
 				(SELECT body FROM site_chat_messages m WHERE m.chat_id = c.id ORDER BY m.id DESC LIMIT 1) AS preview,
 				(SELECT COUNT(*) FROM site_chat_messages m WHERE m.chat_id = c.id AND m.author = 'visitor' AND m.seen = 0) AS unread
 			 FROM site_chats c
 			 ORDER BY c.updated_at DESC
 			 LIMIT 30"
 		)->fetchAll();
+		foreach ($rows as $row) {
+			$row['code'] = self::code((string) $row['visitor_id']);
+			unset($row['visitor_id']);
+			$chats[] = $row;
+		}
 		$thread = [];
 		if ($chatId > 0) {
 			$pdo->prepare("UPDATE site_chat_messages SET seen = 1 WHERE chat_id = ? AND author = 'visitor' AND seen = 0")->execute([$chatId]);

@@ -190,17 +190,18 @@ $bar = static function (array $rows): void {
 .visit-bars span, .visit-bars em { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .visit-bars em { font-style: normal; text-align: right; color: #605e5c; }
 .visit-bars b { display: block; height: 8px; background: #1c9bd8; border-radius: 99px; min-width: 2px; }
-.vivo-list, .vivo-chats { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 280px; overflow: auto; }
-.vivo-list li, .vivo-chats button { border: 1px solid #d6e4f0; background: #fff; border-radius: 8px; padding: 8px 10px; text-align: left; }
+.vivo-list, .vivo-chats { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 560px; overflow: auto; }
+.vivo-list li, .vivo-chats button { border: 1px solid #d6e4f0; background: #fff; border-radius: 8px; padding: 10px 12px; text-align: left; }
 .vivo-chats button { width: 100%; cursor: pointer; font: inherit; }
 .vivo-chats button.is-on { border-color: #1c9bd8; background: #f4f8fc; }
-.vivo-chat { display: grid; grid-template-columns: 180px 1fr; gap: 12px; }
-.vivo-thread { min-height: 180px; max-height: 260px; overflow: auto; display: grid; gap: 8px; align-content: start; }
+#vivo-panel { grid-template-columns: minmax(240px, 320px) 1fr; }
+.vivo-chat { display: grid; grid-template-columns: 260px 1fr; gap: 12px; min-height: 520px; }
+.vivo-thread { min-height: 420px; max-height: 62vh; overflow: auto; display: grid; gap: 8px; align-content: start; font-size: 15px; }
 .vivo-msg { padding: 8px 10px; border-radius: 8px; background: #f4f8fc; }
 .vivo-msg.is-mizo { background: #fff4ea; }
 .vivo-msg small { display: block; color: #605e5c; }
 #vivo-reply { display: grid; gap: 8px; margin-top: 8px; }
-#vivo-reply textarea { width: 100%; }
+#vivo-reply textarea { width: 100%; min-height: 84px; font-size: 16px; }
 @media (max-width: 720px) { .vivo-chat { grid-template-columns: 1fr; } }
 </style>
 <script>
@@ -218,11 +219,11 @@ $bar = static function (array $rows): void {
 		document.getElementById('vivo-count').textContent = String(online.length);
 		var list = document.getElementById('vivo-list');
 		list.innerHTML = online.length ? online.map(function (row) {
-			return '<li><strong>' + text(row.path) + '</strong><br><span class="muted">' + text(row.device || 'Visitante') + (row.referrer ? ' · ' + text(row.referrer) : ' · Directo') + '</span></li>';
+			return '<li><strong>' + text(row.code || '') + '</strong> · ' + text(row.path) + '<br><span class="muted">' + text(row.device || 'Visitante') + (row.referrer ? ' · ' + text(row.referrer) : ' · Directo') + '</span></li>';
 		}).join('') : '<li class="muted">Nadie en este momento.</li>';
 		var chats = data.chats || [];
 		document.getElementById('vivo-chats').innerHTML = chats.length ? chats.map(function (row) {
-			return '<li><button type="button" data-chat="' + row.id + '" class="' + (Number(row.id) === chatId ? 'is-on' : '') + '"><strong>' + text(row.visitor_name || 'Visitante') + (Number(row.unread) > 0 ? ' · nuevo' : '') + '</strong><br><span class="muted">' + text(row.preview || row.page || '') + '</span></button></li>';
+			return '<li><button type="button" data-chat="' + row.id + '" class="' + (Number(row.id) === chatId ? 'is-on' : '') + '"><strong>' + text(row.code || '') + ' · ' + text(row.visitor_name || 'Visitante') + (Number(row.unread) > 0 ? ' · nuevo' : '') + '</strong><br><span class="muted">' + text(row.preview || row.page || '') + '</span></button></li>';
 		}).join('') : '<li class="muted">Sin conversaciones.</li>';
 		if (chatId && Array.isArray(data.thread)) {
 			var thread = document.getElementById('vivo-thread');

@@ -183,11 +183,28 @@ function messages(PDO $pdo, string $visitor): array
 	$find->execute([$visitor]);
 	$chat = $find->fetch();
 	if (!$chat) {
-		return ['ok' => true, 'messages' => []];
+		return ['ok' => true, 'code' => visitorCode($visitor), 'messages' => []];
 	}
 	$stmt = $pdo->prepare('SELECT author, body, created_at FROM site_chat_messages WHERE chat_id = ? ORDER BY id ASC LIMIT 200');
 	$stmt->execute([(int) $chat['id']]);
-	return ['ok' => true, 'name' => (string) $chat['visitor_name'], 'messages' => $stmt->fetchAll() ?: []];
+	return [
+		'ok' => true,
+		'code' => visitorCode($visitor),
+		'name' => (string) $chat['visitor_name'],
+		'messages' => $stmt->fetchAll() ?: [],
+	];
+}
+
+function visitorCode(string $visitorId): string
+{
+	$n = hexdec(substr(hash('sha256', $visitorId), 0, 8));
+	$alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+	$code = '';
+	for ($i = 0; $i < 5; $i++) {
+		$code .= $alphabet[$n % 32];
+		$n = intdiv($n, 32);
+	}
+	return 'MZ-' . $code;
 }
 
 function token(string $value): string

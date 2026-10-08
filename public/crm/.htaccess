@@ -1,6 +1,8 @@
 RewriteEngine On
 RewriteBase /crm/
 
+AddType application/manifest+json .webmanifest
+
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
