@@ -73,6 +73,63 @@ final class SitePage
 		)->execute([$path, $title, $description, $json, $active ? 1 : 0, $now]);
 	}
 
+	public static function saveVisual(string $path, string $html): void
+	{
+		$path = self::normalizePath($path);
+		if (!isset(self::catalog()[$path])) {
+			return;
+		}
+		$now = date('c');
+		Database::pdo()->prepare(
+			'INSERT INTO site_pages (path, title, description, blocks, html, active, updated_at)
+			 VALUES (?, \'\', \'\', \'[]\', ?, 1, ?)
+			 ON CONFLICT(path) DO UPDATE SET
+				blocks = \'[]\',
+				html = excluded.html,
+				active = 1,
+				updated_at = excluded.updated_at'
+		)->execute([$path, $html, $now]);
+	}
+
+	public static function saveChrome(string $header, string $footer): void
+	{
+		$json = json_encode(['header' => $header, 'footer' => $footer], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		if ($json === false) {
+			return;
+		}
+		$now = date('c');
+		Database::pdo()->prepare(
+			'INSERT INTO site_pages (path, title, description, blocks, html, active, updated_at)
+			 VALUES (\'#chrome\', \'\', \'\', \'[]\', ?, 1, ?)
+			 ON CONFLICT(path) DO UPDATE SET
+				html = excluded.html,
+				active = 1,
+				updated_at = excluded.updated_at'
+		)->execute([$json, $now]);
+	}
+
+	public static function clear(string $path): void
+	{
+		if ($path !== '#chrome') {
+			$path = self::normalizePath($path);
+			if (!isset(self::catalog()[$path])) {
+				return;
+			}
+		}
+		$now = date('c');
+		Database::pdo()->prepare(
+			'INSERT INTO site_pages (path, title, description, blocks, html, active, updated_at)
+			 VALUES (?, \'\', \'\', \'[]\', \'\', 0, ?)
+			 ON CONFLICT(path) DO UPDATE SET
+				blocks = \'[]\',
+				html = \'\',
+				active = 0,
+				title = \'\',
+				description = \'\',
+				updated_at = excluded.updated_at'
+		)->execute([$path, $now]);
+	}
+
 	public static function starter(string $path): array
 	{
 		$path = self::normalizePath($path);

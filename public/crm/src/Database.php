@@ -711,6 +711,15 @@ final class Database
 				)'
 			);
 			$pdo->exec('PRAGMA user_version = 30');
+			$version = 30;
+		}
+
+		if ($version < 31) {
+			$cols = array_column($pdo->query('PRAGMA table_info(site_pages)')->fetchAll(), 'name');
+			if (!in_array('html', $cols, true)) {
+				$pdo->exec("ALTER TABLE site_pages ADD COLUMN html TEXT NOT NULL DEFAULT ''");
+			}
+			$pdo->exec('PRAGMA user_version = 31');
 		}
 	}
 

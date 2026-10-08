@@ -81,16 +81,57 @@
 			.catch(function () {});
 	}
 
+	function paintFeatured(root) {
+		var slug = root.getAttribute('data-landing');
+		var list = root.querySelector('[data-featured-list]');
+		if (!slug || !list || list.children.length) return;
+		fetch('/crm/api/productos-visibles.php?landing=' + encodeURIComponent(slug), { headers: { Accept: 'application/json' } })
+			.then(function (res) { return res.json(); })
+			.then(function (data) {
+				var items = data && Array.isArray(data.productos) ? data.productos : [];
+				if (!items.length) return;
+				list.innerHTML = items.map(productCard).join('');
+				root.hidden = false;
+			})
+			.catch(function () {});
+	}
+
+	function productCard(item) {
+		var photo = Array.isArray(item.imagenes) && item.imagenes[0] ? item.imagenes[0] : '';
+		var href = '/contacto?sku=' + encodeURIComponent(item.sku || '') + '&mensaje=' + encodeURIComponent('Quiero cotizar ' + (item.nombre || item.sku || ''));
+		return '<article class="flex h-full flex-col border border-ink/10 bg-surface">' +
+			(photo ? '<img src="' + esc(photo) + '" alt="' + esc(item.nombre) + '" class="aspect-[4/3] w-full object-cover">' : '') +
+			'<div class="flex flex-1 flex-col p-4"><h3 class="text-sm font-extrabold leading-snug">' + esc(item.nombre || item.sku) + '</h3>' +
+			'<a class="mt-3 text-sm font-bold text-accent-dark" href="' + href + '">Cotizar</a></div></article>';
+	}
+
+	function finish() {
+		window.dispatchEvent(new CustomEvent('mizo:cms-listo'));
+	}
+
 	var path = window.location.pathname.replace(/\/$/, '') || '/';
 	fetch('/crm/api/sitio.php?path=' + encodeURIComponent(path), { headers: { Accept: 'application/json' } })
 		.then(function (res) { return res.json(); })
 		.then(function (data) {
-			if (!data || !data.active || !Array.isArray(data.blocks) || !data.blocks.length) return;
-			main.innerHTML = data.blocks.map(render).join('');
-			if (data.title) document.title = data.title;
-			var meta = document.querySelector('meta[name="description"]');
-			if (meta && data.description) meta.setAttribute('content', data.description);
-			main.querySelectorAll('[data-cms-products]').forEach(paintProducts);
+			if (!data || !data.ok) return;
+			if (data.chrome && data.chrome.header && data.chrome.footer) {
+				var header = document.querySelector('body > header');
+				var footer = document.querySelector('body > footer');
+				if (header) header.outerHTML = data.chrome.header;
+				if (footer) footer.outerHTML = data.chrome.footer;
+			}
+			if (data.active && data.mode === 'html' && data.html) {
+				main.innerHTML = data.html;
+				main.querySelectorAll('[data-featured]').forEach(paintFeatured);
+				main.querySelectorAll('[data-cms-products]').forEach(paintProducts);
+			} else if (data.active && Array.isArray(data.blocks) && data.blocks.length) {
+				main.innerHTML = data.blocks.map(render).join('');
+				if (data.title) document.title = data.title;
+				var meta = document.querySelector('meta[name="description"]');
+				if (meta && data.description) meta.setAttribute('content', data.description);
+				main.querySelectorAll('[data-cms-products]').forEach(paintProducts);
+			}
 		})
-		.catch(function () {});
+		.catch(function () {})
+		.then(finish);
 })();

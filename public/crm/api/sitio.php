@@ -33,20 +33,52 @@ try {
 		echo json_encode(['ok' => true, 'active' => false], JSON_UNESCAPED_UNICODE);
 		exit;
 	}
-	$stmt = $pdo->prepare('SELECT title, description, blocks, active FROM site_pages WHERE path = ?');
+	$cols = array_column($pdo->query('PRAGMA table_info(site_pages)')->fetchAll(), 'name');
+	$hasHtml = in_array('html', $cols, true);
+	$chrome = null;
+	if ($hasHtml) {
+		$chromeStmt = $pdo->prepare('SELECT html, active FROM site_pages WHERE path = ?');
+		$chromeStmt->execute(['#chrome']);
+		$chromeRow = $chromeStmt->fetch();
+		if ($chromeRow && (int) $chromeRow['active'] === 1) {
+			$decoded = json_decode((string) $chromeRow['html'], true);
+			if (is_array($decoded) && !empty($decoded['header']) && !empty($decoded['footer'])) {
+				$chrome = [
+					'header' => (string) $decoded['header'],
+					'footer' => (string) $decoded['footer'],
+				];
+			}
+		}
+	}
+	$stmt = $pdo->prepare($hasHtml
+		? 'SELECT title, description, blocks, html, active FROM site_pages WHERE path = ?'
+		: 'SELECT title, description, blocks, active FROM site_pages WHERE path = ?');
 	$stmt->execute([$path]);
 	$row = $stmt->fetch();
-	if (!$row || (int) $row['active'] !== 1) {
+	$active = $row && (int) $row['active'] === 1;
+	$html = $active && $hasHtml ? trim((string) ($row['html'] ?? '')) : '';
+	$blocks = [];
+	if ($active && $html === '') {
+		$decodedBlocks = json_decode((string) ($row['blocks'] ?? '[]'), true);
+		$blocks = is_array($decodedBlocks) ? $decodedBlocks : [];
+	}
+	if (!$active && $chrome === null) {
 		echo json_encode(['ok' => true, 'active' => false], JSON_UNESCAPED_UNICODE);
 		exit;
 	}
-	$blocks = json_decode((string) $row['blocks'], true);
+	if ($active && $html === '' && $blocks === [] && $chrome === null) {
+		echo json_encode(['ok' => true, 'active' => false], JSON_UNESCAPED_UNICODE);
+		exit;
+	}
 	echo json_encode([
 		'ok' => true,
-		'active' => true,
-		'title' => (string) $row['title'],
-		'description' => (string) $row['description'],
-		'blocks' => is_array($blocks) ? $blocks : [],
+		'active' => $active && ($html !== '' || $blocks !== []),
+		'mode' => $html !== '' ? 'html' : 'blocks',
+		'title' => $active ? (string) ($row['title'] ?? '') : '',
+		'description' => $active ? (string) ($row['description'] ?? '') : '',
+		'html' => $html,
+		'blocks' => $blocks,
+		'chrome' => $chrome,
 	], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Throwable $e) {
 	http_response_code(500);

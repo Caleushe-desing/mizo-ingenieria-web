@@ -2,7 +2,7 @@
 <div class="page-head">
 	<div>
 		<h1>Editor del sitio</h1>
-		<p>Cambia textos, imágenes y secciones de cada página pública. Al publicar, esa página reemplaza el diseño actual. Si no publicas, el sitio sigue igual.</p>
+		<p>Abre la página real y edita encima: haz clic en un texto o en una imagen, agrega secciones y guarda. El menú y el pie, si los cambias, se aplican a todo el sitio.</p>
 	</div>
 </div>
 <section class="paper">
@@ -22,7 +22,7 @@
 					<td><?= h($page['label']) ?></td>
 					<td><a href="<?= h($page['path']) ?>" target="_blank" rel="noopener"><?= h($page['path']) ?></a></td>
 					<td><?= $page['active'] ? 'Personalizada' : 'Diseño original' ?></td>
-					<td><a href="<?= h(Http::url('/sitio/editar?path=' . rawurlencode($page['path']))) ?>">Editar</a></td>
+					<td><a href="<?= h($page['path'] . '?editar=1') ?>">Editar en la página</a></td>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>

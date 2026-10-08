@@ -33,24 +33,12 @@ final class SiteController
 	public function edit(): void
 	{
 		Auth::requireAdmin();
-		$path = SitePage::normalizePath(Http::string('path', 180));
+		$path = SitePage::normalizePath((string) ($_GET['path'] ?? '/'));
 		if (!isset(SitePage::catalog()[$path])) {
 			Http::redirect('/sitio');
 		}
-		$row = SitePage::find($path);
-		$blocks = $row['blocks'] ?? [];
-		if (isset($_GET['empezar']) && $blocks === []) {
-			$blocks = SitePage::starter($path);
-		}
-		View::render('site/edit', [
-			'title' => 'Editar página',
-			'path' => $path,
-			'label' => SitePage::catalog()[$path],
-			'pageTitle' => (string) ($row['title'] ?? ''),
-			'description' => (string) ($row['description'] ?? ''),
-			'active' => $blocks !== [] && (int) ($row['active'] ?? 0) === 1 || isset($_GET['empezar']),
-			'blocks' => $blocks,
-		]);
+		header('Location: ' . $path . '?editar=1', true, 302);
+		exit;
 	}
 
 	public function save(): void
