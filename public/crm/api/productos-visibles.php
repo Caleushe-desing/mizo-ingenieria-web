@@ -42,11 +42,40 @@ try {
 	if (in_array('imagenes', $names, true)) {
 		$select[] = 'imagenes';
 	}
-	$sql = 'SELECT ' . implode(', ', $select) . '
-		FROM products
-		WHERE activo = 1
-		ORDER BY categoria COLLATE NOCASE, nombre COLLATE NOCASE, sku COLLATE NOCASE';
-	$rows = $pdo->query($sql)->fetchAll();
+	$landing = strtolower((string) ($_GET['landing'] ?? ''));
+	$landing = preg_replace('/[^a-z0-9-]/', '', $landing) ?? '';
+	$allowedLandings = [
+		'parlantes-para-iglesias',
+		'instalacion-de-proyectores',
+		'instalacion-de-musica-ambiental',
+		'proyectores-interactivos',
+		'instalacion-de-parlantes',
+		'instalacion-de-video-wall',
+	];
+	$params = [];
+	if ($landing !== '' && in_array($landing, $allowedLandings, true)) {
+		$hasFeatures = (bool) $pdo->query(
+			"SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'product_landing_features'"
+		)->fetch();
+		if (!$hasFeatures) {
+			echo json_encode(['ok' => true, 'productos' => []], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+			exit;
+		}
+		$sql = 'SELECT ' . implode(', ', array_map(static fn(string $col): string => 'p.' . $col, $select)) . '
+			FROM products p
+			INNER JOIN product_landing_features f ON f.product_id = p.id
+			WHERE p.activo = 1 AND f.landing_slug = ?
+			ORDER BY f.position ASC, p.nombre COLLATE NOCASE';
+		$params = [$landing];
+	} else {
+		$sql = 'SELECT ' . implode(', ', $select) . '
+			FROM products
+			WHERE activo = 1
+			ORDER BY categoria COLLATE NOCASE, nombre COLLATE NOCASE, sku COLLATE NOCASE';
+	}
+	$stmt = $pdo->prepare($sql);
+	$stmt->execute($params);
+	$rows = $stmt->fetchAll();
 
 	$productos = [];
 	foreach ($rows as $row) {

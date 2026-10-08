@@ -114,6 +114,112 @@ final class Product extends Record
 		return $row ?: null;
 	}
 
+	/** Landings públicas donde se pueden destacar productos del catálogo. */
+	public static function landings(): array
+	{
+		return [
+			'parlantes-para-iglesias' => 'Parlantes para iglesias',
+			'instalacion-de-proyectores' => 'Instalación de proyectores',
+			'instalacion-de-musica-ambiental' => 'Instalación de música ambiental',
+			'proyectores-interactivos' => 'Proyectores interactivos',
+			'instalacion-de-parlantes' => 'Instalación de parlantes',
+			'instalacion-de-video-wall' => 'Instalación de video wall',
+		];
+	}
+
+	/** @return list<string> */
+	public static function landingSlugsFor(int $productId): array
+	{
+		$stmt = static::pdo()->prepare(
+			'SELECT landing_slug FROM product_landing_features WHERE product_id = ? ORDER BY position ASC, landing_slug ASC'
+		);
+		$stmt->execute([$productId]);
+		return array_values(array_map(static fn(array $row): string => (string) $row['landing_slug'], $stmt->fetchAll()));
+	}
+
+	/** @return array<string, list<int>> */
+	public static function landingAssignments(): array
+	{
+		$map = [];
+		foreach (array_keys(self::landings()) as $slug) {
+			$map[$slug] = [];
+		}
+		$rows = static::pdo()->query(
+			'SELECT landing_slug, product_id FROM product_landing_features ORDER BY position ASC, product_id ASC'
+		)->fetchAll();
+		foreach ($rows as $row) {
+			$slug = (string) $row['landing_slug'];
+			if (!isset($map[$slug])) {
+				continue;
+			}
+			$map[$slug][] = (int) $row['product_id'];
+		}
+		return $map;
+	}
+
+	/** @param list<string> $slugs */
+	public static function setLandings(int $productId, array $slugs): void
+	{
+		$allowed = self::landings();
+		$clean = [];
+		foreach ($slugs as $slug) {
+			$slug = (string) $slug;
+			if (isset($allowed[$slug]) && !in_array($slug, $clean, true)) {
+				$clean[] = $slug;
+			}
+		}
+		$pdo = static::pdo();
+		$pdo->prepare('DELETE FROM product_landing_features WHERE product_id = ?')->execute([$productId]);
+		$insert = $pdo->prepare(
+			'INSERT INTO product_landing_features (product_id, landing_slug, position) VALUES (?, ?, ?)'
+		);
+		foreach ($clean as $position => $slug) {
+			$insert->execute([$productId, $slug, $position]);
+		}
+	}
+
+	/**
+	 * Reemplaza los productos destacados de cada landing, en el orden recibido.
+	 *
+	 * @param array<string, list<int>> $byLanding
+	 */
+	public static function saveLandingAssignments(array $byLanding): void
+	{
+		$pdo = static::pdo();
+		$pdo->beginTransaction();
+		try {
+			$delete = $pdo->prepare('DELETE FROM product_landing_features WHERE landing_slug = ?');
+			$insert = $pdo->prepare(
+				'INSERT INTO product_landing_features (product_id, landing_slug, position) VALUES (?, ?, ?)'
+			);
+			foreach (self::landings() as $slug => $_label) {
+				$delete->execute([$slug]);
+				$ids = $byLanding[$slug] ?? [];
+				$position = 0;
+				$seen = [];
+				foreach ($ids as $id) {
+					$id = (int) $id;
+					if ($id <= 0 || isset($seen[$id])) {
+						continue;
+					}
+					$product = self::find($id);
+					if (!$product || self::isProfessionalService($product)) {
+						continue;
+					}
+					$seen[$id] = true;
+					$insert->execute([$id, $slug, $position]);
+					$position++;
+				}
+			}
+			$pdo->commit();
+		} catch (\Throwable $e) {
+			if ($pdo->inTransaction()) {
+				$pdo->rollBack();
+			}
+			throw $e;
+		}
+	}
+
 	public static function visible(): array
 	{
 		$stmt = static::pdo()->query(

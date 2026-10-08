@@ -1,0 +1,48 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PhotoSlot from '../../components/PhotoSlot.astro';
+import ConversionCta from '../../components/ConversionCta.astro';
+import { landingMedia } from '../../lib/landing-media';
+import { LANDINGS, landingPath } from '../../lib/landings';
+import { absoluteUrl, graphSchema, organizationSchema, webPageSchema } from '../../lib/seo';
+
+const title = 'Instalaciones especializadas | Mizo Chile';
+const description =
+	'Landings de instalación Mizo: parlantes para iglesias, proyectores, música ambiental, proyectores interactivos, parlantes y video wall en Chile.';
+
+const jsonLd = graphSchema([
+	organizationSchema(),
+	webPageSchema({ name: title, description, url: absoluteUrl('/instalaciones') }),
+]);
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+	<section class="mizo-band mizo-band-white relative overflow-hidden border-b border-ink/10 pt-28 text-ink sm:pt-32">
+		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
+		<div class="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
+			<p class="mizo-kicker">Instalaciones especializadas</p>
+			<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.1] sm:text-5xl">Instalación profesional para cada campaña y cada recinto.</h1>
+			<p class="mt-5 max-w-2xl text-lg leading-8 text-ink/80">
+				Audio, proyección y video wall diseñados para el espacio. Elige el servicio y cotiza directo con un asesor técnico de Mizo en Chile.
+			</p>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-gray py-16 sm:py-24">
+		<div class="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+			{LANDINGS.map((landing) => (
+				<a href={landingPath(landing.slug)} class="mizo-card group flex h-full flex-col overflow-hidden border border-ink/10 bg-surface hover:-translate-y-1 hover:border-accent/70">
+					<PhotoSlot label={landing.galleryAlts[0]} image={landingMedia[landing.slug].hero} class="transition-all duration-300 group-hover:brightness-110" />
+					<div class="flex flex-1 flex-col p-6">
+						<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange">Instalación</p>
+						<h2 class="mt-2 text-2xl font-extrabold">{landing.title}</h2>
+						<p class="mt-3 text-sm leading-7 text-ink/80">{landing.lead}</p>
+						<span class="mt-5 text-sm font-bold text-accent-dark">Cotizar {landing.nav} →</span>
+					</div>
+				</a>
+			))}
+		</div>
+	</section>
+
+	<ConversionCta title="¿Buscas otra instalación?" text="Cuéntanos el recinto. Armamos la propuesta de audio, video o proyección que corresponde." />
+</Layout>

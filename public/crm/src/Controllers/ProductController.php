@@ -75,6 +75,8 @@ final class ProductController
 				'title' => 'Nuevo producto',
 				'product' => $data + ['imagenes' => $images],
 				'error' => $error,
+				'landings' => Product::landings(),
+				'landingSlugs' => $this->postedLandings(),
 			]);
 			return;
 		}
@@ -83,9 +85,39 @@ final class ProductController
 		if ($images !== []) {
 			$extra['imagenes'] = json_encode($images, JSON_UNESCAPED_SLASHES);
 		}
-		Product::insert($data + $extra);
+		$id = Product::insert($data + $extra);
+		Product::setLandings($id, $this->postedLandings());
 		View::flash('ok', 'Producto ' . $data['sku'] . ' agregado al catálogo.');
 		Http::redirect('/catalogo');
+	}
+
+	public function features(): void
+	{
+		Auth::requireAdmin();
+		View::render('products/features', [
+			'title' => 'Productos destacados',
+			'landings' => Product::landings(),
+			'products' => array_values(array_filter(
+				Product::catalog(),
+				static fn(array $product): bool => empty($product['servicio_profesional'])
+			)),
+			'assigned' => Product::landingAssignments(),
+		]);
+	}
+
+	public function saveFeatures(): void
+	{
+		Auth::requireAdmin();
+		Csrf::check();
+		$posted = $_POST['landings'] ?? [];
+		$byLanding = [];
+		foreach (Product::landings() as $slug => $_label) {
+			$ids = is_array($posted[$slug] ?? null) ? $posted[$slug] : [];
+			$byLanding[$slug] = array_map(static fn($id): int => (int) $id, $ids);
+		}
+		Product::saveLandingAssignments($byLanding);
+		View::flash('ok', 'Los productos destacados de las landings quedaron actualizados.');
+		Http::redirect('/catalogo/destacados');
 	}
 
 	public function edit(string $id): void
@@ -99,6 +131,8 @@ final class ProductController
 			'title' => 'Editar producto',
 			'product' => $product,
 			'quoteUsage' => Product::quoteAppearances((int) $product['id']),
+			'landings' => Product::landings(),
+			'landingSlugs' => Product::landingSlugsFor((int) $product['id']),
 		]);
 	}
 
@@ -118,10 +152,13 @@ final class ProductController
 				'product' => $data + ['id' => (int) $product['id']],
 				'error' => $error,
 				'quoteUsage' => Product::quoteAppearances((int) $product['id']),
+				'landings' => Product::landings(),
+				'landingSlugs' => $this->postedLandings(),
 			]);
 			return;
 		}
 		Product::update((int) $product['id'], $data + ['updated_at' => date('c')]);
+		Product::setLandings((int) $product['id'], $this->postedLandings());
 		View::flash('ok', 'Producto ' . $data['sku'] . ' actualizado.');
 		Http::redirect('/catalogo');
 	}
@@ -161,6 +198,7 @@ final class ProductController
 			Http::redirect('/catalogo');
 		}
 		if ($product) {
+			Product::setLandings((int) $product['id'], []);
 			Product::delete((int) $product['id']);
 			View::flash('ok', 'Producto ' . $product['sku'] . ' eliminado del catálogo.');
 		}
@@ -268,6 +306,22 @@ final class ProductController
 			return false;
 		}
 		return true;
+	}
+
+	/** @return list<string> */
+	private function postedLandings(): array
+	{
+		$posted = $_POST['landings'] ?? [];
+		if (!is_array($posted)) {
+			return [];
+		}
+		$slugs = [];
+		foreach ($posted as $slug) {
+			if (is_string($slug)) {
+				$slugs[] = $slug;
+			}
+		}
+		return $slugs;
 	}
 
 	private function postedImages(): array

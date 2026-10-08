@@ -1,0 +1,20 @@
+---
+import ServiceLanding from '../../components/ServiceLanding.astro';
+import { LANDINGS, landingBySlug } from '../../lib/landings';
+
+export function getStaticPaths() {
+	return LANDINGS.map((landing) => ({
+		params: { slug: landing.slug },
+		props: { slug: landing.slug },
+	}));
+}
+
+const { slug } = Astro.props;
+const landing = landingBySlug(slug);
+
+if (!landing) {
+	throw new Error(`Landing no encontrada: ${slug}`);
+}
+---
+
+<ServiceLanding landing={landing} />

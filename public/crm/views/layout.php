@@ -82,6 +82,7 @@ $onQuoteEditor = str_ends_with($path, '/cotizacion')
 			<?php elseif ($onClients && $path !== '/clientes/nuevo'): ?>
 				<a class="btn btn-word" href="<?= h(Http::url('/clientes/nuevo')) ?>">Inscribir cliente</a>
 			<?php elseif ($onCatalog && $path === '/catalogo'): ?>
+				<a class="btn" href="<?= h(Http::url('/catalogo/destacados')) ?>">Destacados</a>
 				<a class="btn btn-word" href="<?= h(Http::url('/catalogo/nuevo')) ?>">Nuevo producto</a>
 			<?php endif; ?>
 		</div>

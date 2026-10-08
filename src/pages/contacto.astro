@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { content } from '../lib/content';
 import { mailUrl, SITE, telUrl, whatsappUrl } from '../lib/site';
 import { INDUSTRIES } from '../lib/industries';
+import { LANDINGS } from '../lib/landings';
 import { absoluteUrl, graphSchema, localBusinessSchema, organizationSchema, webPageSchema } from '../lib/seo';
 
 const page = content.pages.contacto;
@@ -121,9 +122,16 @@ const fieldClass =
 								<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Rubro</span>
 								<select name="servicio" required class={`${fieldClass} bg-surface`}>
 									<option value="">Selecciona un rubro</option>
-									{INDUSTRIES.map((industry) => (
-										<option value={industry.title}>{industry.title}</option>
-									))}
+									<optgroup label="Instalaciones especializadas">
+										{LANDINGS.map((landing) => (
+											<option value={landing.title}>{landing.title}</option>
+										))}
+									</optgroup>
+									<optgroup label="Por industria">
+										{INDUSTRIES.map((industry) => (
+											<option value={industry.title}>{industry.title}</option>
+										))}
+									</optgroup>
 								</select>
 							</label>
 							<label class="block sm:col-span-2">
@@ -177,6 +185,18 @@ const fieldClass =
 			}
 			if (mensaje && field instanceof HTMLTextAreaElement && field.value === '') {
 				field.value = mensaje;
+			}
+			const servicio = params.get('servicio');
+			const servicioField = form.querySelector('[name="servicio"]');
+			if (servicio && servicioField instanceof HTMLSelectElement) {
+				const exists = Array.from(servicioField.options).some((option) => option.value === servicio);
+				if (!exists) {
+					const extra = document.createElement('option');
+					extra.value = servicio;
+					extra.textContent = servicio;
+					servicioField.appendChild(extra);
+				}
+				servicioField.value = servicio;
 			}
 
 			form.addEventListener('submit', async (event) => {

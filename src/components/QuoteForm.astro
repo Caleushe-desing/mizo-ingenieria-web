@@ -1,0 +1,78 @@
+---
+import { SITE } from '../lib/site';
+
+interface Props {
+	servicio: string;
+	mensaje: string;
+	formId?: string;
+}
+
+const { servicio, mensaje, formId = 'landing-quote' } = Astro.props;
+
+const fieldClass =
+	'mt-2 w-full border border-ink/20 bg-surface px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-ink/40 focus:border-accent';
+---
+
+<form id={formId} class="p-5 sm:p-7" novalidate>
+	<input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
+	<input type="hidden" name="sku" value="" />
+	<input type="hidden" name="servicio" value={servicio} />
+	<div class="grid gap-5 sm:grid-cols-2">
+		<label class="block">
+			<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Nombre</span>
+			<input name="nombre" type="text" required class={fieldClass} autocomplete="name" />
+		</label>
+		<label class="block">
+			<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Teléfono</span>
+			<input name="telefono" type="tel" required class={fieldClass} autocomplete="tel" />
+		</label>
+		<label class="block sm:col-span-2">
+			<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Correo</span>
+			<input name="correo" type="email" required class={fieldClass} autocomplete="email" />
+		</label>
+		<label class="block sm:col-span-2">
+			<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Qué necesitas</span>
+			<textarea name="mensaje" rows="5" required class={`${fieldClass} resize-y`}>{mensaje}</textarea>
+		</label>
+	</div>
+	<div class="mt-7 flex flex-col gap-3 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+		<button type="submit" class="mizo-btn" data-ads-conversion>Pedir cotización</button>
+		<p class="text-xs leading-5 text-ink/55">Llega a {SITE.email} · respuesta en horario hábil</p>
+	</div>
+	<p id={`${formId}-error`} class="mt-4 hidden border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-700">
+		No se pudo enviar. Escríbenos por WhatsApp o a {SITE.email}.
+	</p>
+</form>
+<div id={`${formId}-ok`} class="hidden px-5 py-14 text-center sm:px-7">
+	<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Solicitud recibida</p>
+	<h3 class="mt-3 text-2xl font-extrabold">Un ingeniero Mizo te contactará.</h3>
+</div>
+
+<script is:inline define:vars={{ formId }}>
+	(function () {
+		const form = document.getElementById(formId);
+		const ok = document.getElementById(formId + '-ok');
+		const error = document.getElementById(formId + '-error');
+		if (!form || !ok || !error) return;
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			error.classList.add('hidden');
+			const payload = Object.fromEntries(new FormData(form).entries());
+			try {
+				const response = await fetch('/api/contacto.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+					body: JSON.stringify(payload),
+				});
+				if (!response.ok) throw new Error('send-failed');
+				form.classList.add('hidden');
+				ok.classList.remove('hidden');
+				if (typeof gtag_report_conversion === 'function') {
+					gtag_report_conversion();
+				}
+			} catch {
+				error.classList.remove('hidden');
+			}
+		});
+	})();
+</script>

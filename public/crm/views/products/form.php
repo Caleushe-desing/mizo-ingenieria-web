@@ -79,6 +79,21 @@ $categories = ['Audio', 'Video', 'Automatización', 'Redes', 'Control', 'Ilumina
 		<span>Visibilidad</span>
 		<span><input type="checkbox" name="activo" value="1" <?= (int) ($product['activo'] ?? 1) === 1 ? 'checked' : '' ?>> Visible en el sitio público</span>
 	</label>
+	<?php
+		$landings = $landings ?? \MizoCrm\Models\Product::landings();
+		$landingSlugs = $landingSlugs ?? [];
+	?>
+	<?php if (empty($product['servicio_profesional'])): ?>
+		<fieldset>
+			<legend>Productos destacados en landings</legend>
+			<p class="muted">Marca en qué páginas de Instalaciones Especializadas aparece este equipo. Tiene que estar visible en la web para publicarse.</p>
+			<?php foreach ($landings as $slug => $label): ?>
+				<label>
+					<span><input type="checkbox" name="landings[]" value="<?= h($slug) ?>" <?= in_array($slug, $landingSlugs, true) ? 'checked' : '' ?>> <?= h($label) ?></span>
+				</label>
+			<?php endforeach; ?>
+		</fieldset>
+	<?php endif; ?>
 	<div class="form-actions">
 		<button class="btn btn-word" type="submit"><?= $isEdit ? 'Guardar cambios' : 'Agregar al catálogo' ?></button>
 		<a class="btn" href="<?= h(Http::url('/catalogo')) ?>">Volver</a>

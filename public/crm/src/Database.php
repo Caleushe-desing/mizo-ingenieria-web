@@ -682,6 +682,20 @@ final class Database
 		if ($version < 28) {
 			self::ensureMarketingSchema($pdo);
 			$pdo->exec('PRAGMA user_version = 28');
+			$version = 28;
+		}
+
+		if ($version < 29) {
+			$pdo->exec(
+				'CREATE TABLE IF NOT EXISTS product_landing_features (
+					product_id INTEGER NOT NULL,
+					landing_slug TEXT NOT NULL,
+					position INTEGER NOT NULL DEFAULT 0,
+					PRIMARY KEY (product_id, landing_slug)
+				)'
+			);
+			$pdo->exec('CREATE INDEX IF NOT EXISTS idx_product_landing_slug ON product_landing_features(landing_slug, position)');
+			$pdo->exec('PRAGMA user_version = 29');
 		}
 	}
 

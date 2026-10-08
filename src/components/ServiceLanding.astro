@@ -1,0 +1,187 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PhotoSlot from './PhotoSlot.astro';
+import QuoteForm from './QuoteForm.astro';
+import { landingMedia } from '../lib/landing-media';
+import { LANDINGS, landingPath, landingWhatsapp, type Landing } from '../lib/landings';
+import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
+
+interface Props {
+	landing: Landing;
+}
+
+const { landing } = Astro.props;
+const media = landingMedia[landing.slug];
+const path = landingPath(landing.slug);
+const mensaje = `Hola, quiero cotizar ${landing.keyword}.`;
+const others = LANDINGS.filter((item) => item.slug !== landing.slug);
+
+if (!media) {
+	throw new Error(`Sin imágenes para ${landing.slug}`);
+}
+
+const jsonLd = graphSchema([
+	organizationSchema(),
+	webPageSchema({ name: landing.seoTitle, description: landing.seoDescription, url: absoluteUrl(path) }),
+	serviceSchema({
+		name: landing.title,
+		description: landing.seoDescription,
+		url: absoluteUrl(path),
+	}),
+]);
+---
+
+<Layout title={landing.seoTitle} description={landing.seoDescription} jsonLd={jsonLd}>
+	<section class="mizo-band mizo-band-white relative overflow-hidden border-b border-ink/10 pt-28 text-ink sm:pt-32">
+		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
+		<div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:pb-20">
+			<div>
+				<p class="mizo-kicker">Instalaciones especializadas</p>
+				<h1 class="mt-3 text-4xl font-extrabold leading-[1.08] sm:text-5xl">{landing.title}</h1>
+				<p class="mt-5 max-w-xl text-lg leading-8 text-ink/80">{landing.lead}</p>
+				<div class="mt-8 flex flex-col gap-3 sm:flex-row">
+					<a href="#cotizar" class="mizo-btn">Cotizar este servicio</a>
+					<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-ghost">WhatsApp</a>
+				</div>
+				<ul class="mt-8 grid gap-3 text-sm font-semibold text-ink/75 sm:grid-cols-3">
+					<li class="border border-ink/10 bg-surface px-3 py-3">Cobertura en Chile</li>
+					<li class="border border-ink/10 bg-surface px-3 py-3">Ingeniería del recinto</li>
+					<li class="border border-ink/10 bg-surface px-3 py-3">Garantía 12 meses</li>
+				</ul>
+			</div>
+			<PhotoSlot label={landing.galleryAlts[0]} image={media.hero} eager />
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-gray py-16 sm:py-20" aria-label="Galería">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">En terreno</p>
+			<h2 class="mt-3 text-3xl font-extrabold">Instalaciones del mismo estándar</h2>
+			<div class="mt-8 grid gap-4 sm:grid-cols-3">
+				{media.gallery.map((image, index) => (
+					<PhotoSlot label={landing.galleryAlts[index]} image={image} />
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-white border-y border-ink/10 py-16 sm:py-20">
+		<div class="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8">
+			<div>
+				<p class="mizo-kicker">El servicio</p>
+				<h2 class="mt-3 text-3xl font-extrabold leading-tight">{landing.title} con criterio de ingeniería</h2>
+				<p class="mt-5 text-base leading-8 text-ink/80">{landing.detail}</p>
+			</div>
+			<ul class="space-y-3 self-start border border-ink/10 bg-surface p-6">
+				{landing.points.map((point) => (
+					<li class="flex gap-3 text-sm leading-6 text-ink/85">
+						<span class="mt-2 h-2 w-2 shrink-0 bg-orange"></span>
+						<span>{point}</span>
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-gray border-y border-ink/10 py-16 sm:py-20" data-featured hidden data-landing={landing.slug}>
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Catálogo</p>
+			<h2 class="mt-3 text-3xl font-extrabold">Productos destacados</h2>
+			<p class="mt-3 max-w-2xl text-sm leading-7 text-ink/70">Equipos que usamos en este tipo de instalación. Cotiza el que necesitas y lo integramos en el recinto.</p>
+			<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-featured-list></div>
+		</div>
+	</section>
+
+	<section id="cotizar" class="mizo-band mizo-band-soft scroll-mt-24 py-16 sm:py-20">
+		<div class="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+			<div>
+				<p class="mizo-kicker">Cotización</p>
+				<h2 class="mt-3 text-3xl font-extrabold leading-tight">Cuéntanos el recinto</h2>
+				<p class="mt-4 text-base leading-7 text-ink/75">
+					El formulario queda asociado a {landing.keyword}. Un asesor técnico revisa el espacio y responde en horario hábil.
+				</p>
+			</div>
+			<div class="border border-ink/10 bg-surface shadow-card">
+				<div class="border-b border-ink/10 px-5 py-4 sm:px-7">
+					<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">{landing.title}</p>
+					<p class="mt-1 text-sm text-ink/60">Contacto directo con Mizo</p>
+				</div>
+				<QuoteForm servicio={landing.title} mensaje={mensaje} />
+			</div>
+		</div>
+	</section>
+
+	<section class="border-t border-ink/10 py-14">
+		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-accent-dark">Otras instalaciones</p>
+			<ul class="mt-4 flex flex-wrap gap-2">
+				{others.map((item) => (
+					<li>
+						<a href={landingPath(item.slug)} class="inline-flex border border-ink/15 bg-surface px-3 py-2 text-sm font-semibold text-ink/80 hover:border-accent hover:text-ink">
+							{item.nav}
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+</Layout>
+
+<script is:inline define:vars={{ slug: landing.slug, title: landing.title }}>
+	(function () {
+		var root = document.querySelector('[data-featured][data-landing="' + slug + '"]');
+		var list = root && root.querySelector('[data-featured-list]');
+		if (!root || !list) return;
+
+		function text(tag, className, value) {
+			var el = document.createElement(tag);
+			el.className = className;
+			el.textContent = value;
+			return el;
+		}
+
+		function photoSrc(src) {
+			if (typeof src !== 'string' || src === '') return '';
+			if (src.charAt(0) === '/') return src;
+			if (src.indexOf('crm/') === 0) return '/' + src;
+			if (src.indexOf('uploads/productos/') === 0) return '/crm/' + src;
+			return src;
+		}
+
+		fetch('/crm/api/productos-visibles.php?landing=' + encodeURIComponent(slug), { headers: { Accept: 'application/json' } })
+			.then(function (res) { return res.json(); })
+			.then(function (data) {
+				var items = data && Array.isArray(data.productos) ? data.productos : [];
+				if (!items.length) return;
+				items.forEach(function (item) {
+					var card = document.createElement('article');
+					card.className = 'flex h-full flex-col border border-ink/10 bg-surface';
+					var photos = Array.isArray(item.imagenes) ? item.imagenes.map(photoSrc).filter(Boolean) : [];
+					if (photos.length) {
+						var img = document.createElement('img');
+						img.src = photos[0];
+						img.alt = item.nombre || item.sku || 'Producto';
+						img.className = 'aspect-[4/3] w-full object-cover';
+						img.loading = 'lazy';
+						card.appendChild(img);
+					}
+					var body = document.createElement('div');
+					body.className = 'flex flex-1 flex-col p-5';
+					body.appendChild(text('p', 'text-[0.65rem] font-bold uppercase tracking-[0.18em] text-orange', item.categoria || 'Equipo'));
+					body.appendChild(text('h3', 'mt-2 text-lg font-extrabold leading-snug', item.nombre || item.sku || 'Producto'));
+					if (item.sku) body.appendChild(text('p', 'mt-1 font-mono text-xs text-ink/45', 'SKU ' + item.sku));
+					if (item.descripcion) body.appendChild(text('p', 'mt-3 line-clamp-3 text-sm leading-6 text-ink/70', item.descripcion));
+					var link = document.createElement('a');
+					var message = 'Quiero cotizar el producto ' + (item.nombre || '') + ' (SKU ' + (item.sku || '') + ') para ' + title + '.';
+					link.href = '/contacto?sku=' + encodeURIComponent(item.sku || '') + '&mensaje=' + encodeURIComponent(message) + '&servicio=' + encodeURIComponent(title);
+					link.className = 'mt-4 text-sm font-bold text-accent-dark';
+					link.textContent = 'Cotizar este equipo';
+					body.appendChild(link);
+					card.appendChild(body);
+					list.appendChild(card);
+				});
+				root.hidden = false;
+			})
+			.catch(function () {});
+	})();
+</script>

@@ -134,6 +134,8 @@ final class App
 			['GET', '#^/marketing/nuevo$#', [Controllers\MarketingController::class, 'compose']],
 			['POST', '#^/marketing/enviar$#', [Controllers\MarketingController::class, 'send']],
 			['GET', '#^/marketing$#', [Controllers\MarketingController::class, 'index']],
+			['GET', '#^/catalogo/destacados$#', [Controllers\ProductController::class, 'features']],
+			['POST', '#^/catalogo/destacados$#', [Controllers\ProductController::class, 'saveFeatures']],
 			['GET', '#^/catalogo/nuevo$#', [Controllers\ProductController::class, 'create']],
 			['POST', '#^/catalogo/importar$#', [Controllers\ProductController::class, 'import']],
 			['POST', '#^/catalogo/(\d+)/visibilidad$#', [Controllers\ProductController::class, 'visibility']],

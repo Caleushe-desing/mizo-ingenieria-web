@@ -1,5 +1,6 @@
 ---
 import { INDUSTRIES, industryPath } from '../lib/industries';
+import { LANDINGS, landingPath } from '../lib/landings';
 import { mailUrl, NAV, SITE, telUrl, whatsappUrl } from '../lib/site';
 
 const year = new Date().getFullYear();
@@ -33,6 +34,12 @@ const year = new Date().getFullYear();
 						<li><a href={industryPath(industry.slug)} class="transition-all duration-300 hover:text-accent-dark">{industry.nav}</a></li>
 					))}
 					<li><a href="/equipos" class="transition-all duration-300 hover:text-accent-dark">Productos</a></li>
+				</ul>
+				<h2 class="mt-8 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Instalaciones</h2>
+				<ul class="mt-4 space-y-2 text-sm">
+					{LANDINGS.map((landing) => (
+						<li><a href={landingPath(landing.slug)} class="transition-all duration-300 hover:text-accent-dark">{landing.nav}</a></li>
+					))}
 				</ul>
 			</div>
 

@@ -1,5 +1,6 @@
 ---
 import { INDUSTRIES, industryPath } from '../lib/industries';
+import { LANDINGS, landingPath } from '../lib/landings';
 import { NAV, SITE, telUrl, whatsappUrl } from '../lib/site';
 
 const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -24,26 +25,39 @@ const linkClass = (active: boolean) =>
 
 		<nav class="ml-auto hidden items-center gap-1 lg:flex" aria-label="Principal">
 			{NAV.map((item) =>
-				item.href === '/industrias' ? (
+				item.href === '/industrias' || item.href === '/instalaciones' ? (
 					<div class="group relative">
 						<a href={item.href} class={linkClass(isActive(item.href))} aria-current={isActive(item.href) ? 'page' : undefined}>
 							{item.title}
 						</a>
 						<div class="invisible absolute left-0 top-full z-50 w-72 border border-ink/10 bg-surface py-2 opacity-0 shadow-card transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
-							{INDUSTRIES.map((industry) => (
-								<a
-									href={industryPath(industry.slug)}
-									class="block px-4 py-2.5 text-sm font-semibold text-ink/80 transition-all duration-300 hover:bg-accent-soft hover:text-ink"
-								>
-									{industry.nav}
-								</a>
-							))}
-							<a
-								href="/equipos"
-								class="block border-t border-ink/10 px-4 py-2.5 text-sm font-semibold text-ink/80 transition-all duration-300 hover:bg-accent-soft hover:text-ink"
-							>
-								Productos
-							</a>
+							{item.href === '/industrias' ? (
+								<>
+									{INDUSTRIES.map((industry) => (
+										<a
+											href={industryPath(industry.slug)}
+											class="block px-4 py-2.5 text-sm font-semibold text-ink/80 transition-all duration-300 hover:bg-accent-soft hover:text-ink"
+										>
+											{industry.nav}
+										</a>
+									))}
+									<a
+										href="/equipos"
+										class="block border-t border-ink/10 px-4 py-2.5 text-sm font-semibold text-ink/80 transition-all duration-300 hover:bg-accent-soft hover:text-ink"
+									>
+										Productos
+									</a>
+								</>
+							) : (
+								LANDINGS.map((landing) => (
+									<a
+										href={landingPath(landing.slug)}
+										class="block px-4 py-2.5 text-sm font-semibold text-ink/80 transition-all duration-300 hover:bg-accent-soft hover:text-ink"
+									>
+										{landing.nav}
+									</a>
+								))
+							)}
 						</div>
 					</div>
 				) : (
@@ -96,6 +110,15 @@ const linkClass = (active: boolean) =>
 										</a>
 									))}
 									<a href="/equipos" class="block px-3 py-2 text-sm text-ink/70 hover:text-ink">Productos</a>
+								</div>
+							)}
+							{item.href === '/instalaciones' && (
+								<div class="mb-1 ml-3 border-l border-ink/10">
+									{LANDINGS.map((landing) => (
+										<a href={landingPath(landing.slug)} class="block px-3 py-2 text-sm text-ink/70 hover:text-ink">
+											{landing.nav}
+										</a>
+									))}
 								</div>
 							)}
 						</div>

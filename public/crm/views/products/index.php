@@ -4,7 +4,10 @@
 		<h1>Catálogo de productos</h1>
 		<p>Equipos de referencia para cotizar. Ordenados por uso en cotizaciones. El precio de compra y el enlace del proveedor alimentan al cotizador.</p>
 	</div>
-	<a class="btn btn-word" href="<?= h(Http::url('/catalogo/nuevo')) ?>">Nuevo producto</a>
+	<div style="display:flex;gap:8px;flex-wrap:wrap">
+		<a class="btn" href="<?= h(Http::url('/catalogo/destacados')) ?>">Destacados en landings</a>
+		<a class="btn btn-word" href="<?= h(Http::url('/catalogo/nuevo')) ?>">Nuevo producto</a>
+	</div>
 </div>
 
 <form class="paper form" method="post" action="<?= h(Http::url('/catalogo/importar')) ?>" style="margin-bottom:16px;max-width:720px">
