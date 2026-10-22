@@ -75,14 +75,6 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-white border-b border-ink/10 py-12 sm:py-16" data-featured hidden data-landing={landing.slug}>
-		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-			<h2 class="text-2xl font-extrabold">Equipos que instalamos</h2>
-			<p class="mt-2 max-w-xl text-base leading-7 text-ink/75">Si ya tienes uno en mente, cotízalo. Si no, te recomendamos el que corresponde.</p>
-			<div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4" data-featured-list></div>
-		</div>
-	</section>
-
 	<section class="mizo-band mizo-band-soft py-12 sm:py-16">
 		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
 			<div class="grid gap-10 lg:grid-cols-2">
@@ -170,6 +162,14 @@ const jsonLd = graphSchema([
 					</li>
 				))}
 			</ul>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-white border-t border-ink/10 py-12 sm:py-16" data-featured hidden data-landing={landing.slug}>
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+			<h2 class="text-2xl font-extrabold">Equipos que instalamos</h2>
+			<p class="mt-2 max-w-xl text-base leading-7 text-ink/75">Si ya tienes uno en mente, cotízalo. Si no, te recomendamos el que corresponde.</p>
+			<div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4" data-featured-list></div>
 		</div>
 	</section>
 </Layout>
