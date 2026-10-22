@@ -4,8 +4,6 @@ import PhotoSlot from './PhotoSlot.astro';
 import QuoteForm from './QuoteForm.astro';
 import { landingExtras } from '../lib/landing-extras';
 import { landingMedia } from '../lib/landing-media';
-import { industryMedia } from '../lib/industry-images';
-import { industryBySlug, industryPath } from '../lib/industries';
 import { SOUND_LANDINGS, landingPath, landingWhatsapp, type Landing } from '../lib/landings';
 import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
 
@@ -24,21 +22,6 @@ const extra = landingExtras[landing.slug];
 if (!media || !extra) {
 	throw new Error(`Sin contenido para ${landing.slug}`);
 }
-
-const related = extra.related.flatMap((item) => {
-	const industry = industryBySlug(item.industry);
-	const solution = industry?.solutions.find((entry) => entry.id === item.solution);
-	const image = industryMedia[item.industry]?.solutions[item.solution];
-	if (!industry || !solution || !image) return [];
-	return [{
-		href: `${industryPath(industry.slug)}#${solution.id}`,
-		industry: industry.nav,
-		title: solution.title,
-		text: solution.description,
-		image,
-		imageLabel: solution.imageLabel,
-	}];
-});
 
 const jsonLd = graphSchema([
 	organizationSchema(),
@@ -61,82 +44,38 @@ const jsonLd = graphSchema([
 
 <Layout title={landing.seoTitle} description={landing.seoDescription} jsonLd={jsonLd}>
 	<section class="mizo-band mizo-band-white relative overflow-hidden border-b border-ink/10 pt-24 text-ink sm:pt-32">
-		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
-		<div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:pb-20">
+		<div class="relative mx-auto grid max-w-6xl items-center gap-8 px-5 pb-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-16">
 			<div>
 				<p class="mizo-kicker">Sonido</p>
 				<h1 class="mt-3 text-[2.15rem] font-extrabold leading-[1.08] sm:text-5xl">{landing.title}</h1>
-				<p class="mt-5 max-w-xl text-lg leading-8 text-ink/80">{landing.lead}</p>
+				<p class="mt-4 max-w-xl text-xl leading-8 text-ink/80">{landing.lead}</p>
 				<div class="mt-8 flex w-full max-w-md flex-col gap-3">
-					<a href="#cotizar" class="mizo-btn">Cotizar este servicio</a>
-					<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">WhatsApp</a>
+					<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">Cotizar por WhatsApp</a>
+					<a href="#cotizar" class="mizo-btn">Solicitar asesoría rápida</a>
 				</div>
-				<ul class="mt-8 grid gap-3 text-sm font-semibold text-ink/75 sm:grid-cols-3">
-					<li class="border border-ink/10 bg-surface px-3 py-3">Cobertura en Chile</li>
-					<li class="border border-ink/10 bg-surface px-3 py-3">Ingeniería del recinto</li>
-					<li class="border border-ink/10 bg-surface px-3 py-3">Garantía 12 meses</li>
-				</ul>
 			</div>
 			<PhotoSlot label={landing.galleryAlts[0]} image={media.hero} eager />
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-gray border-b border-ink/10 py-16 sm:py-20" data-featured hidden data-landing={landing.slug}>
-		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-			<p class="mizo-kicker">Catálogo</p>
-			<h2 class="mt-3 text-3xl font-extrabold">Productos destacados</h2>
-			<p class="mt-3 max-w-2xl text-sm leading-7 text-ink/70">Equipos que usamos en este tipo de instalación. Cotiza el que necesitas y lo integramos en el recinto.</p>
-			<div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4" data-featured-list></div>
-		</div>
-	</section>
-
-	<section class="mizo-band mizo-band-gray py-16 sm:py-20" aria-label="Otras soluciones">
-		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<p class="mizo-kicker">Soluciones</p>
-			<h2 class="mt-3 text-3xl font-extrabold">Otras soluciones relacionadas</h2>
-			<p class="mt-3 max-w-2xl text-sm leading-7 text-ink/70">Cada enlace abre la solución del rubro que corresponde, dentro de su página.</p>
-			<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{related.map((item) => (
-					<a href={item.href} class="mizo-card group flex h-full flex-col overflow-hidden border border-ink/10 bg-surface hover:-translate-y-1 hover:border-accent/70">
-						<PhotoSlot label={item.imageLabel} image={item.image} class="transition-all duration-300 group-hover:brightness-110" />
-						<div class="flex flex-1 flex-col p-5">
-							<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-orange">{item.industry}</p>
-							<h3 class="mt-2 text-lg font-extrabold leading-snug">{item.title}</h3>
-							<p class="mt-3 line-clamp-3 text-sm leading-6 text-ink/70">{item.text}</p>
-							<span class="mt-4 text-sm font-bold text-accent-dark">Ver solución</span>
-						</div>
-					</a>
+	<section class="mizo-band mizo-band-gray py-10 sm:py-16" aria-label="Proyectos">
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+			<h2 class="text-2xl font-extrabold">Así se ve instalado</h2>
+			<div class="mt-5 grid gap-3 sm:grid-cols-3">
+				{media.gallery.map((image, index) => (
+					<PhotoSlot label={landing.galleryAlts[index] ?? landing.galleryAlts[0]} image={image} />
 				))}
 			</div>
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-white border-y border-ink/10 py-16 sm:py-20">
-		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<p class="mizo-kicker">Dónde se usa</p>
-			<h2 class="mt-3 max-w-2xl text-3xl font-extrabold">Pensado para el recinto, no para un paquete genérico.</h2>
-			<ul class="mt-10 grid gap-4 md:grid-cols-3">
-				{extra.audiences.map((item) => (
-					<li class="border border-ink/10 bg-surface p-6">
-						<h3 class="text-xl font-extrabold">{item.title}</h3>
-						<p class="mt-3 text-sm leading-7 text-ink/75">{item.text}</p>
-					</li>
-				))}
-			</ul>
-		</div>
-	</section>
-
-	<section class="mizo-band mizo-band-white border-y border-ink/10 py-16 sm:py-20">
-		<div class="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8">
-			<div>
-				<p class="mizo-kicker">El servicio</p>
-				<h2 class="mt-3 text-3xl font-extrabold leading-tight">{landing.title} con criterio de ingeniería</h2>
-				<p class="mt-5 text-base leading-8 text-ink/80">{landing.detail}</p>
-			</div>
-			<ul class="space-y-3 self-start border border-ink/10 bg-surface p-6">
+	<section class="mizo-band mizo-band-white py-10 sm:py-16">
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+			<h2 class="text-2xl font-extrabold">Qué ganas</h2>
+			<ul class="mt-5 grid gap-3 sm:grid-cols-2">
 				{landing.points.map((point) => (
-					<li class="flex gap-3 text-sm leading-6 text-ink/85">
-						<span class="mt-2 h-2 w-2 shrink-0 bg-orange"></span>
+					<li class="flex min-h-14 items-center gap-3 border border-ink/10 bg-surface px-4 py-4 text-lg font-semibold leading-7 text-ink">
+						<span class="h-2.5 w-2.5 shrink-0 bg-orange"></span>
 						<span>{point}</span>
 					</li>
 				))}
@@ -144,84 +83,72 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-gray py-16 sm:py-20">
-		<div class="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-			<div>
-				<p class="mizo-kicker">Alcance</p>
-				<h2 class="mt-3 text-3xl font-extrabold">Qué incluye la instalación</h2>
-				<p class="mt-4 text-sm leading-7 text-ink/75">La cotización detalla equipos y obra. Este es el alcance con el que trabajamos este servicio.</p>
-			</div>
-			<ul class="grid gap-3 sm:grid-cols-2">
-				{extra.included.map((item) => (
-					<li class="flex gap-3 border border-ink/10 bg-surface px-4 py-4 text-sm leading-6 text-ink/85">
-						<span class="mt-1 h-2 w-2 shrink-0 bg-orange"></span>
-						<span>{item}</span>
-					</li>
-				))}
-			</ul>
+	<section class="mizo-band mizo-band-gray border-b border-ink/10 py-10 sm:py-16" data-featured hidden data-landing={landing.slug}>
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+			<h2 class="text-2xl font-extrabold">Equipos que instalamos</h2>
+			<div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4" data-featured-list></div>
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-soft border-t border-ink/10 py-16 sm:py-20">
-		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<p class="mizo-kicker">Cómo trabajamos</p>
-			<h2 class="mt-3 max-w-2xl text-3xl font-extrabold">De la visita a la puesta en marcha.</h2>
-			<ol class="mt-10 grid gap-4 md:grid-cols-2">
+	<section class="mizo-band mizo-band-soft py-10 sm:py-16">
+		<div class="mx-auto grid max-w-6xl gap-8 px-5 sm:px-6 lg:grid-cols-2 lg:px-8">
+			<div>
+				<h2 class="text-2xl font-extrabold">Incluye</h2>
+				<ul class="mt-4 space-y-3">
+					{extra.included.map((item) => (
+						<li class="flex gap-3 text-lg leading-7 text-ink">
+							<span class="mt-2 h-2 w-2 shrink-0 bg-orange"></span>
+							<span>{item}</span>
+						</li>
+					))}
+				</ul>
+			</div>
+			<ol class="space-y-3">
 				{extra.steps.map((step, index) => (
-					<li class="border border-ink/10 bg-surface p-6">
-						<p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-orange">{String(index + 1).padStart(2, '0')}</p>
-						<h3 class="mt-3 text-xl font-extrabold">{step.title}</h3>
-						<p class="mt-3 text-sm leading-7 text-ink/75">{step.text}</p>
+					<li class="border border-ink/10 bg-surface px-4 py-4">
+						<p class="text-lg font-extrabold">{index + 1}. {step.title}</p>
+						<p class="mt-1 text-base leading-6 text-ink/75">{step.text}</p>
 					</li>
 				))}
 			</ol>
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-white border-y border-ink/10 py-16 sm:py-20">
-		<div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-			<p class="mizo-kicker">Preguntas frecuentes</p>
-			<h2 class="mt-3 text-3xl font-extrabold">Antes de cotizar</h2>
-			<div class="mt-8 divide-y divide-ink/10 border-y border-ink/10">
+	<section class="mizo-band mizo-band-white py-10 sm:py-16">
+		<div class="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
+			<h2 class="text-2xl font-extrabold">Preguntas cortas</h2>
+			<div class="mt-4 divide-y divide-ink/10 border-y border-ink/10">
 				{extra.faqs.map((item) => (
-					<details class="group py-4">
-						<summary class="cursor-pointer list-none text-base font-extrabold text-ink">{item.q}</summary>
-						<p class="mt-3 text-sm leading-7 text-ink/75">{item.a}</p>
+					<details class="py-4">
+						<summary class="cursor-pointer text-lg font-extrabold text-ink">{item.q}</summary>
+						<p class="mt-2 text-base leading-7 text-ink/75">{item.a}</p>
 					</details>
 				))}
 			</div>
 		</div>
 	</section>
 
-	<section id="cotizar" class="mizo-band mizo-band-soft scroll-mt-24 py-16 sm:py-20">
-		<div class="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+	<section id="cotizar" class="mizo-band mizo-band-soft scroll-mt-24 py-10 sm:py-16">
+		<div class="mx-auto grid max-w-6xl gap-8 px-5 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
 			<div>
-				<p class="mizo-kicker">Cotización</p>
-				<h2 class="mt-3 text-3xl font-extrabold leading-tight">Cuéntanos el recinto</h2>
-				<p class="mt-4 text-base leading-7 text-ink/75">
-					El formulario queda asociado a {landing.keyword}. Un asesor técnico revisa el espacio y responde en horario hábil.
-				</p>
+				<h2 class="text-2xl font-extrabold leading-tight">Solicitar asesoría rápida</h2>
+				<p class="mt-3 text-lg leading-7 text-ink/75">Cuéntanos el lugar. Te respondemos hoy.</p>
+				<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa mt-6">Cotizar por WhatsApp</a>
 			</div>
 			<div class="border border-ink/10 bg-surface shadow-card">
-				<div class="border-b border-ink/10 px-5 py-4 sm:px-7">
-					<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">{landing.title}</p>
-					<p class="mt-1 text-sm text-ink/60">Contacto directo con Mizo</p>
-				</div>
 				<QuoteForm servicio={landing.title} mensaje={mensaje} />
 			</div>
 		</div>
 	</section>
 
-	<section class="border-t border-ink/10 py-14">
-		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-accent-dark">Otras instalaciones</p>
-			<ul class="mt-6 grid gap-3 sm:grid-cols-2">
+	<section class="border-t border-ink/10 py-10">
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+			<h2 class="text-lg font-extrabold">También instalamos</h2>
+			<ul class="mt-4 grid gap-3 sm:grid-cols-2">
 				{others.map((item) => (
 					<li>
-						<a href={landingPath(item.slug)} class="block border border-ink/10 bg-surface p-5 hover:border-accent">
-							<p class="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-orange">Instalación</p>
-							<h3 class="mt-2 text-lg font-extrabold">{item.title}</h3>
-							<p class="mt-2 text-sm leading-6 text-ink/70">{item.lead}</p>
+						<a href={landingPath(item.slug)} class="block min-h-14 border border-ink/10 bg-surface px-4 py-4 text-lg font-extrabold hover:border-accent">
+							{item.nav}
 						</a>
 					</li>
 				))}
@@ -270,10 +197,7 @@ const jsonLd = graphSchema([
 					}
 					var body = document.createElement('div');
 					body.className = 'flex flex-1 flex-col p-5';
-					body.appendChild(text('p', 'text-[0.65rem] font-bold uppercase tracking-[0.18em] text-orange', item.categoria || 'Equipo'));
-					body.appendChild(text('h3', 'mt-2 text-lg font-extrabold leading-snug', item.nombre || item.sku || 'Producto'));
-					if (item.sku) body.appendChild(text('p', 'mt-1 font-mono text-xs text-ink/45', 'SKU ' + item.sku));
-					if (item.descripcion) body.appendChild(text('p', 'mt-3 line-clamp-3 text-sm leading-6 text-ink/70', item.descripcion));
+					body.appendChild(text('h3', 'text-base font-extrabold leading-snug', item.nombre || item.sku || 'Producto'));
 					var link = document.createElement('a');
 					var message = 'Quiero cotizar el producto ' + (item.nombre || '') + ' (SKU ' + (item.sku || '') + ') para ' + title + '.';
 					link.href = '/contacto?sku=' + encodeURIComponent(item.sku || '') + '&mensaje=' + encodeURIComponent(message) + '&servicio=' + encodeURIComponent(title);

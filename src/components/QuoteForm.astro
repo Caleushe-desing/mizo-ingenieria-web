@@ -32,12 +32,12 @@ const fieldClass =
 		</label>
 		<label class="block sm:col-span-2">
 			<span class="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-ink/70">Qué necesitas</span>
-			<textarea name="mensaje" rows="5" required class={`${fieldClass} resize-y`}>{mensaje}</textarea>
+			<textarea name="mensaje" rows="3" required class={`${fieldClass} resize-y`}>{mensaje}</textarea>
 		</label>
 	</div>
 	<div class="mt-7 flex flex-col gap-3 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-		<button type="submit" class="mizo-btn" data-ads-conversion>Pedir cotización</button>
-		<p class="text-xs leading-5 text-ink/55">Llega a {SITE.email} · respuesta en horario hábil</p>
+		<button type="submit" class="mizo-btn" data-ads-conversion>Solicitar asesoría rápida</button>
+		<p class="text-base leading-6 text-ink/60">Te respondemos hoy.</p>
 	</div>
 	<p id={`${formId}-error`} class="mt-4 hidden border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-700">
 		No se pudo enviar. Escríbenos por WhatsApp o a {SITE.email}.
