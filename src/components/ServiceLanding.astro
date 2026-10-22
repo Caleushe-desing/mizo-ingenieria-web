@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import QuoteForm from './QuoteForm.astro';
 import { landingExtras } from '../lib/landing-extras';
 import { SOUND_LANDINGS, landingPath, landingWhatsapp, type Landing } from '../lib/landings';
+import { SITE } from '../lib/site';
 import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
 
 interface Props {
@@ -165,20 +166,24 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-white border-t border-ink/10 py-12 sm:py-16" data-featured hidden data-landing={landing.slug}>
+	<section class="mizo-band mizo-band-white border-t border-ink/10 py-12 sm:py-16" data-venta data-landing={landing.slug}>
 		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-			<h2 class="text-2xl font-extrabold">Equipos que instalamos</h2>
-			<p class="mt-2 max-w-xl text-base leading-7 text-ink/75">Si ya tienes uno en mente, cotízalo. Si no, te recomendamos el que corresponde.</p>
-			<div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4" data-featured-list></div>
+			<p class="mizo-kicker">Venta</p>
+			<h2 class="mt-3 text-2xl font-extrabold">Venta de productos</h2>
+			<p class="mt-2 max-w-xl text-base leading-7 text-ink/75">Elige el equipo. Te lo cotizamos hoy, sin precio de lista.</p>
+			<p data-venta-status class="mt-4 text-base text-ink/60">Cargando productos…</p>
+			<div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4" data-venta-list></div>
+			<a href="/equipos" class="mizo-btn mt-6 sm:w-auto">Ver catálogo completo</a>
 		</div>
 	</section>
 </Layout>
 
-<script is:inline define:vars={{ slug: landing.slug, title: landing.title }}>
+<script is:inline define:vars={{ slug: landing.slug, title: landing.title, phone: SITE.whatsapp }}>
 	(function () {
-		var root = document.querySelector('[data-featured][data-landing="' + slug + '"]');
-		var list = root && root.querySelector('[data-featured-list]');
-		if (!root || !list) return;
+		var root = document.querySelector('[data-venta][data-landing="' + slug + '"]');
+		var list = root && root.querySelector('[data-venta-list]');
+		var status = root && root.querySelector('[data-venta-status]');
+		if (!root || !list || !status) return;
 
 		function text(tag, className, value) {
 			var el = document.createElement(tag);
@@ -195,37 +200,74 @@ const jsonLd = graphSchema([
 			return src;
 		}
 
-		fetch('/crm/api/productos-visibles.php?landing=' + encodeURIComponent(slug), { headers: { Accept: 'application/json' } })
-			.then(function (res) { return res.json(); })
-			.then(function (data) {
-				var items = data && Array.isArray(data.productos) ? data.productos : [];
-				if (!items.length) return;
-				items.forEach(function (item) {
-					var card = document.createElement('article');
-					card.className = 'flex h-full flex-col border border-ink/10 bg-surface shadow-card';
-					var photos = Array.isArray(item.imagenes) ? item.imagenes.map(photoSrc).filter(Boolean) : [];
-					if (photos.length) {
-						var img = document.createElement('img');
-						img.src = photos[0];
-						img.alt = item.nombre || item.sku || 'Producto';
-						img.className = 'aspect-[4/3] w-full object-cover';
-						img.loading = 'lazy';
-						card.appendChild(img);
-					}
-					var body = document.createElement('div');
-					body.className = 'flex flex-1 flex-col p-4';
-					body.appendChild(text('h3', 'text-base font-extrabold leading-snug', item.nombre || item.sku || 'Producto'));
-					var link = document.createElement('a');
-					var message = 'Quiero cotizar el producto ' + (item.nombre || '') + ' (SKU ' + (item.sku || '') + ') para ' + title + '.';
-					link.href = '/contacto?sku=' + encodeURIComponent(item.sku || '') + '&mensaje=' + encodeURIComponent(message) + '&servicio=' + encodeURIComponent(title);
-					link.className = 'mt-3 text-sm font-bold text-accent-dark';
-					link.textContent = 'Cotizar este equipo';
-					body.appendChild(link);
-					card.appendChild(body);
-					list.appendChild(card);
-				});
-				root.hidden = false;
+		function isSound(item) {
+			var blob = String((item.nombre || '') + ' ' + (item.categoria || '')).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+			return !/\b(video|proyector|proyectores|proyeccion|videowall|video wall|cctv|camaras?|domotica|pantalla led|carteleria)\b/.test(blob);
+		}
+
+		function card(item) {
+			var article = document.createElement('article');
+			article.className = 'flex h-full flex-col border border-ink/10 bg-surface shadow-card';
+			var photos = Array.isArray(item.imagenes) ? item.imagenes.map(photoSrc).filter(function (src) { return src.indexOf('/crm/uploads/productos/') === 0; }) : [];
+			if (photos.length) {
+				var img = document.createElement('img');
+				img.src = photos[0];
+				img.alt = item.nombre || item.sku || 'Producto';
+				img.className = 'aspect-square w-full bg-[#f8fafc] object-contain';
+				img.loading = 'lazy';
+				article.appendChild(img);
+			} else {
+				article.appendChild(text('div', 'flex aspect-square items-center justify-center bg-[#f8fafc] text-xs font-bold uppercase tracking-[0.14em] text-ink/30', 'Sin foto'));
+			}
+			var body = document.createElement('div');
+			body.className = 'flex flex-1 flex-col p-3 sm:p-4';
+			if (item.categoria) body.appendChild(text('p', 'text-[0.65rem] font-bold uppercase tracking-[0.14em] text-orange', item.categoria));
+			body.appendChild(text('h3', 'mt-1 text-sm font-extrabold leading-snug sm:text-base', item.nombre || item.sku || 'Producto'));
+			var message = 'Quiero comprar ' + (item.nombre || '') + ' (SKU ' + (item.sku || '') + ') para ' + title + '.';
+			var link = document.createElement('a');
+			link.href = '/contacto?sku=' + encodeURIComponent(item.sku || '') + '&mensaje=' + encodeURIComponent(message) + '&servicio=' + encodeURIComponent(title);
+			link.className = 'mizo-btn mt-auto min-h-10 w-full px-3 py-2 text-xs';
+			link.textContent = 'Cotizar';
+			body.appendChild(link);
+			var wa = document.createElement('a');
+			wa.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent('Hola Mizo, ' + message);
+			wa.target = '_blank';
+			wa.rel = 'noopener noreferrer';
+			wa.className = 'mt-2 text-center text-xs font-bold text-accent-dark';
+			wa.textContent = 'WhatsApp';
+			body.appendChild(wa);
+			article.appendChild(body);
+			return article;
+		}
+
+		function load(url) {
+			return fetch(url, { headers: { Accept: 'application/json' } })
+				.then(function (res) { return res.json(); })
+				.then(function (data) { return data && Array.isArray(data.productos) ? data.productos : []; });
+		}
+
+		function paint(items) {
+			var sound = items.filter(isSound).slice(0, 8);
+			list.textContent = '';
+			if (!sound.length) {
+				status.hidden = false;
+				status.textContent = 'El catálogo se está actualizando. Puedes ver todos los productos.';
+				return;
+			}
+			status.hidden = true;
+			sound.forEach(function (item) { list.appendChild(card(item)); });
+		}
+
+		load('/crm/api/productos-visibles.php?landing=' + encodeURIComponent(slug))
+			.then(function (items) {
+				var sound = items.filter(isSound);
+				if (sound.length) return sound;
+				return load('/crm/api/productos-visibles.php').then(function (all) { return all.filter(isSound); });
 			})
-			.catch(function () {});
+			.then(paint)
+			.catch(function () {
+				status.hidden = false;
+				status.textContent = 'No se pudo cargar la vitrina. Revisa el catálogo o escríbenos por WhatsApp.';
+			});
 	})();
 </script>
