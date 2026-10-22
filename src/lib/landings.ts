@@ -8,6 +8,7 @@ export type Landing = {
 	seoTitle: string;
 	seoDescription: string;
 	lead: string;
+	consult?: string;
 	detail: string;
 	points: readonly string[];
 	galleryAlts: readonly [string, string, string];
@@ -22,6 +23,7 @@ export const LANDINGS: readonly Landing[] = [
 		seoTitle: 'Instalación de sonido para iglesias | Mizo Chile',
 		seoDescription: 'Sonido para iglesias en Chile. La palabra se entiende en cada banco, sin acoples. Cotiza con Mizo.',
 		lead: 'La palabra se entiende en cada banco. Sin acoples.',
+		consult: '¿Tienes dudas con la acústica o los equipos que necesita tu iglesia? Consúltanos directamente y un especialista te asesora.',
 		detail: 'Instalamos el sonido del templo para que la predicación y la música se escuchen claras.',
 		points: [
 			'Se entiende hasta la última fila',
@@ -66,6 +68,7 @@ export const LANDINGS: readonly Landing[] = [
 		seoTitle: 'Sonido ambiental para restaurantes y locales | Mizo',
 		seoDescription: 'Música ambiental por zonas para restaurantes y locales. Cada ambiente con su volumen, sin tapar la conversación.',
 		lead: 'Cada ambiente con su volumen. La música acompaña, no interrumpe.',
+		consult: '¿Tienes dudas con la acústica o los equipos que necesitas para tu local? Consúltanos directamente y un especialista te asesora.',
 		detail: 'Comedor, terraza y barra suenan aparte. El personal lo maneja en un toque.',
 		points: [
 			'Comedor, terraza y barra por separado',
@@ -110,6 +113,7 @@ export const LANDINGS: readonly Landing[] = [
 		seoTitle: 'Instalación de parlantes | Mizo Chile',
 		seoDescription: 'Instalamos parlantes para que el sonido se escuche parejo en todo el recinto. Cotiza con Mizo.',
 		lead: 'Se escucha en todo el lugar, no solo junto al equipo.',
+		consult: '¿Tienes dudas con la acústica o los equipos que necesitas para tu sala o empresa? Consúltanos directamente y un especialista te asesora.',
 		detail: 'Definimos cuántos parlantes van y dónde, según el tamaño y el uso del espacio.',
 		points: [
 			'Sonido parejo en toda la sala',

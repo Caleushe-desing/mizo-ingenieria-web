@@ -5,7 +5,6 @@ import ConversionCta from '../components/ConversionCta.astro';
 import heroImage from '../assets/hero-instalacion.jpg';
 import { INDUSTRIES, industryPath } from '../lib/industries';
 import { industryMedia } from '../lib/industry-images';
-import { landingMedia } from '../lib/landing-media';
 import { SOUND_LANDINGS, landingPath } from '../lib/landings';
 import { content } from '../lib/content';
 import { BRANDS, SITE, whatsappUrl } from '../lib/site';
@@ -61,22 +60,13 @@ const jsonLd = graphSchema([
 			</h2>
 			<div class="mt-8 grid gap-4">
 				{SOUND_LANDINGS.map((landing) => (
-					<a href={landingPath(landing.slug)} class="mizo-card grid overflow-hidden border border-ink/10 bg-surface sm:grid-cols-[11rem_1fr] hover:border-accent/70">
-						<Image
-							src={landingMedia[landing.slug].hero}
-							alt=""
-							class="h-44 w-full object-cover sm:h-full"
-							widths={[480, 800]}
-							sizes="(min-width: 640px) 176px, 100vw"
-							format="webp"
-							quality={70}
-							loading="lazy"
-						/>
-						<div class="flex flex-col justify-center px-5 py-5">
+					<a href={landingPath(landing.slug)} class="mizo-card flex overflow-hidden border border-ink/10 bg-surface hover:border-accent">
+						<span class="w-1.5 shrink-0 bg-orange"></span>
+						<span class="block px-5 py-5">
 							<h3 class="text-2xl font-extrabold leading-tight text-ink">{landing.title}</h3>
 							<p class="mt-2 text-base leading-7 text-ink/75">{landing.lead}</p>
-							<span class="mt-4 text-base font-bold text-accent-dark">Cotizar {landing.nav}</span>
-						</div>
+							<span class="mt-4 inline-block text-base font-bold text-accent-dark">Cotizar {landing.nav}</span>
+						</span>
 					</a>
 				))}
 			</div>

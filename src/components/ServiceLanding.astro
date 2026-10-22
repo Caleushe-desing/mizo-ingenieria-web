@@ -1,9 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import PhotoSlot from './PhotoSlot.astro';
 import QuoteForm from './QuoteForm.astro';
 import { landingExtras } from '../lib/landing-extras';
-import { landingMedia } from '../lib/landing-media';
 import { SOUND_LANDINGS, landingPath, landingWhatsapp, type Landing } from '../lib/landings';
 import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
 
@@ -12,14 +10,15 @@ interface Props {
 }
 
 const { landing } = Astro.props;
-const media = landingMedia[landing.slug];
 const path = landingPath(landing.slug);
 const mensaje = `Hola, quiero cotizar ${landing.keyword}.`;
 const others = SOUND_LANDINGS.filter((item) => item.slug !== landing.slug);
-
 const extra = landingExtras[landing.slug];
+const consult =
+	landing.consult ??
+	'¿Tienes dudas con la acústica o los equipos que necesitas? Consúltanos directamente y un especialista te asesora.';
 
-if (!media || !extra) {
+if (!extra) {
 	throw new Error(`Sin contenido para ${landing.slug}`);
 }
 
@@ -44,95 +43,109 @@ const jsonLd = graphSchema([
 
 <Layout title={landing.seoTitle} description={landing.seoDescription} jsonLd={jsonLd}>
 	<section class="mizo-band mizo-band-white relative overflow-hidden border-b border-ink/10 pt-24 text-ink sm:pt-32">
-		<div class="relative mx-auto grid max-w-6xl items-center gap-8 px-5 pb-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-16">
-			<div>
-				<p class="mizo-kicker">Sonido</p>
-				<h1 class="mt-3 text-[2.15rem] font-extrabold leading-[1.08] sm:text-5xl">{landing.title}</h1>
-				<p class="mt-4 max-w-xl text-xl leading-8 text-ink/80">{landing.lead}</p>
-				<div class="mt-8 flex w-full max-w-md flex-col gap-3">
-					<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">Cotizar por WhatsApp</a>
-					<a href="#cotizar" class="mizo-btn">Solicitar asesoría rápida</a>
-				</div>
+		<div class="relative mx-auto max-w-3xl px-5 pb-12 sm:px-6 sm:pb-16 lg:px-8">
+			<p class="mizo-kicker">Sonido</p>
+			<h1 class="mt-3 text-[2.15rem] font-extrabold leading-[1.08] sm:text-5xl">{landing.title}</h1>
+			<p class="mt-4 text-xl leading-8 text-ink/80">{landing.lead}</p>
+			<div class="mt-6 border-l-4 border-orange bg-accent-soft px-5 py-5">
+				<p class="text-lg font-semibold leading-7 text-ink">{consult}</p>
 			</div>
-			<PhotoSlot label={landing.galleryAlts[0]} image={media.hero} eager />
-		</div>
-	</section>
-
-	<section class="mizo-band mizo-band-gray py-10 sm:py-16" aria-label="Proyectos">
-		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-			<h2 class="text-2xl font-extrabold">Así se ve instalado</h2>
-			<div class="mt-5 grid gap-3 sm:grid-cols-3">
-				{media.gallery.map((image, index) => (
-					<PhotoSlot label={landing.galleryAlts[index] ?? landing.galleryAlts[0]} image={image} />
-				))}
+			<div class="mt-6 flex w-full flex-col gap-3 sm:max-w-md">
+				<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">Cotizar por WhatsApp</a>
+				<a href="#cotizar" class="mizo-btn">Solicitar asesoría rápida</a>
 			</div>
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-white py-10 sm:py-16">
+	<section class="mizo-band mizo-band-gray py-12 sm:py-16">
 		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
 			<h2 class="text-2xl font-extrabold">Qué ganas</h2>
 			<ul class="mt-5 grid gap-3 sm:grid-cols-2">
 				{landing.points.map((point) => (
-					<li class="flex min-h-14 items-center gap-3 border border-ink/10 bg-surface px-4 py-4 text-lg font-semibold leading-7 text-ink">
-						<span class="h-2.5 w-2.5 shrink-0 bg-orange"></span>
-						<span>{point}</span>
+					<li class="border border-ink/10 bg-surface px-5 py-5 shadow-card">
+						<span class="block h-1 w-12 bg-orange"></span>
+						<p class="mt-4 text-lg font-extrabold leading-7">{point}</p>
 					</li>
 				))}
 			</ul>
+			<div class="mt-6 flex flex-col gap-3 border border-accent/25 bg-surface px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+				<p class="text-base font-semibold leading-6">¿Te sirve para tu caso? Un especialista te lo confirma.</p>
+				<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa sm:w-auto">Cotizar por WhatsApp</a>
+			</div>
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-gray border-b border-ink/10 py-10 sm:py-16" data-featured hidden data-landing={landing.slug}>
+	<section class="mizo-band mizo-band-white border-b border-ink/10 py-12 sm:py-16" data-featured hidden data-landing={landing.slug}>
 		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
 			<h2 class="text-2xl font-extrabold">Equipos que instalamos</h2>
+			<p class="mt-2 max-w-xl text-base leading-7 text-ink/75">Si ya tienes uno en mente, cotízalo. Si no, te recomendamos el que corresponde.</p>
 			<div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4" data-featured-list></div>
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-soft py-10 sm:py-16">
-		<div class="mx-auto grid max-w-6xl gap-8 px-5 sm:px-6 lg:grid-cols-2 lg:px-8">
-			<div>
-				<h2 class="text-2xl font-extrabold">Incluye</h2>
-				<ul class="mt-4 space-y-3">
-					{extra.included.map((item) => (
-						<li class="flex gap-3 text-lg leading-7 text-ink">
-							<span class="mt-2 h-2 w-2 shrink-0 bg-orange"></span>
-							<span>{item}</span>
-						</li>
-					))}
-				</ul>
+	<section class="mizo-band mizo-band-soft py-12 sm:py-16">
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+			<div class="grid gap-10 lg:grid-cols-2">
+				<div>
+					<h2 class="text-2xl font-extrabold">Incluye</h2>
+					<ul class="mt-4 grid gap-3">
+						{extra.included.map((item) => (
+							<li class="flex items-center gap-3 border border-ink/10 bg-surface px-4 py-4 text-lg font-semibold leading-7">
+								<span class="h-2.5 w-2.5 shrink-0 bg-accent"></span>
+								<span>{item}</span>
+							</li>
+						))}
+					</ul>
+				</div>
+				<div>
+					<h2 class="text-2xl font-extrabold">Cómo avanza</h2>
+					<ol class="mt-4 grid gap-3">
+						{extra.steps.map((step, index) => (
+							<li class="flex gap-4 border border-ink/10 bg-surface px-4 py-4">
+								<span class="flex h-10 w-10 shrink-0 items-center justify-center bg-accent text-base font-extrabold text-white">{index + 1}</span>
+								<span>
+									<p class="text-lg font-extrabold leading-6">{step.title}</p>
+									<p class="mt-1 text-base leading-6 text-ink/75">{step.text}</p>
+								</span>
+							</li>
+						))}
+					</ol>
+				</div>
 			</div>
-			<ol class="space-y-3">
-				{extra.steps.map((step, index) => (
-					<li class="border border-ink/10 bg-surface px-4 py-4">
-						<p class="text-lg font-extrabold">{index + 1}. {step.title}</p>
-						<p class="mt-1 text-base leading-6 text-ink/75">{step.text}</p>
-					</li>
-				))}
-			</ol>
+			<div class="mt-8 border-l-4 border-accent bg-surface px-5 py-5">
+				<p class="text-lg font-semibold leading-7">Sin compromiso. Cuéntanos el lugar y un especialista te asesora.</p>
+				<div class="mt-4 flex w-full flex-col gap-3 sm:max-w-md">
+					<a href="#cotizar" class="mizo-btn">Solicitar asesoría rápida</a>
+					<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">Cotizar por WhatsApp</a>
+				</div>
+			</div>
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-white py-10 sm:py-16">
+	<section class="mizo-band mizo-band-white py-12 sm:py-16">
 		<div class="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
 			<h2 class="text-2xl font-extrabold">Preguntas cortas</h2>
-			<div class="mt-4 divide-y divide-ink/10 border-y border-ink/10">
+			<div class="mt-5 grid gap-3">
 				{extra.faqs.map((item) => (
-					<details class="py-4">
+					<details class="border border-ink/10 bg-surface px-5 py-4">
 						<summary class="cursor-pointer text-lg font-extrabold text-ink">{item.q}</summary>
 						<p class="mt-2 text-base leading-7 text-ink/75">{item.a}</p>
 					</details>
 				))}
 			</div>
+			<p class="mt-5 text-base leading-7 text-ink/75">
+				¿Quedó alguna duda?
+				<a href="#cotizar" class="font-bold text-accent-dark">Pídele asesoría a un especialista</a>.
+			</p>
 		</div>
 	</section>
 
-	<section id="cotizar" class="mizo-band mizo-band-soft scroll-mt-24 py-10 sm:py-16">
-		<div class="mx-auto grid max-w-6xl gap-8 px-5 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+	<section id="cotizar" class="mizo-band mizo-band-soft scroll-mt-24 py-12 sm:py-16">
+		<div class="mx-auto grid max-w-6xl gap-8 px-5 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
 			<div>
-				<h2 class="text-2xl font-extrabold leading-tight">Solicitar asesoría rápida</h2>
-				<p class="mt-3 text-lg leading-7 text-ink/75">Cuéntanos el lugar. Te respondemos hoy.</p>
+				<p class="mizo-kicker">Asesoría directa</p>
+				<h2 class="mt-3 text-2xl font-extrabold leading-tight">Un especialista te responde hoy</h2>
+				<p class="mt-3 text-lg leading-7 text-ink/75">{consult}</p>
 				<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa mt-6">Cotizar por WhatsApp</a>
 			</div>
 			<div class="border border-ink/10 bg-surface shadow-card">
@@ -141,14 +154,18 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="border-t border-ink/10 py-10">
+	<section class="border-t border-ink/10 bg-surface py-12">
 		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
 			<h2 class="text-lg font-extrabold">También instalamos</h2>
 			<ul class="mt-4 grid gap-3 sm:grid-cols-2">
 				{others.map((item) => (
 					<li>
-						<a href={landingPath(item.slug)} class="block min-h-14 border border-ink/10 bg-surface px-4 py-4 text-lg font-extrabold hover:border-accent">
-							{item.nav}
+						<a href={landingPath(item.slug)} class="flex overflow-hidden border border-ink/10 bg-paper hover:border-accent">
+							<span class="w-1.5 shrink-0 bg-accent"></span>
+							<span class="block px-5 py-4">
+							<span class="block text-lg font-extrabold">{item.nav}</span>
+							<span class="mt-1 block text-base leading-6 text-ink/70">{item.lead}</span>
+							</span>
 						</a>
 					</li>
 				))}
@@ -185,7 +202,7 @@ const jsonLd = graphSchema([
 				if (!items.length) return;
 				items.forEach(function (item) {
 					var card = document.createElement('article');
-					card.className = 'flex h-full flex-col border border-ink/10 bg-surface';
+					card.className = 'flex h-full flex-col border border-ink/10 bg-surface shadow-card';
 					var photos = Array.isArray(item.imagenes) ? item.imagenes.map(photoSrc).filter(Boolean) : [];
 					if (photos.length) {
 						var img = document.createElement('img');
@@ -196,12 +213,12 @@ const jsonLd = graphSchema([
 						card.appendChild(img);
 					}
 					var body = document.createElement('div');
-					body.className = 'flex flex-1 flex-col p-5';
+					body.className = 'flex flex-1 flex-col p-4';
 					body.appendChild(text('h3', 'text-base font-extrabold leading-snug', item.nombre || item.sku || 'Producto'));
 					var link = document.createElement('a');
 					var message = 'Quiero cotizar el producto ' + (item.nombre || '') + ' (SKU ' + (item.sku || '') + ') para ' + title + '.';
 					link.href = '/contacto?sku=' + encodeURIComponent(item.sku || '') + '&mensaje=' + encodeURIComponent(message) + '&servicio=' + encodeURIComponent(title);
-					link.className = 'mt-4 text-sm font-bold text-accent-dark';
+					link.className = 'mt-3 text-sm font-bold text-accent-dark';
 					link.textContent = 'Cotizar este equipo';
 					body.appendChild(link);
 					card.appendChild(body);
