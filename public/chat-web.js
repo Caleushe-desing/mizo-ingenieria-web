@@ -12,17 +12,26 @@
 	}
 
 	var style = document.createElement('style');
-	style.textContent = '#mizo-chat-btn{position:fixed;left:16px;bottom:16px;z-index:60;border:0;background:#0f2744;color:#fff;font:700 14px/1 sans-serif;padding:14px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(15,39,68,.25)}#mizo-chat-btn.has-alert{background:#e87722;animation:mizo-chat-pulse 1s ease-in-out infinite}@keyframes mizo-chat-pulse{50%{transform:scale(1.04)}}#mizo-chat{position:fixed;left:16px;bottom:68px;z-index:60;width:min(380px,calc(100vw - 32px));background:#fff;color:#172033;border:1px solid rgba(15,39,68,.12);box-shadow:0 16px 40px rgba(15,39,68,.2);display:none;font:400 15px/1.45 sans-serif}#mizo-chat.is-open{display:grid}#mizo-chat header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;background:#0f2744;color:#fff}#mizo-chat header button{border:0;background:transparent;color:#fff;font-size:20px;cursor:pointer}#mizo-chat form,#mizo-chat .log{padding:12px 14px}#mizo-chat .log{display:grid;gap:8px;max-height:320px;overflow:auto}#mizo-chat .msg{padding:8px 10px;background:#f4f7fb}#mizo-chat .msg.is-mizo{background:#fff4ea}#mizo-chat input,#mizo-chat textarea{width:100%;box-sizing:border-box;border:1px solid #d5dde8;padding:8px;font:inherit}#mizo-chat button.send{border:0;background:#e87722;color:#fff;font:700 14px sans-serif;padding:10px 12px;cursor:pointer}@media(max-width:640px){#mizo-chat-btn{bottom:calc(4.75rem + env(safe-area-inset-bottom, 0px))}#mizo-chat{bottom:calc(8.25rem + env(safe-area-inset-bottom, 0px));width:min(380px,calc(100vw - 24px))}}';
+	style.textContent = '#mizo-chat-btn{position:fixed;left:16px;bottom:16px;z-index:60;border:0;background:#0f2744;color:#fff;font:700 14px/1 sans-serif;padding:14px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(15,39,68,.25)}#mizo-chat-btn.has-alert{background:#e87722;animation:mizo-chat-pulse 1s ease-in-out infinite}@keyframes mizo-chat-pulse{50%{transform:scale(1.04)}}#mizo-bar-chat.has-alert{color:#e87722}#mizo-chat{position:fixed;left:16px;bottom:68px;z-index:60;width:min(380px,calc(100vw - 32px));background:#fff;color:#172033;border:1px solid rgba(15,39,68,.12);box-shadow:0 16px 40px rgba(15,39,68,.2);display:none;font:400 16px/1.45 sans-serif}#mizo-chat.is-open{display:grid}#mizo-chat header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;background:#0f2744;color:#fff}#mizo-chat header button{border:0;background:transparent;color:#fff;font-size:20px;cursor:pointer}#mizo-chat form,#mizo-chat .log{padding:12px 14px}#mizo-chat .log{display:grid;gap:8px;max-height:320px;overflow:auto}#mizo-chat .msg{padding:8px 10px;background:#f4f7fb}#mizo-chat .msg.is-mizo{background:#fff4ea}#mizo-chat input,#mizo-chat textarea{width:100%;box-sizing:border-box;border:1px solid #d5dde8;padding:10px;font:inherit}#mizo-chat button.send{border:0;background:#e87722;color:#fff;font:700 16px sans-serif;padding:12px;cursor:pointer}@media(max-width:639px){#mizo-chat-btn{display:none}#mizo-chat{left:0;right:0;bottom:calc(4.25rem + env(safe-area-inset-bottom, 0px));width:100%;max-height:min(70svh,32rem);border-left:0;border-right:0;border-bottom:0}#mizo-chat .log{max-height:38svh}}';
 	document.head.appendChild(style);
 
-	var button = document.createElement('button');
-	button.id = 'mizo-chat-btn';
-	button.type = 'button';
-	button.textContent = 'Chatea con Mizo';
+	var barButton = document.getElementById('mizo-bar-chat');
+	var useBar = barButton && window.matchMedia('(max-width: 639px)').matches;
+	var button = useBar ? barButton : document.createElement('button');
+	if (!useBar) {
+		button.id = 'mizo-chat-btn';
+		button.type = 'button';
+		button.textContent = 'Chatea con Mizo';
+	}
+	function setLabel(text) {
+		var label = button.querySelector('[data-label]');
+		if (label) label.textContent = text;
+		else button.textContent = text;
+	}
 	var panel = document.createElement('section');
 	panel.id = 'mizo-chat';
 	panel.innerHTML = '<header><strong>Mizo <span data-code></span></strong><button type="button" data-close aria-label="Cerrar">×</button></header><div class="log" data-log><p>Cuéntanos qué necesitas. Un asesor te responde aquí.</p></div><form><input name="name" placeholder="Tu nombre" maxlength="80"><textarea name="body" rows="3" placeholder="Escribe tu mensaje" required maxlength="2000"></textarea><button class="send" type="submit">Enviar</button></form>';
-	document.body.appendChild(button);
+	if (!useBar) document.body.appendChild(button);
 	document.body.appendChild(panel);
 
 	var log = panel.querySelector('[data-log]');
@@ -59,7 +68,7 @@
 		if (knownMizo !== null && mizo > knownMizo) {
 			beep();
 			button.classList.add('has-alert');
-			button.textContent = 'Mizo te escribió';
+			setLabel(useBar ? 'Nuevo' : 'Mizo te escribió');
 			if (!open) document.title = '(1) Mizo te escribió';
 			if (window.Notification && Notification.permission === 'granted' && !open) {
 				new Notification('Mizo', { body: 'Tienes una respuesta en el chat.' });
@@ -67,7 +76,7 @@
 		}
 		if (open) {
 			button.classList.remove('has-alert');
-			button.textContent = 'Chatea con Mizo';
+			setLabel(useBar ? 'Chat' : 'Chatea con Mizo');
 			document.title = baseTitle;
 		}
 		knownMizo = mizo;
@@ -90,7 +99,7 @@
 		panel.classList.toggle('is-open', open);
 		if (open) {
 			button.classList.remove('has-alert');
-			button.textContent = 'Chatea con Mizo';
+			setLabel(useBar ? 'Chat' : 'Chatea con Mizo');
 			document.title = baseTitle;
 			if (window.Notification && Notification.permission === 'default') Notification.requestPermission();
 		}

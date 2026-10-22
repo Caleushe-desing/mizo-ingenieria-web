@@ -28,18 +28,15 @@ const year = new Date().getFullYear();
 			</div>
 
 			<div>
-				<h2 class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Soluciones</h2>
-				<ul class="mt-4 space-y-2 text-sm">
-					{INDUSTRIES.map((industry) => (
-						<li><a href={industryPath(industry.slug)} class="transition-all duration-300 hover:text-accent-dark">{industry.nav}</a></li>
-					))}
-					<li><a href="/equipos" class="transition-all duration-300 hover:text-accent-dark">Productos</a></li>
-				</ul>
-				<h2 class="mt-8 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Instalaciones</h2>
+				<h2 class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">Soluciones de audio</h2>
 				<ul class="mt-4 space-y-2 text-sm">
 					{SOUND_LANDINGS.map((landing) => (
-						<li><a href={landingPath(landing.slug)} class="transition-all duration-300 hover:text-accent-dark">{landing.nav}</a></li>
+						<li><a href={landingPath(landing.slug)} class="transition-all duration-300 hover:text-accent-dark">{landing.slug === 'parlantes-para-iglesias' ? 'Iglesias' : landing.nav}</a></li>
 					))}
+					{INDUSTRIES.map((industry) => (
+						<li><a href={industryPath(industry.slug)} class="transition-all duration-300 hover:text-accent-dark">{industry.slug === 'entretenimiento-residencial' ? 'Casas y quinchos' : industry.nav}</a></li>
+					))}
+					<li><a href="/equipos" class="transition-all duration-300 hover:text-accent-dark">Equipos</a></li>
 				</ul>
 			</div>
 
