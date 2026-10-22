@@ -31,6 +31,14 @@ export const BRANDS = [
 	{ name: 'Shure', slug: 'shure' },
 ] as const;
 
+export const CLIENTS = [
+	{ name: "Papa John's", src: '/images/clientes/papa-johns.svg' },
+	{ name: 'Caja de Compensación Los Héroes', src: '/images/clientes/los-heroes.svg' },
+	{ name: 'UC San Joaquín', src: '/images/clientes/uc.svg' },
+	{ name: 'Intervial', src: '/images/clientes/intervial.png' },
+	{ name: 'Universidad Federico Santa María', src: '/images/clientes/usm.png' },
+] as const;
+
 export function whatsappUrl(message = SITE.whatsappMessage): string {
 	return `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(message)}`;
 }

@@ -7,7 +7,7 @@ import { INDUSTRIES, industryPath } from '../lib/industries';
 import { industryMedia } from '../lib/industry-images';
 import { SOUND_LANDINGS, landingPath } from '../lib/landings';
 import { content } from '../lib/content';
-import { BRANDS, SITE, whatsappUrl } from '../lib/site';
+import { BRANDS, CLIENTS, SITE, whatsappUrl } from '../lib/site';
 import { absoluteUrl, graphSchema, localBusinessSchema, organizationSchema, webPageSchema, websiteSchema } from '../lib/seo';
 
 const home = content.pages.home;
@@ -109,22 +109,117 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-white border-t border-ink/10 py-10 sm:py-24" aria-label="Marcas">
-		<ul class="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-ink/10 sm:grid-cols-3 lg:grid-cols-5">
-			{BRANDS.map((brand) => (
-				<li class="flex h-20 items-center justify-center bg-surface px-4">
-					<img
-						src={`/images/marcas/${brand.slug}.svg`}
-						alt={brand.name}
-						class="max-h-8 max-w-[110px] object-contain brightness-0 opacity-70"
-						width="110"
-						height="32"
-						loading="lazy"
-					/>
-				</li>
-			))}
-		</ul>
+	<section class="mizo-band mizo-band-white border-t border-ink/10 py-12 sm:py-20" aria-labelledby="marcas-heading">
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+			<div class="flex items-end justify-between gap-4">
+				<div>
+					<p class="mizo-kicker">Marcas</p>
+					<h2 id="marcas-heading" class="mt-3 text-3xl font-extrabold leading-tight text-ink sm:text-4xl">Marcas que instalamos</h2>
+				</div>
+				<div class="flex shrink-0 gap-2">
+					<button type="button" class="brand-carousel-btn" data-brand-prev aria-label="Marca anterior">
+						<svg viewBox="0 0 20 20" class="h-5 w-5" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+					</button>
+					<button type="button" class="brand-carousel-btn" data-brand-next aria-label="Marca siguiente">
+						<svg viewBox="0 0 20 20" class="h-5 w-5" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+					</button>
+				</div>
+			</div>
+			<div class="brand-carousel mt-8" data-brand-carousel>
+				<ul class="brand-carousel-track">
+					{BRANDS.map((brand) => (
+						<li class="brand-carousel-slide">
+							<img
+								src={`/images/marcas/${brand.slug}.svg`}
+								alt={brand.name}
+								class="max-h-8 max-w-[120px] object-contain brightness-0 opacity-70"
+								width="120"
+								height="32"
+								loading="lazy"
+							/>
+						</li>
+					))}
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-gray border-t border-ink/10 py-12 sm:py-20" aria-labelledby="clientes-heading">
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Clientes</p>
+			<h2 id="clientes-heading" class="mt-3 text-3xl font-extrabold leading-tight text-ink sm:text-4xl">Nuestros clientes</h2>
+		</div>
+		<div class="client-marquee mt-8" aria-label="Logos de clientes">
+			<ul class="client-marquee-track">
+				{CLIENTS.map((client) => (
+					<li class="client-marquee-item">
+						<img src={client.src} alt={client.name} width="180" height="64" loading="lazy" />
+					</li>
+				))}
+				{CLIENTS.map((client) => (
+					<li class="client-marquee-item" data-clone aria-hidden="true">
+						<img src={client.src} alt="" width="180" height="64" loading="lazy" />
+					</li>
+				))}
+			</ul>
+		</div>
 	</section>
 
 	<ConversionCta />
 </Layout>
+
+<script>
+	const carousel = document.querySelector('[data-brand-carousel]');
+	const track = carousel?.querySelector('.brand-carousel-track');
+	const prev = document.querySelector('[data-brand-prev]');
+	const next = document.querySelector('[data-brand-next]');
+
+	if (track instanceof HTMLElement) {
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const step = () => {
+			const item = track.querySelector('li');
+			if (!(item instanceof HTMLElement)) return track.clientWidth;
+			const gap = Number.parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
+			return item.getBoundingClientRect().width + gap;
+		};
+		const go = (direction) => {
+			const distance = step() * direction;
+			const max = track.scrollWidth - track.clientWidth;
+			if (direction > 0 && track.scrollLeft + distance >= max - 4) {
+				track.scrollTo({ left: 0, behavior: 'smooth' });
+				return;
+			}
+			if (direction < 0 && track.scrollLeft <= 4) {
+				track.scrollTo({ left: max, behavior: 'smooth' });
+				return;
+			}
+			track.scrollBy({ left: distance, behavior: 'smooth' });
+		};
+
+		let timer = 0;
+		const play = () => {
+			window.clearInterval(timer);
+			if (reduced || track.scrollWidth <= track.clientWidth + 8) return;
+			timer = window.setInterval(() => go(1), 3200);
+		};
+		const pause = () => window.clearInterval(timer);
+
+		prev?.addEventListener('click', () => {
+			pause();
+			go(-1);
+			play();
+		});
+		next?.addEventListener('click', () => {
+			pause();
+			go(1);
+			play();
+		});
+		carousel?.addEventListener('mouseenter', pause);
+		carousel?.addEventListener('mouseleave', play);
+		carousel?.addEventListener('focusin', pause);
+		carousel?.addEventListener('focusout', play);
+		track.addEventListener('touchstart', pause, { passive: true });
+		track.addEventListener('touchend', play, { passive: true });
+		play();
+	}
+</script>
