@@ -22,7 +22,7 @@
       "href": "/industrias"
     },
     {
-      "title": "Equipos",
+      "title": "Tienda",
       "href": "/equipos"
     },
     {
@@ -101,10 +101,10 @@
       "ctaText": "Cuéntanos el espacio. Un especialista de Mizo propone el hardware que corresponde, sin un catálogo de por medio."
     },
     "equipos": {
-      "seoTitle": "Equipos de sonido | Mizo",
-      "seoDescription": "Catálogo de equipos de audio que Mizo instala: parlantes, micrófonos, amplificación y procesamiento.",
-      "kicker": "Equipos",
-      "title": "Equipos de sonido",
+      "seoTitle": "Tienda de productos de sonido | Mizo",
+      "seoDescription": "Tienda de productos de audio: parlantes, micrófonos, amplificación y procesamiento. Cotiza con Mizo.",
+      "kicker": "Tienda",
+      "title": "Tienda de productos",
       "lead": "Parlantes, micrófonos, amplificación y procesamiento. Cotiza el equipo y lo instalamos en el recinto."
     }
   },

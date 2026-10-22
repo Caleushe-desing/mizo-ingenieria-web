@@ -1,51 +1,38 @@
 ---
-import ConversionCta from './ConversionCta.astro';
-import IndustryAssurance from './IndustryAssurance.astro';
-import IndustryHero from './IndustryHero.astro';
-import IndustrySolutions from './IndustrySolutions.astro';
-import Layout from '../layouts/Layout.astro';
-import { industryPath, industryQuoteUrl, industryWhatsapp, type Industry } from '../lib/industries';
-import { industryMedia } from '../lib/industry-images';
-import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
+import ServiceLanding from './ServiceLanding.astro';
+import { industryPageBySlug } from '../lib/industry-pages';
+import { industryPath, industryWhatsapp, type Industry } from '../lib/industries';
+import type { Landing } from '../lib/landings';
 
 interface Props {
 	industry: Industry;
 }
 
 const { industry } = Astro.props;
-const media = industryMedia[industry.slug];
-const path = industryPath(industry.slug);
-const title = `${industry.title} | Mizo`;
-const description = industry.short;
+const page = industryPageBySlug(industry.slug);
 
-const jsonLd = graphSchema([
-	organizationSchema(),
-	webPageSchema({ name: title, description, url: absoluteUrl(path) }),
-	...industry.solutions.map((solution) =>
-		serviceSchema({
-			name: `${solution.title} — ${industry.title}`,
-			description: solution.description,
-			url: absoluteUrl(`${path}#${solution.id}`),
-		}),
-	),
-]);
+if (!page) {
+	throw new Error(`Sin página para ${industry.slug}`);
+}
+
+const landing: Landing = {
+	slug: page.slug,
+	nav: page.nav,
+	keyword: page.keyword,
+	title: page.title,
+	seoTitle: page.seoTitle,
+	seoDescription: page.seoDescription,
+	lead: page.lead,
+	consult: page.consult,
+	detail: page.lead,
+	points: page.points,
+	galleryAlts: [page.title, page.title, page.title] as const,
+};
 ---
 
-<Layout title={title} description={description} jsonLd={jsonLd}>
-	<IndustryHero
-		title={industry.title}
-		lead={industry.lead}
-		imageLabel={industry.imageLabel}
-		image={media.hero}
-		quoteHref={industryQuoteUrl(industry)}
-		whatsappHref={industryWhatsapp(industry)}
-	/>
-	<IndustrySolutions solutions={industry.solutions} images={media.solutions} />
-	<IndustryAssurance block="method" />
-	<ConversionCta
-		title="¿Este es el recinto que quieres equipar?"
-		text={`Cuéntanos el espacio y armamos una propuesta de instalación para ${industry.title.toLowerCase()}.`}
-		quoteHref={industryQuoteUrl(industry)}
-		whatsappHref={industryWhatsapp(industry)}
-	/>
-</Layout>
+<ServiceLanding
+	landing={landing}
+	path={industryPath(page.slug)}
+	whatsappHref={industryWhatsapp(industry)}
+	extra={{ included: page.included, steps: page.steps, faqs: page.faqs }}
+/>

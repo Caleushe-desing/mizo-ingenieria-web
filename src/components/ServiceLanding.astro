@@ -1,20 +1,28 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import QuoteForm from './QuoteForm.astro';
+import { audioMenuLinks } from '../lib/audio-menu';
 import { landingExtras } from '../lib/landing-extras';
-import { SOUND_LANDINGS, landingPath, landingWhatsapp, type Landing } from '../lib/landings';
-import { SITE } from '../lib/site';
+import { landingPath, landingWhatsapp, type Landing } from '../lib/landings';
 import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
 
 interface Props {
 	landing: Landing;
+	path?: string;
+	whatsappHref?: string;
+	extra?: {
+		included: readonly string[];
+		steps: readonly { title: string; text: string }[];
+		faqs: readonly { q: string; a: string }[];
+	};
 }
 
 const { landing } = Astro.props;
-const path = landingPath(landing.slug);
+const path = Astro.props.path ?? landingPath(landing.slug);
+const whatsappHref = Astro.props.whatsappHref ?? landingWhatsapp(landing);
 const mensaje = `Hola, quiero cotizar ${landing.keyword}.`;
-const others = SOUND_LANDINGS.filter((item) => item.slug !== landing.slug);
-const extra = landingExtras[landing.slug];
+const others = audioMenuLinks(path);
+const extra = Astro.props.extra ?? landingExtras[landing.slug];
 const consult =
 	landing.consult ??
 	'¿Tienes dudas con la acústica o los equipos que necesitas? Consúltanos directamente y un especialista te asesora.';
@@ -52,7 +60,7 @@ const jsonLd = graphSchema([
 				<p class="text-lg font-semibold leading-7 text-ink">{consult}</p>
 			</div>
 			<div class="mt-6 flex w-full flex-col gap-3 sm:max-w-md">
-				<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">Cotizar por WhatsApp</a>
+				<a href={whatsappHref} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">Cotizar por WhatsApp</a>
 				<a href="#cotizar" class="mizo-btn">Solicitar asesoría rápida</a>
 			</div>
 		</div>
@@ -71,7 +79,7 @@ const jsonLd = graphSchema([
 			</ul>
 			<div class="mt-6 flex flex-col gap-3 border border-accent/25 bg-surface px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
 				<p class="text-base font-semibold leading-6">¿Te sirve para tu caso? Un especialista te lo confirma.</p>
-				<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa sm:w-auto">Cotizar por WhatsApp</a>
+				<a href={whatsappHref} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa sm:w-auto">Cotizar por WhatsApp</a>
 			</div>
 		</div>
 	</section>
@@ -109,7 +117,7 @@ const jsonLd = graphSchema([
 				<p class="text-lg font-semibold leading-7">Sin compromiso. Cuéntanos el lugar y un especialista te asesora.</p>
 				<div class="mt-4 flex w-full flex-col gap-3 sm:max-w-md">
 					<a href="#cotizar" class="mizo-btn">Solicitar asesoría rápida</a>
-					<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">Cotizar por WhatsApp</a>
+					<a href={whatsappHref} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">Cotizar por WhatsApp</a>
 				</div>
 			</div>
 		</div>
@@ -139,7 +147,7 @@ const jsonLd = graphSchema([
 				<p class="mizo-kicker">Asesoría directa</p>
 				<h2 class="mt-3 text-2xl font-extrabold leading-tight">Un especialista te responde hoy</h2>
 				<p class="mt-3 text-lg leading-7 text-ink/75">{consult}</p>
-				<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa mt-6">Cotizar por WhatsApp</a>
+				<a href={whatsappHref} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa mt-6">Cotizar por WhatsApp</a>
 			</div>
 			<div class="border border-ink/10 bg-surface shadow-card">
 				<QuoteForm servicio={landing.title} mensaje={mensaje} />
@@ -153,7 +161,7 @@ const jsonLd = graphSchema([
 			<ul class="mt-4 grid gap-3 sm:grid-cols-2">
 				{others.map((item) => (
 					<li>
-						<a href={landingPath(item.slug)} class="flex overflow-hidden border border-ink/10 bg-paper hover:border-accent">
+						<a href={item.href} class="flex overflow-hidden border border-ink/10 bg-paper hover:border-accent">
 							<span class="w-1.5 shrink-0 bg-accent"></span>
 							<span class="block px-5 py-4">
 							<span class="block text-lg font-extrabold">{item.nav}</span>
@@ -165,109 +173,4 @@ const jsonLd = graphSchema([
 			</ul>
 		</div>
 	</section>
-
-	<section class="mizo-band mizo-band-white border-t border-ink/10 py-12 sm:py-16" data-venta data-landing={landing.slug}>
-		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-			<p class="mizo-kicker">Venta</p>
-			<h2 class="mt-3 text-2xl font-extrabold">Venta de productos</h2>
-			<p class="mt-2 max-w-xl text-base leading-7 text-ink/75">Elige el equipo. Te lo cotizamos hoy, sin precio de lista.</p>
-			<p data-venta-status class="mt-4 text-base text-ink/60">Cargando productos…</p>
-			<div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4" data-venta-list></div>
-			<a href="/equipos" class="mizo-btn mt-6 sm:w-auto">Ver catálogo completo</a>
-		</div>
-	</section>
 </Layout>
-
-<script is:inline define:vars={{ slug: landing.slug, title: landing.title, phone: SITE.whatsapp }}>
-	(function () {
-		var root = document.querySelector('[data-venta][data-landing="' + slug + '"]');
-		var list = root && root.querySelector('[data-venta-list]');
-		var status = root && root.querySelector('[data-venta-status]');
-		if (!root || !list || !status) return;
-
-		function text(tag, className, value) {
-			var el = document.createElement(tag);
-			el.className = className;
-			el.textContent = value;
-			return el;
-		}
-
-		function photoSrc(src) {
-			if (typeof src !== 'string' || src === '') return '';
-			if (src.charAt(0) === '/') return src;
-			if (src.indexOf('crm/') === 0) return '/' + src;
-			if (src.indexOf('uploads/productos/') === 0) return '/crm/' + src;
-			return src;
-		}
-
-		function isSound(item) {
-			var blob = String((item.nombre || '') + ' ' + (item.categoria || '')).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
-			return !/\b(video|proyector|proyectores|proyeccion|videowall|video wall|cctv|camaras?|domotica|pantalla led|carteleria)\b/.test(blob);
-		}
-
-		function card(item) {
-			var article = document.createElement('article');
-			article.className = 'flex h-full flex-col border border-ink/10 bg-surface shadow-card';
-			var photos = Array.isArray(item.imagenes) ? item.imagenes.map(photoSrc).filter(function (src) { return src.indexOf('/crm/uploads/productos/') === 0; }) : [];
-			if (photos.length) {
-				var img = document.createElement('img');
-				img.src = photos[0];
-				img.alt = item.nombre || item.sku || 'Producto';
-				img.className = 'aspect-square w-full bg-[#f8fafc] object-contain';
-				img.loading = 'lazy';
-				article.appendChild(img);
-			} else {
-				article.appendChild(text('div', 'flex aspect-square items-center justify-center bg-[#f8fafc] text-xs font-bold uppercase tracking-[0.14em] text-ink/30', 'Sin foto'));
-			}
-			var body = document.createElement('div');
-			body.className = 'flex flex-1 flex-col p-3 sm:p-4';
-			if (item.categoria) body.appendChild(text('p', 'text-[0.65rem] font-bold uppercase tracking-[0.14em] text-orange', item.categoria));
-			body.appendChild(text('h3', 'mt-1 text-sm font-extrabold leading-snug sm:text-base', item.nombre || item.sku || 'Producto'));
-			var message = 'Quiero comprar ' + (item.nombre || '') + ' (SKU ' + (item.sku || '') + ') para ' + title + '.';
-			var link = document.createElement('a');
-			link.href = '/contacto?sku=' + encodeURIComponent(item.sku || '') + '&mensaje=' + encodeURIComponent(message) + '&servicio=' + encodeURIComponent(title);
-			link.className = 'mizo-btn mt-auto min-h-10 w-full px-3 py-2 text-xs';
-			link.textContent = 'Cotizar';
-			body.appendChild(link);
-			var wa = document.createElement('a');
-			wa.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent('Hola Mizo, ' + message);
-			wa.target = '_blank';
-			wa.rel = 'noopener noreferrer';
-			wa.className = 'mt-2 text-center text-xs font-bold text-accent-dark';
-			wa.textContent = 'WhatsApp';
-			body.appendChild(wa);
-			article.appendChild(body);
-			return article;
-		}
-
-		function load(url) {
-			return fetch(url, { headers: { Accept: 'application/json' } })
-				.then(function (res) { return res.json(); })
-				.then(function (data) { return data && Array.isArray(data.productos) ? data.productos : []; });
-		}
-
-		function paint(items) {
-			var sound = items.filter(isSound).slice(0, 8);
-			list.textContent = '';
-			if (!sound.length) {
-				status.hidden = false;
-				status.textContent = 'El catálogo se está actualizando. Puedes ver todos los productos.';
-				return;
-			}
-			status.hidden = true;
-			sound.forEach(function (item) { list.appendChild(card(item)); });
-		}
-
-		load('/crm/api/productos-visibles.php?landing=' + encodeURIComponent(slug))
-			.then(function (items) {
-				var sound = items.filter(isSound);
-				if (sound.length) return sound;
-				return load('/crm/api/productos-visibles.php').then(function (all) { return all.filter(isSound); });
-			})
-			.then(paint)
-			.catch(function () {
-				status.hidden = false;
-				status.textContent = 'No se pudo cargar la vitrina. Revisa el catálogo o escríbenos por WhatsApp.';
-			});
-	})();
-</script>
