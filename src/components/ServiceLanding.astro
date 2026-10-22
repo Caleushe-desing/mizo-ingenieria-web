@@ -6,7 +6,7 @@ import { landingExtras } from '../lib/landing-extras';
 import { landingMedia } from '../lib/landing-media';
 import { industryMedia } from '../lib/industry-images';
 import { industryBySlug, industryPath } from '../lib/industries';
-import { LANDINGS, landingPath, landingWhatsapp, type Landing } from '../lib/landings';
+import { SOUND_LANDINGS, landingPath, landingWhatsapp, type Landing } from '../lib/landings';
 import { absoluteUrl, graphSchema, organizationSchema, serviceSchema, webPageSchema } from '../lib/seo';
 
 interface Props {
@@ -17,7 +17,7 @@ const { landing } = Astro.props;
 const media = landingMedia[landing.slug];
 const path = landingPath(landing.slug);
 const mensaje = `Hola, quiero cotizar ${landing.keyword}.`;
-const others = LANDINGS.filter((item) => item.slug !== landing.slug);
+const others = SOUND_LANDINGS.filter((item) => item.slug !== landing.slug);
 
 const extra = landingExtras[landing.slug];
 
@@ -60,16 +60,16 @@ const jsonLd = graphSchema([
 ---
 
 <Layout title={landing.seoTitle} description={landing.seoDescription} jsonLd={jsonLd}>
-	<section class="mizo-band mizo-band-white relative overflow-hidden border-b border-ink/10 pt-28 text-ink sm:pt-32">
+	<section class="mizo-band mizo-band-white relative overflow-hidden border-b border-ink/10 pt-24 text-ink sm:pt-32">
 		<div class="mizo-grid pointer-events-none absolute inset-0 opacity-[0.07]"></div>
 		<div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:pb-20">
 			<div>
-				<p class="mizo-kicker">Instalaciones especializadas</p>
-				<h1 class="mt-3 text-4xl font-extrabold leading-[1.08] sm:text-5xl">{landing.title}</h1>
+				<p class="mizo-kicker">Sonido</p>
+				<h1 class="mt-3 text-[2.15rem] font-extrabold leading-[1.08] sm:text-5xl">{landing.title}</h1>
 				<p class="mt-5 max-w-xl text-lg leading-8 text-ink/80">{landing.lead}</p>
-				<div class="mt-8 flex flex-col gap-3 sm:flex-row">
+				<div class="mt-8 flex w-full max-w-md flex-col gap-3">
 					<a href="#cotizar" class="mizo-btn">Cotizar este servicio</a>
-					<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-ghost">WhatsApp</a>
+					<a href={landingWhatsapp(landing)} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">WhatsApp</a>
 				</div>
 				<ul class="mt-8 grid gap-3 text-sm font-semibold text-ink/75 sm:grid-cols-3">
 					<li class="border border-ink/10 bg-surface px-3 py-3">Cobertura en Chile</li>

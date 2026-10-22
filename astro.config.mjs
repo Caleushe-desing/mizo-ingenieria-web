@@ -10,11 +10,18 @@ export default defineConfig({
 	redirects: {
 		'/servicios': '/industrias',
 		'/estandares': '/industrias',
+		'/instalaciones/instalacion-de-proyectores': '/instalaciones',
+		'/instalaciones/proyectores-interactivos': '/instalaciones',
+		'/instalaciones/instalacion-de-video-wall': '/instalaciones',
 	},
 	integrations: [
 		tailwind(),
 		sitemap({
-			filter: (page) => !page.includes('/404'),
+			filter: (page) =>
+				!page.includes('/404') &&
+				!page.includes('/instalacion-de-proyectores') &&
+				!page.includes('/proyectores-interactivos') &&
+				!page.includes('/instalacion-de-video-wall'),
 			serialize(item) {
 				const pathname = new URL(item.url).pathname.replace(/\/$/, '') || '/';
 				const priority =

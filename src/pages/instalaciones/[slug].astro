@@ -1,9 +1,9 @@
 ---
 import ServiceLanding from '../../components/ServiceLanding.astro';
-import { LANDINGS, landingBySlug } from '../../lib/landings';
+import { SOUND_LANDINGS, landingBySlug } from '../../lib/landings';
 
 export function getStaticPaths() {
-	return LANDINGS.map((landing) => ({
+	return SOUND_LANDINGS.map((landing) => ({
 		params: { slug: landing.slug },
 		props: { slug: landing.slug },
 	}));

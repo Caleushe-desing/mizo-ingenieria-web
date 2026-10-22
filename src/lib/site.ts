@@ -29,8 +29,6 @@ export const BRANDS = [
 	{ name: 'JBL', slug: 'jbl' },
 	{ name: 'Bose', slug: 'bose' },
 	{ name: 'Shure', slug: 'shure' },
-	{ name: 'Epson', slug: 'epson' },
-	{ name: 'BenQ', slug: 'benq' },
 ] as const;
 
 export function whatsappUrl(message = SITE.whatsappMessage): string {

@@ -205,7 +205,7 @@ const description = page.seoDescription;
 		background: #f8fafc;
 		padding: 0.8rem 0.9rem 0.8rem 2.5rem;
 		font: inherit;
-		font-size: 0.95rem;
+		font-size: 16px;
 		color: #181b20;
 		outline: none;
 	}
@@ -569,6 +569,11 @@ const description = page.seoDescription;
 		const initialCat = params.get('categoria');
 		if (initialCat) category = fold(initialCat);
 
+		function isSoundProduct(item) {
+			const blob = fold([item.nombre, item.categoria].filter(Boolean).join(' '));
+			return !/\b(video|proyector|proyectores|proyeccion|videowall|video wall|cctv|camaras?|domotica|pantalla led|carteleria)\b/.test(blob);
+		}
+
 		function matches(item) {
 			if (category && fold(item.categoria) !== category) return false;
 			if (!query) return true;
@@ -660,7 +665,7 @@ const description = page.seoDescription;
 					return JSON.parse(text);
 				})
 				.then((data) => {
-					products = Array.isArray(data?.productos) ? data.productos : [];
+					products = (Array.isArray(data?.productos) ? data.productos : []).filter(isSoundProduct);
 					if (products.length === 0) {
 						status.textContent = 'Todavía no hay equipos publicados. Cuéntanos el recinto y te proponemos el hardware.';
 						return;

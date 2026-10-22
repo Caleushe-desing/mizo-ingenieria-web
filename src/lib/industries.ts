@@ -53,7 +53,7 @@ const INDUSTRY_SOLUTIONS: Record<string, readonly IndustrySolution[]> = {
 				title: 'Sistemas interactivos de karaoke y animación',
 				eyebrow: 'Entretenimiento',
 				description:
-					'Audio y video de alta potencia para noches de animación. El sistema se integra para que los micrófonos respondan con claridad, los acoplamientos queden controlados y la experiencia se mantenga impecable de principio a fin.',
+					'Audio de alta potencia para noches de animación. El sistema se integra para que los micrófonos respondan con claridad, los acoplamientos queden controlados y la música se mantenga pareja de principio a fin.',
 				points: [
 					'Micrófonos con respuesta clara sobre la música',
 					'Control de acoplamientos en el salón',
@@ -241,9 +241,21 @@ const INDUSTRY_SOLUTIONS: Record<string, readonly IndustrySolution[]> = {
 		],
 };
 
+const SOUND_SOLUTION_IDS = new Set([
+	'sonido-ambiental',
+	'karaoke',
+	'sonorizacion',
+	'intercomunicacion',
+	'dante',
+	'dsp',
+	'audio-zonas',
+	'instructores',
+	'quinchos',
+]);
+
 export const INDUSTRIES: readonly Industry[] = content.industries.map((item) => ({
 	...item,
-	solutions: INDUSTRY_SOLUTIONS[item.slug] ?? [],
+	solutions: (INDUSTRY_SOLUTIONS[item.slug] ?? []).filter((solution) => SOUND_SOLUTION_IDS.has(solution.id)),
 }));
 
 export const ENGINEERING_STEPS = content.engineeringSteps;

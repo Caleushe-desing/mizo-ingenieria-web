@@ -154,6 +154,14 @@ export const LANDINGS: readonly Landing[] = [
 	},
 ];
 
+const SOUND_SLUGS = new Set([
+	'parlantes-para-iglesias',
+	'instalacion-de-musica-ambiental',
+	'instalacion-de-parlantes',
+]);
+
+export const SOUND_LANDINGS: readonly Landing[] = LANDINGS.filter((landing) => SOUND_SLUGS.has(landing.slug));
+
 export function landingPath(slug: string): string {
 	return `/instalaciones/${slug}`;
 }

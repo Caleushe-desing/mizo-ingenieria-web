@@ -1,13 +1,12 @@
 ---
 import { INDUSTRIES, industryPath } from '../lib/industries';
-import { LANDINGS, landingPath } from '../lib/landings';
+import { SOUND_LANDINGS, landingPath } from '../lib/landings';
 import { NAV, SITE, telUrl, whatsappUrl } from '../lib/site';
 
 const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 const isActive = (href: string) => {
 	if (href === '/') return currentPath === '/';
-	if (href === '/industrias' && currentPath === '/equipos') return true;
 	return currentPath === href || currentPath.startsWith(`${href}/`);
 };
 
@@ -49,7 +48,7 @@ const linkClass = (active: boolean) =>
 									</a>
 								</>
 							) : (
-								LANDINGS.map((landing) => (
+								SOUND_LANDINGS.map((landing) => (
 									<a
 										href={landingPath(landing.slug)}
 										class="block px-4 py-2.5 text-sm font-semibold text-ink/80 transition-all duration-300 hover:bg-accent-soft hover:text-ink"
@@ -83,7 +82,7 @@ const linkClass = (active: boolean) =>
 		</div>
 
 		<details class="group relative ml-auto lg:hidden">
-			<summary class="nav-summary flex h-10 w-10 cursor-pointer items-center justify-center border border-ink/20 text-ink" aria-label="Abrir menú">
+			<summary class="nav-summary flex h-12 w-12 cursor-pointer items-center justify-center border border-ink/20 text-ink" aria-label="Abrir menú">
 				<svg class="h-5 w-5 group-open:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16" />
 				</svg>
@@ -97,7 +96,7 @@ const linkClass = (active: boolean) =>
 						<div>
 							<a
 								href={item.href}
-								class={`block px-3 py-3 text-base font-semibold ${isActive(item.href) ? 'bg-accent-soft text-accent-dark' : 'text-ink/80 hover:bg-paper hover:text-ink'}`}
+								class={`block min-h-12 px-3 py-3 text-base font-semibold ${isActive(item.href) ? 'bg-accent-soft text-accent-dark' : 'text-ink/80 hover:bg-paper hover:text-ink'}`}
 								aria-current={isActive(item.href) ? 'page' : undefined}
 							>
 								{item.title}
@@ -114,7 +113,7 @@ const linkClass = (active: boolean) =>
 							)}
 							{item.href === '/instalaciones' && (
 								<div class="mb-1 ml-3 border-l border-ink/10">
-									{LANDINGS.map((landing) => (
+									{SOUND_LANDINGS.map((landing) => (
 										<a href={landingPath(landing.slug)} class="block px-3 py-2 text-sm text-ink/70 hover:text-ink">
 											{landing.nav}
 										</a>
@@ -124,10 +123,10 @@ const linkClass = (active: boolean) =>
 						</div>
 					))}
 					<div class="mt-3 grid grid-cols-2 gap-2">
-						<a href={telUrl()} class="border border-ink/20 px-3 py-3 text-center text-sm font-semibold text-ink">Llamar</a>
-						<a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" class="bg-[#25D366] px-3 py-3 text-center text-sm font-semibold text-white">WhatsApp</a>
+						<a href={telUrl()} class="flex min-h-12 items-center justify-center border border-ink/20 px-3 text-center text-base font-semibold text-ink">Llamar</a>
+						<a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" class="flex min-h-12 items-center justify-center bg-[#25D366] px-3 text-center text-base font-semibold text-white">WhatsApp</a>
 					</div>
-					<a href="/contacto" class="mt-2 bg-orange px-3 py-3 text-center text-sm font-semibold uppercase tracking-[0.12em] text-white">Cotizar</a>
+					<a href="/contacto" class="mt-2 flex min-h-12 items-center justify-center bg-orange px-3 text-center text-base font-semibold uppercase tracking-[0.08em] text-white">Cotizar</a>
 				</div>
 			</nav>
 		</details>

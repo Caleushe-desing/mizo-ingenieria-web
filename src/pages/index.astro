@@ -5,8 +5,10 @@ import ConversionCta from '../components/ConversionCta.astro';
 import heroImage from '../assets/hero-instalacion.jpg';
 import { INDUSTRIES, industryPath } from '../lib/industries';
 import { industryMedia } from '../lib/industry-images';
-import { content, homeLead } from '../lib/content';
-import { BRANDS, SITE } from '../lib/site';
+import { landingMedia } from '../lib/landing-media';
+import { SOUND_LANDINGS, landingPath } from '../lib/landings';
+import { content } from '../lib/content';
+import { BRANDS, SITE, whatsappUrl } from '../lib/site';
 import { absoluteUrl, graphSchema, localBusinessSchema, organizationSchema, webPageSchema, websiteSchema } from '../lib/seo';
 
 const home = content.pages.home;
@@ -25,7 +27,7 @@ const jsonLd = graphSchema([
 ---
 
 <Layout title={SITE.title} description={SITE.description} jsonLd={jsonLd}>
-	<section class="relative isolate flex min-h-[80vh] items-end overflow-hidden bg-charcoal pt-32 text-white sm:min-h-[85vh] sm:pt-36">
+	<section class="relative isolate flex min-h-[70svh] items-end overflow-hidden bg-charcoal pt-24 text-white sm:min-h-[85vh] sm:pt-36">
 		<Image
 			src={heroImage}
 			alt={home.heroImageAlt}
@@ -38,23 +40,56 @@ const jsonLd = graphSchema([
 			fetchpriority="high"
 		/>
 		<div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/80 to-charcoal/35"></div>
-		<div class="relative mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8 lg:pb-24">
+		<div class="relative mx-auto w-full max-w-6xl px-5 pb-10 sm:px-6 sm:pb-20 lg:px-8 lg:pb-24">
 			<p class="mizo-kicker">{home.kicker}</p>
-			<h1 class="mt-4 max-w-3xl text-4xl font-extrabold leading-[1.05] sm:text-6xl lg:text-5xl">{home.title}</h1>
-			<p class="mt-5 max-w-xl text-lg leading-8 text-white/85">
-				{homeLead(SITE.areas)}
+			<h1 class="mt-4 max-w-3xl text-[2.15rem] font-extrabold leading-[1.08] sm:text-6xl lg:text-5xl">{home.title}</h1>
+			<p class="mt-4 max-w-xl text-lg leading-8 text-white/90">
+				{home.lead}
 			</p>
-			<a href="/industrias" class="mizo-btn mt-8 w-fit">{home.ctaLabel}</a>
+			<div class="mt-8 flex w-full max-w-md flex-col gap-3">
+				<a href="/contacto" class="mizo-btn">{home.ctaLabel}</a>
+				<a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" class="mizo-btn-wa">WhatsApp</a>
+			</div>
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-gray py-20 sm:py-28" aria-labelledby="rubros-heading">
-		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+	<section class="mizo-band mizo-band-white py-12 sm:py-20" aria-labelledby="sonido-heading">
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+			<p class="mizo-kicker">Servicios</p>
+			<h2 id="sonido-heading" class="mt-3 max-w-2xl text-3xl font-extrabold leading-tight text-ink sm:text-4xl">
+				Instalación de audio, lista para cotizar
+			</h2>
+			<div class="mt-8 grid gap-4">
+				{SOUND_LANDINGS.map((landing) => (
+					<a href={landingPath(landing.slug)} class="mizo-card grid overflow-hidden border border-ink/10 bg-surface sm:grid-cols-[11rem_1fr] hover:border-accent/70">
+						<Image
+							src={landingMedia[landing.slug].hero}
+							alt=""
+							class="h-44 w-full object-cover sm:h-full"
+							widths={[480, 800]}
+							sizes="(min-width: 640px) 176px, 100vw"
+							format="webp"
+							quality={70}
+							loading="lazy"
+						/>
+						<div class="flex flex-col justify-center px-5 py-5">
+							<h3 class="text-2xl font-extrabold leading-tight text-ink">{landing.title}</h3>
+							<p class="mt-2 text-base leading-7 text-ink/75">{landing.lead}</p>
+							<span class="mt-4 text-base font-bold text-accent-dark">Cotizar {landing.nav}</span>
+						</div>
+					</a>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="mizo-band mizo-band-gray py-12 sm:py-28" aria-labelledby="rubros-heading">
+		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
 			<p class="mizo-kicker">{home.rubrosKicker}</p>
 			<h2 id="rubros-heading" class="mt-3 max-w-2xl text-3xl font-extrabold leading-tight text-ink sm:text-4xl">
 				{home.rubrosTitle}
 			</h2>
-			<div class="mt-14 grid gap-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3 lg:gap-8">
+			<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3 lg:gap-8">
 				{INDUSTRIES.map((industry) => (
 					<a
 						href={industryPath(industry.slug)}
@@ -72,10 +107,10 @@ const jsonLd = graphSchema([
 								loading="lazy"
 							/>
 						</div>
-						<div class="px-6 py-7 sm:px-7 sm:py-8">
+						<div class="px-5 py-5 sm:px-7 sm:py-8">
 							<p class="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-orange">{industry.nav}</p>
 							<h3 class="mt-3 text-xl font-extrabold leading-snug text-ink">{industry.title}</h3>
-							<p class="mt-3 text-sm leading-7 text-ink/75">{industry.short}</p>
+							<p class="mt-3 text-base leading-7 text-ink/75">{industry.short}</p>
 						</div>
 						<span class="pointer-events-none absolute inset-0 bg-accent/0 transition-all duration-300 group-hover:bg-accent/10" aria-hidden="true"></span>
 					</a>
@@ -84,8 +119,8 @@ const jsonLd = graphSchema([
 		</div>
 	</section>
 
-	<section class="mizo-band mizo-band-white border-t border-ink/10 py-16 sm:py-24" aria-label="Marcas">
-		<ul class="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-ink/10 sm:grid-cols-4 lg:grid-cols-7">
+	<section class="mizo-band mizo-band-white border-t border-ink/10 py-10 sm:py-24" aria-label="Marcas">
+		<ul class="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-ink/10 sm:grid-cols-3 lg:grid-cols-5">
 			{BRANDS.map((brand) => (
 				<li class="flex h-20 items-center justify-center bg-surface px-4">
 					<img

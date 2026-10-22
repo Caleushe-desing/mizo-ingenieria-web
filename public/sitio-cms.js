@@ -88,7 +88,10 @@
 		fetch('/crm/api/productos-visibles.php?landing=' + encodeURIComponent(slug), { headers: { Accept: 'application/json' } })
 			.then(function (res) { return res.json(); })
 			.then(function (data) {
-				var items = data && Array.isArray(data.productos) ? data.productos : [];
+				var items = (data && Array.isArray(data.productos) ? data.productos : []).filter(function (item) {
+					var blob = String((item.nombre || '') + ' ' + (item.categoria || '')).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+					return !/\b(video|proyector|proyectores|proyeccion|videowall|video wall|cctv|camaras?|domotica|pantalla led|carteleria)\b/.test(blob);
+				});
 				if (!items.length) return;
 				list.innerHTML = items.map(productCard).join('');
 				root.hidden = false;
@@ -109,29 +112,7 @@
 		window.dispatchEvent(new CustomEvent('mizo:cms-listo'));
 	}
 
-	var path = window.location.pathname.replace(/\/$/, '') || '/';
-	fetch('/crm/api/sitio.php?path=' + encodeURIComponent(path), { headers: { Accept: 'application/json' } })
-		.then(function (res) { return res.json(); })
-		.then(function (data) {
-			if (!data || !data.ok) return;
-			if (data.chrome && data.chrome.header && data.chrome.footer) {
-				var header = document.querySelector('body > header');
-				var footer = document.querySelector('body > footer');
-				if (header) header.outerHTML = data.chrome.header;
-				if (footer) footer.outerHTML = data.chrome.footer;
-			}
-			if (data.active && data.mode === 'html' && data.html) {
-				main.innerHTML = data.html;
-				main.querySelectorAll('[data-featured]').forEach(paintFeatured);
-				main.querySelectorAll('[data-cms-products]').forEach(paintProducts);
-			} else if (data.active && Array.isArray(data.blocks) && data.blocks.length) {
-				main.innerHTML = data.blocks.map(render).join('');
-				if (data.title) document.title = data.title;
-				var meta = document.querySelector('meta[name="description"]');
-				if (meta && data.description) meta.setAttribute('content', data.description);
-				main.querySelectorAll('[data-cms-products]').forEach(paintProducts);
-			}
-		})
-		.catch(function () {})
-		.then(finish);
+	main.querySelectorAll('[data-featured]').forEach(paintFeatured);
+	main.querySelectorAll('[data-cms-products]').forEach(paintProducts);
+	finish();
 })();

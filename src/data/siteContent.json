@@ -1,11 +1,11 @@
 {
   "site": {
     "name": "Mizo",
-    "title": "Mizo | Ingeniería en sonido, video, CCTV y soporte TI en Chile",
-    "description": "Instalación profesional de sistemas de sonido, videoproyección, cámaras de seguridad , domotica residencia y soporte TI en Frutillar, Santiago y el sur de Chile.",
+    "title": "Mizo | Ingeniería de sonido e instalación de audio en Chile",
+    "description": "Instalación de sonido profesional en Chile: parlantes, música ambiental, iglesias, auditorios, locales y casas. Cotiza con Mizo.",
     "email": "ventas@mizo.cl",
     "phoneDisplay": "+56 9 9439 0870",
-    "whatsappMessage": "Hola Mizo, quiero cotizar un servicio profesional.",
+    "whatsappMessage": "Hola Mizo, quiero cotizar un sistema de sonido.",
     "address": "Frutillar y Santiago, Chile",
     "hours": "Lunes a viernes, 9:00 a 18:00 hrs.",
     "areas": [
@@ -22,8 +22,12 @@
       "href": "/industrias"
     },
     {
-      "title": "Instalaciones Especializadas",
+      "title": "Sonido",
       "href": "/instalaciones"
+    },
+    {
+      "title": "Equipos",
+      "href": "/equipos"
     },
     {
       "title": "Nosotros",
@@ -36,27 +40,27 @@
   ],
   "pages": {
     "home": {
-      "kicker": "Mizo",
-      "title": "Para cada espacio, existe una solución",
-      "lead": "Sistemas de Sonido Ambiental para Restaurantes, Video Proyección para escuelas y oficina, Sistemas de Amplificación para Auditorios y Gimnacios, Domotica Residencial, Circuitos cerrados de Camaras de seguridad.",
-      "ctaLabel": "Ver soluciones",
-      "heroImageAlt": "Instalación profesional de audio y video en un recinto",
-      "rubrosKicker": "Rubros",
-      "rubrosTitle": "Soluciones para cada espacio | Marcas con respaldo en el Mercado Nacional."
+      "kicker": "Sonido profesional",
+      "title": "El sonido se entiende en todo el recinto",
+      "lead": "Diseñamos e instalamos audio para iglesias, locales, auditorios, colegios, gimnasios y casas. Cobertura pareja, sin acoples, con soporte en Chile.",
+      "ctaLabel": "Cotizar sonido",
+      "heroImageAlt": "Instalación profesional de parlantes y audio en un recinto",
+      "rubrosKicker": "Dónde lo instalamos",
+      "rubrosTitle": "Sonido a la medida de cada espacio."
     },
     "soluciones": {
-      "seoTitle": "Soluciones | Mizo — Páginas por industria",
-      "seoDescription": "Páginas por industria de Mizo: restaurantes, colegios, auditorios, gimnasios y entretenimiento residencial. Enlaces directos para cotizar sonido, video y automatización.",
+      "seoTitle": "Soluciones de sonido | Mizo",
+      "seoDescription": "Sonido para restaurantes, colegios, auditorios, gimnasios y casas. Cotiza la instalación de audio con Mizo en Chile.",
       "kicker": "Soluciones",
-      "title": "Soluciones que aportan vida y sentido a tus espacios.",
-      "lead": "Restaurantes | Centros Nocturnos | Escuelas | Universidades | Iglesias | Auditorios | Gimnasios | Casas | Centros de Salud |"
+      "title": "Sonido para cada tipo de recinto.",
+      "lead": "Restaurantes, colegios, auditorios, gimnasios y casas. El sistema se diseña para ese espacio y se deja calibrado."
     },
     "nosotros": {
-      "seoTitle": "Nosotros | Mizo — Ingeniería y precisión",
-      "seoDescription": "Mizo diseña, integra y optimiza sistemas de audio, video y automatización de alto rendimiento para espacios comerciales y residenciales en Chile.",
+      "seoTitle": "Nosotros | Mizo — Ingeniería de sonido",
+      "seoDescription": "Mizo diseña, instala y calibra sistemas de sonido para espacios comerciales y residenciales en Chile.",
       "kicker": "Nosotros",
-      "title": "Expertos en técnologia que aportan valor a tus ideas.",
-      "lead": "Más allá del suministro de hardware, en Mizo diseñamos soluciones integrales y acompañamos cada etapa del desarrollo de su proyecto.",
+      "title": "Ingeniería de sonido, de la visita a la puesta en marcha.",
+      "lead": "No solo entregamos equipos. Diseñamos el audio del recinto y acompañamos el proyecto hasta dejarlo sonando.",
       "coveragePrefix": "Cobertura en",
       "pillarsKicker": "Criterio",
       "pillarsTitle": "Tres pilares. El mismo equipo de principio a fin.",
@@ -82,8 +86,8 @@
       ]
     },
     "contacto": {
-      "seoTitle": "Contacto | Mizo — Cotiza instalación en Chile",
-      "seoDescription": "Contacta a Mizo para cotizaciones de sonido, video, CCTV y soporte TI.",
+      "seoTitle": "Contacto | Mizo — Cotiza sonido en Chile",
+      "seoDescription": "Cotiza instalación de sonido con Mizo. WhatsApp, teléfono y formulario.",
       "kicker": "Contacto",
       "title": "Comunicate con nosotros.",
       "lead": "Un asesor técnico te contactara para ayudarte con tus consultas.",
@@ -101,16 +105,16 @@
       "ctaText": "Cuéntanos el espacio. Un especialista de Mizo propone el hardware que corresponde, sin un catálogo de por medio."
     },
     "equipos": {
-      "seoTitle": "Productos | Mizo — Hardware de grado profesional",
-      "seoDescription": "Catálogo de productos de audio, video y automatización que Mizo integra en cada recinto.",
-      "kicker": "Productos",
-      "title": "Catálogo de productos",
-      "lead": "Referencia de hardware profesional. Cotiza el producto que necesitas y lo integramos en tu recinto."
+      "seoTitle": "Equipos de sonido | Mizo",
+      "seoDescription": "Catálogo de equipos de audio que Mizo instala: parlantes, micrófonos, amplificación y procesamiento.",
+      "kicker": "Equipos",
+      "title": "Equipos de sonido",
+      "lead": "Parlantes, micrófonos, amplificación y procesamiento. Cotiza el equipo y lo instalamos en el recinto."
     }
   },
   "cta": {
-    "title": "¿Tienes un proyecto en mente?",
-    "text": "Cuentanos tu proyecto y te ayudaremos.",
+    "title": "¿Listo para cotizar el sonido?",
+    "text": "Cuéntanos el recinto. Un asesor te responde y arma la propuesta de audio.",
     "quoteLabel": "Solicitar cotización",
     "whatsappLabel": "WhatsApp"
   },
@@ -151,7 +155,7 @@
     },
     {
       "label": "Marcas",
-      "detail": "Integramos Sony, Sennheiser, JBL, Bose, Shure, Epson y BenQ."
+      "detail": "Integramos Sony, Sennheiser, JBL, Bose y Shure."
     }
   ],
   "engineeringSteps": [
@@ -173,31 +177,31 @@
       "slug": "restaurantes",
       "nav": "Restaurantes",
       "title": "Restaurantes y locales gastronómicos",
-      "short": "Sonido por zonas, pantallas de alta definición y karaoke para que cada ambiente del local tenga su propia atmósfera.",
-      "lead": "El comedor, la terraza y la barra se diseñan como zonas independientes de alta fidelidad, con el volumen que cada una admite. Un ingeniero de Mizo define el sistema para ese local y lo acompaña hasta la puesta en marcha.",
+      "short": "Música ambiental por zonas y audio para animación, con el volumen que admite cada ambiente del local.",
+      "lead": "El comedor, la terraza y la barra se diseñan como zonas independientes, con el volumen que cada una admite. Un ingeniero de Mizo define el sistema y lo deja calibrado.",
       "imageLabel": "Comedor, terraza y barra de un local gastronómico"
     },
     {
       "slug": "instituciones-educativas",
       "nav": "Educación",
       "title": "Instituciones educativas",
-      "short": "Sonido para salones y patios, proyección de gran formato e intercomunicación para que el colegio se escuche y se vea con claridad.",
-      "lead": "Patio, auditorio y sala de clases se dimensionan para que la palabra se entienda y la imagen se lea. El proyecto se asesora, se instala y se deja operando, con soporte local después de la entrega.",
+      "short": "Sonido para salones y patios, más perifoneo por zonas, para que la palabra se entienda en todo el colegio.",
+      "lead": "Patio, auditorio y sala de clases se dimensionan para que la palabra se entienda. El proyecto se instala, se calibra y queda con soporte local.",
       "imageLabel": "Patio, auditorio y sala de clases"
     },
     {
       "slug": "auditorios",
       "nav": "Auditorios",
       "title": "Auditorios y centros de eventos",
-      "short": "Audio digital Dante, procesamiento DSP, sonorización de concierto y video de gran escala para recintos que cambian de formato cada semana.",
-      "lead": "El recinto pasa de conferencia a show sobre una red Dante, con DSP, calibración y video de gran formato. El diseño es de ese auditorio: asesoría, instalación y puesta en marcha con el mismo equipo.",
-      "imageLabel": "Auditorio con audio y pantalla de gran formato"
+      "short": "Audio digital Dante, procesamiento DSP y sonorización de concierto para recintos que cambian de formato.",
+      "lead": "El recinto pasa de conferencia a música en vivo sobre una red Dante, con DSP y calibración. El diseño es de ese auditorio, de la asesoría a la puesta en marcha.",
+      "imageLabel": "Auditorio con sistema de sonido"
     },
     {
       "slug": "gimnasios",
       "nav": "Gimnasios",
       "title": "Centros de entrenamiento y gimnasios",
-      "short": "Audio de alto rendimiento por zonas, micrófonos para clases grupales y pantallas para rutinas, cronómetros y contenido del centro.",
+      "short": "Audio de alto rendimiento por zonas y micrófonos para que el instructor se escuche sobre la música de la clase.",
       "lead": "Cada sala lleva audio multizona de alta fidelidad, dimensionado para horas de uso continuo. El instructor se escucha con claridad y el sistema queda calibrado, con soporte local cuando el centro ya está operando.",
       "imageLabel": "Sala de entrenamiento y clase grupal"
     },
@@ -205,9 +209,9 @@
       "slug": "entretenimiento-residencial",
       "nav": "Residencial",
       "title": "Entretenimiento residencial y quinchos",
-      "short": "Cine en casa, audio de exterior para quincho y terraza, y domótica para iluminación, cortinas y equipos desde un toque o la voz.",
-      "lead": "La sala se calibra a Dolby Atmos o DTS:X y el quincho lleva audio de intemperie en su propia zona. Es un diseño para esa casa, acompañado desde la asesoría hasta dejar el control en manos de quien vive ahí.",
-      "imageLabel": "Sala de cine, quincho y terraza"
+      "short": "Audio de intemperie para quincho y terraza, con volumen propio y equipos integrados al exterior.",
+      "lead": "El quincho y la terraza llevan parlantes de intemperie en su propia zona, con streaming desde el interior. El diseño es de esa casa y queda listo para usarse.",
+      "imageLabel": "Quincho y terraza con audio de exterior"
     }
   ],
   "techStandards": [
@@ -231,13 +235,6 @@
       "title": "Audio e intemperie",
       "lead": "Altavoces de alta eficiencia, amplificación multizona y sistemas acústicos.",
       "detail": "Cobertura uniforme en sala y en exterior, con programa y volumen independientes por ambiente. El equipo se elige según el clima, la distancia y el nivel que el espacio exige."
-    },
-    {
-      "id": "video",
-      "kicker": "Visuales",
-      "title": "Video y visuales de gran formato",
-      "lead": "Pantallas LED y proyección láser de alta luminosidad.",
-      "detail": "La imagen se dimensiona al muro o a la sala, para que se lea con luz ambiente. El formato, el brillo y la distancia de visión se definen en el diseño, antes de instalar."
     }
   ]
 }

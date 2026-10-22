@@ -32,7 +32,14 @@ const jsonLd = graphSchema([
 ---
 
 <Layout title={title} description={description} jsonLd={jsonLd}>
-	<IndustryHero title={industry.title} lead={industry.lead} imageLabel={industry.imageLabel} image={media.hero} />
+	<IndustryHero
+		title={industry.title}
+		lead={industry.lead}
+		imageLabel={industry.imageLabel}
+		image={media.hero}
+		quoteHref={industryQuoteUrl(industry)}
+		whatsappHref={industryWhatsapp(industry)}
+	/>
 	<IndustrySolutions solutions={industry.solutions} images={media.solutions} />
 	<IndustryAssurance block="method" />
 	<ConversionCta
