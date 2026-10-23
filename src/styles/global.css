@@ -190,14 +190,14 @@
 
 .brand-carousel-slide {
 	display: flex;
-	height: 5.5rem;
+	height: 6.25rem;
 	flex: 0 0 calc(50% - 0.375rem);
 	scroll-snap-align: start;
 	align-items: center;
 	justify-content: center;
-	border: 1px solid rgb(24 27 32 / 0.1);
+	border: 1px solid rgb(24 27 32 / 0.12);
 	background: #fff;
-	padding: 0 1rem;
+	padding: 0 1.25rem;
 }
 
 .client-marquee {
@@ -218,12 +218,15 @@
 
 .client-marquee-item {
 	display: flex;
-	height: 7.5rem;
-	width: 18rem;
+	height: 6.75rem;
+	width: 16.5rem;
 	flex: 0 0 auto;
 	align-items: center;
 	justify-content: center;
-	padding: 0 1.5rem;
+	margin-right: 1rem;
+	border: 1px solid rgb(24 27 32 / 0.12);
+	background: #fff;
+	padding: 0 1.25rem;
 }
 
 .client-marquee-item img {
