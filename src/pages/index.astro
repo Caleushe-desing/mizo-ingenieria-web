@@ -111,34 +111,26 @@ const jsonLd = graphSchema([
 
 	<section class="mizo-band mizo-band-white border-t border-ink/10 py-12 sm:py-20" aria-labelledby="marcas-heading">
 		<div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-			<div class="flex items-end justify-between gap-4">
-				<div>
-					<p class="mizo-kicker">Marcas</p>
-					<h2 id="marcas-heading" class="mt-3 text-3xl font-extrabold leading-tight text-ink sm:text-4xl">Marcas que instalamos</h2>
-				</div>
-				<div class="flex shrink-0 gap-2">
-					<button type="button" class="brand-carousel-btn" data-brand-prev aria-label="Marca anterior">
-						<svg viewBox="0 0 20 20" class="h-5 w-5" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-					</button>
-					<button type="button" class="brand-carousel-btn" data-brand-next aria-label="Marca siguiente">
-						<svg viewBox="0 0 20 20" class="h-5 w-5" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-					</button>
-				</div>
-			</div>
-			<div class="brand-carousel mt-8" data-brand-carousel>
-				<ul class="brand-carousel-track">
-					{BRANDS.map((brand) => (
-						<li class="brand-carousel-slide">
-							<img
-								src={`/images/marcas/${brand.slug}.svg`}
-								alt={brand.name}
-								class="h-14 w-auto max-w-[11rem] object-contain"
-								loading="lazy"
-							/>
+			<p class="mizo-kicker">Marcas</p>
+			<h2 id="marcas-heading" class="mt-3 text-3xl font-extrabold leading-tight text-ink sm:text-4xl">Marcas que instalamos</h2>
+		</div>
+		<div class="client-marquee mt-8" aria-label="Logos de marcas">
+			<ul class="client-marquee-track brand-marquee-track">
+				{[0, 1].map(() =>
+					BRANDS.map((brand) => (
+						<li class="client-marquee-item">
+							<img src={`/images/marcas/${brand.slug}.svg`} alt={brand.name} width="180" height="64" loading="lazy" />
 						</li>
-					))}
-				</ul>
-			</div>
+					)),
+				)}
+				{[0, 1].map(() =>
+					BRANDS.map((brand) => (
+						<li class="client-marquee-item" data-clone aria-hidden="true">
+							<img src={`/images/marcas/${brand.slug}.svg`} alt="" width="180" height="64" loading="lazy" />
+						</li>
+					)),
+				)}
+			</ul>
 		</div>
 	</section>
 
@@ -165,59 +157,3 @@ const jsonLd = graphSchema([
 
 	<ConversionCta />
 </Layout>
-
-<script>
-	const carousel = document.querySelector('[data-brand-carousel]');
-	const track = carousel?.querySelector('.brand-carousel-track');
-	const prev = document.querySelector('[data-brand-prev]');
-	const next = document.querySelector('[data-brand-next]');
-
-	if (track instanceof HTMLElement) {
-		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		const step = () => {
-			const item = track.querySelector('li');
-			if (!(item instanceof HTMLElement)) return track.clientWidth;
-			const gap = Number.parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
-			return item.getBoundingClientRect().width + gap;
-		};
-		const go = (direction) => {
-			const distance = step() * direction;
-			const max = track.scrollWidth - track.clientWidth;
-			if (direction > 0 && track.scrollLeft + distance >= max - 4) {
-				track.scrollTo({ left: 0, behavior: 'smooth' });
-				return;
-			}
-			if (direction < 0 && track.scrollLeft <= 4) {
-				track.scrollTo({ left: max, behavior: 'smooth' });
-				return;
-			}
-			track.scrollBy({ left: distance, behavior: 'smooth' });
-		};
-
-		let timer = 0;
-		const play = () => {
-			window.clearInterval(timer);
-			if (reduced || track.scrollWidth <= track.clientWidth + 8) return;
-			timer = window.setInterval(() => go(1), 3200);
-		};
-		const pause = () => window.clearInterval(timer);
-
-		prev?.addEventListener('click', () => {
-			pause();
-			go(-1);
-			play();
-		});
-		next?.addEventListener('click', () => {
-			pause();
-			go(1);
-			play();
-		});
-		carousel?.addEventListener('mouseenter', pause);
-		carousel?.addEventListener('mouseleave', play);
-		carousel?.addEventListener('focusin', pause);
-		carousel?.addEventListener('focusout', play);
-		track.addEventListener('touchstart', pause, { passive: true });
-		track.addEventListener('touchend', play, { passive: true });
-		play();
-	}
-</script>
